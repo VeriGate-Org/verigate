@@ -1,0 +1,14 @@
+name: _lint
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: true
+        type: string
+
+jobs:
+  lint-java:
+    uses: ./.github/workflows/_lint-java.yml
+    with:
+      java-version: ${{ inputs.java-version }}

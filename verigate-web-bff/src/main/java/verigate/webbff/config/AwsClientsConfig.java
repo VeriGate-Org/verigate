@@ -14,6 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient.Builder;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import verigate.partner.domain.commands.CreatePartnerCommand;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.application.factories.VerifyPartySpecificationFactory;
 import verigate.webbff.config.properties.AwsProperties;
@@ -76,6 +77,8 @@ public class AwsClientsConfig {
     var serializer = new DefaultInternalTransportJsonSerializer();
     serializer.registerClassType(
         VerifyPartyCommand.class.getSimpleName(), VerifyPartyCommand.class);
+    serializer.registerClassType(
+        CreatePartnerCommand.class.getSimpleName(), CreatePartnerCommand.class);
     return serializer;
   }
 

@@ -1,0 +1,89 @@
+name: Release | Web BFF Production
+
+on:
+  push:
+    branches:
+      - "verigate-release"
+      - "verigate-release-hotfix"
+    paths:
+      - "verigate-web-bff/**"
+
+jobs:
+  deploy-preproduction:
+    runs-on: ubuntu-latest
+    environment: verigate-preproduction
+    concurrency: web-bff-preproduction
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        working-directory: verigate-web-bff
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ vars.STACK_NAME }}-web-bff"
+          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
+          docker push ${ECR_REPO}:${IMAGE_TAG}
+          docker push ${ECR_REPO}:latest
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --service ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --services ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }}
+
+  deploy-production:
+    needs: [deploy-preproduction]
+    runs-on: ubuntu-latest
+    environment: verigate-production
+    concurrency: web-bff-production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        working-directory: verigate-web-bff
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ vars.STACK_NAME }}-web-bff"
+          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
+          docker push ${ECR_REPO}:${IMAGE_TAG}
+          docker push ${ECR_REPO}:latest
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --service ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --services ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }}

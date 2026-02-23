@@ -1,0 +1,56 @@
+name: _release_terraform
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      github-environment:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github-environment }}
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print environment variables
+        run: env
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Run terraform commands for app infrastructure
+        run: |
+          terraform -chdir=./verigate-command-gateway/iac/terraform init -backend-config=./environments/${{ inputs.environment }}/config.s3.tfbackend &&
+          terraform -chdir=./verigate-command-gateway/iac/terraform apply -var-file=./environments/${{ inputs.environment }}/terraform.tfvars -auto-approve -input=false
+        env:
+          STACK_NAME: ${{ vars.STACK_NAME }}
+          TF_VAR_qlink_username: ${{ secrets.QLINK_USERNAME }}
+          TF_VAR_qlink_password: ${{ secrets.QLINK_PASSWORD }}
+          TF_VAR_qlink_client_id: ${{ secrets.QLINK_CLIENT_ID }}
+          TF_VAR_worldcheck_client_id: ${{ secrets.ASTUTE_CLIENT_ID }}
+          TF_VAR_worldcheck_client_secret: ${{ secrets.ASTUTE_CLIENT_SECRET }}
+          TF_VAR_worldcheck_scope: ${{ secrets.ASTUTE_SCOPE }}
+          TF_VAR_worldcheck_subscription_key: ${{ secrets.ASTUTE_SUBSCRIPTION_KEY }}
+          TF_VAR_worldcheck_basic_authorization: ${{ secrets.ASTUTE_BASIC_AUTHORIZATION }}
+          TF_VAR_worldcheck_api_key: ${{ secrets.WORLDCHECK_API_KEY }}
+          TF_VAR_worldcheck_api_secret: ${{ secrets.WORLDCHECK_API_SECRET }}
+          TF_VAR_worldcheck_user_id: ${{ secrets.WORLDCHECK_USER_ID }}
+          TF_VAR_worldcheck_default_group_id: ${{ secrets.WORLDCHECK_DEFAULT_GROUP_ID }}

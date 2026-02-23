@@ -1,0 +1,95 @@
+name: Release | Public Website Production
+
+on:
+  push:
+    branches:
+      - "verigate-release"
+      - "verigate-release-hotfix"
+    paths:
+      - "verigate-public-website/**"
+
+jobs:
+  deploy-preproduction:
+    runs-on: ubuntu-latest
+    environment: verigate-preproduction
+    concurrency: public-website-preproduction
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: verigate-public-website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: verigate-public-website
+        run: npm ci
+
+      - name: Build
+        working-directory: verigate-public-website
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy to S3
+        working-directory: verigate-public-website
+        run: aws s3 sync dist/ s3://${{ vars.STACK_NAME }}-public-website-${{ vars.ENVIRONMENT_SHORTNAME }}/ --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ vars.STACK_NAME }}-public-website-${{ vars.ENVIRONMENT_SHORTNAME }}.s3.${{ vars.AWS_REGION }}.amazonaws.com'].Id" --output text)
+          if [ -n "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
+          fi
+
+  deploy-production:
+    needs: [deploy-preproduction]
+    runs-on: ubuntu-latest
+    environment: verigate-production
+    concurrency: public-website-production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: verigate-public-website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: verigate-public-website
+        run: npm ci
+
+      - name: Build
+        working-directory: verigate-public-website
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy to S3
+        working-directory: verigate-public-website
+        run: aws s3 sync dist/ s3://${{ vars.STACK_NAME }}-public-website-${{ vars.ENVIRONMENT_SHORTNAME }}/ --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ vars.STACK_NAME }}-public-website-${{ vars.ENVIRONMENT_SHORTNAME }}.s3.${{ vars.AWS_REGION }}.amazonaws.com'].Id" --output text)
+          if [ -n "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
+          fi

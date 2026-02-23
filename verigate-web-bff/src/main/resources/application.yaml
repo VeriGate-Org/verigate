@@ -38,6 +38,8 @@ verigate:
       enabled: ${VERIGATE_RATE_LIMIT_ENABLED:true}
       default-requests-per-minute: ${VERIGATE_RATE_LIMIT_DEFAULT:100}
     api-keys-table: ${VERIGATE_API_KEYS_TABLE:verigate-api-keys}
+  partner:
+    create-queue-name: ${VERIGATE_PARTNER_CREATE_QUEUE_NAME:partner-create}
   verification:
     routing:
       mappings:

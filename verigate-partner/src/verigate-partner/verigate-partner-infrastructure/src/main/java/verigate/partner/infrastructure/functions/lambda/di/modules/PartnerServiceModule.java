@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.partner.application.handlers.*;
 import verigate.partner.application.services.DefaultPartnerConfigurationService;
 import verigate.partner.domain.commands.CreatePartnerCommand;
+import verigate.partner.domain.commands.UpdatePartnerConfigurationCommand;
 import verigate.partner.domain.repositories.PartnerConfigurationRepository;
 import verigate.partner.domain.repositories.PartnerRepository;
 import verigate.partner.domain.services.PartnerConfigurationService;
@@ -43,6 +44,9 @@ public class PartnerServiceModule extends AbstractModule {
         var serializer = new DefaultInternalTransportJsonSerializer();
         serializer.registerClassType(
             CreatePartnerCommand.class.getSimpleName(), CreatePartnerCommand.class);
+        serializer.registerClassType(
+            UpdatePartnerConfigurationCommand.class.getSimpleName(),
+            UpdatePartnerConfigurationCommand.class);
         return serializer;
     }
 

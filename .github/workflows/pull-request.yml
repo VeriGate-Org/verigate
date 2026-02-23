@@ -1,0 +1,45 @@
+name: Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths:
+      - "verigate-command-gateway/**"
+      - "verigate-partner/**"
+      - "verigate-billing/**"
+      - "verigate-shared-kernel/**"
+  merge_group:
+    types: [checks_requested]
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  install:
+    uses: ./.github/workflows/_install.yml
+    with:
+      java-version: "21"
+    secrets: inherit
+
+  lint:
+    needs: [install]
+    uses: ./.github/workflows/_lint.yml
+    with:
+      java-version: "21"
+
+  test:
+    needs: [install]
+    uses: ./.github/workflows/_test.yml
+    with:
+      java-version: "21"
+
+  build:
+    needs: [lint, test]
+    uses: ./.github/workflows/_build.yml
+    with:
+      java-version: "21"
+      application-name: "verigate"
+      create-artifact: false

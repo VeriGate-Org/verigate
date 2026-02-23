@@ -1,0 +1,83 @@
+name: Release | VeriGate Develop
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "verigate-command-gateway/**"
+      - "verigate-partner/**"
+      - "verigate-billing/**"
+      - "verigate-shared-kernel/**"
+
+jobs:
+  install:
+    uses: ./.github/workflows/_install.yml
+    with:
+      java-version: "21"
+    permissions:
+      contents: read
+      packages: read
+    secrets: inherit
+
+  integration-test:
+    needs: [install]
+    uses: ./.github/workflows/_test-integration-e2e.yml
+    with:
+      java-version: "21"
+    permissions:
+      contents: read
+      packages: read
+    secrets: inherit
+
+  sandbox-deploy:
+    needs: [install, integration-test]
+    uses: ./.github/workflows/_release.verigate.yml
+    concurrency: verigate-sandbox
+    with:
+      java-version: "21"
+      environment: sandbox
+      github-environment: verigate-sandbox
+      application-name: verigate
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    secrets: inherit
+
+  sandbox-smoke-test:
+    needs: [sandbox-deploy]
+    uses: ./.github/workflows/_smoke-test.yml
+    with:
+      environment: sandbox
+      github-environment: verigate-sandbox
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+
+  development-deploy:
+    needs: [sandbox-smoke-test]
+    uses: ./.github/workflows/_release.verigate.yml
+    concurrency: verigate-development
+    with:
+      java-version: "21"
+      environment: development
+      github-environment: verigate-development
+      application-name: verigate
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    secrets: inherit
+
+  development-smoke-test:
+    needs: [development-deploy]
+    uses: ./.github/workflows/_smoke-test.yml
+    with:
+      environment: development
+      github-environment: verigate-development
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit

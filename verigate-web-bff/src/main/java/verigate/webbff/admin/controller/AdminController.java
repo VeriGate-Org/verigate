@@ -1,7 +1,7 @@
 package verigate.webbff.admin.controller;
 
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import verigate.webbff.admin.model.ApiKeyListResponse;
 import verigate.webbff.admin.model.ApiKeyResponse;
 import verigate.webbff.admin.model.CreatePartnerRequest;
-import verigate.webbff.admin.model.PartnerResponse;
+import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
 import verigate.webbff.auth.ApiKeyService.GeneratedApiKey;
@@ -29,25 +29,22 @@ public class AdminController {
   private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
   private final ApiKeyService apiKeyService;
+  private final PartnerService partnerService;
 
-  public AdminController(ApiKeyService apiKeyService) {
+  public AdminController(ApiKeyService apiKeyService, PartnerService partnerService) {
     this.apiKeyService = apiKeyService;
+    this.partnerService = partnerService;
   }
 
   @PostMapping("/partners")
-  public ResponseEntity<PartnerResponse> createPartner(
+  public ResponseEntity<Map<String, Object>> createPartner(
       @Valid @RequestBody CreatePartnerRequest request) {
-    logger.warn("createPartner is a stub — no persistence. name={}, email={}",
+    logger.info("Submitting create partner command: name={}, email={}",
         request.name(), request.contactEmail());
-    String partnerId = "partner-" + UUID.randomUUID().toString().substring(0, 8);
-    PartnerResponse response = new PartnerResponse(
-        partnerId,
-        request.name(),
-        request.contactEmail(),
-        request.billingPlan() != null ? request.billingPlan() : "standard",
-        LocalDateTime.now());
-    logger.info("Created partner stub: partnerId={}", partnerId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    UUID commandId = partnerService.submitCreatePartner(request);
+    logger.info("Create partner command submitted: commandId={}", commandId);
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(Map.of("commandId", commandId.toString(), "status", "ACCEPTED"));
   }
 
   @PostMapping("/partners/{partnerId}/api-keys")

@@ -21,7 +21,6 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
           metrics = [
             for fn in [
               "verify-party-router",
-              "sanctions-screening",
               "verify-bank-account-details",
               "verify-personal-details",
               "verify-identity",
@@ -54,7 +53,6 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
           metrics = [
             for fn in [
               "verify-party-router",
-              "sanctions-screening",
               "verify-bank-account-details",
               "verify-personal-details",
               "verify-identity",
@@ -87,7 +85,6 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
           metrics = [
             for fn in [
               "verify-party-router",
-              "sanctions-screening",
               "verify-bank-account-details",
               "verify-personal-details",
               "verify-identity",
@@ -122,7 +119,6 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
               "verify-party",
               "adapter-qlink",
               "adapter-worldcheck",
-              "adapter-orms",
               "adapter-dha",
               "adapter-cipc",
               "adapter-deedsweb",

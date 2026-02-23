@@ -69,36 +69,6 @@ variable "secret_prefix" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
-# ORMS
-#----------------------------------------------------------------------------------------------------------------
-
-variable "orms_client_id" {
-  description = "ORMS client id for the password grant flow"
-  type        = string
-}
-
-variable "orms_username" {
-  description = "ORMS username for the password grant flow"
-  type        = string
-}
-
-variable "orms_password" {
-  description = "ORMS password for the password grant flow"
-  type        = string
-  sensitive   = true # Mark as sensitive to prevent accidental exposure in logs
-}
-
-variable "orms_authentication_url" {
-  description = "ORMS authentication URL for the password grant flow"
-  type        = string
-}
-
-variable "orms_api_url" {
-  description = "ORMS API URL"
-  type        = string
-}
-
-#----------------------------------------------------------------------------------------------------------------
 # QLINK
 #----------------------------------------------------------------------------------------------------------------
 
@@ -162,6 +132,37 @@ variable "worldcheck_authentication_url" {
 
 variable "worldcheck_qt_api_url" {
   description = "Worldcheck QT API URL"
+  type        = string
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# World Check One
+#----------------------------------------------------------------------------------------------------------------
+
+variable "worldcheck_api_key" {
+  description = "World Check One API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "worldcheck_api_secret" {
+  description = "World Check One API secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "worldcheck_user_id" {
+  description = "World Check One user ID"
+  type        = string
+}
+
+variable "worldcheck_default_group_id" {
+  description = "World Check One default group ID"
+  type        = string
+}
+
+variable "worldcheck_api_base_url" {
+  description = "World Check One API base URL"
   type        = string
 }
 

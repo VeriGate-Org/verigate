@@ -1,0 +1,16 @@
+name: _install
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        default: '21'
+        type: string
+
+jobs:
+  install-java:
+    uses: ./.github/workflows/_install-java.yml
+    with:
+      java-version: ${{ inputs.java-version }}
+    secrets: inherit

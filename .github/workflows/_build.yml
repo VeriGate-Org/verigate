@@ -1,0 +1,40 @@
+name: _build
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        default: "21"
+        type: string
+      application-name:
+        required: true
+        type: string
+      create-artifact:
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: "corretto"
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Retrieve Maven cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      - name: Maven install
+        working-directory: verigate-command-gateway
+        run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true

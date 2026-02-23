@@ -23,7 +23,7 @@ module "datadog_monitoring" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "verification_dynamodb_commandstore" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "command-store-table"
@@ -64,7 +64,7 @@ module "verification_dynamodb_commandstore" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "partner_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "partner-table"
@@ -96,7 +96,7 @@ module "partner_dynamodb" {
 }
 
 module "partner_configuration_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "partner-configuration-table"
@@ -124,7 +124,7 @@ module "partner_configuration_dynamodb" {
 }
 
 module "api_keys_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "api-keys-table"
@@ -160,7 +160,7 @@ module "api_keys_dynamodb" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "usage_records_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "usage-records-table"
@@ -188,7 +188,7 @@ module "usage_records_dynamodb" {
 }
 
 module "usage_summaries_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "usage-summaries-table"
@@ -216,7 +216,7 @@ module "usage_summaries_dynamodb" {
 }
 
 module "billing_plans_dynamodb" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-dynamodb.git"
+  source = "./modules/tf-dynamodb"
 
   complete_stack_name      = "${var.stack_name}-${var.project_name}"
   table_name               = "billing-plans-table"
@@ -240,7 +240,7 @@ module "billing_plans_dynamodb" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "lambda_iam" {
-  source = "git::https://github.com/VERIGATE-Insource/tf-iam"
+  source = "./modules/tf-iam"
 
   role_name           = "${local.complete_stack_name}-lambda-role"
   policy_name         = "${local.complete_stack_name}-lambda-policy"
@@ -264,119 +264,112 @@ module "lambda_iam" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "verify_party_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "verify-party"
   max_receive_count = 1
 }
 module "qlink_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-qlink"
   max_receive_count = 1
 }
 
 module "worldcheck_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-worldcheck"
   max_receive_count = 1
 }
 
 
-module "orms_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
-  queue_name = "adapter-orms"
-  max_receive_count = 1
-}
-
 module "dha_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-dha"
   max_receive_count = 1
 }
 
 module "cipc_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-cipc"
   max_receive_count = 1
 }
 
 module "deedsweb_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-deedsweb"
   max_receive_count = 1
 }
 
 module "employment_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-employment"
   max_receive_count = 1
 }
 
 module "negativenews_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-negativenews"
   max_receive_count = 1
 }
 
 module "fraudwatchlist_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-fraudwatchlist"
   max_receive_count = 1
 }
 
 module "document_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-document"
   max_receive_count = 1
 }
 
 module "saqa_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-saqa"
   max_receive_count = 1
 }
 
 module "creditbureau_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-creditbureau"
   max_receive_count = 1
 }
 
 module "sars_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-sars"
   max_receive_count = 1
 }
 
 module "income_adapter_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "adapter-income"
   max_receive_count = 1
 }
 
 module "partner_create_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "partner-create"
   max_receive_count = 1
 }
 
 module "partner_config_update_queue" {
-  source = "git::https://github.com/verigate-insource/tf-sqs"
+  source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   queue_name = "partner-config-update"
   max_receive_count = 1
@@ -389,11 +382,93 @@ resource "aws_ssm_parameter" "api_keys_table_name" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# SSM Parameters - Partner & Billing Table Names
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "partner_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/partner-table/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-partner-table"
+}
+
+resource "aws_ssm_parameter" "partner_configuration_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/partner-configuration-table/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-partner-configuration-table"
+}
+
+resource "aws_ssm_parameter" "usage_records_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/usage-records-table/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-usage-records-table"
+}
+
+resource "aws_ssm_parameter" "usage_summaries_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/usage-summaries-table/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-usage-summaries-table"
+}
+
+resource "aws_ssm_parameter" "billing_plans_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/billing-plans-table/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-billing-plans-table"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# SSM Parameters - Partner Queue ARNs (for SAM SQS event sources)
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "partner_create_queue_arn" {
+  name  = "/${var.stack_name}-${var.project_name}/queues/partner-create/arn"
+  type  = "String"
+  value = module.partner_create_queue.queue_arn
+}
+
+resource "aws_ssm_parameter" "partner_config_update_queue_arn" {
+  name  = "/${var.stack_name}-${var.project_name}/queues/partner-config-update/arn"
+  type  = "String"
+  value = module.partner_config_update_queue.queue_arn
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Partner IMQ/DLQ Queues
+#----------------------------------------------------------------------------------------------------------------
+
+module "partner_create_imq" {
+  source = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  queue_name = "partner-create-imq"
+  max_receive_count = 1
+}
+
+module "partner_create_dlq" {
+  source = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  queue_name = "partner-create-dlq"
+  max_receive_count = 1
+}
+
+module "partner_config_update_imq" {
+  source = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  queue_name = "partner-config-update-imq"
+  max_receive_count = 1
+}
+
+module "partner_config_update_dlq" {
+  source = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  queue_name = "partner-config-update-dlq"
+  max_receive_count = 1
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Kinesis
 #----------------------------------------------------------------------------------------------------------------
 
 module "verification_stream" {
-  source = "git::https://github.com/verigate-insource/tf-events"
+  source = "./modules/tf-events"
   
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   event_bus_name = "event-bus"
@@ -402,48 +477,10 @@ module "verification_stream" {
 
 
 #----------------------------------------------------------------------------------------------------------------
-# ORMS
-#----------------------------------------------------------------------------------------------------------------
-
-module "orms_secrets" {
-  source = "git::https://github.com/verigate-insource/tf-secrets-manager"
-  
-  prefix = "${var.secret_prefix}/orms"
-
-  default_recovery_window_in_days = var.recovery_window_in_days
-  secrets = {
-    "client_id" = {
-      description = "Client Id for ORMS"
-      value       = var.orms_client_id # Reference to a variable populated from GitHub Secrets
-    },
-    "username" = {
-      description = "Username for ORMS"
-      value       = var.orms_username # Reference to a variable populated from GitHub Secrets
-    },
-     "password" = {
-      description = "Password for ORMS"
-      value       = var.orms_password # Reference to a variable populated from GitHub Secrets
-    }
-  }
-}
-resource "aws_ssm_parameter" "orms_authentication_url" {
-  name  = "/${var.stack_name}-${var.project_name}/orms/authentication_url"
-  type  = "String"
-  value = var.orms_authentication_url
-} 
-
-resource "aws_ssm_parameter" "orms_api_url" {
-  name  = "/${var.stack_name}-${var.project_name}/orms/api_url"
-  type  = "String"
-  value = var.orms_api_url
-} 
-
-
-#----------------------------------------------------------------------------------------------------------------
 # QLINK
 #----------------------------------------------------------------------------------------------------------------
 module "qlink_secrets" {
-  source = "git::https://github.com/verigate-insource/tf-secrets-manager.git"
+  source = "./modules/tf-secrets-manager"
   
   prefix = "${var.secret_prefix}/qlink"
 
@@ -477,7 +514,7 @@ resource "aws_ssm_parameter" "qlink_api_url" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "worldcheck_secrets" {
-  source = "git::https://github.com/verigate-insource/tf-secrets-manager"
+  source = "./modules/tf-secrets-manager"
   
   prefix = "${var.secret_prefix}/worldcheck"
 
@@ -518,31 +555,31 @@ resource "aws_ssm_parameter" "worldcheck_qt_api_url" {
 } 
 
 #----------------------------------------------------------------------------------------------------------------
-# World Check
+# World Check One
 #----------------------------------------------------------------------------------------------------------------
 
-module "worldcheck_secrets" {
-  source = "git::https://github.com/verigate-insource/tf-secrets-manager"
-  
-  prefix = "${var.secret_prefix}/worldcheck"
+module "worldcheck_one_secrets" {
+  source = "./modules/tf-secrets-manager"
+
+  prefix = "${var.secret_prefix}/worldcheck-one"
 
   default_recovery_window_in_days = var.recovery_window_in_days
   secrets = {
     "api_key" = {
       description = "API Key for World Check One"
-      value       = var.worldcheck_api_key # Reference to a variable populated from GitHub Secrets
+      value       = var.worldcheck_api_key
     },
     "api_secret" = {
       description = "API Secret for World Check One"
-      value       = var.worldcheck_api_secret # Reference to a variable populated from GitHub Secrets
+      value       = var.worldcheck_api_secret
     },
     "user_id" = {
       description = "User ID for World Check One"
-      value       = var.worldcheck_user_id # Reference to a variable populated from GitHub Secrets
+      value       = var.worldcheck_user_id
     },
     "default_group_id" = {
       description = "Default Group ID for World Check One"
-      value       = var.worldcheck_default_group_id # Reference to a variable populated from GitHub Secrets
+      value       = var.worldcheck_default_group_id
     }
   }
 }
@@ -558,7 +595,7 @@ resource "aws_ssm_parameter" "worldcheck_api_base_url" {
 #----------------------------------------------------------------------------------------------------------------
 
 module "worldcheck_lambda" {
-  source = "git::https://github.com/verigate-insource/tf-lambda"
+  source = "./modules/tf-lambda"
   
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   lambda_name = "worldcheck-verification"

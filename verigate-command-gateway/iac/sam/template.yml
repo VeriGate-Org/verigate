@@ -84,8 +84,7 @@ Globals:
         # SQS
         WORLDCHECK_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-worldcheck
         QLINK_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-qlink
-        ORMS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-orms
-        OPENSANCTIONS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-orms
+        OPENSANCTIONS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-opensanctions
         DHA_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-dha
         CIPC_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-cipc
         DEEDSWEB_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-deedsweb
@@ -206,7 +205,7 @@ Resources:
       Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-party-router"
       Handler: verigate.verification.cg.infrastructure.functions.lambda.handlers.VerifyPartyCommandLambdaHandler::handleRequest
-      CodeUri: ../../src/verigate-verification-cg/verigate-verification-cg-infrastructure
+      CodeUri: ../../src/verigate-command-gateway/verigate-command-gateway-infrastructure
       Environment:
         Variables:
           VERIFY_PARTY_IMQ_NAME: !Sub "${AWS::StackName}-verify-party-imq"
@@ -226,41 +225,13 @@ Resources:
               MaximumEventAgeInSeconds: 60
               MaximumRetryAttempts: 0
 
-  SanctionsScreeningLambdaHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
-      FunctionName: !Sub "${AWS::StackName}-sanctions-screening"
-      Handler: verigate.adapter.orms.infrastructure.functions.lambda.handlers.PerformSanctionsScreeningLambdaHandler::handleRequest
-      CodeUri: ../../src/verigate-verification-adapter-orms/verigate-verification-adapter-orms-infrastructure
-      Environment:
-        Variables:
-          PERFORM_SANCTIONS_SCREENING_IMQ_NAME: !Sub "${AWS::StackName}-adapter-orms-imq"
-          PERFORM_SANCTIONS_SCREENING_DLQ_NAME: !Sub "${AWS::StackName}-adapter-orms-dlq"
-          ORMS_AUTH_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/orms/authentication_url}}"
-          ORMS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/orms/api_url}}"
-      Events:
-        VerigatePerformSanctionsScreeningQueueCommand:
-          Type: SQS
-          Properties:
-            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-orms/arn}}"
-            BatchSize: 10
-        ScheduleEvent:
-          Type: ScheduleV2
-          Properties:
-            ScheduleExpression: "rate(5 minutes)"
-            Name: !Sub "${AWS::StackName}-perform-sanctions-screening-kw"
-            RetryPolicy:
-              MaximumEventAgeInSeconds: 60
-              MaximumRetryAttempts: 0
-
   VerifyBankAccountDetailsLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
       Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-bank-account-details"
       Handler: verigate.adapter.qlink.infrastructure.functions.lambda.handlers.VerifyBankAccountDetailsLambdaHandler::handleRequest
-      CodeUri: ../../src/verigate-verification-adapter-qlink/verigate-verification-adapter-qlink-infrastructure
+      CodeUri: ../../src/verigate-adapter-qlink/verigate-adapter-qlink-infrastructure
       Environment:
         Variables:
           VERIFY_BANK_ACCOUNT_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-qlink-imq"
@@ -287,7 +258,7 @@ Resources:
       Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-personal-details"
       Handler: verigate.adapter.worldcheck.infrastructure.functions.lambda.handlers.VerifyPersonalDetailsLambdaHandler::handleRequest
-      CodeUri: ../../src/verigate-verification-adapter-worldcheck/verigate-verification-adapter-worldcheck-infrastructure
+      CodeUri: ../../src/verigate-adapter-worldcheck/verigate-adapter-worldcheck-infrastructure
       Environment:
         Variables:
           VERIFY_PERSONAL_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-worldcheck-imq"
@@ -607,3 +578,103 @@ Resources:
             RetryPolicy:
               MaximumEventAgeInSeconds: 60
               MaximumRetryAttempts: 0
+
+  ## Partner Service Lambda Functions
+  CreatePartnerLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-create-partner"
+      Handler: verigate.partner.infrastructure.functions.lambda.handlers.CreatePartnerLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-partner/src/verigate-partner/verigate-partner-infrastructure
+      Environment:
+        Variables:
+          CREATE_PARTNER_IMQ_NAME: !Sub "${AWS::StackName}-partner-create-imq"
+          CREATE_PARTNER_DLQ_NAME: !Sub "${AWS::StackName}-partner-create-dlq"
+          PARTNER_TABLE_NAME: !Sub "${AWS::StackName}-partner-table"
+          PARTNER_CONFIGURATION_TABLE_NAME: !Sub "${AWS::StackName}-partner-configuration-table"
+      Events:
+        VerigateCreatePartnerQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-create/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-create-partner-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  UpdatePartnerConfigLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-update-partner-config"
+      Handler: verigate.partner.infrastructure.functions.lambda.handlers.UpdatePartnerConfigLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-partner/src/verigate-partner/verigate-partner-infrastructure
+      Environment:
+        Variables:
+          UPDATE_PARTNER_CONFIG_IMQ_NAME: !Sub "${AWS::StackName}-partner-config-update-imq"
+          UPDATE_PARTNER_CONFIG_DLQ_NAME: !Sub "${AWS::StackName}-partner-config-update-dlq"
+          PARTNER_TABLE_NAME: !Sub "${AWS::StackName}-partner-table"
+          PARTNER_CONFIGURATION_TABLE_NAME: !Sub "${AWS::StackName}-partner-configuration-table"
+      Events:
+        VerigateUpdatePartnerConfigQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-config-update/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-update-partner-config-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  ## Billing Service Lambda Functions
+  UsageEventConsumerLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-usage-event-consumer"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.UsageEventConsumerLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+      Events:
+        KinesisUsageEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100
+
+  UsageAggregatorLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-usage-aggregator"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.UsageAggregatorLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+      Events:
+        DailyAggregationSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(1 day)"
+            Name: !Sub "${AWS::StackName}-usage-aggregator-daily"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
