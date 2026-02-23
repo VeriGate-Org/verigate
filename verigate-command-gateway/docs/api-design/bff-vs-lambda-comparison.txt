@@ -1,0 +1,382 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              VeriGate Frontend API: BFF vs Lambda Comparison                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+OPTION 1: BFF MICROSERVICE (RECOMMENDED FOR PRODUCTION)
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Architecture Diagram                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌───────────┐
+    │ Frontend  │
+    │ (React)   │
+    └─────┬─────┘
+          │ HTTPS (REST + WebSocket)
+          ▼
+    ┌─────────────────────────────────────────────┐
+    │  Application Load Balancer (ALB)            │
+    │  • SSL Termination                          │
+    │  • Health Checks                            │
+    │  • Auto-scaling trigger                     │
+    └─────┬───────────────────────────────────────┘
+          │
+          ▼
+    ┌─────────────────────────────────────────────┐
+    │     ECS Fargate Service (Auto-scaling)      │
+    │  ┌───────────────────────────────────────┐  │
+    │  │  BFF Container (Spring Boot 3.x)      │  │
+    │  │  ┌─────────────────────────────────┐  │  │
+    │  │  │     REST API Controllers         │  │  │
+    │  │  │  • /api/v1/screenings (POST)     │  │  │
+    │  │  │  • /api/v1/screenings/{id}       │  │  │
+    │  │  │  • /ws/screenings (WebSocket)    │  │  │
+    │  │  └──────────┬──────────────────────┘  │  │
+    │  │             │                          │  │
+    │  │  ┌──────────▼──────────────────────┐  │  │
+    │  │  │   Application Layer (Use Cases) │  │  │
+    │  │  │  • SubmitScreeningUseCase       │  │  │
+    │  │  │  • GetStatusUseCase             │  │  │
+    │  │  │  • GetResultUseCase             │  │  │
+    │  │  └──────────┬──────────────────────┘  │  │
+    │  │             │                          │  │
+    │  │  ┌──────────▼──────────────────────┐  │  │
+    │  │  │      Domain Layer (DDD)         │  │  │
+    │  │  │  • ScreeningRequest (Aggregate) │  │  │
+    │  │  │  • ScreeningResult (VO)         │  │  │
+    │  │  │  • ScreeningService             │  │  │
+    │  │  │  • Business Rules & Invariants  │  │  │
+    │  │  └──────────┬──────────────────────┘  │  │
+    │  │             │                          │  │
+    │  │  ┌──────────▼──────────────────────┐  │  │
+    │  │  │   Infrastructure Layer          │  │  │
+    │  │  │  • SqsCommandPublisher          │  │  │
+    │  │  │  • KinesisEventConsumer         │  │  │
+    │  │  │  • DynamoDbRepository           │  │  │
+    │  │  │  • RedisCacheService            │  │  │
+    │  │  └─────────────────────────────────┘  │  │
+    │  └───────────────────────────────────────┘  │
+    │                                              │
+    │  Replicas: 2-10 (Auto-scaling)              │
+    │  CPU: 1 vCPU, Memory: 2GB per task          │
+    └──┬───────────┬────────────┬────────────┬────┘
+       │           │            │            │
+       ▼           ▼            ▼            ▼
+   ┌────────┐  ┌───────┐  ┌────────┐  ┌────────┐
+   │  SQS   │  │Kinesis│  │DynamoDB│  │ Redis  │
+   │ Queues │  │Stream │  │        │  │ Cache  │
+   └────┬───┘  └───┬───┘  └────────┘  └────────┘
+        │          │
+        │          │ Events (VerificationCompleted, etc.)
+        │          │
+        ▼          │
+   ┌────────────────────────────────────────┐
+   │  Command Gateway (Existing Lambda)     │◄──┐
+   │  • Routes commands to adapters         │   │
+   └────┬───────────────────────────────────┘   │
+        │                                        │
+        ▼                                        │
+   ┌────────────────────────────────────────┐   │
+   │  Verification Adapters (Lambda)        │   │
+   │  • OpenSanctions, WorldCheck, etc.     │───┘
+   └────────────────────────────────────────┘
+
+
+KEY CHARACTERISTICS:
+────────────────────────────────────────────────────────────────────
+
+✅ Domain-Driven Design      Rich domain modeling with Aggregates
+✅ Clean Architecture         Clear separation of concerns
+✅ State Management          In-memory sessions + Redis cache
+✅ Real-time Updates         Native WebSocket support
+✅ Developer Experience      Traditional Spring Boot development
+✅ Response Time (p50)       < 100ms (always warm)
+✅ Response Time (p99)       < 300ms
+✅ Request Orchestration     Native Java/Spring support
+✅ Complex Business Logic    Full object-oriented programming
+✅ Local Development         Easy with Docker Compose
+✅ Testing                   Standard JUnit + Testcontainers
+
+⚠️ Fixed Monthly Cost        ~$95/month (ECS + ALB + Redis)
+⚠️ Deployment Complexity     Container deployment required
+⚠️ Operational Overhead      Need to manage scaling, health checks
+
+
+═══════════════════════════════════════════════════════════════════════════════
+OPTION 2: LAMBDA API (COST-OPTIMIZED)
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Architecture Diagram                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌───────────┐
+    │ Frontend  │
+    │ (React)   │
+    └─────┬─────┘
+          │ HTTPS
+          ▼
+    ┌─────────────────────────────────────────────┐
+    │       AWS API Gateway (REST API)            │
+    │  • API Key Authentication                   │
+    │  • Rate Limiting (50 req/s)                 │
+    │  • CORS Configuration                       │
+    │  • Request Validation                       │
+    └─────┬───────────────────────────────────────┘
+          │
+          ├──────────────┬──────────────┬──────────────┐
+          │              │              │              │
+          ▼              ▼              ▼              ▼
+    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+    │ Lambda  │    │ Lambda  │    │ Lambda  │    │ Lambda  │
+    │ Match   │    │ Search  │    │ Status  │    │ Health  │
+    │ Handler │    │ Handler │    │ Handler │    │ Handler │
+    └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘
+         │              │              │              │
+         └──────────────┴──────────────┴──────────────┘
+                        │
+                        ▼
+         ┌──────────────────────────────────────┐
+         │  OpenSanctions Matching Service      │
+         │  • Request validation                │
+         │  • Business logic (limited)          │
+         │  • Response mapping                  │
+         └──────────┬───────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────────────────────┐
+         │  OpenSanctions HTTP Adapter          │
+         │  • Bearer token auth                 │
+         │  • Retry logic                       │
+         │  • Timeout handling                  │
+         └──────────┬───────────────────────────┘
+                    │
+                    ▼
+         ┌──────────────────────────────────────┐
+         │  OpenSanctions API (External)        │
+         │  • POST /match/{dataset}             │
+         │  • GET /search/{dataset}             │
+         └──────────────────────────────────────┘
+
+
+KEY CHARACTERISTICS:
+────────────────────────────────────────────────────────────────────
+
+✅ Cost Efficient            ~$19/month for 1M requests
+✅ Auto-scaling              Unlimited concurrent executions
+✅ Simple Deployment         Serverless (SAM/CloudFormation)
+✅ No Infrastructure Mgmt    AWS manages everything
+✅ Pay-per-request           No idle costs
+
+⚠️ Cold Start Latency        1-3 seconds (even with SnapStart)
+⚠️ Response Time (p99)       < 5 seconds
+⚠️ Limited State Management  Requires external storage
+⚠️ No WebSocket (native)     Need API Gateway WebSocket
+⚠️ Complex Orchestration     Requires Step Functions
+⚠️ Testing Complexity        LocalStack or AWS SAM required
+⚠️ Limited DDD Support       Stateless functions
+⚠️ AWS-specific Knowledge    Harder for traditional developers
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DETAILED COMPARISON
+═══════════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────┬──────────────────────┬──────────────────────┐
+│      Capability       │   BFF Microservice   │     Lambda API       │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ ARCHITECTURE                                                         │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ Pattern               │ Hexagonal/Clean      │ Serverless Functions │
+│ Framework             │ Spring Boot 3.x      │ AWS Lambda Runtime   │
+│ Deployment            │ ECS Fargate          │ Serverless           │
+│ Domain Logic          │ ✅ Rich DDD models   │ ⚠️ Limited           │
+│ Clean Architecture    │ ✅ Perfect fit       │ ⚠️ Constrained       │
+│                                                                      │
+│ PERFORMANCE                                                          │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ Cold Start            │ ✅ Always warm       │ ❌ 1-3 seconds       │
+│ Response Time (p50)   │ ✅ < 100ms           │ ⚠️ < 500ms           │
+│ Response Time (p95)   │ ✅ < 200ms           │ ⚠️ < 2s              │
+│ Response Time (p99)   │ ✅ < 300ms           │ ❌ < 5s              │
+│ Throughput            │ ✅ High (with ALB)   │ ✅ Unlimited         │
+│ Scalability           │ ✅ 2-10 tasks        │ ✅ Auto-scaling      │
+│                                                                      │
+│ FUNCTIONALITY                                                        │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ State Management      │ ✅ In-memory+Redis   │ ❌ External only     │
+│ Session Management    │ ✅ Native support    │ ❌ Not supported     │
+│ WebSocket             │ ✅ Spring WebSocket  │ ⚠️ API GW WebSocket  │
+│ Request Orchestration │ ✅ Native Java       │ ⚠️ Step Functions    │
+│ Caching               │ ✅ Redis+In-memory   │ ⚠️ External only     │
+│ Complex Logic         │ ✅ Full OOP          │ ⚠️ Limited           │
+│ Real-time Updates     │ ✅ Easy              │ ⚠️ Complex           │
+│                                                                      │
+│ DEVELOPER EXPERIENCE                                                 │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ Local Development     │ ✅ Docker Compose    │ ⚠️ LocalStack        │
+│ Testing               │ ✅ JUnit+Containers  │ ⚠️ SAM/AWS tools     │
+│ Debugging             │ ✅ Standard IDE      │ ⚠️ CloudWatch Logs   │
+│ Learning Curve        │ ✅ Traditional       │ ⚠️ AWS-specific      │
+│ IDE Support           │ ✅ Full IntelliJ     │ ⚠️ Limited           │
+│ Hot Reload            │ ✅ Spring DevTools   │ ❌ Not supported     │
+│                                                                      │
+│ COST (1M requests/month)                                             │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ Compute               │ $50 (ECS Fargate)    │ $0.20 (Lambda)       │
+│ Load Balancer         │ $16 (ALB)            │ $3.50 (API Gateway)  │
+│ Cache/Storage         │ $12 (Redis)          │ $0 (not needed)      │
+│ Database              │ $2 (DynamoDB)        │ $1.25 (DynamoDB)     │
+│ Data Transfer         │ $9                   │ $9                   │
+│ Logs                  │ $5 (CloudWatch)      │ $5 (CloudWatch)      │
+│ ──────────────────────┼──────────────────────┼──────────────────────┤
+│ TOTAL                 │ ~$94/month           │ ~$19/month           │
+│ With Savings Plans    │ ~$65/month           │ ~$19/month           │
+│                                                                      │
+│ OPERATIONAL                                                          │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ Deployment Complexity │ ⚠️ Medium (Docker)   │ ✅ Simple (SAM)      │
+│ Monitoring            │ ✅ Rich APM tools    │ ⚠️ CloudWatch only   │
+│ Observability         │ ✅ Comprehensive     │ ⚠️ Basic             │
+│ Updates/Rollbacks     │ ✅ Blue-Green        │ ✅ Versions/Aliases  │
+│ Infrastructure Mgmt   │ ⚠️ ECS+ALB+Redis     │ ✅ Fully managed     │
+│ Security              │ ✅ Full control      │ ✅ AWS managed       │
+└───────────────────────┴──────────────────────┴──────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+RECOMMENDED HYBRID ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+Combine the strengths of both approaches:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  ┌────────────┐                                                             │
+│  │  Frontend  │                                                             │
+│  └──────┬─────┘                                                             │
+│         │ HTTPS + WebSocket                                                 │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────┐                           │
+│  │   BFF Microservice (Spring Boot on ECS)     │  ← Frontend Interface     │
+│  │  ✅ Rich domain logic                        │  ← DDD/Clean Architecture │
+│  │  ✅ WebSocket for real-time                  │  ← State management       │
+│  │  ✅ Request aggregation                      │  ← Caching                │
+│  │  ✅ Superior developer experience            │  ← Traditional dev        │
+│  └───────┬─────────────────────────────────────┘                           │
+│          │ Publishes commands via SQS                                       │
+│          │ Consumes events via Kinesis                                      │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────┐                           │
+│  │  Command Gateway (Lambda - Existing)        │  ← Command routing        │
+│  │  ✅ Cost-effective async processing          │  ← Event publishing       │
+│  │  ✅ Auto-scaling                             │  ← Pay per execution      │
+│  └───────┬─────────────────────────────────────┘                           │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────┐                           │
+│  │  Verification Adapters (Lambda - Existing)  │  ← External integrations  │
+│  │  ✅ OpenSanctions, WorldCheck, CIPC, etc.   │  ← API calls              │
+│  │  ✅ Stateless execution                      │  ← Cost-efficient         │
+│  └─────────────────────────────────────────────┘                           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+BENEFITS OF HYBRID:
+───────────────────────────────────────────────────────────────────────────────
+✅ Best frontend developer experience (BFF)
+✅ Cost-effective backend processing (Lambda)
+✅ Rich domain modeling where it matters (BFF)
+✅ Stateless scalability where appropriate (Lambda)
+✅ Maintains existing Lambda infrastructure
+✅ Gradual migration path
+✅ Clear separation of concerns
+
+COST: ~$94/month (BFF) + $0 (existing Lambda) = ~$94/month total
+
+
+═══════════════════════════════════════════════════════════════════════════════
+DECISION MATRIX
+═══════════════════════════════════════════════════════════════════════════════
+
+Choose BFF Microservice if:
+───────────────────────────────────────────────────────────────────────────────
+✅ You have rich domain logic and complex business rules
+✅ You want perfect DDD/Clean Architecture alignment
+✅ You need request orchestration and state management
+✅ You require WebSocket for real-time updates
+✅ Your traffic is predictable (thousands+ requests/day)
+✅ Team is familiar with Spring Boot
+✅ You value superior developer experience
+✅ Sub-second response times are critical
+✅ You need in-memory caching and sessions
+
+
+Choose Lambda API if:
+───────────────────────────────────────────────────────────────────────────────
+✅ You have simple request/response patterns
+✅ You want minimal operational overhead
+✅ Traffic is highly variable or unpredictable
+✅ Cost optimization is the primary concern
+✅ You're building an MVP or proof-of-concept
+✅ You have limited domain complexity
+✅ Team has strong AWS expertise
+✅ Cold starts are acceptable (< 3s)
+✅ Stateless architecture is sufficient
+
+
+Choose Hybrid (RECOMMENDED):
+───────────────────────────────────────────────────────────────────────────────
+✅ You want the best of both worlds
+✅ Frontend needs rich interactions (BFF)
+✅ Backend is already Lambda-based (keep it)
+✅ You value both quality AND cost efficiency
+✅ You want clear architectural boundaries
+✅ Team can handle both paradigms
+
+
+═══════════════════════════════════════════════════════════════════════════════
+MIGRATION STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+If starting with Lambda API and want to migrate to BFF:
+
+Phase 1: Current State (Lambda API)
+────────────────────────────────────────────────────────────────────────────────
+    Frontend → API Gateway → Lambda → OpenSanctions
+
+Phase 2: Introduce BFF (Parallel)
+────────────────────────────────────────────────────────────────────────────────
+    Frontend → BFF (new endpoints) → SQS → Command Gateway
+    Frontend → API Gateway (old) → Lambda → OpenSanctions
+
+Phase 3: Migrate Traffic (Gradual)
+────────────────────────────────────────────────────────────────────────────────
+    90% Frontend → BFF → SQS → Command Gateway
+    10% Frontend → API Gateway (fallback) → Lambda
+
+Phase 4: Final State (Hybrid)
+────────────────────────────────────────────────────────────────────────────────
+    Frontend → BFF → SQS → Command Gateway → Adapters (Lambda)
+    API Gateway → Deprecated
+
+
+═══════════════════════════════════════════════════════════════════════════════
+CONCLUSION
+═══════════════════════════════════════════════════════════════════════════════
+
+For VeriGate's production platform with rich domain logic and the need for
+excellent frontend developer experience, the **BFF Microservice** approach
+provides the best foundation.
+
+The hybrid architecture—BFF for frontend + existing Lambda backend—delivers
+optimal balance of:
+  • Architectural purity (DDD/Clean Architecture)
+  • Developer experience (Spring Boot)
+  • Cost efficiency (Lambda for backend processing)
+  • Performance (sub-second response times)
+  • Scalability (both ECS and Lambda auto-scale)
+
+RECOMMENDED: Start with BFF Microservice + keep existing Lambda adapters.

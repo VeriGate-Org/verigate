@@ -1,0 +1,86 @@
+name: _release_terraform.sft-capstone
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      github-environment:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+    secrets:
+      SFT_INSOURCE_APPID:
+        description: "GitHub App ID for authentication"
+        required: true
+      SFT_INSOURCE_PK:
+        description: "GitHub App Private Key for authentication"
+        required: true
+      AWS_ROLE_ARN:
+        description: "AWS IAM role to assume for Terraform deployments"
+        required: true
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github-environment }}
+    permissions:
+      id-token: write # This is required for requesting the JWTs
+      contents: read # This is required for actions/checkout
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Get GitHub App token for accessing private modules
+      - name: Get GitHub App token
+        id: get-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SFT_INSOURCE_APPID }}
+          private-key: ${{ secrets.SFT_INSOURCE_PK }}
+          owner: SFT-Insource
+
+      # Configure Git for private modules
+      - name: Configure Git for private modules
+        run: |
+          git config --global url."https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+          git config --global --add url."https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/".insteadOf "ssh://git@github.com/"
+
+      - name: Print environment variables
+        run: env
+
+      # setup tools
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # deploy terraform
+      - name: Run terraform commands for app infrastructure
+        run: |
+          terraform -chdir=./iac/terraform init -backend-config=./environments/${{ inputs.environment }}/config.s3.tfbackend &&
+          terraform -chdir=./iac/terraform apply -var-file=./environments/${{ inputs.environment }}/terraform.tfvars -auto-approve -input=false
+        env:
+          STACK_NAME: ${{ vars.STACK_NAME }}
+          SFT_INSOURCE_APPID: ${{ secrets.SFT_INSOURCE_APPID }}
+          SFT_INSOURCE_PK: ${{ secrets.SFT_INSOURCE_PK }}
+          TF_VAR_orms_username: ${{ secrets.ORMS_USERNAME }}
+          TF_VAR_orms_password: ${{ secrets.ORMS_PASSWORD }}
+          TF_VAR_orms_client_id: ${{ secrets.ORMS_CLIENT_ID }}
+          TF_VAR_qlink_username: ${{ secrets.QLINK_USERNAME }}
+          TF_VAR_qlink_password: ${{ secrets.QLINK_PASSWORD }}
+          TF_VAR_qlink_client_id: ${{ secrets.QLINK_CLIENT_ID }}
+          TF_VAR_qlink_client_reference: ${{ secrets.QLINK_CLIENT_REFERENCE }}
+          TF_VAR_qlink_service_name: ${{ secrets.QLINK_CLIENT_SERVICE_NAME }}
+          TF_VAR_astute_client_id: ${{ secrets.ASTUTE_CLIENT_ID }}
+          TF_VAR_astute_client_secret: ${{ secrets.ASTUTE_CLIENT_SECRET }}
+          TF_VAR_astute_scope: ${{ secrets.ASTUTE_SCOPE }}
+          TF_VAR_astute_subscription_key: ${{ secrets.ASTUTE_SUBSCRIPTION_KEY }}
+          TF_VAR_astute_basic_authorization: ${{ secrets.ASTUTE_BASIC_AUTHORIZATION }}

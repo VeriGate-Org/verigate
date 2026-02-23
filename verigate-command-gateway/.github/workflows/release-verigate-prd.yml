@@ -1,0 +1,69 @@
+name: Release | VeriGate Production
+
+on:
+  push:
+    branches:
+      - "verigate-release"
+      - "verigate-release-hotfix"
+
+jobs:
+  install:
+    uses: ./.github/workflows/_install.yml
+    with:
+      java-version: "21"
+    permissions:
+      contents: read
+      packages: read
+    secrets: inherit
+
+  preproduction-deploy:
+    needs: [install]
+    uses: ./.github/workflows/_release.verigate.yml
+    concurrency: verigate-preproduction
+    with:
+      java-version: "21"
+      environment: preproduction
+      github-environment: verigate-preproduction
+      application-name: verigate
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    secrets: inherit
+
+  preproduction-smoke-test:
+    needs: [preproduction-deploy]
+    uses: ./.github/workflows/_smoke-test.yml
+    with:
+      environment: preproduction
+      github-environment: verigate-preproduction
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+
+  production-deploy:
+    needs: [preproduction-smoke-test]
+    uses: ./.github/workflows/_release.verigate.yml
+    concurrency: verigate-production
+    with:
+      java-version: "21"
+      environment: production
+      github-environment: verigate-production
+      application-name: verigate
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    secrets: inherit
+
+  production-smoke-test:
+    needs: [production-deploy]
+    uses: ./.github/workflows/_smoke-test.yml
+    with:
+      environment: production
+      github-environment: verigate-production
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit

@@ -1,0 +1,73 @@
+/*
+ * VeriGate (c) 2025. All rights reserved.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * Proprietary and confidential.
+ */
+
+package verigate.adapter.employment.infrastructure.functions.lambda.di.modules;
+
+import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import crosscutting.config.Config;
+import crosscutting.environment.Environment;
+import domain.commands.CommandHandler;
+import domain.commands.RetryCommandHandler;
+import domain.messages.DeadLetterQueue;
+import domain.messages.InvalidMessageQueue;
+import infrastructure.functions.lambda.serializers.internal.InternalTransportJsonSerializer;
+import infrastructure.sqs.SqsLambdaEventRawMessageQueue;
+import java.util.Map;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import verigate.adapter.employment.application.handlers.DefaultVerifyEmploymentCommandHandler;
+import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
+
+/**
+ * This class is responsible for configuring the dependency injection bindings for the Employment
+ * Verification adapter. It extends the ServiceModule class and provides specific bindings for
+ * employment verification.
+ */
+public final class VerifyEmploymentServiceModule extends ServiceModule {
+
+  /**
+   * Configures the bindings for the Employment Verification adapter. This method is called by the
+   * Guice framework to set up the bindings.
+   */
+  public VerifyEmploymentServiceModule() {
+    super();
+  }
+
+  @Provides
+  @Singleton
+  @Named("VerifyEmploymentInvalidMessageQueue")
+  private InvalidMessageQueue<SQSMessage> provideVerifyEmploymentInvalidMessageQueue(
+      Environment environment, SqsClient sqsClient) {
+    return new SqsLambdaEventRawMessageQueue(
+        sqsClient, environment.get("VERIFY_EMPLOYMENT_IMQ_NAME"));
+  }
+
+  @Provides
+  @Singleton
+  @Named("VerifyEmploymentDeadLetterMessageQueue")
+  private DeadLetterQueue<SQSMessage> provideVerifyEmploymentDeadLetterMessageQueue(
+      Environment environment, SqsClient sqsClient) {
+    return new SqsLambdaEventRawMessageQueue(
+        sqsClient, environment.get("VERIFY_EMPLOYMENT_DLQ_NAME"));
+  }
+
+  /**
+   * This method provides the command handler with retry capabilities.
+   */
+  @Provides
+  @Singleton
+  public CommandHandler<VerifyPartyCommand, Map<String, String>>
+      provideVerifyEmploymentCommandHandler(
+          DefaultVerifyEmploymentCommandHandler commandHandler,
+          Config config,
+          InternalTransportJsonSerializer jsonSerializer) {
+
+    return new RetryCommandHandler<VerifyPartyCommand, Map<String, String>>(
+        commandHandler, getDefaultRetry(config), "handler-verify-employment");
+  }
+}

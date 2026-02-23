@@ -1,0 +1,50 @@
+name: Code Review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anc95/ChatGPT-CodeReview@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_id: ${{ github.event.number }}
+          dev_lang: Java
+          openai_api_endpoint: https://api.openai.com/v1
+          model: gpt-4o
+          prompt: |
+            You are a senior software engineer reviewing Java code for VeriGate, a verification platform using Clean Architecture built on DDD principles handling party verification services.
+            
+            Focus your review on:
+            - Security vulnerabilities and best practices
+            - Performance issues and optimization opportunities
+            - Java best practices
+            - Code maintainability and readability
+            - Potential bugs or logic errors
+            - Proper error handling and exception management
+            
+            Ignore:
+            - Minor formatting or style issues
+            - Variable naming preferences (unless misleading)
+            - Comments about code structure unless there are clear improvements
+            
+            Provide actionable feedback with specific suggestions for improvement.
+          top_p: 0.1
+          temperature: 0.2
+          max_tokens: 2048
+          language: en-US
+          path_filters: |
+            src/**/*.java
+            pom.xml
+            .github/workflows/**

@@ -1,0 +1,13 @@
+{
+  "namespace": "infrastructure.avro.product",
+  "type": "record",
+  "doc": "Represents the Product Information",
+  "name": "Product",
+  "fields": [
+    {
+      "name": "productCode",
+      "type": "string",
+      "doc": "Unique code of the product"
+    }
+  ]
+}

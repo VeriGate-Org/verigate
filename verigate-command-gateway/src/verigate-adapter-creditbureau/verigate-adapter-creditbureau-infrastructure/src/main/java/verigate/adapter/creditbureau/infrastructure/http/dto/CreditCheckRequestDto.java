@@ -1,0 +1,21 @@
+/*
+ * VeriGate (c) 2025. All rights reserved.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * Proprietary and confidential.
+ */
+
+package verigate.adapter.creditbureau.infrastructure.http.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * DTO for Credit Bureau credit check request.
+ */
+public record CreditCheckRequestDto(
+    @JsonProperty("id_number") String idNumber,
+    @JsonProperty("first_name") String firstName,
+    @JsonProperty("last_name") String lastName,
+    @JsonProperty("date_of_birth") String dateOfBirth,
+    @JsonProperty("consent_reference") String consentReference
+) {
+}

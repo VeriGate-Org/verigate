@@ -1,0 +1,59 @@
+name: _install-java
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        default: '21'
+        type: string
+
+jobs:
+  install-java:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: 'corretto'
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        id: cache-maven
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Configure Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOL
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                  <username>${{ github.actor }}</username>
+                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT }}</password>
+              </server>
+              <server>
+                <id>verigate-org</id>
+                  <username>${{ github.actor }}</username>
+                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOL
+      - name: Debug Maven settings.xml
+        run: cat ~/.m2/settings.xml
+      - name: Debug Maven effective POM
+        run: mvn help:effective-pom
+      - name: Maven compile
+        if: steps.cache-maven.outputs.cache-hit != 'true'
+        run: mvn compile

@@ -1,0 +1,254 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    VeriGate OpenSanctions Frontend API                       │
+│                         Recommended Architecture                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CURRENT STATE (Queue-Based)
+════════════════════════════════════════════════════════════════════════════════
+┌──────────┐       ┌─────┐       ┌────────┐       ┌───────────────┐
+│  Client  │──────▶│ SQS │──────▶│ Lambda │──────▶│ OpenSanctions │
+└──────────┘       └─────┘       └────────┘       └───────────────┘
+                      │                │
+                      ▼                ▼
+                  ┌──────┐        ┌─────────┐
+                  │ DLQ  │        │ Kinesis │
+                  └──────┘        └─────────┘
+
+Issue: Asynchronous, no immediate response for frontend
+
+
+RECOMMENDED STATE (Hybrid: REST API + Queue)
+════════════════════════════════════════════════════════════════════════════════
+┌──────────────┐
+│   Frontend   │
+│ (React/Vue)  │
+└──────┬───────┘
+       │ HTTPS
+       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          AWS API Gateway                                     │
+│  • Authentication (API Keys)                                                 │
+│  • Rate Limiting (50 req/s, 100 burst)                                      │
+│  • CORS Configuration                                                        │
+│  • Usage Plans & Quotas                                                      │
+└──────┬──────────────────────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Lambda Function Layer                                   │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  Match Handler   │  │  Search Handler  │  │  Health Handler  │         │
+│  │  POST /match     │  │  GET /search     │  │  GET /health     │         │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
+│           │                     │                      │                    │
+└───────────┼─────────────────────┼──────────────────────┼────────────────────┘
+            │                     │                      │
+            ▼                     ▼                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   OpenSanctions Matching Service                             │
+│  • Entity matching logic                                                     │
+│  • Request validation                                                        │
+│  • Response mapping                                                          │
+└──────┬──────────────────────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      OpenSanctions HTTP Adapter                              │
+│  • Bearer token authentication                                               │
+│  • Retry logic (3 attempts)                                                  │
+│  • Timeout handling (30s connect, 60s read)                                 │
+└──────┬──────────────────────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    OpenSanctions API (External)                              │
+│  • POST /match/{dataset}                                                     │
+│  • GET /search/{dataset}                                                     │
+│  • GET /healthz                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+       │                     │                      │
+       ▼                     ▼                      ▼
+┌──────────┐           ┌──────────┐          ┌──────────┐
+│ DynamoDB │           │ Kinesis  │          │CloudWatch│
+│  (Audit) │           │ (Events) │          │  (Logs)  │
+└──────────┘           └──────────┘          └──────────┘
+
+
+API ENDPOINTS
+════════════════════════════════════════════════════════════════════════════════
+
+1. POST /api/v1/sanctions/match
+   ─────────────────────────────────
+   Purpose:  Entity matching against sanctions databases
+   Input:    Entity details (name, DOB, nationality, etc.)
+   Output:   Scored matches with risk levels
+   Timeout:  30 seconds
+   Cache:    No (POST requests)
+
+2. GET /api/v1/sanctions/search?q={query}&dataset={dataset}&limit={limit}
+   ─────────────────────────────────────────────────────────────────────
+   Purpose:  Simple text-based search
+   Input:    Search query string
+   Output:   Matching entities
+   Timeout:  30 seconds
+   Cache:    Yes (5 minutes TTL)
+
+3. GET /api/v1/sanctions/health
+   ──────────────────────────────
+   Purpose:  Service health check
+   Output:   Service status
+   Timeout:  10 seconds
+   Cache:    Yes (1 minute TTL)
+
+
+SECURITY LAYERS
+════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. TLS/HTTPS Encryption                                                      │
+│    All traffic encrypted in transit                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 2. API Gateway Authentication                                                │
+│    • API Keys (x-api-key header)                                            │
+│    • Optional: AWS Cognito (JWT tokens)                                     │
+│    • Optional: AWS IAM (SigV4 signing)                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 3. Rate Limiting                                                             │
+│    • Burst: 100 requests                                                     │
+│    • Sustained: 50 requests/second                                           │
+│    • Monthly Quota: 10,000 requests                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 4. Input Validation                                                          │
+│    • Schema validation                                                       │
+│    • Required field checks                                                   │
+│    • Type checking                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 5. PII Protection                                                            │
+│    • Sensitive data masking in logs                                          │
+│    • Audit trails in DynamoDB                                                │
+│    • Event publishing to Kinesis                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+COST ESTIMATE (Monthly)
+════════════════════════════════════════════════════════════════════════════════
+
+Component                    Volume              Cost
+─────────────────────────────────────────────────────────────────
+API Gateway                  1,000,000 requests  $3.50
+Lambda Invocations           1,000,000 @ 1s      $0.20
+CloudWatch Logs              10 GB               $5.00
+DynamoDB (on-demand)         1,000,000 writes    $1.25
+Data Transfer (outbound)     100 GB              $9.00
+─────────────────────────────────────────────────────────────────
+TOTAL                                            ~$19.00/month
+
+
+PERFORMANCE CHARACTERISTICS
+════════════════════════════════════════════════════════════════════════════════
+
+Metric                  Target          Notes
+──────────────────────────────────────────────────────────────────
+Response Time (p50)     < 500ms         Average case
+Response Time (p95)     < 2s            95th percentile
+Response Time (p99)     < 5s            99th percentile
+Availability            99.9%           ~43 minutes downtime/month
+Cold Start              < 1s            With SnapStart enabled
+Throughput              50 req/s        Sustained rate
+Burst Capacity          100 req         Concurrent requests
+
+
+FRONTEND INTEGRATION EXAMPLE
+════════════════════════════════════════════════════════════════════════════════
+
+TypeScript/React:
+
+  import SanctionsApiService from './services/sanctionsApi';
+
+  const api = new SanctionsApiService(
+    'https://api.verigate.com',
+    'your-api-key-here'
+  );
+
+  // Screen an entity
+  const result = await api.matchEntity({
+    dataset: 'sanctions',
+    entity: {
+      schema: 'Person',
+      name: 'John Smith',
+      birthDate: '1980-05-15',
+      nationality: 'US'
+    },
+    options: {
+      limit: 10,
+      threshold: 0.7,
+      topics: ['sanction', 'role.pep']
+    }
+  });
+
+  // Process results
+  result.matches.forEach(match => {
+    console.log(`${match.caption}: ${match.score} (${match.riskLevel})`);
+  });
+
+
+DEPLOYMENT STEPS
+════════════════════════════════════════════════════════════════════════════════
+
+Phase 1: Core API Implementation
+  ☐ Create verigate-adapter-opensanctions-api module
+  ☐ Implement Lambda handlers (Match, Search, Health)
+  ☐ Create API request/response models
+  ☐ Add validation logic
+  ☐ Write unit tests
+
+Phase 2: Infrastructure
+  ☐ Update SAM template with API Gateway resources
+  ☐ Configure API authentication (API Keys)
+  ☐ Set up usage plans and rate limiting
+  ☐ Configure CORS policies
+  ☐ Deploy to sandbox environment
+
+Phase 3: Monitoring & Security
+  ☐ Set up CloudWatch alarms
+  ☐ Enable X-Ray tracing
+  ☐ Configure WAF rules (optional)
+  ☐ Implement audit logging
+  ☐ Set up monitoring dashboards
+
+Phase 4: Frontend Integration
+  ☐ Create TypeScript SDK
+  ☐ Write API documentation (OpenAPI/Swagger)
+  ☐ Provide integration examples
+  ☐ Create error handling guide
+  ☐ Deploy to development environment
+
+Phase 5: Production Readiness
+  ☐ Load testing and optimization
+  ☐ Implement caching strategies
+  ☐ Create runbooks for incidents
+  ☐ Security review
+  ☐ Production deployment
+
+
+KEY BENEFITS
+════════════════════════════════════════════════════════════════════════════════
+
+✓ Synchronous responses for better UX
+✓ Built-in authentication and authorization
+✓ Automatic scaling and high availability
+✓ Pay-per-use pricing model
+✓ Comprehensive monitoring and logging
+✓ Easy frontend integration
+✓ Secure by default (TLS, API keys, rate limiting)
+✓ Low operational overhead

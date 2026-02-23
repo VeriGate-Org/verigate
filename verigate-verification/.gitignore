@@ -1,0 +1,41 @@
+# Maven build output
+/target/
+**/target/
+
+# Eclipse files
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA files
+*.iml
+.idea/
+
+# VS Code files
+.vscode/
+
+# MacOS system files
+.DS_Store
+
+# Logs
+*.log
+
+# Java build
+*.class
+
+# Generated files
+*.jar
+*.war
+*.ear
+
+# Checkstyle
+checkstyle-cachefile
+checkstyle-checker.xml
+checkstyle-result.xml
+
+# Other
+*.swp
+*.swo
+
+# Ignore node_modules if any JS/TS is present
+node_modules/

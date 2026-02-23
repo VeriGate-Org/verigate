@@ -1,0 +1,43 @@
+name: _release.verigate
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      github-environment:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+      java-version:
+        required: false
+        default: "21"
+        type: string
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/_release-terraform.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    with:
+      environment: ${{ inputs.environment }}
+      github-environment: ${{ inputs.github-environment }}
+      application-name: ${{ inputs.application-name }}
+    secrets: inherit
+
+  sam:
+    uses: ./.github/workflows/_release-sam.yml
+    needs: [terraform]
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    with:
+      environment: ${{ inputs.environment }}
+      github-environment: ${{ inputs.github-environment }}
+      application-name: ${{ inputs.application-name }}
+      java-version: ${{ inputs.java-version }}
+    secrets: inherit

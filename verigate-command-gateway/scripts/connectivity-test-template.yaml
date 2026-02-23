@@ -1,0 +1,212 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: VPC Connectivity Test Lambda Function
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment name
+  
+  VpcId:
+    Type: String
+    Description: VPC ID to deploy the Lambda into (leave empty for no VPC)
+    Default: ""
+  
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: Comma-separated list of subnet IDs (leave empty for no VPC)
+    Default: ""
+  
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: Comma-separated list of security group IDs (leave empty for no VPC)
+    Default: ""
+
+Conditions:
+  UseVpc: !Not [!Equals [!Ref VpcId, ""]]
+
+Resources:
+  ConnectivityTestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'verigate-connectivity-test-${Environment}'
+      Runtime: python3.11
+      Handler: index.lambda_handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 60
+      Environment:
+        Variables:
+          TEST_URL: 'http://enquiry.service.registration.deeds.gov.za/'
+      VpcConfig:
+        !If
+          - UseVpc
+          - SecurityGroupIds: !Ref SecurityGroupIds
+            SubnetIds: !Ref SubnetIds
+          - !Ref AWS::NoValue
+      Policies:
+        - VPCAccessPolicy: {}
+      Tags:
+        Environment: !Ref Environment
+        Purpose: connectivity-testing
+        Team: verigate
+      InlineCode: |
+        import json
+        import urllib3
+        import socket
+        import time
+        import os
+        from datetime import datetime
+        
+        def lambda_handler(event, context):
+            """Test connectivity to specified URL or default Deeds Office URL"""
+            
+            # Get URL from event, environment variable, or use default
+            url = event.get('url', os.environ.get('TEST_URL', 'http://enquiry.service.registration.deeds.gov.za/'))
+            
+            results = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "url": url,
+                "tests": {},
+                "lambda_info": {
+                    "function_name": context.function_name,
+                    "function_version": context.function_version,
+                    "aws_region": os.environ.get('AWS_REGION', 'unknown'),
+                    "vpc_enabled": bool(os.environ.get('AWS_LAMBDA_VPC_SUBNET_IDS'))
+                }
+            }
+            
+            # Parse hostname from URL
+            hostname = url.replace("http://", "").replace("https://", "").split("/")[0]
+            port = 443 if url.startswith("https://") else 80
+            
+            # Test 1: DNS Resolution
+            print(f"[TEST 1] DNS Resolution for: {hostname}")
+            try:
+                ip_address = socket.gethostbyname(hostname)
+                results["tests"]["dns_resolution"] = {
+                    "status": "SUCCESS",
+                    "hostname": hostname,
+                    "ip_address": ip_address
+                }
+                print(f"✓ DNS Resolution SUCCESS: {hostname} -> {ip_address}")
+            except socket.gaierror as e:
+                results["tests"]["dns_resolution"] = {
+                    "status": "FAILED",
+                    "hostname": hostname,
+                    "error": str(e)
+                }
+                print(f"✗ DNS Resolution FAILED: {str(e)}")
+            
+            # Test 2: Socket Connection
+            print(f"[TEST 2] TCP Socket Connection to: {hostname}:{port}")
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(10)
+                start_time = time.time()
+                result = sock.connect_ex((hostname, port))
+                elapsed_time = time.time() - start_time
+                sock.close()
+                
+                if result == 0:
+                    results["tests"]["socket_connection"] = {
+                        "status": "SUCCESS",
+                        "port": port,
+                        "connection_time_seconds": round(elapsed_time, 3)
+                    }
+                    print(f"✓ Socket Connection SUCCESS: {elapsed_time:.3f}s")
+                else:
+                    results["tests"]["socket_connection"] = {
+                        "status": "FAILED",
+                        "port": port,
+                        "error_code": result,
+                        "details": "Socket connection refused or blocked"
+                    }
+                    print(f"✗ Socket Connection FAILED: Error code {result}")
+                    
+            except Exception as e:
+                results["tests"]["socket_connection"] = {
+                    "status": "FAILED",
+                    "error": str(e)
+                }
+                print(f"✗ Socket Connection FAILED: {str(e)}")
+            
+            # Test 3: HTTP Request
+            print(f"[TEST 3] HTTP Request to: {url}")
+            http = urllib3.PoolManager(
+                timeout=urllib3.Timeout(connect=10.0, read=30.0),
+                retries=urllib3.Retry(total=3, connect=3, read=3)
+            )
+            
+            try:
+                start_time = time.time()
+                response = http.request('GET', url, 
+                                       headers={'User-Agent': 'VeriGate-Connectivity-Test/1.0'},
+                                       redirect=True)
+                elapsed_time = time.time() - start_time
+                
+                results["tests"]["http_request"] = {
+                    "status": "SUCCESS",
+                    "http_status": response.status,
+                    "response_time_seconds": round(elapsed_time, 3),
+                    "content_length": len(response.data),
+                    "headers": {k: v for k, v in response.headers.items()}
+                }
+                
+                # Response preview
+                try:
+                    response_text = response.data.decode('utf-8')[:500]
+                    results["tests"]["http_request"]["response_preview"] = response_text
+                except:
+                    results["tests"]["http_request"]["response_preview"] = "Unable to decode"
+                
+                print(f"✓ HTTP Request SUCCESS: Status {response.status}, Time: {elapsed_time:.3f}s")
+                
+            except urllib3.exceptions.MaxRetryError as e:
+                results["tests"]["http_request"] = {
+                    "status": "FAILED",
+                    "error_type": "MaxRetryError",
+                    "error": str(e)[:500],
+                    "details": "Connection failed - check network/firewall/security groups"
+                }
+                print(f"✗ HTTP Request FAILED (MaxRetryError)")
+                
+            except Exception as e:
+                results["tests"]["http_request"] = {
+                    "status": "FAILED",
+                    "error_type": type(e).__name__,
+                    "error": str(e)[:500]
+                }
+                print(f"✗ HTTP Request FAILED: {type(e).__name__}")
+            
+            # Overall Assessment
+            all_tests_passed = all(
+                test.get("status") == "SUCCESS" 
+                for test in results["tests"].values()
+            )
+            
+            results["overall_status"] = "SUCCESS" if all_tests_passed else "FAILED"
+            
+            # Summary
+            print("\n" + "="*70)
+            print(f"CONNECTIVITY TEST SUMMARY: {results['overall_status']}")
+            print("="*70)
+            for test_name, test_result in results["tests"].items():
+                status_icon = "✓" if test_result["status"] == "SUCCESS" else "✗"
+                print(f"{status_icon} {test_name}: {test_result['status']}")
+            print("="*70)
+            
+            return {
+                'statusCode': 200 if all_tests_passed else 500,
+                'body': json.dumps(results, indent=2)
+            }
+
+Outputs:
+  FunctionName:
+    Description: Name of the connectivity test Lambda function
+    Value: !Ref ConnectivityTestFunction
+  
+  FunctionArn:
+    Description: ARN of the connectivity test Lambda function
+    Value: !GetAtt ConnectivityTestFunction.Arn

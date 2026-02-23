@@ -1,0 +1,31 @@
+{
+  "foo": "bar1",
+  "fooObj": {
+    "foo": "bar2"
+  },
+  "fooArray": [
+    {
+      "foo": "bar3"
+    },
+    {
+      "foo": "bar4"
+    },
+    {
+      "foo": "bar5"
+    }
+  ],
+  "nest": {
+    "fooArray2": [
+      {
+        "foo": "bar6"
+      },
+      {
+        "foo": "bar7"
+      },
+      {
+        "foo": "bar8"
+      }
+    ]
+  },
+  "five": 5
+}

@@ -1,0 +1,609 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Transform:
+  - AWS::Serverless-2016-10-31
+  - Name: DatadogServerless
+    Parameters:
+      stackName: !Sub ${AWS::StackName}
+      javaLayerVersion: 14
+      extensionLayerVersion: 57
+      site: "datadoghq.eu"
+      apiKeySecretArn: "{{resolve:ssm:/datadog/agent-secret-arn}}"
+
+Parameters:
+  ApplicationVersion:
+    Type: String
+    Description: "The latest version tag for the application"
+  EnvironmentShortname:
+    Type: String
+    Description: "Environment shortname (sbx, dev, ppe, prod)"
+  VerigateDomainName:
+    Type: String
+    Description: "The Verigate system domain name"
+    Default: "{{resolve:ssm:/verigate/api-gateway/domain-name:1}}"
+  KinesisStreamArn:
+    Type: String
+    Description: "The kinesis stream arn"
+    Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
+
+Conditions:
+  IsSbxCondition:
+    Fn::Equals:
+      - !Ref EnvironmentShortname
+      - "sbx"
+  IsDevCondition:
+    Fn::Equals:
+      - !Ref EnvironmentShortname
+      - "dev"
+  IsPpeCondition:
+    Fn::Equals:
+      - !Ref EnvironmentShortname
+      - "ppe"
+  DatadogIntegrationDisabledCondition:
+    Fn::Or:
+      - Condition: IsSbxCondition
+      - Condition: IsDevCondition
+      - Condition: IsPpeCondition
+
+Globals:
+  Function:
+    MemorySize: 2048
+    Timeout: 30
+    Runtime: java21
+    AutoPublishAlias: live
+    SnapStart:
+      ApplyOn: PublishedVersions
+    DeploymentPreference:
+      Type: !If [DatadogIntegrationDisabledCondition, "AllAtOnce", "Linear10PercentEvery2Minutes"]
+      Alarms:
+        - !Ref VerifyPartyErrorAlarm
+    LoggingConfig:
+      ApplicationLogLevel: INFO
+      LogFormat: JSON
+    Environment:
+      Variables:
+        # Datadog
+        DD_ENV: !Sub "sds-${EnvironmentShortname}"
+        DD_SERVICE: verigate
+        DD_VERSION: !Ref ApplicationVersion
+        DD_SERVERLESS_APPSEC_ENABLED:
+          !If [DatadogIntegrationDisabledCondition, "false", "true"]
+        DD_SERVERLESS_LOGS_ENABLED:
+          !If [DatadogIntegrationDisabledCondition, "false", "true"]
+        DD_TRACE_ENABLED:
+          !If [DatadogIntegrationDisabledCondition, "false", "true"]
+        DD_TAGS: !Sub "stack_parent:${AWS::StackName}"
+        DD_FLUSH_TO_LOG:
+          !If [DatadogIntegrationDisabledCondition, "false", "true"]
+        DD_ENHANCED_METRICS:
+          !If [DatadogIntegrationDisabledCondition, "false", "true"]
+        # Dynamo
+        VERIFICATION_COMMAND_STORE_DB: !Sub ${AWS::StackName}-command-store-table
+        # Kinesis
+        EVENT_STREAM_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/events/kinesis/stream-name}}"
+        # SQS
+        WORLDCHECK_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-worldcheck
+        QLINK_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-qlink
+        ORMS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-orms
+        OPENSANCTIONS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-orms
+        DHA_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-dha
+        CIPC_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-cipc
+        DEEDSWEB_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-deedsweb
+        EMPLOYMENT_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-employment
+        NEGATIVENEWS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-negativenews
+        FRAUDWATCHLIST_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-fraudwatchlist
+        DOCUMENT_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-document
+        SAQA_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-saqa
+        CREDITBUREAU_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-creditbureau
+        SARS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-sars
+        INCOME_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-income
+    VpcConfig:
+      SecurityGroupIds:
+        - "{{resolve:ssm:/platform/security_groups/verigate_verigate_verification}}"
+      SubnetIds:
+        - "{{resolve:ssm:/platform/privateSubnet-1}}"
+        - "{{resolve:ssm:/platform/privateSubnet-2}}"
+        - "{{resolve:ssm:/platform/privateSubnet-3}}"
+
+Resources:
+  VerificationErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm for Lambdas Errors"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub "${AWS::StackName}-sqs-handlers"
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+
+  AlarmSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-alarms"
+      DisplayName: LambdaErrorAlarms
+
+  # Per-function error alarms
+  VerifyPartyErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "Errors in ${AWS::StackName}-verify-party-router"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub "${AWS::StackName}-verify-party-router"
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  AdapterErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "High error rate across adapter functions in ${AWS::StackName}"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  VerifyPartyDurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "High duration for ${AWS::StackName}-verify-party-router"
+      Namespace: AWS/Lambda
+      MetricName: Duration
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub "${AWS::StackName}-verify-party-router"
+      Statistic: p99
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 25000
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  SqsDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "Messages in DLQ for ${AWS::StackName}"
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !Sub "${AWS::StackName}-verify-party-dlq"
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  ## Lambda Functions
+  VerifyPartyLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-party-router"
+      Handler: verigate.verification.cg.infrastructure.functions.lambda.handlers.VerifyPartyCommandLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-verification-cg/verigate-verification-cg-infrastructure
+      Environment:
+        Variables:
+          VERIFY_PARTY_IMQ_NAME: !Sub "${AWS::StackName}-verify-party-imq"
+          VERIFY_PARTY_DLQ_NAME: !Sub "${AWS::StackName}-verify-party-dlq"
+      Events:
+        VerigateVerifyPartyQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/verify-party/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-party-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  SanctionsScreeningLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-sanctions-screening"
+      Handler: verigate.adapter.orms.infrastructure.functions.lambda.handlers.PerformSanctionsScreeningLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-verification-adapter-orms/verigate-verification-adapter-orms-infrastructure
+      Environment:
+        Variables:
+          PERFORM_SANCTIONS_SCREENING_IMQ_NAME: !Sub "${AWS::StackName}-adapter-orms-imq"
+          PERFORM_SANCTIONS_SCREENING_DLQ_NAME: !Sub "${AWS::StackName}-adapter-orms-dlq"
+          ORMS_AUTH_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/orms/authentication_url}}"
+          ORMS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/orms/api_url}}"
+      Events:
+        VerigatePerformSanctionsScreeningQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-orms/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-perform-sanctions-screening-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyBankAccountDetailsLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-bank-account-details"
+      Handler: verigate.adapter.qlink.infrastructure.functions.lambda.handlers.VerifyBankAccountDetailsLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-verification-adapter-qlink/verigate-verification-adapter-qlink-infrastructure
+      Environment:
+        Variables:
+          VERIFY_BANK_ACCOUNT_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-qlink-imq"
+          VERIFY_BANK_ACCOUNT_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-qlink-dlq"
+          QLINK_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/qlink/api_url}}"
+      Events:
+        VerigateVerifyBankAccountDetailsQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-qlink/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-bank-account-details-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyPersonalDetailsLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-personal-details"
+      Handler: verigate.adapter.worldcheck.infrastructure.functions.lambda.handlers.VerifyPersonalDetailsLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-verification-adapter-worldcheck/verigate-verification-adapter-worldcheck-infrastructure
+      Environment:
+        Variables:
+          VERIFY_PERSONAL_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-worldcheck-imq"
+          VERIFY_PERSONAL_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-worldcheck-dlq"
+          WORLDCHECK_QT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/worldcheck/qt_api_url}}"
+          WORLDCHECK_AUTH_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/worldcheck/authentication_url}}"
+      Events:
+        VerigateVerifyPersonalDetailsQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-worldcheck/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-personal-details-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyIdentityLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-identity"
+      Handler: verigate.adapter.dha.infrastructure.functions.lambda.handlers.VerifyIdentityLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-dha/verigate-adapter-dha-infrastructure
+      Environment:
+        Variables:
+          VERIFY_IDENTITY_IMQ_NAME: !Sub "${AWS::StackName}-adapter-dha-imq"
+          VERIFY_IDENTITY_DLQ_NAME: !Sub "${AWS::StackName}-adapter-dha-dlq"
+          DHA_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/dha/api_url}}"
+      Events:
+        VerigateVerifyIdentityQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-dha/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-identity-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyCompanyDetailsLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-company-details"
+      Handler: verigate.adapter.cipc.infrastructure.functions.lambda.handlers.VerifyCompanyDetailsLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-cipc/verigate-adapter-cipc-infrastructure
+      Environment:
+        Variables:
+          VERIFY_COMPANY_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-cipc-imq"
+          VERIFY_COMPANY_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-cipc-dlq"
+          CIPC_API_KEY: !Sub "{{resolve:ssm:/verigate-verification-cg/cipc/api_key}}"
+      Events:
+        VerigateVerifyCompanyDetailsQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-cipc/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-company-details-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyPropertyOwnershipLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-property-ownership"
+      Handler: verigate.adapter.deedsweb.infrastructure.functions.lambda.handlers.VerifyPropertyOwnershipLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure
+      Environment:
+        Variables:
+          VERIFY_PROPERTY_OWNERSHIP_IMQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-imq"
+          VERIFY_PROPERTY_OWNERSHIP_DLQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-dlq"
+          DEEDSWEB_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/deedsweb/api_url}}"
+      Events:
+        VerigateVerifyPropertyOwnershipQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-deedsweb/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-property-ownership-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyEmploymentLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-employment"
+      Handler: verigate.adapter.employment.infrastructure.functions.lambda.handlers.VerifyEmploymentLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-employment/verigate-adapter-employment-infrastructure
+      Environment:
+        Variables:
+          VERIFY_EMPLOYMENT_IMQ_NAME: !Sub "${AWS::StackName}-adapter-employment-imq"
+          VERIFY_EMPLOYMENT_DLQ_NAME: !Sub "${AWS::StackName}-adapter-employment-dlq"
+          EMPLOYMENT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/employment/api_url}}"
+      Events:
+        VerigateVerifyEmploymentQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-employment/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-employment-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  ScreenNegativeNewsLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-screen-negative-news"
+      Handler: verigate.adapter.negativenews.infrastructure.functions.lambda.handlers.ScreenNegativeNewsLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-negativenews/verigate-adapter-negativenews-infrastructure
+      Environment:
+        Variables:
+          SCREEN_NEGATIVE_NEWS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-imq"
+          SCREEN_NEGATIVE_NEWS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-dlq"
+          NEGATIVENEWS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/negativenews/api_url}}"
+      Events:
+        VerigateScreenNegativeNewsQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-negativenews/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-screen-negative-news-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  ScreenFraudWatchlistLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-screen-fraud-watchlist"
+      Handler: verigate.adapter.fraudwatchlist.infrastructure.functions.lambda.handlers.ScreenFraudWatchlistLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-fraudwatchlist/verigate-adapter-fraudwatchlist-infrastructure
+      Environment:
+        Variables:
+          SCREEN_FRAUD_WATCHLIST_IMQ_NAME: !Sub "${AWS::StackName}-adapter-fraudwatchlist-imq"
+          SCREEN_FRAUD_WATCHLIST_DLQ_NAME: !Sub "${AWS::StackName}-adapter-fraudwatchlist-dlq"
+          FRAUDWATCHLIST_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/fraudwatchlist/api_url}}"
+      Events:
+        VerigateScreenFraudWatchlistQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-fraudwatchlist/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-screen-fraud-watchlist-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyDocumentLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-document"
+      MemorySize: 3072
+      Handler: verigate.adapter.document.infrastructure.functions.lambda.handlers.VerifyDocumentLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-document/verigate-adapter-document-infrastructure
+      Environment:
+        Variables:
+          VERIFY_DOCUMENT_IMQ_NAME: !Sub "${AWS::StackName}-adapter-document-imq"
+          VERIFY_DOCUMENT_DLQ_NAME: !Sub "${AWS::StackName}-adapter-document-dlq"
+          DOCUMENT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/document/api_url}}"
+          DOCUMENT_S3_BUCKET: !Sub "${AWS::StackName}-documents"
+      Events:
+        VerigateVerifyDocumentQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-document/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-document-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyQualificationLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-qualification"
+      Handler: verigate.adapter.saqa.infrastructure.functions.lambda.handlers.VerifyQualificationLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-saqa/verigate-adapter-saqa-infrastructure
+      Environment:
+        Variables:
+          VERIFY_QUALIFICATION_IMQ_NAME: !Sub "${AWS::StackName}-adapter-saqa-imq"
+          VERIFY_QUALIFICATION_DLQ_NAME: !Sub "${AWS::StackName}-adapter-saqa-dlq"
+          SAQA_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/saqa/api_url}}"
+      Events:
+        VerigateVerifyQualificationQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-saqa/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-qualification-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  PerformCreditCheckLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-perform-credit-check"
+      Handler: verigate.adapter.creditbureau.infrastructure.functions.lambda.handlers.PerformCreditCheckLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-creditbureau/verigate-adapter-creditbureau-infrastructure
+      Environment:
+        Variables:
+          PERFORM_CREDIT_CHECK_IMQ_NAME: !Sub "${AWS::StackName}-adapter-creditbureau-imq"
+          PERFORM_CREDIT_CHECK_DLQ_NAME: !Sub "${AWS::StackName}-adapter-creditbureau-dlq"
+          CREDITBUREAU_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/creditbureau/api_url}}"
+      Events:
+        VerigatePerformCreditCheckQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-creditbureau/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-perform-credit-check-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyTaxComplianceLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-tax-compliance"
+      Handler: verigate.adapter.sars.infrastructure.functions.lambda.handlers.VerifyTaxComplianceLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-sars/verigate-adapter-sars-infrastructure
+      Environment:
+        Variables:
+          VERIFY_TAX_COMPLIANCE_IMQ_NAME: !Sub "${AWS::StackName}-adapter-sars-imq"
+          VERIFY_TAX_COMPLIANCE_DLQ_NAME: !Sub "${AWS::StackName}-adapter-sars-dlq"
+          SARS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/sars/api_url}}"
+      Events:
+        VerigateVerifyTaxComplianceQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-sars/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-tax-compliance-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyIncomeLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-income"
+      Handler: verigate.adapter.income.infrastructure.functions.lambda.handlers.VerifyIncomeLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-income/verigate-adapter-income-infrastructure
+      Environment:
+        Variables:
+          VERIFY_INCOME_IMQ_NAME: !Sub "${AWS::StackName}-adapter-income-imq"
+          VERIFY_INCOME_DLQ_NAME: !Sub "${AWS::StackName}-adapter-income-dlq"
+          INCOME_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/income/api_url}}"
+      Events:
+        VerigateVerifyIncomeQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-income/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-income-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0

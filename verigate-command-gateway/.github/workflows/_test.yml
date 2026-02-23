@@ -1,0 +1,20 @@
+name: _test
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        default: "21"
+        type: string
+
+jobs:
+  unit-test:
+    uses: ./.github/workflows/_test-unit.yml
+    with:
+      java-version: ${{ inputs.java-version }}
+
+  integration-test:
+    uses: ./.github/workflows/_test-integration.yml
+    with:
+      java-version: ${{ inputs.java-version }} 

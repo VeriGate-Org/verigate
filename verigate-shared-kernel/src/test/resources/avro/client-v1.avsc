@@ -1,0 +1,18 @@
+{
+  "namespace": "infrastructure.avro.client.v1",
+  "type": "record",
+  "doc": "Represents the Client Information",
+  "name": "Client",
+  "fields": [
+    {
+      "name": "clientId",
+      "type": "string",
+      "doc": "Unique identifier of the client"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "First name and last name of the client"
+    }
+  ]
+}

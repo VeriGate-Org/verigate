@@ -1,0 +1,903 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://enquiry.service.registration.deeds.gov.za/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="DeedsRegistrationEnquiryServiceService" targetNamespace="http://enquiry.service.registration.deeds.gov.za/">
+    <wsdl:types>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns0="http://enquiry.service.registration.deeds.gov.za/" targetNamespace="http://enquiry.service.registration.deeds.gov.za/">
+  <xsd:complexType name="agriculturalHoldingDetailResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="agriculturalHoldingName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="agriculturalHoldingNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="diagramDeedNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="extentTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="extentTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="lpdiCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="agriculturalHoldingAreaPropertyDetailResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="agriculturalHoldingName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="diagramDeedNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="isActice" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="lpiCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="remainingExtentIndicator" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="agriculturalHoldingAreaPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="agriculturalHoldingAreaPropertyDetailResponse" type="ns0:agriculturalHoldingAreaPropertyDetailResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementResponseList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerDetailsResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="agriculturalHoldingPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="agriculturalHoldingPropertyDetailResponse" type="ns0:agriculturalHoldingDetailResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementResponseList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="companyDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="companyName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="companyRegistrationNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="companyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="companyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCodeDescription" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="companyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="companyDetailsResponse" type="ns0:companyDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="contractDetailsResponseList" nillable="true" type="ns0:contractDetailsResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertySummaryResponseList" nillable="true" type="ns0:propertySummaryResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="contractDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="documentNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="microFilmReference" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="price" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="recordCount" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="title" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertyEndorsementDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="amount" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="document" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="holder" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="microfilmReference" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="erfPropertyDetailResponse">
+    <xsd:complexContent>
+      <xsd:extension base="ns0:propertyResponse">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="diagramDeedNumber" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="erfNumber" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentTypeCode" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentTypeDescription" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="isActice" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="lpiCode" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="remainingExtentIndicator" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="townshipName" type="xsd:string"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="erfPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="erfPropertyDetailResponse" type="ns0:erfPropertyDetailResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoResponseList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="errorResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorMessage" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="exclusiveUseAreaFullPropertyDetailResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="exclusiveUseAreaNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="schemeName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="schemeNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="titleDeedNumber" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="exclusiveUseAreaPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="exclusiveUseAreaFullPropertyDetailResponse" type="ns0:exclusiveUseAreaFullPropertyDetailResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="farmPropertyDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="diagramDeedNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="extentTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="extentTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="farmName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="farmNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="isActive" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="lpiCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="portion" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="farmPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="farmPropertyDetailsResponse" type="ns0:farmPropertyDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoResponseList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertyHistoryDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="amount" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="document" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="holder" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="microfilmReference" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="officeRegistryInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="fullDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertyOwnerDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="fullName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="idNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="share" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="titleDeed" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="personDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="formerName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="fullName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="idNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="maritalStatus" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="personType" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="personTypeCode" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="fullPersonPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="contractDetailsResponseList" nillable="true" type="ns0:contractDetailsResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element minOccurs="0" name="personFullDetailsResponse" type="ns0:personDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyDetailsResponseList" nillable="true" type="ns0:propertyResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoResponseList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="personInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="contractDetailsResponseList" nillable="true" type="ns0:contractDetailsResponse"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="personFullDetailsResponse" type="ns0:personDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertySummaryResponseList" nillable="true" type="ns0:propertySummaryResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType abstract="true" name="propertyResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="portion" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertySummaryResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="erf" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="microFilmReference" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="price" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyCount" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="purchaseDate" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDate" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="share" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="titleDeedNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="township" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertyTypeInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="propertyCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyDescription" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="schemeFullPropertyDetailResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="addressSituated" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="localAuthority" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="officeDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyDescription" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="province" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDivision" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="schemeName" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="schemeNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="sectionalPlanNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="unitQuantity" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="schemePropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementResponseList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerDetailsResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element minOccurs="0" name="schemePropertyDetailResponse" type="ns0:schemeFullPropertyDetailResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="titleDeedDetailsResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element minOccurs="0" name="microfilmReference" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="purchaseDate" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="purchasePrice" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="registrationDate" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="titleDeed" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="townshipPropertyDetailResponse">
+    <xsd:complexContent>
+      <xsd:extension base="ns0:propertyResponse">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="diagramDeedNumber" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentTypeCode" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentTypeDescription" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="extentValue" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="lpiCode" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="previousDescription" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="townshipName" type="xsd:string"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="townshipPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="errorResponse" type="ns0:errorResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="historyInfoResponseList" nillable="true" type="ns0:propertyHistoryDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyEndorsementList" nillable="true" type="ns0:propertyEndorsementDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="propertyOwnerInfoResponseList" nillable="true" type="ns0:propertyOwnerDetailsResponse"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="titleDeedInfoResponseList" nillable="true" type="ns0:titleDeedDetailsResponse"/>
+      <xsd:element minOccurs="0" name="townshipPropertyDetailResponse" type="ns0:townshipPropertyDetailResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getAgriculturalHoldingAreaNamePropertyInformation">
+    <xsd:sequence>
+      <xsd:element name="agriculturalHoldingAreaName" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getAgriculturalHoldingAreaNamePropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:agriculturalHoldingAreaPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getAgriculturalHoldingPropertyInformation">
+    <xsd:sequence>
+      <xsd:element name="agriculturalHoldingNumber" type="xsd:string"/>
+      <xsd:element name="agriculturalHoldingName" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="portion" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getAgriculturalHoldingPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:agriculturalHoldingPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getDeedsPropertyTypeList"/>
+  <xsd:complexType name="getDeedsPropertyTypeListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:propertyTypeInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getErfPropertyInformation">
+    <xsd:sequence>
+      <xsd:element name="erf" type="xsd:string"/>
+      <xsd:element name="townshipName" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="portion" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getErfPropertyInformationByPortionList">
+    <xsd:sequence>
+      <xsd:element name="erf" type="xsd:string"/>
+      <xsd:element name="townshipName" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="portions" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getErfPropertyInformationByPortionListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:erfPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getErfPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:erfPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getExclusiveUseAreaPropertyInformation">
+    <xsd:sequence>
+      <xsd:element name="schemeNumber" type="xsd:string"/>
+      <xsd:element name="schemeName" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="exclusiveUsageNumber" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getExclusiveUseAreaPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:exclusiveUseAreaPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getFarmPropertyInformationByNumberAndPortionList">
+    <xsd:sequence>
+      <xsd:element name="farmNumber" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="portionNumberList" type="xsd:string"/>
+      <xsd:element name="registrationDivision" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getFarmPropertyInformationByNumberAndPortionListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:farmPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getOfficeRegistryList"/>
+  <xsd:complexType name="getOfficeRegistryListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:officeRegistryInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPersonFullPropertyInformationByIdentityNumber">
+    <xsd:sequence>
+      <xsd:element name="idNumber" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPersonFullPropertyInformationByIdentityNumberList">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="identityNumberList" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPersonFullPropertyInformationByIdentityNumberListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:fullPersonPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPersonFullPropertyInformationByIdentityNumberResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:fullPersonPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber">
+    <xsd:sequence>
+      <xsd:element name="companyName" type="xsd:string"/>
+      <xsd:element name="companyNumber" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:companyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByIDNumber">
+    <xsd:sequence>
+      <xsd:element name="idNumber" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByIDNumberResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:personInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByIdentityNumberList">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="identityNumberList" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getPropertySummaryInformationByIdentityNumberListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:personInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getSchemePropertyInformationByNameAndSchemeNumberList">
+    <xsd:sequence>
+      <xsd:element name="schemeName" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="schemeNumberList" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getSchemePropertyInformationByNameAndSchemeNumberListResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:schemePropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getTownshipPropertyInformation">
+    <xsd:sequence>
+      <xsd:element name="townshipName" type="xsd:string"/>
+      <xsd:element name="officeCode" type="xsd:string"/>
+      <xsd:element name="propertyTypeCode" type="xsd:string"/>
+      <xsd:element name="username" type="xsd:string"/>
+      <xsd:element name="password" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="getTownshipPropertyInformationResponse">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="return" type="ns0:townshipPropertyInformationResponse"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="AgriculturalHoldingDetailResponse" type="ns0:agriculturalHoldingDetailResponse"/>
+  <xsd:element name="AgriculturalHoldingAreaPropertyDetailResponse" type="ns0:agriculturalHoldingAreaPropertyDetailResponse"/>
+  <xsd:element name="AgriculturalHoldingAreaPropertyInformationResponse" type="ns0:agriculturalHoldingAreaPropertyInformationResponse"/>
+  <xsd:element name="AgriculturalHoldingPropertyInformationResponse" type="ns0:agriculturalHoldingPropertyInformationResponse"/>
+  <xsd:element name="CompanyDetailsResponse" type="ns0:companyDetailsResponse"/>
+  <xsd:element name="CompanyInformationResponse" type="ns0:companyInformationResponse"/>
+  <xsd:element name="ContractDetailsResponse" type="ns0:contractDetailsResponse"/>
+  <xsd:element name="PropertyEndorsementDetailsResponse" type="ns0:propertyEndorsementDetailsResponse"/>
+  <xsd:element name="ErfPropertyDetailResponse" type="ns0:exclusiveUseAreaFullPropertyDetailResponse"/>
+  <xsd:element name="ErfPropertyInformationResponse" type="ns0:erfPropertyInformationResponse"/>
+  <xsd:element name="ErrorResponse" type="ns0:errorResponse"/>
+  <xsd:element name="FarmPropertyDetailsResponse" type="ns0:farmPropertyDetailsResponse"/>
+  <xsd:element name="FarmPropertyInformationResponse" type="ns0:farmPropertyInformationResponse"/>
+  <xsd:element name="PropertyHistoryDetailsResponse" type="ns0:propertyHistoryDetailsResponse"/>
+  <xsd:element name="OfficeRegistryInformationResponse" type="ns0:officeRegistryInformationResponse"/>
+  <xsd:element name="PropertyOwnerDetailsResponse" type="ns0:propertyOwnerDetailsResponse"/>
+  <xsd:element name="PersonDetailsResponse" type="ns0:personDetailsResponse"/>
+  <xsd:element name="FullPersonPropertyInformationResponse" type="ns0:fullPersonPropertyInformationResponse"/>
+  <xsd:element name="PersonInformationResponse" type="ns0:personInformationResponse"/>
+  <xsd:element name="PropertySummaryResponse" type="ns0:propertySummaryResponse"/>
+  <xsd:element name="PropertyTypeInformationResponse" type="ns0:propertyTypeInformationResponse"/>
+  <xsd:element name="SchemePropertyInformationResponse" type="ns0:schemePropertyInformationResponse"/>
+  <xsd:element name="TitleDeedDetailsResponse" type="ns0:titleDeedDetailsResponse"/>
+  <xsd:element name="TownshipPropertyDetailResponse" type="ns0:townshipPropertyDetailResponse"/>
+  <xsd:element name="TownshipPropertyInformationResponse" type="ns0:townshipPropertyInformationResponse"/>
+  <xsd:element name="getAgriculturalHoldingAreaNamePropertyInformation" type="ns0:getAgriculturalHoldingAreaNamePropertyInformation"/>
+  <xsd:element name="getAgriculturalHoldingAreaNamePropertyInformationResponse" type="ns0:getAgriculturalHoldingAreaNamePropertyInformationResponse"/>
+  <xsd:element name="getAgriculturalHoldingPropertyInformation" type="ns0:getAgriculturalHoldingPropertyInformation"/>
+  <xsd:element name="getAgriculturalHoldingPropertyInformationResponse" type="ns0:getAgriculturalHoldingPropertyInformationResponse"/>
+  <xsd:element name="getDeedsPropertyTypeList" type="ns0:getDeedsPropertyTypeList"/>
+  <xsd:element name="getDeedsPropertyTypeListResponse" type="ns0:getDeedsPropertyTypeListResponse"/>
+  <xsd:element name="getErfPropertyInformation" type="ns0:getErfPropertyInformation"/>
+  <xsd:element name="getErfPropertyInformationByPortionList" type="ns0:getErfPropertyInformationByPortionList"/>
+  <xsd:element name="getErfPropertyInformationByPortionListResponse" type="ns0:getErfPropertyInformationByPortionListResponse"/>
+  <xsd:element name="getErfPropertyInformationResponse" type="ns0:getErfPropertyInformationResponse"/>
+  <xsd:element name="getExclusiveUseAreaPropertyInformation" type="ns0:getExclusiveUseAreaPropertyInformation"/>
+  <xsd:element name="getExclusiveUseAreaPropertyInformationResponse" type="ns0:getExclusiveUseAreaPropertyInformationResponse"/>
+  <xsd:element name="getFarmPropertyInformationByNumberAndPortionList" type="ns0:getFarmPropertyInformationByNumberAndPortionList"/>
+  <xsd:element name="getFarmPropertyInformationByNumberAndPortionListResponse" type="ns0:getFarmPropertyInformationByNumberAndPortionListResponse"/>
+  <xsd:element name="getOfficeRegistryList" type="ns0:getOfficeRegistryList"/>
+  <xsd:element name="getOfficeRegistryListResponse" type="ns0:getOfficeRegistryListResponse"/>
+  <xsd:element name="getPersonFullPropertyInformationByIdentityNumber" type="ns0:getPersonFullPropertyInformationByIdentityNumber"/>
+  <xsd:element name="getPersonFullPropertyInformationByIdentityNumberList" type="ns0:getPersonFullPropertyInformationByIdentityNumberList"/>
+  <xsd:element name="getPersonFullPropertyInformationByIdentityNumberListResponse" type="ns0:getPersonFullPropertyInformationByIdentityNumberListResponse"/>
+  <xsd:element name="getPersonFullPropertyInformationByIdentityNumberResponse" type="ns0:getPersonFullPropertyInformationByIdentityNumberResponse"/>
+  <xsd:element name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber" type="ns0:getPropertySummaryInformationByCompanyNameAndRegistrationNumber"/>
+  <xsd:element name="getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse" type="ns0:getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse"/>
+  <xsd:element name="getPropertySummaryInformationByIDNumber" type="ns0:getPropertySummaryInformationByIDNumber"/>
+  <xsd:element name="getPropertySummaryInformationByIDNumberResponse" type="ns0:getPropertySummaryInformationByIDNumberResponse"/>
+  <xsd:element name="getPropertySummaryInformationByIdentityNumberList" type="ns0:getPropertySummaryInformationByIdentityNumberList"/>
+  <xsd:element name="getPropertySummaryInformationByIdentityNumberListResponse" type="ns0:getPropertySummaryInformationByIdentityNumberListResponse"/>
+  <xsd:element name="getSchemePropertyInformationByNameAndSchemeNumberList" type="ns0:getSchemePropertyInformationByNameAndSchemeNumberList"/>
+  <xsd:element name="getSchemePropertyInformationByNameAndSchemeNumberListResponse" type="ns0:getSchemePropertyInformationByNameAndSchemeNumberListResponse"/>
+  <xsd:element name="getTownshipPropertyInformation" type="ns0:getTownshipPropertyInformation"/>
+  <xsd:element name="getTownshipPropertyInformationResponse" type="ns0:getTownshipPropertyInformationResponse"/>
+</xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="getErfPropertyInformation">
+        <wsdl:part element="tns:getErfPropertyInformation" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getErfPropertyInformationResponse">
+        <wsdl:part element="tns:getErfPropertyInformationResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber">
+        <wsdl:part element="tns:getPropertySummaryInformationByCompanyNameAndRegistrationNumber" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse">
+        <wsdl:part element="tns:getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAgriculturalHoldingPropertyInformation">
+        <wsdl:part element="tns:getAgriculturalHoldingPropertyInformation" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAgriculturalHoldingPropertyInformationResponse">
+        <wsdl:part element="tns:getAgriculturalHoldingPropertyInformationResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getTownshipPropertyInformation">
+        <wsdl:part element="tns:getTownshipPropertyInformation" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getTownshipPropertyInformationResponse">
+        <wsdl:part element="tns:getTownshipPropertyInformationResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getErfPropertyInformationByPortionList">
+        <wsdl:part element="tns:getErfPropertyInformationByPortionList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getErfPropertyInformationByPortionListResponse">
+        <wsdl:part element="tns:getErfPropertyInformationByPortionListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByIDNumber">
+        <wsdl:part element="tns:getPropertySummaryInformationByIDNumber" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByIDNumberResponse">
+        <wsdl:part element="tns:getPropertySummaryInformationByIDNumberResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getSchemePropertyInformationByNameAndSchemeNumberList">
+        <wsdl:part element="tns:getSchemePropertyInformationByNameAndSchemeNumberList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getSchemePropertyInformationByNameAndSchemeNumberListResponse">
+        <wsdl:part element="tns:getSchemePropertyInformationByNameAndSchemeNumberListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getFarmPropertyInformationByNumberAndPortionList">
+        <wsdl:part element="tns:getFarmPropertyInformationByNumberAndPortionList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getFarmPropertyInformationByNumberAndPortionListResponse">
+        <wsdl:part element="tns:getFarmPropertyInformationByNumberAndPortionListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getOfficeRegistryList">
+        <wsdl:part element="tns:getOfficeRegistryList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getOfficeRegistryListResponse">
+        <wsdl:part element="tns:getOfficeRegistryListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPersonFullPropertyInformationByIdentityNumber">
+        <wsdl:part element="tns:getPersonFullPropertyInformationByIdentityNumber" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPersonFullPropertyInformationByIdentityNumberResponse">
+        <wsdl:part element="tns:getPersonFullPropertyInformationByIdentityNumberResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPersonFullPropertyInformationByIdentityNumberList">
+        <wsdl:part element="tns:getPersonFullPropertyInformationByIdentityNumberList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPersonFullPropertyInformationByIdentityNumberListResponse">
+        <wsdl:part element="tns:getPersonFullPropertyInformationByIdentityNumberListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDeedsPropertyTypeList">
+        <wsdl:part element="tns:getDeedsPropertyTypeList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDeedsPropertyTypeListResponse">
+        <wsdl:part element="tns:getDeedsPropertyTypeListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAgriculturalHoldingAreaNamePropertyInformation">
+        <wsdl:part element="tns:getAgriculturalHoldingAreaNamePropertyInformation" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAgriculturalHoldingAreaNamePropertyInformationResponse">
+        <wsdl:part element="tns:getAgriculturalHoldingAreaNamePropertyInformationResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getExclusiveUseAreaPropertyInformation">
+        <wsdl:part element="tns:getExclusiveUseAreaPropertyInformation" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getExclusiveUseAreaPropertyInformationResponse">
+        <wsdl:part element="tns:getExclusiveUseAreaPropertyInformationResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByIdentityNumberList">
+        <wsdl:part element="tns:getPropertySummaryInformationByIdentityNumberList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getPropertySummaryInformationByIdentityNumberListResponse">
+        <wsdl:part element="tns:getPropertySummaryInformationByIdentityNumberListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:portType name="DeedsRegistrationEnquiryService">
+        <wsdl:operation name="getErfPropertyInformation">
+            <wsdl:input message="tns:getErfPropertyInformation" name="getErfPropertyInformation"/>
+            <wsdl:output message="tns:getErfPropertyInformationResponse" name="getErfPropertyInformationResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber">
+            <wsdl:input message="tns:getPropertySummaryInformationByCompanyNameAndRegistrationNumber" name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber"/>
+            <wsdl:output message="tns:getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse" name="getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAgriculturalHoldingPropertyInformation">
+            <wsdl:input message="tns:getAgriculturalHoldingPropertyInformation" name="getAgriculturalHoldingPropertyInformation"/>
+            <wsdl:output message="tns:getAgriculturalHoldingPropertyInformationResponse" name="getAgriculturalHoldingPropertyInformationResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getTownshipPropertyInformation">
+            <wsdl:input message="tns:getTownshipPropertyInformation" name="getTownshipPropertyInformation"/>
+            <wsdl:output message="tns:getTownshipPropertyInformationResponse" name="getTownshipPropertyInformationResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getErfPropertyInformationByPortionList">
+            <wsdl:input message="tns:getErfPropertyInformationByPortionList" name="getErfPropertyInformationByPortionList"/>
+            <wsdl:output message="tns:getErfPropertyInformationByPortionListResponse" name="getErfPropertyInformationByPortionListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByIDNumber">
+            <wsdl:input message="tns:getPropertySummaryInformationByIDNumber" name="getPropertySummaryInformationByIDNumber"/>
+            <wsdl:output message="tns:getPropertySummaryInformationByIDNumberResponse" name="getPropertySummaryInformationByIDNumberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getSchemePropertyInformationByNameAndSchemeNumberList">
+            <wsdl:input message="tns:getSchemePropertyInformationByNameAndSchemeNumberList" name="getSchemePropertyInformationByNameAndSchemeNumberList"/>
+            <wsdl:output message="tns:getSchemePropertyInformationByNameAndSchemeNumberListResponse" name="getSchemePropertyInformationByNameAndSchemeNumberListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getFarmPropertyInformationByNumberAndPortionList">
+            <wsdl:input message="tns:getFarmPropertyInformationByNumberAndPortionList" name="getFarmPropertyInformationByNumberAndPortionList"/>
+            <wsdl:output message="tns:getFarmPropertyInformationByNumberAndPortionListResponse" name="getFarmPropertyInformationByNumberAndPortionListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getOfficeRegistryList">
+            <wsdl:input message="tns:getOfficeRegistryList" name="getOfficeRegistryList"/>
+            <wsdl:output message="tns:getOfficeRegistryListResponse" name="getOfficeRegistryListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPersonFullPropertyInformationByIdentityNumber">
+            <wsdl:input message="tns:getPersonFullPropertyInformationByIdentityNumber" name="getPersonFullPropertyInformationByIdentityNumber"/>
+            <wsdl:output message="tns:getPersonFullPropertyInformationByIdentityNumberResponse" name="getPersonFullPropertyInformationByIdentityNumberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPersonFullPropertyInformationByIdentityNumberList">
+            <wsdl:input message="tns:getPersonFullPropertyInformationByIdentityNumberList" name="getPersonFullPropertyInformationByIdentityNumberList"/>
+            <wsdl:output message="tns:getPersonFullPropertyInformationByIdentityNumberListResponse" name="getPersonFullPropertyInformationByIdentityNumberListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getDeedsPropertyTypeList">
+            <wsdl:input message="tns:getDeedsPropertyTypeList" name="getDeedsPropertyTypeList"/>
+            <wsdl:output message="tns:getDeedsPropertyTypeListResponse" name="getDeedsPropertyTypeListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAgriculturalHoldingAreaNamePropertyInformation">
+            <wsdl:input message="tns:getAgriculturalHoldingAreaNamePropertyInformation" name="getAgriculturalHoldingAreaNamePropertyInformation"/>
+            <wsdl:output message="tns:getAgriculturalHoldingAreaNamePropertyInformationResponse" name="getAgriculturalHoldingAreaNamePropertyInformationResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getExclusiveUseAreaPropertyInformation">
+            <wsdl:input message="tns:getExclusiveUseAreaPropertyInformation" name="getExclusiveUseAreaPropertyInformation"/>
+            <wsdl:output message="tns:getExclusiveUseAreaPropertyInformationResponse" name="getExclusiveUseAreaPropertyInformationResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByIdentityNumberList">
+            <wsdl:input message="tns:getPropertySummaryInformationByIdentityNumberList" name="getPropertySummaryInformationByIdentityNumberList"/>
+            <wsdl:output message="tns:getPropertySummaryInformationByIdentityNumberListResponse" name="getPropertySummaryInformationByIdentityNumberListResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="DeedsRegistrationEnquiryServiceServiceSoapBinding" type="tns:DeedsRegistrationEnquiryService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="getErfPropertyInformation">
+            <soap:operation soapAction="getErfPropertyInformation" style="document"/>
+            <wsdl:input name="getErfPropertyInformation">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getErfPropertyInformationResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber">
+            <soap:operation soapAction="getPropertySummaryInformationByCompanyNameAndRegistrationNumber" style="document"/>
+            <wsdl:input name="getPropertySummaryInformationByCompanyNameAndRegistrationNumber">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getPropertySummaryInformationByCompanyNameAndRegistrationNumberResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAgriculturalHoldingPropertyInformation">
+            <soap:operation soapAction="getAgriculturalHoldingPropertyInformation" style="document"/>
+            <wsdl:input name="getAgriculturalHoldingPropertyInformation">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getAgriculturalHoldingPropertyInformationResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getTownshipPropertyInformation">
+            <soap:operation soapAction="getTownshipPropertyInformation" style="document"/>
+            <wsdl:input name="getTownshipPropertyInformation">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getTownshipPropertyInformationResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getErfPropertyInformationByPortionList">
+            <soap:operation soapAction="getErfPropertyInformationByPortionList" style="document"/>
+            <wsdl:input name="getErfPropertyInformationByPortionList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getErfPropertyInformationByPortionListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByIDNumber">
+            <soap:operation soapAction="getPropertySummaryInformationByIDNumber" style="document"/>
+            <wsdl:input name="getPropertySummaryInformationByIDNumber">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getPropertySummaryInformationByIDNumberResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getSchemePropertyInformationByNameAndSchemeNumberList">
+            <soap:operation soapAction="getSchemePropertyInformationByNameAndSchemeNumberList" style="document"/>
+            <wsdl:input name="getSchemePropertyInformationByNameAndSchemeNumberList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getSchemePropertyInformationByNameAndSchemeNumberListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getFarmPropertyInformationByNumberAndPortionList">
+            <soap:operation soapAction="getFarmPropertyInformationByNumberAndPortionList" style="document"/>
+            <wsdl:input name="getFarmPropertyInformationByNumberAndPortionList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getFarmPropertyInformationByNumberAndPortionListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getOfficeRegistryList">
+            <soap:operation soapAction="getOfficeRegistryList" style="document"/>
+            <wsdl:input name="getOfficeRegistryList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getOfficeRegistryListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPersonFullPropertyInformationByIdentityNumber">
+            <soap:operation soapAction="getPersonFullPropertyInformationByIdentityNumber" style="document"/>
+            <wsdl:input name="getPersonFullPropertyInformationByIdentityNumber">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getPersonFullPropertyInformationByIdentityNumberResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPersonFullPropertyInformationByIdentityNumberList">
+            <soap:operation soapAction="getPersonFullPropertyInformationByIdentityNumberList" style="document"/>
+            <wsdl:input name="getPersonFullPropertyInformationByIdentityNumberList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getPersonFullPropertyInformationByIdentityNumberListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDeedsPropertyTypeList">
+            <soap:operation soapAction="getDeedsPropertyTypeList" style="document"/>
+            <wsdl:input name="getDeedsPropertyTypeList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getDeedsPropertyTypeListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAgriculturalHoldingAreaNamePropertyInformation">
+            <soap:operation soapAction="getAgriculturalHoldingAreaNamePropertyInformation" style="document"/>
+            <wsdl:input name="getAgriculturalHoldingAreaNamePropertyInformation">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getAgriculturalHoldingAreaNamePropertyInformationResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getExclusiveUseAreaPropertyInformation">
+            <soap:operation soapAction="getExclusiveUseAreaPropertyInformation" style="document"/>
+            <wsdl:input name="getExclusiveUseAreaPropertyInformation">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getExclusiveUseAreaPropertyInformationResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPropertySummaryInformationByIdentityNumberList">
+            <soap:operation soapAction="getPropertySummaryInformationByIdentityNumberList" style="document"/>
+            <wsdl:input name="getPropertySummaryInformationByIdentityNumberList">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getPropertySummaryInformationByIdentityNumberListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="DeedsRegistrationEnquiryServiceService">
+        <wsdl:port binding="tns:DeedsRegistrationEnquiryServiceServiceSoapBinding" name="DeedsRegistrationEnquiryServicePort">
+            <soap:address location="http://deedssoap.deeds.gov.za:80/deeds-registration-soap/getTownshipPropertyInformation"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

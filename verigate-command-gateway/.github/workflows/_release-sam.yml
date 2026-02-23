@@ -1,0 +1,85 @@
+name: _release_sam
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      github-environment:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+      java-version:
+        required: false
+        default: "21"
+        type: string
+
+jobs:
+  sam-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github-environment }}
+    permissions:
+      id-token: write # This is required for requesting the JWTs
+      contents: read # This is required for actions/checkout
+      packages: read
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print environment variables
+        run: |
+          echo "STACK_NAME: ${{ vars.STACK_NAME }}"
+          echo "AWS_REGION: ${{ vars.AWS_REGION }}"
+          echo "ENVIRONMENT_SHORTNAME: ${{ vars.ENVIRONMENT_SHORTNAME }}"
+        env:
+          STACK_NAME: ${{ vars.STACK_NAME }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ENVIRONMENT_SHORTNAME: ${{ vars.ENVIRONMENT_SHORTNAME }}
+
+      # setup tools
+      - name: Setup SAM
+        uses: aws-actions/setup-sam@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Set up JDK ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: "corretto"
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+
+      # retrieve caches
+      - name: Retrieve Maven cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+      # create build (while we aren't using build artifacts)
+      - name: Maven install
+        run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
+      - name: Sam build
+        run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t iac/sam/template.yml --parallel
+
+      # deploy sam
+      - name: Run sam deploy
+        run: |
+          GIT_HEAD_SHA=$(git rev-parse --short HEAD) 
+          echo "Git commit used for app version: ${GIT_HEAD_SHA}"
+          sam deploy -t .aws-sam/build/template.yaml --stack-name=${STACK_NAME} --resolve-s3 \
+          --region=eu-west-1 --s3-prefix=${STACK_NAME} --no-confirm-changeset --no-fail-on-empty-changeset --on-failure DELETE \
+          --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+          --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${ENVIRONMENT_SHORTNAME}"
+        env:
+          STACK_NAME: ${{ vars.STACK_NAME }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ENVIRONMENT_SHORTNAME: ${{ vars.ENVIRONMENT_SHORTNAME }}

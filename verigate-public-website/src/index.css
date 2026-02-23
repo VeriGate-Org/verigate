@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 217 33% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
+
+    --primary: 217 91% 18%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 100% 97%;
+    --secondary-foreground: 217 91% 18%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 217 20% 51%;
+
+    --accent: 193 95% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 18%;
+
+    --radius: 0.75rem;
+
+    /* VeriGate Brand Colors */
+    --brand-navy: 217 91% 18%;
+    --brand-cyan: 193 95% 48%;
+    --brand-light-blue: 210 100% 97%;
+    --brand-gray: 217 20% 51%;
+    
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 18%) 0%, hsl(217 71% 25%) 50%, hsl(193 95% 48%) 100%);
+    --gradient-mesh: radial-gradient(at 0% 0%, hsl(217 91% 18% / 0.1) 0px, transparent 50%),
+                     radial-gradient(at 100% 100%, hsl(193 95% 48% / 0.15) 0px, transparent 50%);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(217 91% 18% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(217 91% 18% / 0.1), 0 2px 4px -2px hsl(217 91% 18% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(217 91% 18% / 0.1), 0 4px 6px -4px hsl(217 91% 18% / 0.1);
+    --shadow-glow: 0 0 40px hsl(193 95% 48% / 0.3);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 217 33% 10%;
+    --foreground: 0 0% 98%;
+
+    --card: 217 33% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 217 33% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 193 95% 48%;
+    --primary-foreground: 217 91% 18%;
+
+    --secondary: 217 33% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 217 33% 15%;
+    --muted-foreground: 217 20% 65%;
+
+    --accent: 193 95% 48%;
+    --accent-foreground: 217 91% 18%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 193 95% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

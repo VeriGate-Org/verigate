@@ -1,0 +1,17 @@
+export const SA_BANKS = [
+  "ABSA Bank",
+  "First National Bank (FNB)",
+  "Standard Bank",
+  "Nedbank",
+  "Capitec Bank",
+  "Investec Bank",
+  "Discovery Bank",
+  "TymeBank",
+  "African Bank",
+  "Bidvest Bank",
+  "Sasfin Bank",
+  "Bank Zero",
+  "Al Baraka Bank",
+  "HBZ Bank",
+  "Mercantile Bank (Capitec Business Bank)",
+];

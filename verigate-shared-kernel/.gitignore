@@ -1,0 +1,115 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.tar.gz
+*.zip
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+
+# Eclipse files
+.classpath
+.project
+.settings/
+
+# NetBeans files
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Gradle
+.gradle/
+build/
+
+# Spring Boot
+spring-boot-devtools/
+spring-boot-starter/
+spring-boot-autoconfigure/
+spring-boot-starter-logging/
+spring-boot-starter-actuator/
+spring-boot-starter-test/
+
+# Other
+bin/
+temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+rebel.xml
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# SAM
+.aws-sam
+.aws-sam/*
+samconfig.toml
+
+# Custom transformed SAM templates (see /tooling/verigate-shared-sam-preprocess)
+template.generated.yml
+
+# Open API Docs
+verigate-pas-bff/tyme/out
+
+# docker
+.volume
+
+# terraform
+.terraform
+
+# python
+.venv
+__pycache__
+
+# environment
+application.localenvironment
+.env
+.envrc
+
+# sandbox deployment
+iac/*/terraform/app-infrastructure/environments/local
