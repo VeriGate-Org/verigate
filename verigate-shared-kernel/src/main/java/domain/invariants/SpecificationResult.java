@@ -18,4 +18,13 @@ public record SpecificationResult(boolean satisfied, Set<ErrorRecord> errorMessa
   public static SpecificationResult failure(Set<ErrorRecord> errorMessages) {
     return new SpecificationResult(false, errorMessages);
   }
+
+  public static SpecificationResult fail(String message) {
+    return new SpecificationResult(false, Set.of(
+        new DefaultErrorRecord("validation", new InvariantError() {
+          @Override public String getMessage() { return message; }
+          @Override public String getCode() { return "VALIDATION_FAILED"; }
+        })
+    ));
+  }
 }
