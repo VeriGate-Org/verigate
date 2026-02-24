@@ -172,7 +172,7 @@ Resources:
       Dimensions:
         - Name: FunctionName
           Value: !Sub "${AWS::StackName}-verify-party-router"
-      Statistic: p99
+      ExtendedStatistic: p99
       Period: 300
       EvaluationPeriods: 3
       Threshold: 25000
