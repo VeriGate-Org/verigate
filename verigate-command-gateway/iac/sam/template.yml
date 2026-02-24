@@ -422,7 +422,7 @@ Resources:
     Properties:
       Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-document"
-      MemorySize: 3072
+      MemorySize: 3008
       Handler: verigate.adapter.document.infrastructure.functions.lambda.handlers.VerifyDocumentLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-document/verigate-adapter-document-infrastructure
       Environment:
