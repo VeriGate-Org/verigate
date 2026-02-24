@@ -19,7 +19,8 @@ resource "aws_iam_role_policy_attachment" "this" {
 }
 
 resource "aws_ssm_parameter" "role_arn" {
-  name  = "/application/iam-role/${var.complete_stack_name}/arn"
-  type  = "String"
-  value = aws_iam_role.this.arn
+  name      = "/application/iam-role/${var.complete_stack_name}/arn"
+  type      = "String"
+  value     = aws_iam_role.this.arn
+  overwrite = true
 }
