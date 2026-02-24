@@ -1,6 +1,7 @@
 name: Release | VeriGate Develop
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "main"
@@ -30,23 +31,36 @@ jobs:
       packages: read
     secrets: inherit
 
-  sandbox-deploy:
+  sandbox-terraform:
     needs: [install, integration-test]
-    uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-sandbox
+    uses: ./.github/workflows/_release-terraform.yml
+    concurrency: verigate-sandbox-terraform
     with:
-      java-version: "21"
       environment: sandbox
       github-environment: verigate-sandbox
       application-name: verigate
     permissions:
       id-token: write
       contents: read
-      packages: write
+    secrets: inherit
+
+  sandbox-sam:
+    needs: [sandbox-terraform]
+    uses: ./.github/workflows/_release-sam.yml
+    concurrency: verigate-sandbox-sam
+    with:
+      environment: sandbox
+      github-environment: verigate-sandbox
+      application-name: verigate
+      java-version: "21"
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
     secrets: inherit
 
   sandbox-smoke-test:
-    needs: [sandbox-deploy]
+    needs: [sandbox-sam]
     uses: ./.github/workflows/_smoke-test.yml
     with:
       environment: sandbox
@@ -56,23 +70,36 @@ jobs:
       contents: read
     secrets: inherit
 
-  development-deploy:
+  development-terraform:
     needs: [sandbox-smoke-test]
-    uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-development
+    uses: ./.github/workflows/_release-terraform.yml
+    concurrency: verigate-development-terraform
     with:
-      java-version: "21"
       environment: development
       github-environment: verigate-development
       application-name: verigate
     permissions:
       id-token: write
       contents: read
-      packages: write
+    secrets: inherit
+
+  development-sam:
+    needs: [development-terraform]
+    uses: ./.github/workflows/_release-sam.yml
+    concurrency: verigate-development-sam
+    with:
+      environment: development
+      github-environment: verigate-development
+      application-name: verigate
+      java-version: "21"
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
     secrets: inherit
 
   development-smoke-test:
-    needs: [development-deploy]
+    needs: [development-sam]
     uses: ./.github/workflows/_smoke-test.yml
     with:
       environment: development
