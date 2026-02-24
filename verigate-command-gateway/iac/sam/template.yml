@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Transform:
-  - AWS::Serverless-2016-10-31
-  - Name: DatadogServerless
-    Parameters:
-      stackName: !Sub ${AWS::StackName}
-      javaLayerVersion: 14
-      extensionLayerVersion: 57
-      site: "datadoghq.eu"
-      apiKeySecretArn: "{{resolve:ssm:/datadog/agent-secret-arn}}"
+Transform: AWS::Serverless-2016-10-31
+# DatadogServerless macro removed - requires macro to be deployed per account
+# Re-enable when Datadog is configured:
+#  - Name: DatadogServerless
+#    Parameters:
+#      stackName: !Sub ${AWS::StackName}
+#      javaLayerVersion: 14
+#      extensionLayerVersion: 57
+#      site: "datadoghq.eu"
+#      apiKeySecretArn: "{{resolve:ssm:/datadog/agent-secret-arn}}"
 
 Parameters:
   ApplicationVersion:
