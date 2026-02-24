@@ -52,12 +52,13 @@ Globals:
     Timeout: 30
     Runtime: java21
     AutoPublishAlias: live
-    SnapStart:
-      ApplyOn: PublishedVersions
+    # SnapStart disabled - GrowthBook feature flag initialization requires
+    # network access which is unavailable during SnapStart snapshot phase.
+    # Re-enable after making GrowthBook init lazy (deferred to first invocation).
+    # SnapStart:
+    #   ApplyOn: PublishedVersions
     DeploymentPreference:
-      Type: !If [DatadogIntegrationDisabledCondition, "AllAtOnce", "Linear10PercentEvery2Minutes"]
-      Alarms:
-        - !Ref VerifyPartyErrorAlarm
+      Type: AllAtOnce
     LoggingConfig:
       ApplicationLogLevel: INFO
       LogFormat: JSON
