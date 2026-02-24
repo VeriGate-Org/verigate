@@ -52,6 +52,9 @@ jobs:
           </settings>
           EOF
 
+      - name: Install shared-kernel
+        working-directory: verigate-shared-kernel
+        run: mvn install -DskipTests
       - name: Run integration tests
         working-directory: verigate-command-gateway
         run: mvn verify -Dsurefire.skip=true -Dfailsafe.rerunFailingTestsCount=1

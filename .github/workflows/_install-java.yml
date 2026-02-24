@@ -43,16 +43,20 @@ jobs:
               <server>
                 <id>github</id>
                   <username>${{ github.actor }}</username>
-                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT }}</password>
+                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT || secrets.GITHUB_TOKEN }}</password>
               </server>
               <server>
                 <id>verigate-org</id>
                   <username>${{ github.actor }}</username>
-                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT }}</password>
+                  <password>${{ secrets.VERIGATE_GH_PACKAGES_PAT || secrets.GITHUB_TOKEN }}</password>
               </server>
             </servers>
           </settings>
           EOL
+      - name: Install shared-kernel
+        if: steps.cache-maven.outputs.cache-hit != 'true'
+        working-directory: verigate-shared-kernel
+        run: mvn install -DskipTests
       - name: Maven compile
         if: steps.cache-maven.outputs.cache-hit != 'true'
         working-directory: verigate-command-gateway

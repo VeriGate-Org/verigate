@@ -26,6 +26,9 @@ jobs:
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      - name: Install shared-kernel
+        working-directory: verigate-shared-kernel
+        run: mvn install -DskipTests
       - name: Run Maven checkstyle
         working-directory: verigate-command-gateway
         run: mvn checkstyle:check
