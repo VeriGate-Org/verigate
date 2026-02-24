@@ -47,6 +47,12 @@ variable "event_source_arn" {
   default     = null
 }
 
+variable "enable_sqs_event_source" {
+  description = "Whether to create an SQS event source mapping"
+  type        = bool
+  default     = false
+}
+
 variable "default_tags" {
   description = "Default tags to apply to resources"
   type        = map(string)

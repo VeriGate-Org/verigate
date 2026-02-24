@@ -613,6 +613,7 @@ module "worldcheck_lambda" {
   }
   
   # SQS Event Source
+  enable_sqs_event_source = true
   event_source_arn = module.worldcheck_adapter_queue.queue_arn
   
   default_tags = local.default_tags
