@@ -65,8 +65,14 @@ jobs:
       - name: Install shared-kernel
         working-directory: verigate-shared-kernel
         run: mvn install -DskipTests
-      - name: Maven install
+      - name: Maven install - command-gateway
         working-directory: verigate-command-gateway
+        run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
+      - name: Maven install - partner
+        working-directory: verigate-partner
+        run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
+      - name: Maven install - billing
+        working-directory: verigate-billing
         run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
       - name: Sam build
         run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-command-gateway/iac/sam/template.yml --parallel
