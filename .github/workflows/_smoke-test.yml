@@ -31,7 +31,6 @@ jobs:
           FUNCTIONS=(
             "${STACK_NAME}-verify-party-router"
             "${STACK_NAME}-verify-bank-account-details"
-            "${STACK_NAME}-verify-personal-details"
             "${STACK_NAME}-verify-identity"
             "${STACK_NAME}-verify-company-details"
             "${STACK_NAME}-verify-property-ownership"
@@ -43,6 +42,10 @@ jobs:
             "${STACK_NAME}-perform-credit-check"
             "${STACK_NAME}-verify-tax-compliance"
             "${STACK_NAME}-verify-income"
+            "${STACK_NAME}-create-partner"
+            "${STACK_NAME}-update-partner-config"
+            "${STACK_NAME}-usage-event-consumer"
+            "${STACK_NAME}-usage-aggregator"
           )
 
           FAILED=0
