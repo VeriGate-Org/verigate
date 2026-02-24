@@ -606,10 +606,9 @@ module "worldcheck_lambda" {
   lambda_role_arn = module.lambda_iam.role_arn
   
   environment_variables = {
-    WORLDCHECK_API_BASE_URL = var.worldcheck_api_base_url
+    WORLDCHECK_API_BASE_URL  = var.worldcheck_api_base_url
     COMMAND_STORE_TABLE_NAME = module.verification_dynamodb_commandstore.table_name
-    EVENT_BUS_NAME = module.verification_stream.event_bus_name
-    AWS_REGION = var.aws_region
+    EVENT_BUS_NAME           = module.verification_stream.event_bus_name
   }
   
   # SQS Event Source
