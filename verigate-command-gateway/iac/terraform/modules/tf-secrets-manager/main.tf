@@ -7,8 +7,8 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  for_each = { for k, v in var.secrets : k => v if v.value != null && v.value != "" }
+  for_each = var.secrets
 
   secret_id     = aws_secretsmanager_secret.this[each.key].id
-  secret_string = each.value.value
+  secret_string = coalesce(each.value.value, "CHANGE_ME")
 }
