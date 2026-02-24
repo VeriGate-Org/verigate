@@ -252,33 +252,7 @@ Resources:
               MaximumEventAgeInSeconds: 60
               MaximumRetryAttempts: 0
 
-  VerifyPersonalDetailsLambdaHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
-      FunctionName: !Sub "${AWS::StackName}-verify-personal-details"
-      Handler: verigate.adapter.worldcheck.infrastructure.functions.lambda.handlers.VerifyPersonalDetailsLambdaHandler::handleRequest
-      CodeUri: ../../src/verigate-adapter-worldcheck/verigate-adapter-worldcheck-infrastructure
-      Environment:
-        Variables:
-          VERIFY_PERSONAL_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-worldcheck-imq"
-          VERIFY_PERSONAL_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-worldcheck-dlq"
-          WORLDCHECK_QT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/worldcheck/qt_api_url}}"
-          WORLDCHECK_AUTH_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/worldcheck/authentication_url}}"
-      Events:
-        VerigateVerifyPersonalDetailsQueueCommand:
-          Type: SQS
-          Properties:
-            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-worldcheck/arn}}"
-            BatchSize: 10
-        ScheduleEvent:
-          Type: ScheduleV2
-          Properties:
-            ScheduleExpression: "rate(5 minutes)"
-            Name: !Sub "${AWS::StackName}-verify-personal-details-kw"
-            RetryPolicy:
-              MaximumEventAgeInSeconds: 60
-              MaximumRetryAttempts: 0
+  # VerifyPersonalDetailsLambdaHandler removed - worldcheck adapter managed by Terraform (modules/tf-lambda)
 
   VerifyIdentityLambdaHandler:
     Type: AWS::Serverless::Function
