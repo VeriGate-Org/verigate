@@ -22,7 +22,7 @@ variable "aws_region" {
 variable "github_org" {
   description = "GitHub organization name"
   type        = string
-  default     = "verigate-org"
+  default     = "VeriGate-Org"
 }
 
 variable "github_repo" {

@@ -600,7 +600,7 @@ module "worldcheck_lambda" {
   complete_stack_name = "${var.stack_name}-${var.project_name}"
   lambda_name = "worldcheck-verification"
   lambda_runtime = "java17"
-  lambda_handler = "verigate.adapter.refinitiv.worldcheck.infrastructure.functions.lambda.handlers.WorldCheckVerificationLambdaHandler::handleRequest"
+  lambda_handler = "verigate.adapter.refinitiv.worldcheck.infrastructure.functions.lambda.handlers.WorldCheckVerificationLambdaHandler"
   lambda_timeout = 300
   lambda_memory_size = 1024
   lambda_role_arn = module.lambda_iam.role_arn
