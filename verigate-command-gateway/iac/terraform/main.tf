@@ -415,53 +415,9 @@ resource "aws_ssm_parameter" "billing_plans_table_name" {
   value = "${local.complete_stack_name}-billing-plans-table"
 }
 
-#----------------------------------------------------------------------------------------------------------------
-# SSM Parameters - Partner Queue ARNs (for SAM SQS event sources)
-#----------------------------------------------------------------------------------------------------------------
-
-resource "aws_ssm_parameter" "partner_create_queue_arn" {
-  name  = "/${var.stack_name}-${var.project_name}/queues/partner-create/arn"
-  type  = "String"
-  value = module.partner_create_queue.queue_arn
-}
-
-resource "aws_ssm_parameter" "partner_config_update_queue_arn" {
-  name  = "/${var.stack_name}-${var.project_name}/queues/partner-config-update/arn"
-  type  = "String"
-  value = module.partner_config_update_queue.queue_arn
-}
-
-#----------------------------------------------------------------------------------------------------------------
-# Partner IMQ/DLQ Queues
-#----------------------------------------------------------------------------------------------------------------
-
-module "partner_create_imq" {
-  source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
-  queue_name = "partner-create-imq"
-  max_receive_count = 1
-}
-
-module "partner_create_dlq" {
-  source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
-  queue_name = "partner-create-dlq"
-  max_receive_count = 1
-}
-
-module "partner_config_update_imq" {
-  source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
-  queue_name = "partner-config-update-imq"
-  max_receive_count = 1
-}
-
-module "partner_config_update_dlq" {
-  source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
-  queue_name = "partner-config-update-dlq"
-  max_receive_count = 1
-}
+# Note: Partner queue ARN SSM parameters and DLQ/IMQ queues are already
+# created by the tf-sqs module in partner_create_queue and
+# partner_config_update_queue above (with overwrite = true).
 
 #----------------------------------------------------------------------------------------------------------------
 # Kinesis
