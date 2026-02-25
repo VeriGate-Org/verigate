@@ -17,3 +17,8 @@ output "ecs_service_name" {
   description = "ECS service name"
   value       = aws_ecs_service.this.name
 }
+
+output "ecs_cluster_arn" {
+  description = "ECS cluster ARN"
+  value       = aws_ecs_cluster.this.arn
+}
