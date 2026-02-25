@@ -1,0 +1,4 @@
+bucket         = "verigate-sbx-420747712978-tf-state"
+key            = "verigate-partner-portal/sandbox/terraform.tfstate"
+use_lockfile  = true
+region         = "eu-west-1"
