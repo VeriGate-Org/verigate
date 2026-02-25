@@ -18,7 +18,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +36,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.sha }}"
           ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
+          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
           docker push ${ECR_REPO}:${IMAGE_TAG}
           docker push ${ECR_REPO}:latest
 
@@ -59,7 +58,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v4
 
@@ -78,7 +76,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.sha }}"
           ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
+          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
           docker push ${ECR_REPO}:${IMAGE_TAG}
           docker push ${ECR_REPO}:latest
 

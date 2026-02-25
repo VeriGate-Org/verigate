@@ -49,12 +49,12 @@ public class VerificationController {
     return verificationService
         .findVerification(commandId)
         .map(
-            record ->
+            item ->
                 new VerificationStatusResponse(
-                    record.getCommandId(),
-                    record.getStatus(),
-                    record.getErrorDetails(),
-                    record.getAuxiliaryData()))
+                    UUID.fromString(item.getCommandId()),
+                    item.getStatus(),
+                    item.getErrorDetails(),
+                    item.getAuxiliaryData()))
         .orElseThrow(() -> {
           logger.warn("Verification not found: commandId={}", commandId);
           return new ResponseStatusException(HttpStatus.NOT_FOUND);

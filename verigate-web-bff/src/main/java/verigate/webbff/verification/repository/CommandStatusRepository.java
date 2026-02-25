@@ -10,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-import verigate.verification.cg.domain.commands.commandstore.VerificationCommandStoreRecord;
 import verigate.webbff.config.properties.CommandStoreProperties;
 import verigate.webbff.verification.repository.model.VerificationCommandStoreItem;
 
@@ -28,7 +27,7 @@ public class CommandStatusRepository {
             properties.getTableName(), TableSchema.fromBean(VerificationCommandStoreItem.class));
   }
 
-  public Optional<VerificationCommandStoreRecord> findById(UUID commandId) {
+  public Optional<VerificationCommandStoreItem> findById(UUID commandId) {
     VerificationCommandStoreItem item;
     try {
       item = table.getItem(Key.builder().partitionValue(commandId.toString()).build());
@@ -36,9 +35,6 @@ public class CommandStatusRepository {
       logger.error("DynamoDB getItem failed for commandId {}: {}", commandId, e.getMessage());
       throw new RuntimeException("Service temporarily unavailable", e);
     }
-    if (item == null) {
-      return Optional.empty();
-    }
-    return Optional.of(item.toDomain());
+    return Optional.ofNullable(item);
   }
 }

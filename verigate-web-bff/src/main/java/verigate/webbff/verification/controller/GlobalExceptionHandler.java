@@ -1,6 +1,5 @@
 package verigate.webbff.verification.controller;
 
-import domain.exceptions.InvariantViolationException;
 import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,8 @@ public class GlobalExceptionHandler {
 
   record ErrorResponse(int status, String error, String message, Instant timestamp) {}
 
-  @ExceptionHandler({IllegalArgumentException.class, InvariantViolationException.class})
-  public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex) {
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorResponse> handleBadRequest(IllegalArgumentException ex) {
     logger.warn("Bad request: {}", ex.getMessage());
     return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
   }

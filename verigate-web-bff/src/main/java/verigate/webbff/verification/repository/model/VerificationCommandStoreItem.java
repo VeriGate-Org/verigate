@@ -2,19 +2,17 @@ package verigate.webbff.verification.repository.model;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import verigate.verification.cg.domain.commands.commandstore.VerificationCommandStatusEnum;
-import verigate.verification.cg.domain.commands.commandstore.VerificationCommandStoreRecord;
+import verigate.webbff.verification.model.CommandStatus;
 
 @DynamoDbBean
 public class VerificationCommandStoreItem {
 
   private String commandId;
   private String commandName;
-  private VerificationCommandStatusEnum status;
+  private CommandStatus status;
   private List<String> errorDetails;
   private Map<String, String> auxiliaryData;
 
@@ -38,11 +36,11 @@ public class VerificationCommandStoreItem {
   }
 
   @DynamoDbAttribute("status")
-  public VerificationCommandStatusEnum getStatus() {
+  public CommandStatus getStatus() {
     return status;
   }
 
-  public void setStatus(VerificationCommandStatusEnum status) {
+  public void setStatus(CommandStatus status) {
     this.status = status;
   }
 
@@ -62,10 +60,5 @@ public class VerificationCommandStoreItem {
 
   public void setAuxiliaryData(Map<String, String> auxiliaryData) {
     this.auxiliaryData = auxiliaryData;
-  }
-
-  public VerificationCommandStoreRecord toDomain() {
-    return new VerificationCommandStoreRecord(
-        UUID.fromString(commandId), commandName, status, errorDetails, auxiliaryData);
   }
 }

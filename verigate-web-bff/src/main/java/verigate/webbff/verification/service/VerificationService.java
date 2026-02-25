@@ -1,7 +1,7 @@
 package verigate.webbff.verification.service;
 
-import infrastructure.functions.lambda.serializers.internal.DefaultInternalTransportJsonSerializer;
-import infrastructure.mapping.Mapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -9,73 +9,65 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
-import verigate.verification.cg.application.factories.VerifyPartySpecificationFactory;
-import verigate.verification.cg.domain.commands.commandstore.VerificationCommandStatusEnum;
-import verigate.verification.cg.domain.commands.commandstore.VerificationCommandStoreRecord;
-import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
-import verigate.verification.cg.domain.models.Origination;
 import verigate.webbff.config.properties.ResponsePollingProperties;
+import verigate.webbff.verification.model.CommandStatus;
 import verigate.webbff.verification.model.VerificationRequest;
 import verigate.webbff.verification.model.VerificationResponse;
+import verigate.webbff.verification.model.VerifyPartyCommandMessage;
+import verigate.webbff.verification.model.VerifyPartyCommandMessage.Origination;
 import verigate.webbff.verification.repository.CommandStatusRepository;
-import verigate.webbff.verification.support.VerificationQueueResolver;
+import verigate.webbff.verification.repository.model.VerificationCommandStoreItem;
 
 @Service
 public class VerificationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(VerificationService.class);
 
-  private final VerificationQueueResolver queueResolver;
   private final SqsClient sqsClient;
-  private final DefaultInternalTransportJsonSerializer serializer;
-  private final Mapper mapper;
-  private final VerifyPartySpecificationFactory specificationFactory;
+  private final ObjectMapper objectMapper;
   private final CommandStatusRepository statusRepository;
   private final ResponsePollingProperties pollingProperties;
+  private final String queueName;
 
   public VerificationService(
-      VerificationQueueResolver queueResolver,
       SqsClient sqsClient,
-      DefaultInternalTransportJsonSerializer serializer,
-      Mapper mapper,
-      VerifyPartySpecificationFactory specificationFactory,
+      ObjectMapper objectMapper,
       CommandStatusRepository statusRepository,
-      ResponsePollingProperties pollingProperties) {
-    this.queueResolver = queueResolver;
+      ResponsePollingProperties pollingProperties,
+      @Value("${verigate.verification.queue-name:verify-party}") String queueName) {
     this.sqsClient = sqsClient;
-    this.serializer = serializer;
-    this.mapper = mapper;
-    this.specificationFactory = specificationFactory;
+    this.objectMapper = objectMapper;
     this.statusRepository = statusRepository;
     this.pollingProperties = pollingProperties;
+    this.queueName = queueName;
   }
 
   public VerificationResponse submitVerification(VerificationRequest request) {
     var commandId = UUID.randomUUID();
     var command = buildCommand(commandId, request);
 
-    validate(command);
+    dispatch(command);
 
-    dispatch(command, queueResolver.resolve(request.verificationType()));
-
-    var status = pollForStatus(commandId).map(VerificationCommandStoreRecord::getStatus)
-        .orElse(VerificationCommandStatusEnum.PENDING);
+    var status = pollForStatus(commandId)
+        .map(VerificationCommandStoreItem::getStatus)
+        .orElse(CommandStatus.PENDING);
 
     return new VerificationResponse(commandId, status);
   }
 
-  public Optional<VerificationCommandStoreRecord> findVerification(UUID commandId) {
+  public Optional<VerificationCommandStoreItem> findVerification(UUID commandId) {
     return statusRepository.findById(commandId);
   }
 
-  private VerifyPartyCommand buildCommand(UUID commandId, VerificationRequest request) {
+  private VerifyPartyCommandMessage buildCommand(UUID commandId, VerificationRequest request) {
     Origination origination = new Origination(request.originationType(), request.originationId());
     Map<String, Object> metadata = Optional.ofNullable(request.metadata()).orElse(Map.of());
-    return new VerifyPartyCommand(
+    return new VerifyPartyCommandMessage(
         commandId,
         Instant.now(),
         request.requestedBy(),
@@ -84,21 +76,21 @@ public class VerificationService {
         metadata);
   }
 
-  private void validate(VerifyPartyCommand command) {
-    var specification = specificationFactory.createSpecification(command);
-    command.validate(specification);
-  }
-
-  private void dispatch(VerifyPartyCommand command, String queueName) {
+  private void dispatch(VerifyPartyCommandMessage command) {
     var queueUrl =
         sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName(queueName).build()).queueUrl();
-    var payload = serializer.serialize(mapper.toDto(command));
+    String payload;
+    try {
+      payload = objectMapper.writeValueAsString(command);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Failed to serialize command", e);
+    }
     sqsClient.sendMessage(
         SendMessageRequest.builder().queueUrl(queueUrl).messageBody(payload).build());
     LOGGER.info("Dispatched verification command {} to queue {}", command.getId(), queueName);
   }
 
-  private Optional<VerificationCommandStoreRecord> pollForStatus(UUID commandId) {
+  private Optional<VerificationCommandStoreItem> pollForStatus(UUID commandId) {
     int attempts = Math.max(1, pollingProperties.getPollMaxAttempts());
     long pauseMs = Math.max(0L, pollingProperties.getPollTimeoutMs());
 
