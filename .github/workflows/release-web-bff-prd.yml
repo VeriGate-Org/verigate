@@ -8,6 +8,9 @@ on:
     paths:
       - "verigate-web-bff/**"
 
+env:
+  SERVICE_NAME: verigate-web-bff
+
 jobs:
   deploy-preproduction:
     runs-on: ubuntu-latest
@@ -33,7 +36,7 @@ jobs:
         working-directory: verigate-web-bff
         run: |
           IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ vars.STACK_NAME }}-web-bff"
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
           docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
           docker push ${ECR_REPO}:${IMAGE_TAG}
           docker push ${ECR_REPO}:latest
@@ -41,12 +44,12 @@ jobs:
       - name: Deploy to ECS
         run: |
           aws ecs update-service \
-            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
             --service ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
             --force-new-deployment
           aws ecs wait services-stable \
-            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }}
+            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
 
   deploy-production:
     needs: [deploy-preproduction]
@@ -73,7 +76,7 @@ jobs:
         working-directory: verigate-web-bff
         run: |
           IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ vars.STACK_NAME }}-web-bff"
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
           docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
           docker push ${ECR_REPO}:${IMAGE_TAG}
           docker push ${ECR_REPO}:latest
@@ -81,9 +84,9 @@ jobs:
       - name: Deploy to ECS
         run: |
           aws ecs update-service \
-            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
             --service ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
             --force-new-deployment
           aws ecs wait services-stable \
-            --cluster ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ vars.STACK_NAME }}-web-bff-${{ vars.ENVIRONMENT_SHORTNAME }}
+            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
