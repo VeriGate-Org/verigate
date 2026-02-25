@@ -259,6 +259,18 @@ module "lambda_iam" {
 
 }
 
+# In PROD, local.complete_stack_name omits the env suffix (i.e. "verigate-verification-cg"
+# not "verigate-verification-cg-prd"). The tf-iam module creates the SSM parameter at
+# /application/iam-role/verigate-verification-cg/arn, but the SAM template expects
+# /application/iam-role/verigate-verification-cg-prd/arn. This alias bridges the gap.
+resource "aws_ssm_parameter" "lambda_role_arn_prod_alias" {
+  count     = var.environment_shortname == "prd" ? 1 : 0
+  name      = "/application/iam-role/${var.stack_name}-${var.project_name}-${var.environment_shortname}/arn"
+  type      = "String"
+  value     = module.lambda_iam.role_arn
+  overwrite = true
+}
+
 #----------------------------------------------------------------------------------------------------------------
 # SQS Queues
 #----------------------------------------------------------------------------------------------------------------
