@@ -6,6 +6,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Menu, Bell, HelpCircle, Search, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Navigation/Breadcrumb";
+import { useAuth, useUser } from "@/lib/auth";
 import * as React from "react";
 
 const ENV_LABEL = process.env.NEXT_PUBLIC_ENV || "Sandbox";
@@ -116,6 +117,8 @@ export default function TopNav() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+  const { signOut } = useAuth();
+  const user = useUser();
   
   const toggleSidebar = () => {
     if (typeof document !== "undefined") {
@@ -381,8 +384,8 @@ export default function TopNav() {
                       className="h-10 w-10 rounded-full"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-text truncate">{process.env.NEXT_PUBLIC_USER_NAME || "Partner User"}</div>
-                      <div className="text-xs text-text-muted truncate">{process.env.NEXT_PUBLIC_USER_EMAIL || "user@partner.com"}</div>
+                      <div className="font-semibold text-text truncate">{user?.partnerName || "Partner User"}</div>
+                      <div className="text-xs text-text-muted truncate">{user?.email || "user@partner.com"}</div>
                     </div>
                   </div>
                 </div>
@@ -456,7 +459,7 @@ export default function TopNav() {
                 {/* Sign Out */}
                 <DropdownMenu.Item asChild>
                   <button
-                    onClick={() => { window.location.href = "/signin"; }}
+                    onClick={() => { signOut(); window.location.href = "/signin"; }}
                     className="flex items-center gap-3 rounded px-3 py-2.5 hover:bg-hover cursor-pointer w-full text-left"
                   >
                     <span className="text-lg">🚪</span>

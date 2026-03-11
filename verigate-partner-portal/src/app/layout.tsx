@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-// Using system fonts like OmniCheck - no Google Fonts needed
 import "./globals.css";
-import TopNav from "@/components/TopNav";
-import Sidebar from "@/components/Sidebar";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
-
-// No custom fonts - using system fonts like OmniCheck
+import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "VeriGate Partner Portal",
@@ -30,13 +26,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen bg-background text-text">
         <ThemeProvider>
           <QueryProvider>
-            <TopNav />
-            <div className="flex pt-14">
-              <Sidebar />
-              <main className="flex-1 md:ml-60 p-6 bg-background min-h-screen">
-                {children}
-              </main>
-            </div>
+            <AppShell>{children}</AppShell>
           </QueryProvider>
         </ThemeProvider>
       </body>

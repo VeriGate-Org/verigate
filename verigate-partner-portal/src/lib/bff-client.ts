@@ -6,8 +6,29 @@ const bffApi = axios.create({
   baseURL: config.bffBaseUrl,
   headers: {
     "Content-Type": "application/json",
-    ...(config.bffApiKey ? { "X-API-Key": config.bffApiKey } : {}),
   },
+});
+
+// Request interceptor to attach auth headers dynamically
+bffApi.interceptors.request.use((reqConfig) => {
+  if (config.bffApiKey) {
+    reqConfig.headers["X-API-Key"] = config.bffApiKey;
+  }
+
+  // Attach access token from session storage if available
+  try {
+    const raw = sessionStorage.getItem("verigate-auth");
+    if (raw) {
+      const session = JSON.parse(raw);
+      if (session.accessToken) {
+        reqConfig.headers["Authorization"] = `Bearer ${session.accessToken}`;
+      }
+    }
+  } catch {
+    // sessionStorage may be unavailable during SSR/build
+  }
+
+  return reqConfig;
 });
 
 export interface BffVerificationSubmission {
