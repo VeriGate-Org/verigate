@@ -1,0 +1,312 @@
+/*
+ * VeriGate (c) 2025. All rights reserved.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * Proprietary and confidential.
+ */
+
+package verigate.adapter.income.application.handlers;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import domain.exceptions.PermanentException;
+import domain.exceptions.TransientException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import verigate.adapter.income.domain.enums.ConfidenceLevel;
+import verigate.adapter.income.domain.models.IncomeAssessment;
+import verigate.adapter.income.domain.models.IncomeVerificationRequest;
+import verigate.adapter.income.domain.models.IncomeVerificationResponse;
+import verigate.adapter.income.domain.services.IncomeVerificationService;
+import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
+import verigate.verification.cg.domain.models.VerificationOutcome;
+
+class DefaultVerifyIncomeCommandHandlerTest {
+
+    @Mock
+    private IncomeVerificationService incomeVerificationService;
+
+    private DefaultVerifyIncomeCommandHandler handler;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        handler = new DefaultVerifyIncomeCommandHandler(incomeVerificationService);
+    }
+
+    @Test
+    void testHandleSuccessfulVerification() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeAssessment assessment = new IncomeAssessment(
+            new BigDecimal("25000.00"),
+            new BigDecimal("25000.00"),
+            BigDecimal.ZERO,
+            ConfidenceLevel.HIGH,
+            List.of("PAYSLIP", "BANK_STATEMENT"),
+            true
+        );
+
+        IncomeVerificationResponse verifiedResponse =
+            IncomeVerificationResponse.verified(assessment, "Income verified successfully");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(verifiedResponse);
+
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert
+        assertEquals(VerificationOutcome.SUCCEEDED.toString(), result.get("outcome"));
+        assertTrue(result.get("details").contains("Income verified successfully"));
+        assertEquals("VERIFIED", result.get("verificationStatus"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleMismatch() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeAssessment assessment = new IncomeAssessment(
+            new BigDecimal("15000.00"),
+            new BigDecimal("25000.00"),
+            new BigDecimal("40.00"),
+            ConfidenceLevel.HIGH,
+            List.of("BANK_STATEMENT"),
+            false
+        );
+
+        IncomeVerificationResponse mismatchResponse =
+            IncomeVerificationResponse.mismatch(assessment, "Declared income exceeds verified income");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(mismatchResponse);
+
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert
+        assertEquals(VerificationOutcome.HARD_FAIL.toString(), result.get("outcome"));
+        assertTrue(result.get("details").contains("mismatch"));
+        assertEquals("MISMATCH", result.get("verificationStatus"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleInsufficientEvidence() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeVerificationResponse insufficientResponse =
+            IncomeVerificationResponse.insufficientEvidence(
+                new BigDecimal("25000.00"), "Not enough evidence to verify income");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(insufficientResponse);
+
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert
+        assertEquals(VerificationOutcome.SOFT_FAIL.toString(), result.get("outcome"));
+        assertTrue(result.get("details").contains("Insufficient evidence"));
+        assertEquals("INSUFFICIENT_EVIDENCE", result.get("verificationStatus"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleUnverifiable() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeVerificationResponse unverifiableResponse =
+            IncomeVerificationResponse.unverifiable(
+                new BigDecimal("25000.00"), "Income could not be verified");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(unverifiableResponse);
+
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert
+        assertEquals(VerificationOutcome.HARD_FAIL.toString(), result.get("outcome"));
+        assertTrue(result.get("details").contains("could not be verified"));
+        assertEquals("UNVERIFIABLE", result.get("verificationStatus"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleMissingIdNumber() {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("someOtherKey", "value")
+        );
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class, () -> handler.handle(command));
+        assertTrue(exception.getMessage().contains("ID number is required for income verification"));
+
+        verifyNoInteractions(incomeVerificationService);
+    }
+
+    @Test
+    void testHandleServiceError() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeVerificationResponse errorResponse =
+            IncomeVerificationResponse.error(new BigDecimal("25000.00"), "API service unavailable");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(errorResponse);
+
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert
+        assertEquals(VerificationOutcome.SYSTEM_OUTAGE.toString(), result.get("outcome"));
+        assertEquals("ERROR", result.get("verificationStatus"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleTransientException() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenThrow(new TransientException("Network timeout"));
+
+        // Act & Assert
+        assertThrows(TransientException.class, () -> handler.handle(command));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleAsyncSuccess() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        IncomeAssessment assessment = new IncomeAssessment(
+            new BigDecimal("25000.00"),
+            new BigDecimal("25000.00"),
+            BigDecimal.ZERO,
+            ConfidenceLevel.HIGH,
+            List.of("PAYSLIP"),
+            true
+        );
+
+        IncomeVerificationResponse verifiedResponse =
+            IncomeVerificationResponse.verified(assessment, "Income verified");
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenReturn(verifiedResponse);
+
+        // Act
+        var future = handler.handleAsync(command);
+        var result = future.get();
+
+        // Assert
+        assertEquals(VerificationOutcome.SUCCEEDED, result.outcome());
+        assertTrue(result.failureReason().contains("Income verified successfully"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+
+    @Test
+    void testHandleAsyncFailure() throws Exception {
+        // Arrange
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of("idNumber", "9001015009087")
+        );
+
+        when(incomeVerificationService.verifyIncome(any(IncomeVerificationRequest.class)))
+            .thenThrow(new PermanentException("Service error"));
+
+        // Act
+        var future = handler.handleAsync(command);
+        var result = future.get();
+
+        // Assert
+        assertEquals(VerificationOutcome.SYSTEM_OUTAGE, result.outcome());
+        assertTrue(result.failureReason().contains("Income verification failed"));
+
+        verify(incomeVerificationService).verifyIncome(any(IncomeVerificationRequest.class));
+    }
+}
