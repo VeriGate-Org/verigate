@@ -20,6 +20,8 @@ public class VerificationCommandStoreRecord {
   private VerificationCommandStatusEnum status;
   private List<String> errorDetails;
   private Map<String, String> auxiliaryData;
+  private String partnerId;
+  private String createdAt;
 
   /**
    * Constructor for the VerificationCommandStoreRecord.
@@ -41,6 +43,34 @@ public class VerificationCommandStoreRecord {
     this.status = status;
     this.errorDetails = errorDetails;
     this.auxiliaryData = auxiliaryData;
+  }
+
+  /**
+   * Constructor with partnerId and createdAt for GSI population.
+   *
+   * @param commandId the command id
+   * @param commandName the command name
+   * @param status the status
+   * @param errorDetails the error details
+   * @param auxiliaryData the auxiliary data
+   * @param partnerId the partner id
+   * @param createdAt the creation timestamp as ISO-8601 string
+   */
+  public VerificationCommandStoreRecord(
+      UUID commandId,
+      String commandName,
+      VerificationCommandStatusEnum status,
+      List<String> errorDetails,
+      Map<String, String> auxiliaryData,
+      String partnerId,
+      String createdAt) {
+    this.commandId = commandId;
+    this.commandName = commandName;
+    this.status = status;
+    this.errorDetails = errorDetails;
+    this.auxiliaryData = auxiliaryData;
+    this.partnerId = partnerId;
+    this.createdAt = createdAt;
   }
 
   public void setStatus(VerificationCommandStatusEnum status) {
@@ -75,5 +105,13 @@ public class VerificationCommandStoreRecord {
 
   public Map<String, String> getAuxiliaryData() {
     return auxiliaryData;
+  }
+
+  public String getPartnerId() {
+    return partnerId;
+  }
+
+  public String getCreatedAt() {
+    return createdAt;
   }
 }

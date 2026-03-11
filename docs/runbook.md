@@ -79,12 +79,20 @@ aws dynamodb get-item \
   --table-name verigate-verification-cg-command-store-table \
   --key '{"commandId": {"S": "your-command-id"}}'
 
-# Query commands by partner
+# Query commands by partner (sorted by status#createdAt)
 aws dynamodb query \
   --table-name verigate-verification-cg-command-store-table \
   --index-name partner-index \
   --key-condition-expression "partnerId = :pid" \
   --expression-attribute-values '{":pid": {"S": "partner-001"}}' \
+  --limit 10
+
+# Query commands by partner filtered by status
+aws dynamodb query \
+  --table-name verigate-verification-cg-command-store-table \
+  --index-name partner-index \
+  --key-condition-expression "partnerId = :pid AND begins_with(statusCreatedAt, :status)" \
+  --expression-attribute-values '{":pid": {"S": "partner-001"}, ":status": {"S": "COMPLETED#"}}' \
   --limit 10
 ```
 

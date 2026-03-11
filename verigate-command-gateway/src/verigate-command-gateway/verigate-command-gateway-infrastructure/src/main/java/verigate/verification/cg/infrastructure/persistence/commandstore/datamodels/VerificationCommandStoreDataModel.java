@@ -24,6 +24,9 @@ public final class VerificationCommandStoreDataModel {
   private VerificationCommandStatusEnum status;
   private List<String> errorDetails;
   private Map<String, String> auxiliaryData;
+  private String partnerId;
+  private String createdAt;
+  private String statusCreatedAt;
 
   @DynamoDbPartitionKey
   @DynamoDbAttribute("commandId")
@@ -69,5 +72,32 @@ public final class VerificationCommandStoreDataModel {
 
   public void setAuxiliaryData(Map<String, String> auxiliaryData) {
     this.auxiliaryData = auxiliaryData;
+  }
+
+  @DynamoDbAttribute("partnerId")
+  public String getPartnerId() {
+    return partnerId;
+  }
+
+  public void setPartnerId(String partnerId) {
+    this.partnerId = partnerId;
+  }
+
+  @DynamoDbAttribute("createdAt")
+  public String getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  @DynamoDbAttribute("statusCreatedAt")
+  public String getStatusCreatedAt() {
+    return statusCreatedAt;
+  }
+
+  public void setStatusCreatedAt(String statusCreatedAt) {
+    this.statusCreatedAt = statusCreatedAt;
   }
 }

@@ -41,7 +41,7 @@ module "verification_dynamodb_commandstore" {
       type = "S"
     },
     {
-      name = "createdAt"
+      name = "statusCreatedAt"
       type = "S"
     }
   ]
@@ -50,7 +50,7 @@ module "verification_dynamodb_commandstore" {
     {
       name               = "partner-index"
       hash_key           = "partnerId"
-      range_key          = "createdAt"
+      range_key          = "statusCreatedAt"
       projection_type    = "ALL"
     }
   ]
