@@ -30,8 +30,6 @@ Each environment must have the following secrets configured:
 | `QLINK_USERNAME` | QLink API username |
 | `QLINK_PASSWORD` | QLink API password |
 | `QLINK_CLIENT_ID` | QLink client ID |
-| `QLINK_CLIENT_REFERENCE` | QLink client reference |
-| `QLINK_CLIENT_SERVICE_NAME` | QLink client service name |
 
 ### Worldcheck (Astute/Refinitiv - Personal Details Verification)
 
