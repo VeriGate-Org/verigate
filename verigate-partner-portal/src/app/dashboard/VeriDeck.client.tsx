@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BarChart3, CheckCircle2, Clock, XCircle } from "lucide-react";
 import type { Verification, VerificationStatus } from "@/lib/types";
-
-type Paged<T> = { total: number; items: T[] };
+import { listVerifications } from "@/lib/verification-api";
 
 const STATUS: VerificationStatus[] = [
   "success",
@@ -44,20 +43,14 @@ export default function VeriDeck() {
       try {
         setLoading(true);
         setError(null);
-        const fromQuery = fromIso ? `&from=${encodeURIComponent(fromIso)}` : "";
-        const recRes = await fetch(`/api/verifications?pageSize=15&sortBy=startedAt&sortDir=desc${fromQuery}`);
-        const recJson = (await recRes.json()) as Paged<Verification>;
-
-        const setRes = await fetch(`/api/verifications?pageSize=1000&sortBy=startedAt&sortDir=asc${fromQuery}`);
-        const setJson = (await setRes.json()) as Paged<Verification>;
-
-        const totalRes = await fetch(`/api/verifications?pageSize=1${fromQuery}`);
-        const totalJson = (await totalRes.json()) as Paged<Verification>;
+        const fromParam = fromIso || undefined;
+        const recJson = await listVerifications({ pageSize: 15, sortBy: "startedAt", sortDir: "desc", from: fromParam });
+        const setJson = await listVerifications({ pageSize: 1000, sortBy: "startedAt", sortDir: "asc", from: fromParam });
+        const totalJson = await listVerifications({ pageSize: 1, from: fromParam });
 
         const statusTotalsEntries = await Promise.all(
           STATUS.map(async (s) => {
-            const r = await fetch(`/api/verifications?status=${s}&pageSize=1${fromQuery}`);
-            const j = (await r.json()) as Paged<Verification>;
+            const j = await listVerifications({ status: s, pageSize: 1, from: fromParam });
             return [s, j.total] as const;
           })
         );
@@ -93,8 +86,7 @@ export default function VeriDeck() {
       const prevFrom = new Date(start - span).toISOString();
       const prevTo = new Date(start - 1).toISOString();
       try {
-        const r = await fetch(`/api/verifications?pageSize=1&from=${encodeURIComponent(prevFrom)}&to=${encodeURIComponent(prevTo)}`);
-        const j = (await r.json()) as Paged<Verification>;
+        const j = await listVerifications({ pageSize: 1, from: prevFrom, to: prevTo });
         if (!cancelled) setPrevWindowTotal(j.total);
       } catch {
         if (!cancelled) setPrevWindowTotal(null);

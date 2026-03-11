@@ -9,6 +9,7 @@ import { BulkOperationsBar, useBulkSelection, VERIFICATION_BULK_ACTIONS } from "
 import { QuickFilters, type QuickFilter } from "@/components/ui/Filters/QuickFilters";
 import { FilterBuilder, type FilterGroup } from "@/components/ui/Filters/FilterBuilder";
 import { Filter, ChevronDown, Square, CheckSquare, Minus } from "lucide-react";
+import { listVerifications, parseSearchParams } from "@/lib/verification-api";
 
 export default function VerificationsTable() {
   const params = useSearchParams();
@@ -52,9 +53,7 @@ export default function VerificationsTable() {
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/verifications?${query}`);
-        if (!res.ok) throw new Error("Failed to load verifications");
-        const data = (await res.json()) as { items: Verification[]; total: number };
+        const data = await listVerifications(parseSearchParams(query));
         if (!cancelled) {
           setItems(data.items);
           setTotal(data.total);
