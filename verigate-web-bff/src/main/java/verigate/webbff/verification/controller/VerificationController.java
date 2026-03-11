@@ -1,8 +1,8 @@
 package verigate.webbff.verification.controller;
 
 import jakarta.validation.Valid;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import verigate.webbff.auth.PartnerContextHolder;
+import verigate.webbff.verification.model.VerificationListResponse;
 import verigate.webbff.verification.model.VerificationRequest;
 import verigate.webbff.verification.model.VerificationResponse;
 import verigate.webbff.verification.model.VerificationStatusResponse;
@@ -62,12 +65,27 @@ public class VerificationController {
   }
 
   @GetMapping
-  public ResponseEntity<List<Object>> listVerifications(
+  public ResponseEntity<VerificationListResponse> listVerifications(
       @RequestParam(required = false) String status,
-      @RequestParam(defaultValue = "0") int offset,
+      @RequestParam(required = false) String cursor,
       @RequestParam(defaultValue = "50") int limit) {
-    logger.warn("listVerifications is a stub — returning empty list (status={}, offset={}, limit={})",
-        status, offset, limit);
-    return ResponseEntity.ok(Collections.emptyList());
+
+    String partnerId = PartnerContextHolder.requirePartnerId();
+    int clampedLimit = Math.max(1, Math.min(limit, 100));
+
+    logger.debug("Listing verifications: partnerId={}, status={}, cursor={}, limit={}",
+        partnerId, status, cursor, clampedLimit);
+
+    Map<String, AttributeValue> exclusiveStartKey = null;
+    if (cursor != null && !cursor.isBlank()) {
+      exclusiveStartKey = new HashMap<>();
+      exclusiveStartKey.put("commandId", AttributeValue.builder().s(cursor).build());
+      exclusiveStartKey.put("partnerId", AttributeValue.builder().s(partnerId).build());
+    }
+
+    var response = verificationService.listVerifications(
+        partnerId, status, clampedLimit, exclusiveStartKey);
+
+    return ResponseEntity.ok(response);
   }
 }
