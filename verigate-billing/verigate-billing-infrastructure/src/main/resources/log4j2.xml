@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <!--
+        Use JSON layout when running in Lambda (LAMBDA_TASK_ROOT is always set).
+        Fall back to pattern layout for local development.
+      -->
+      <JsonLayout compact="true" eventEol="true" stacktraceAsString="true"
+                  properties="true" includeTimeMillis="true">
+        <KeyValuePair key="correlationId" value="${ctx:correlationId:-}"/>
+        <KeyValuePair key="partnerId" value="${ctx:partnerId:-}"/>
+        <KeyValuePair key="verificationId" value="${ctx:verificationId:-}"/>
+      </JsonLayout>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Logger name="verigate.billing" level="DEBUG"/>
+    <Root level="INFO">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>

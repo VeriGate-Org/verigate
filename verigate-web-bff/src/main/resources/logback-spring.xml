@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- Human-readable console output for local development -->
+  <springProfile name="default,local">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - [correlationId=%X{correlationId}] [partnerId=%X{partnerId}] %msg%n</pattern>
+      </encoder>
+    </appender>
+    <logger name="verigate.webbff" level="DEBUG"/>
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <!-- JSON structured logging for deployed environments -->
+  <springProfile name="cloud,ecs,production,ppe,dev,sbx">
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <includeMdcKeyName>correlationId</includeMdcKeyName>
+        <includeMdcKeyName>partnerId</includeMdcKeyName>
+        <includeMdcKeyName>commandId</includeMdcKeyName>
+        <includeMdcKeyName>verificationId</includeMdcKeyName>
+      </encoder>
+    </appender>
+    <logger name="verigate.webbff" level="DEBUG"/>
+    <root level="INFO">
+      <appender-ref ref="JSON"/>
+    </root>
+  </springProfile>
+
+</configuration>

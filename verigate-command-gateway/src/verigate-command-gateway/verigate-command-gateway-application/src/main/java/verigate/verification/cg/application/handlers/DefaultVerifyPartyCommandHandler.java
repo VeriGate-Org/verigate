@@ -7,6 +7,7 @@
 package verigate.verification.cg.application.handlers;
 
 import com.google.inject.Inject;
+import crosscutting.metrics.Meter;
 import domain.exceptions.InvariantViolationException;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import verigate.verification.cg.application.factories.VerifyPartySpecificationFactory;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.handlers.VerifyPartyCommandHandler;
+import verigate.verification.cg.domain.logging.VerificationMdcContext;
 import verigate.verification.cg.domain.routing.VerificationCommandRouter;
 
 /**
@@ -27,6 +29,7 @@ public final class DefaultVerifyPartyCommandHandler implements VerifyPartyComman
   private final VerificationCommandRouter verificationCommandRouter;
   private final VerifyPartySpecificationFactory verifyPartySpecificationFactory;
   private final FeatureFlags featureFlags;
+  private final Meter meter;
   private static final Logger logger =
       LoggerFactory.getLogger(DefaultVerifyPartyCommandHandler.class.getName());
 
@@ -38,10 +41,12 @@ public final class DefaultVerifyPartyCommandHandler implements VerifyPartyComman
   public DefaultVerifyPartyCommandHandler(
       VerificationCommandRouter verificationCommandRouter,
       VerifyPartySpecificationFactory verifyPartySpecificationFactory,
-      FeatureFlags featureFlags) {
+      FeatureFlags featureFlags,
+      Meter meter) {
     this.verificationCommandRouter = verificationCommandRouter;
     this.verifyPartySpecificationFactory = verifyPartySpecificationFactory;
     this.featureFlags = featureFlags;
+    this.meter = meter;
   }
 
   /**
@@ -52,6 +57,7 @@ public final class DefaultVerifyPartyCommandHandler implements VerifyPartyComman
   @Override
   public Map<String, String> handle(VerifyPartyCommand command)
       throws TransientException, PermanentException, InvariantViolationException {
+    VerificationMdcContext.populate(command);
     logger.info("Handling verify party command with id: {}", command.getId());
 
     logger.info("Validating command id: {}", command.getId());
@@ -66,6 +72,8 @@ public final class DefaultVerifyPartyCommandHandler implements VerifyPartyComman
 
     logger.info("Routing command: {}", command.getId());
     verificationCommandRouter.execute(command);
+    meter.incrementCounter("verification.routed",
+        "verification_type:" + command.getVerificationType().name());
     return null;
   }
 }

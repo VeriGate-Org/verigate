@@ -7,12 +7,15 @@
 package infrastructure.sqs;
 
 import domain.exceptions.TransientException;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageResponse;
 import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
@@ -37,9 +40,18 @@ final class SqsClientUtils {
 
     final SendMessageResponse result;
     try {
-      result =
-          sqsClient.sendMessage(
-              SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build());
+      var requestBuilder = SendMessageRequest.builder()
+          .queueUrl(queueUrl)
+          .messageBody(message);
+
+      String correlationId = MDC.get("correlationId");
+      if (correlationId != null) {
+        requestBuilder.messageAttributes(Map.of(
+            "correlationId", MessageAttributeValue.builder()
+                .dataType("String").stringValue(correlationId).build()));
+      }
+
+      result = sqsClient.sendMessage(requestBuilder.build());
     } catch (Exception e) { // can tweak if we find some exceptions equate to permanent exceptions
       throw new TransientException(e);
     }

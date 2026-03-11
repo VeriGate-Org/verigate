@@ -3,14 +3,18 @@ package verigate.webbff.admin.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import verigate.webbff.observability.CorrelationIdFilter;
 import verigate.webbff.admin.model.CreatePartnerCommandMessage;
 import verigate.webbff.admin.model.CreatePartnerRequest;
 
@@ -50,8 +54,18 @@ public class PartnerService {
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Failed to serialize command", e);
     }
-    sqsClient.sendMessage(
-        SendMessageRequest.builder().queueUrl(queueUrl).messageBody(payload).build());
+    var requestBuilder = SendMessageRequest.builder()
+        .queueUrl(queueUrl)
+        .messageBody(payload);
+
+    String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
+    if (correlationId != null) {
+      requestBuilder.messageAttributes(Map.of(
+          "correlationId", MessageAttributeValue.builder()
+              .dataType("String").stringValue(correlationId).build()));
+    }
+
+    sqsClient.sendMessage(requestBuilder.build());
 
     LOGGER.info("Dispatched CreatePartnerCommand {} to queue {}", commandId, createQueueName);
     return commandId;

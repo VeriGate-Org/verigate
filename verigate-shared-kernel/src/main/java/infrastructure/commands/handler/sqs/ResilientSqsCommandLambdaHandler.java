@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * A base implementation of a Lambda handler consuming messages from an SQS queue.
@@ -187,33 +188,53 @@ public class ResilientSqsCommandLambdaHandler<CommandT, CommandHandlerReturnT>
       LOGGER.warn("Message [{}] contains a null body", messageId);
       return MessageProcessingResult.NULL_MESSAGE;
     }
-    CommandT extractedCommand;
+
+    populateMdcFromMessageAttributes(sqsMessage);
+
     try {
-      extractedCommand = extractCommandFromMessageBody.apply(messageBody);
-    } catch (Exception e) {
-      LOGGER.error("Failed to extract command from message [{}] body.", messageId, e);
-      return MessageProcessingResult.INVALID_MESSAGE;
+      CommandT extractedCommand;
+      try {
+        extractedCommand = extractCommandFromMessageBody.apply(messageBody);
+      } catch (Exception e) {
+        LOGGER.error("Failed to extract command from message [{}] body.", messageId, e);
+        return MessageProcessingResult.INVALID_MESSAGE;
+      }
+      if (extractedCommand == null) {
+        LOGGER.error("Extracted command from message [{}] body is null.", messageId);
+        return MessageProcessingResult.INVALID_MESSAGE;
+      }
+      try {
+        commandHandler.handle(extractedCommand);
+        LOGGER.info("Command processed from message [{}] successfully.", messageId);
+        return MessageProcessingResult.SUCCESS;
+      } catch (DeferredException e) {
+        LOGGER.warn(
+            "Command processing from message [{}] resulted in a deferred exception.",
+            messageId, e);
+        return MessageProcessingResult.DEFER_MESSAGE_PROCESSING;
+      } catch (TransientException e) {
+        LOGGER.warn(
+            "Command processing from message [{}] resulted in a transient exception.",
+            messageId, e);
+        return MessageProcessingResult.TRANSPORT_LAYER_RETRY;
+      } catch (PermanentException e) {
+        LOGGER.error(
+            "Command processing from message [{}] resulted in a permanent exception.",
+            messageId, e);
+        return MessageProcessingResult.DEAD_LETTER;
+      }
+    } finally {
+      MDC.clear();
     }
-    if (extractedCommand == null) {
-      LOGGER.error("Extracted command from message [{}] body is null.", messageId);
-      return MessageProcessingResult.INVALID_MESSAGE;
+  }
+
+  private void populateMdcFromMessageAttributes(SQSMessage sqsMessage) {
+    if (sqsMessage.getMessageAttributes() == null) {
+      return;
     }
-    try {
-      commandHandler.handle(extractedCommand);
-      LOGGER.info("Command processed from message [{}] successfully.", messageId);
-      return MessageProcessingResult.SUCCESS;
-    } catch (DeferredException e) {
-      LOGGER.warn(
-          "Command processing from message [{}] resulted in a deferred exception.", messageId, e);
-      return MessageProcessingResult.DEFER_MESSAGE_PROCESSING;
-    } catch (TransientException e) {
-      LOGGER.warn(
-          "Command processing from message [{}] resulted in a transient exception.", messageId, e);
-      return MessageProcessingResult.TRANSPORT_LAYER_RETRY;
-    } catch (PermanentException e) {
-      LOGGER.error(
-          "Command processing from message [{}] resulted in a permanent exception.", messageId, e);
-      return MessageProcessingResult.DEAD_LETTER;
+    var correlationAttr = sqsMessage.getMessageAttributes().get("correlationId");
+    if (correlationAttr != null && correlationAttr.getStringValue() != null) {
+      MDC.put("correlationId", correlationAttr.getStringValue());
     }
   }
 

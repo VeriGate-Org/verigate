@@ -19,6 +19,8 @@ import crosscutting.config.Config;
 import crosscutting.config.PropertiesFileConfig;
 import crosscutting.environment.Environment;
 import crosscutting.environment.EnvironmentConfig;
+import crosscutting.metrics.DatadogMeter;
+import crosscutting.metrics.Meter;
 import crosscutting.resiliency.DefaultRetry;
 import infrastructure.commands.commandstore.AggregateCommandStoreDao;
 import infrastructure.featureflags.FeatureFlags;
@@ -92,6 +94,9 @@ public class ServiceModule extends AbstractModule {
     bind(VerificationCommandRouter.class).to(DefaultCommandRouter.class).in(Singleton.class);
     bind(QueueDispatcherFactory.class).to(DefaultQueueDispatcherFactory.class).in(Singleton.class);
     bind(Mapper.class).to(PassthroughMapper.class).in(Singleton.class);
+
+    // Metrics
+    bind(Meter.class).to(DatadogMeter.class).in(Singleton.class);
 
     // Command handlers
     bind(VerifyPartyCommandHandler.class).to(DefaultVerifyPartyCommandHandler.class);
