@@ -712,3 +712,46 @@ Resources:
             RetryPolicy:
               MaximumEventAgeInSeconds: 86400
               MaximumRetryAttempts: 2
+
+  ## Risk Engine Lambda Functions
+  RiskEngineEventConsumerLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-risk-event-consumer"
+      Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.RiskEngineEventConsumerLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
+      Environment:
+        Variables:
+          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
+          VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
+      Events:
+        KinesisRiskEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100
+
+  WorkflowTimeoutLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-workflow-timeout"
+      Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.WorkflowTimeoutLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
+      Environment:
+        Variables:
+          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
+          VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
+      Events:
+        TimeoutSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-workflow-timeout-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 300
+              MaximumRetryAttempts: 1

@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: VeriGate Web BFF - Serverless Spring Boot API
+
+Parameters:
+  EnvironmentShortname:
+    Type: String
+    AllowedValues:
+      - sbx
+      - dev
+      - ppe
+      - prd
+  ApplicationVersion:
+    Type: String
+    Default: "unknown"
+
+Globals:
+  Function:
+    Runtime: java21
+    MemorySize: 2048
+    Timeout: 30
+    Architectures:
+      - x86_64
+
+Resources:
+  WebBffFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "verigate-web-bff-${EnvironmentShortname}"
+      Handler: verigate.webbff.StreamLambdaHandler
+      CodeUri: ../../
+      Timeout: 60
+      MemorySize: 2048
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: !Ref EnvironmentShortname
+          APPLICATION_VERSION: !Ref ApplicationVersion
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+                - sqs:GetQueueUrl
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+                - ssm:GetParametersByPath
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - cognito-idp:*
+              Resource: "*"
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WebBffHttpApi
+            Path: /{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WebBffHttpApi
+            Path: /
+            Method: ANY
+
+  WebBffHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - "*"
+
+Outputs:
+  WebBffApiUrl:
+    Description: "HTTP API endpoint URL for VeriGate Web BFF"
+    Value: !Sub "https://${WebBffHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  WebBffFunctionArn:
+    Description: "Web BFF Lambda Function ARN"
+    Value: !GetAtt WebBffFunction.Arn

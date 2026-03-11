@@ -19,6 +19,13 @@ export type BffVerificationType =
   | "INCOME_VERIFICATION" | "IDENTITY_VERIFICATION"
   | "FULL_VERIFICATION" | "WATCHLIST_SCREENING";
 
+export interface CheckScore {
+  verificationType: string;
+  outcome: string;
+  confidenceScore: number;
+  signals: Record<string, string>;
+}
+
 export interface Verification {
   correlationId: string;
   partnerId: string;
@@ -29,6 +36,12 @@ export interface Verification {
   workflowId?: string;
   workflowName?: string;
   policyVersion?: string;
+  // Risk assessment data
+  compositeRiskScore?: number;
+  riskTier?: string;
+  riskDecision?: string;
+  decisionReason?: string;
+  individualScores?: CheckScore[];
   startedAt: string;
   completedAt?: string;
   durationMs?: number;

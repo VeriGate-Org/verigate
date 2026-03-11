@@ -13,12 +13,14 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.webbff.config.properties.AwsProperties;
 import verigate.webbff.config.properties.CommandStoreProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
+import verigate.webbff.config.properties.RiskAssessmentProperties;
 
 @Configuration
 @EnableConfigurationProperties({
     AwsProperties.class,
     CommandStoreProperties.class,
-    ResponsePollingProperties.class
+    ResponsePollingProperties.class,
+    RiskAssessmentProperties.class
 })
 public class AwsClientsConfig {
 

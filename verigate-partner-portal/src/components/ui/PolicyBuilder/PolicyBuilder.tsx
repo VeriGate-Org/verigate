@@ -32,11 +32,41 @@ export interface VerificationStep {
   id: string;
   type: VerificationStepType;
   name: string;
-  config: Record<string, unknown>;
+  config: Record<string, unknown> & {
+    weight?: number;
+    minScore?: number;
+  };
   next?: string;
   onSuccess?: string;
   onFail?: string;
   parallel?: string[];
+}
+
+export type AggregationStrategy = "WEIGHTED_AVERAGE" | "MINIMUM_SCORE" | "MAXIMUM_SCORE";
+export type RiskDecision = "APPROVE" | "MANUAL_REVIEW" | "REJECT";
+
+export interface RiskTier {
+  name: string;
+  lowerBound: number;
+  upperBound: number;
+  decision: RiskDecision;
+}
+
+export interface OverrideRule {
+  id: string;
+  name: string;
+  checkType: string;
+  signalKey: string;
+  operator: "GT" | "LT" | "EQ" | "GTE" | "LTE" | "CONTAINS";
+  value: string;
+  forcedDecision: RiskDecision;
+  priority: number;
+}
+
+export interface ScoringConfig {
+  strategy: AggregationStrategy;
+  tiers: RiskTier[];
+  overrideRules: OverrideRule[];
 }
 
 export interface Policy {
@@ -45,11 +75,22 @@ export interface Policy {
   description: string;
   version: number;
   steps: VerificationStep[];
+  scoringConfig: ScoringConfig;
   status: "draft" | "published" | "archived";
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
 }
+
+const DEFAULT_SCORING_CONFIG: ScoringConfig = {
+  strategy: "WEIGHTED_AVERAGE",
+  tiers: [
+    { name: "LOW_RISK", lowerBound: 80, upperBound: 100, decision: "APPROVE" },
+    { name: "MEDIUM_RISK", lowerBound: 50, upperBound: 79, decision: "MANUAL_REVIEW" },
+    { name: "HIGH_RISK", lowerBound: 0, upperBound: 49, decision: "REJECT" },
+  ],
+  overrideRules: [],
+};
 
 const STEP_TYPES: Record<VerificationStepType, { label: string; color: string; icon: string }> = {
   id_verification: { label: "ID Verification", color: "bg-blue-500", icon: "👤" },
@@ -81,11 +122,13 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
     description: "",
     version: 1,
     steps: [],
+    scoringConfig: { ...DEFAULT_SCORING_CONFIG },
     status: "draft",
     createdAt: new Date(),
     updatedAt: new Date(),
     createdBy: "current-user",
   });
+  const [showScoringPanel, setShowScoringPanel] = React.useState(false);
 
   const [selectedStep, setSelectedStep] = React.useState<string | null>(null);
   const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
@@ -183,6 +226,10 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => { setShowScoringPanel(!showScoringPanel); setSelectedStep(null); }}>
+              <Settings className="h-4 w-4 mr-2" />
+              Scoring Config
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => alert("Export functionality")}>
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -339,6 +386,15 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
                 const step = policy.steps.find(s => s.id === selectedStep);
                 if (!step) return null;
 
+                const updateStepConfig = (key: string, value: unknown) => {
+                  setPolicy(prev => ({
+                    ...prev,
+                    steps: prev.steps.map(s =>
+                      s.id === selectedStep ? { ...s, config: { ...s.config, [key]: value } } : s
+                    ),
+                  }));
+                };
+
                 return (
                   <div className="space-y-4">
                     <div>
@@ -363,6 +419,59 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
                       <div className="text-sm text-text">{STEP_TYPES[step.type].label}</div>
                     </div>
 
+                    {/* Risk Scoring Config per Step */}
+                    {step.type !== "decision" && step.type !== "parallel" && step.type !== "conditional" && (
+                      <div className="pt-4 border-t border-border space-y-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Settings className="h-4 w-4 text-text-muted" />
+                          <span className="text-xs font-semibold text-text">Risk Scoring</span>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-xs text-text-muted">Weight</label>
+                            <span className="text-xs font-medium text-text">{(step.config.weight ?? 1.0).toFixed(1)}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={step.config.weight ?? 1.0}
+                            onChange={(e) => updateStepConfig("weight", parseFloat(e.target.value))}
+                            className="w-full accent-[color:var(--color-accent)]"
+                          />
+                          <div className="flex justify-between text-[10px] text-text-muted">
+                            <span>0.0</span>
+                            <span>1.0</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-xs text-text-muted">Min Score Threshold</label>
+                            <span className="text-xs font-medium text-text">{step.config.minScore ?? 0}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={step.config.minScore ?? 0}
+                            onChange={(e) => updateStepConfig("minScore", parseInt(e.target.value))}
+                            className="w-full accent-[color:var(--color-accent)]"
+                          />
+                          <div className="flex justify-between text-[10px] text-text-muted">
+                            <span>0</span>
+                            <span>100</span>
+                          </div>
+                          <p className="text-[10px] text-text-muted mt-1">
+                            If this check scores below the threshold, the entire workflow may be flagged.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="pt-4 border-t border-border">
                       <div className="flex items-center gap-2 mb-2">
                         <Settings className="h-4 w-4 text-text-muted" />
@@ -378,7 +487,209 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
             </div>
           </div>
         )}
+
+        {/* Scoring Config Panel */}
+        {showScoringPanel && !selectedStep && (
+          <ScoringConfigPanel
+            config={policy.scoringConfig}
+            onChange={(scoringConfig) => setPolicy(prev => ({ ...prev, scoringConfig, updatedAt: new Date() }))}
+            onClose={() => setShowScoringPanel(false)}
+          />
+        )}
       </div>
     </div>
   );
 };
+
+/* ------------------------------------------------------------------ */
+/*  Scoring Config Panel                                              */
+/* ------------------------------------------------------------------ */
+
+function ScoringConfigPanel({
+  config,
+  onChange,
+  onClose,
+}: {
+  config: ScoringConfig;
+  onChange: (config: ScoringConfig) => void;
+  onClose: () => void;
+}) {
+  const updateTier = (index: number, field: keyof RiskTier, value: string | number) => {
+    const tiers = [...config.tiers];
+    tiers[index] = { ...tiers[index], [field]: value };
+    onChange({ ...config, tiers });
+  };
+
+  const addOverrideRule = () => {
+    const rule: OverrideRule = {
+      id: `rule-${Date.now()}`,
+      name: "New Rule",
+      checkType: "",
+      signalKey: "",
+      operator: "GT",
+      value: "",
+      forcedDecision: "REJECT",
+      priority: config.overrideRules.length + 1,
+    };
+    onChange({ ...config, overrideRules: [...config.overrideRules, rule] });
+  };
+
+  const updateRule = (index: number, field: keyof OverrideRule, value: string | number) => {
+    const rules = [...config.overrideRules];
+    rules[index] = { ...rules[index], [field]: value };
+    onChange({ ...config, overrideRules: rules });
+  };
+
+  const removeRule = (index: number) => {
+    onChange({ ...config, overrideRules: config.overrideRules.filter((_, i) => i !== index) });
+  };
+
+  return (
+    <div className="w-96 bg-base-100 border-l border-border overflow-y-auto">
+      <div className="p-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text">Scoring Configuration</h3>
+          <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+        </div>
+
+        {/* Aggregation Strategy */}
+        <div>
+          <label className="text-xs font-medium text-text mb-2 block">Aggregation Strategy</label>
+          <select
+            value={config.strategy}
+            onChange={(e) => onChange({ ...config, strategy: e.target.value as AggregationStrategy })}
+            className="aws-select w-full text-sm"
+          >
+            <option value="WEIGHTED_AVERAGE">Weighted Average</option>
+            <option value="MINIMUM_SCORE">Minimum Score</option>
+            <option value="MAXIMUM_SCORE">Maximum Score</option>
+          </select>
+          <p className="text-[10px] text-text-muted mt-1">
+            {config.strategy === "WEIGHTED_AVERAGE" && "Composite score = sum of (score × weight) / sum of weights"}
+            {config.strategy === "MINIMUM_SCORE" && "Composite score = lowest individual check score"}
+            {config.strategy === "MAXIMUM_SCORE" && "Composite score = highest individual check score"}
+          </p>
+        </div>
+
+        {/* Risk Tiers */}
+        <div>
+          <label className="text-xs font-medium text-text mb-2 block">Risk Tiers</label>
+          <div className="space-y-3">
+            {config.tiers.map((tier, i) => (
+              <div key={i} className="border border-border rounded-aws-control p-3 space-y-2">
+                <input
+                  type="text"
+                  value={tier.name}
+                  onChange={(e) => updateTier(i, "name", e.target.value)}
+                  className="aws-input w-full text-xs"
+                  placeholder="Tier name"
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={tier.lowerBound}
+                    onChange={(e) => updateTier(i, "lowerBound", parseInt(e.target.value) || 0)}
+                    className="aws-input w-16 text-xs text-center"
+                  />
+                  <span className="text-xs text-text-muted">to</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={tier.upperBound}
+                    onChange={(e) => updateTier(i, "upperBound", parseInt(e.target.value) || 0)}
+                    className="aws-input w-16 text-xs text-center"
+                  />
+                  <select
+                    value={tier.decision}
+                    onChange={(e) => updateTier(i, "decision", e.target.value)}
+                    className="aws-select flex-1 text-xs"
+                  >
+                    <option value="APPROVE">APPROVE</option>
+                    <option value="MANUAL_REVIEW">MANUAL_REVIEW</option>
+                    <option value="REJECT">REJECT</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Override Rules */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-medium text-text">Override Rules</label>
+            <Button variant="secondary" size="sm" onClick={addOverrideRule}>
+              + Add Rule
+            </Button>
+          </div>
+          <p className="text-[10px] text-text-muted mb-2">
+            Override rules force a decision when a specific signal condition is met, regardless of the composite score.
+          </p>
+          <div className="space-y-3">
+            {config.overrideRules.map((rule, i) => (
+              <div key={rule.id} className="border border-border rounded-aws-control p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <input
+                    type="text"
+                    value={rule.name}
+                    onChange={(e) => updateRule(i, "name", e.target.value)}
+                    className="aws-input flex-1 text-xs mr-2"
+                    placeholder="Rule name"
+                  />
+                  <Button variant="ghost" size="sm" onClick={() => removeRule(i)}>
+                    <Trash2 className="h-3 w-3 text-danger" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={rule.signalKey}
+                    onChange={(e) => updateRule(i, "signalKey", e.target.value)}
+                    className="aws-input text-xs"
+                    placeholder="Signal key"
+                  />
+                  <select
+                    value={rule.operator}
+                    onChange={(e) => updateRule(i, "operator", e.target.value)}
+                    className="aws-select text-xs"
+                  >
+                    <option value="GT">&gt;</option>
+                    <option value="GTE">&gt;=</option>
+                    <option value="LT">&lt;</option>
+                    <option value="LTE">&lt;=</option>
+                    <option value="EQ">=</option>
+                    <option value="CONTAINS">contains</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={rule.value}
+                    onChange={(e) => updateRule(i, "value", e.target.value)}
+                    className="aws-input text-xs"
+                    placeholder="Value"
+                  />
+                  <select
+                    value={rule.forcedDecision}
+                    onChange={(e) => updateRule(i, "forcedDecision", e.target.value)}
+                    className="aws-select text-xs"
+                  >
+                    <option value="APPROVE">APPROVE</option>
+                    <option value="MANUAL_REVIEW">MANUAL_REVIEW</option>
+                    <option value="REJECT">REJECT</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+            {config.overrideRules.length === 0 && (
+              <p className="text-xs text-text-muted italic">No override rules configured.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

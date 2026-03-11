@@ -43,12 +43,22 @@ module "verification_dynamodb_commandstore" {
     {
       name = "statusCreatedAt"
       type = "S"
+    },
+    {
+      name = "statusCreatedAt"
+      type = "S"
     }
   ]
 
   global_secondary_indexes = [
     {
       name               = "partner-index"
+      hash_key           = "partnerId"
+      range_key          = "statusCreatedAt"
+      projection_type    = "ALL"
+    },
+    {
+      name               = "partner-status-index"
       hash_key           = "partnerId"
       range_key          = "statusCreatedAt"
       projection_type    = "ALL"
@@ -430,6 +440,169 @@ resource "aws_ssm_parameter" "billing_plans_table_name" {
 # Note: Partner queue ARN SSM parameters and DLQ/IMQ queues are already
 # created by the tf-sqs module in partner_create_queue and
 # partner_config_update_queue above (with overwrite = true).
+
+#----------------------------------------------------------------------------------------------------------------
+# Risk Engine DynamoDB Tables
+#----------------------------------------------------------------------------------------------------------------
+
+module "risk_scoring_config_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "risk-scoring-config"
+  hash_key                 = {
+                                 name = "partnerId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "partnerId"
+      type = "S"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "risk_assessments_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "risk-assessments"
+  hash_key                 = {
+                                 name = "verificationId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "verificationId"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "assessedAt"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name               = "partner-assessed-index"
+      hash_key           = "partnerId"
+      range_key          = "assessedAt"
+      projection_type    = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "verification_workflows_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "verification-workflows"
+  hash_key                 = {
+                                 name = "workflowId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "workflowId"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "createdAt"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name               = "status-created-index"
+      hash_key           = "status"
+      range_key          = "createdAt"
+      projection_type    = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "policies_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "policies"
+  hash_key                 = {
+                                 name = "partnerPolicyId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "partnerPolicyId"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name               = "partner-status-index"
+      hash_key           = "partnerId"
+      range_key          = "status"
+      projection_type    = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# SSM Parameters - Risk Engine Table Names
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "risk_scoring_config_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/risk-scoring-config/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-risk-scoring-config"
+}
+
+resource "aws_ssm_parameter" "risk_assessments_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/risk-assessments/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-risk-assessments"
+}
+
+resource "aws_ssm_parameter" "verification_workflows_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/verification-workflows/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-verification-workflows"
+}
+
+resource "aws_ssm_parameter" "policies_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/policies/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-policies"
+}
 
 #----------------------------------------------------------------------------------------------------------------
 # Kinesis

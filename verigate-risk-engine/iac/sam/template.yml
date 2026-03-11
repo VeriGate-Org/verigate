@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ApplicationVersion:
+    Type: String
+    Description: "The latest version tag for the application"
+  EnvironmentShortname:
+    Type: String
+    Description: "Environment shortname (sbx, dev, ppe, prod)"
+  KinesisStreamArn:
+    Type: String
+    Description: "The kinesis stream arn"
+    Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
+
+Globals:
+  Function:
+    MemorySize: 2048
+    Timeout: 30
+    Runtime: java21
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Type: AllAtOnce
+    LoggingConfig:
+      ApplicationLogLevel: INFO
+      LogFormat: JSON
+    Environment:
+      Variables:
+        DD_ENV: !Sub "sds-${EnvironmentShortname}"
+        DD_SERVICE: verigate-risk-engine
+        DD_VERSION: !Ref ApplicationVersion
+
+Resources:
+  ## Risk Engine - Event Consumer
+  RiskEngineEventConsumerLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-risk-engine-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-event-consumer"
+      Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.RiskEngineEventConsumerLambdaHandler::handleRequest
+      CodeUri: ../../verigate-risk-engine-infrastructure
+      Environment:
+        Variables:
+          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
+          VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
+      Events:
+        KinesisVerificationEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100
+
+  ## Risk Engine - Workflow Timeout Handler
+  WorkflowTimeoutLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-risk-engine-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-workflow-timeout"
+      Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.WorkflowTimeoutLambdaHandler::handleRequest
+      CodeUri: ../../verigate-risk-engine-infrastructure
+      Environment:
+        Variables:
+          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
+          VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
+      Events:
+        TimeoutSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-workflow-timeout-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 300
+              MaximumRetryAttempts: 1

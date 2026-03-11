@@ -74,6 +74,9 @@ jobs:
       - name: Maven install - billing
         working-directory: verigate-billing
         run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
+      - name: Maven install - risk-engine
+        working-directory: verigate-risk-engine
+        run: mvn install -Dfailsafe.skip=true -Dsurefire.skip=true
       - name: Sam build
         run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-command-gateway/iac/sam/template.yml --parallel
 

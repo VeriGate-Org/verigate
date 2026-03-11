@@ -9,6 +9,7 @@ on:
       - "verigate-command-gateway/**"
       - "verigate-partner/**"
       - "verigate-billing/**"
+      - "verigate-risk-engine/**"
       - "verigate-shared-kernel/**"
 
 jobs:

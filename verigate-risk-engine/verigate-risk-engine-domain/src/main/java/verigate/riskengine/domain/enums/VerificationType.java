@@ -1,0 +1,27 @@
+/*
+ * VeriGate (c) 2025. All rights reserved.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * Proprietary and confidential.
+ */
+
+package verigate.riskengine.domain.enums;
+
+public enum VerificationType {
+    VERIFICATION_OF_PERSONAL_DETAILS,
+    VERIFICATION_OF_BANK_DETAILS,
+    SANCTIONS_SCREENING,
+    BANK_ACCOUNT_VERIFICATION,
+    IDENTITY_VERIFICATION,
+    COMPANY_VERIFICATION,
+    PROPERTY_OWNERSHIP_VERIFICATION,
+    EMPLOYMENT_VERIFICATION,
+    NEGATIVE_NEWS_SCREENING,
+    FRAUD_WATCHLIST_SCREENING,
+    DOCUMENT_VERIFICATION,
+    QUALIFICATION_VERIFICATION,
+    CREDIT_CHECK,
+    TAX_COMPLIANCE_VERIFICATION,
+    INCOME_VERIFICATION,
+    FULL_VERIFICATION,
+    WATCHLIST_SCREENING
+}
