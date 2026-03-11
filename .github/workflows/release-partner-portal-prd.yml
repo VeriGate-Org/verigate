@@ -8,9 +8,6 @@ on:
     paths:
       - "verigate-partner-portal/**"
 
-env:
-  SERVICE_NAME: verigate-partner-portal
-
 jobs:
   deploy-preproduction:
     runs-on: ubuntu-latest
@@ -22,34 +19,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: verigate-partner-portal/package-lock.json
+
+      - name: Install dependencies
+        working-directory: verigate-partner-portal
+        run: npm ci
+
+      - name: Build
+        working-directory: verigate-partner-portal
+        env:
+          NEXT_PUBLIC_BFF_BASE_URL: ${{ vars.BFF_BASE_URL }}
+          NEXT_PUBLIC_API_KEY: ${{ secrets.PORTAL_API_KEY }}
+          NEXT_PUBLIC_USE_MOCK: ${{ vars.USE_MOCK }}
+          NEXT_PUBLIC_ENV: ${{ vars.ENVIRONMENT_SHORTNAME }}
+        run: npm run build
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Docker image
+      - name: Deploy to S3
         working-directory: verigate-partner-portal
-        run: |
-          IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
-          docker push ${ECR_REPO}:${IMAGE_TAG}
-          docker push ${ECR_REPO}:latest
+        run: aws s3 sync out/ s3://${{ vars.STACK_NAME }}-partner-portal-${{ vars.ENVIRONMENT_SHORTNAME }}/ --delete
 
-      - name: Deploy to ECS
+      - name: Invalidate CloudFront cache
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --service ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --force-new-deployment
-          aws ecs wait services-stable \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ vars.STACK_NAME }}-partner-portal-${{ vars.ENVIRONMENT_SHORTNAME }}.s3.${{ vars.AWS_REGION }}.amazonaws.com'].Id" --output text)
+          if [ -n "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
+          fi
 
   deploy-production:
     needs: [deploy-preproduction]
@@ -62,31 +67,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: verigate-partner-portal/package-lock.json
+
+      - name: Install dependencies
+        working-directory: verigate-partner-portal
+        run: npm ci
+
+      - name: Build
+        working-directory: verigate-partner-portal
+        env:
+          NEXT_PUBLIC_BFF_BASE_URL: ${{ vars.BFF_BASE_URL }}
+          NEXT_PUBLIC_API_KEY: ${{ secrets.PORTAL_API_KEY }}
+          NEXT_PUBLIC_USE_MOCK: ${{ vars.USE_MOCK }}
+          NEXT_PUBLIC_ENV: ${{ vars.ENVIRONMENT_SHORTNAME }}
+        run: npm run build
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Docker image
+      - name: Deploy to S3
         working-directory: verigate-partner-portal
-        run: |
-          IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
-          docker push ${ECR_REPO}:${IMAGE_TAG}
-          docker push ${ECR_REPO}:latest
+        run: aws s3 sync out/ s3://${{ vars.STACK_NAME }}-partner-portal-${{ vars.ENVIRONMENT_SHORTNAME }}/ --delete
 
-      - name: Deploy to ECS
+      - name: Invalidate CloudFront cache
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --service ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --force-new-deployment
-          aws ecs wait services-stable \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ vars.STACK_NAME }}-partner-portal-${{ vars.ENVIRONMENT_SHORTNAME }}.s3.${{ vars.AWS_REGION }}.amazonaws.com'].Id" --output text)
+          if [ -n "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
+          fi

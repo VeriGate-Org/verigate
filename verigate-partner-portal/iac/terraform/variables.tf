@@ -15,26 +15,8 @@ variable "stack_name" {
   default     = "verigate"
 }
 
-variable "container_port" {
-  description = "Port the container listens on"
-  type        = number
-  default     = 3000
-}
-
-variable "cpu" {
-  description = "Fargate task CPU units"
-  type        = number
-  default     = 512
-}
-
-variable "memory" {
-  description = "Fargate task memory in MiB"
-  type        = number
-  default     = 1024
-}
-
-variable "desired_count" {
-  description = "Desired number of ECS tasks"
-  type        = number
-  default     = 1
+variable "domain_name" {
+  description = "Custom domain name for CloudFront (optional)"
+  type        = string
+  default     = ""
 }

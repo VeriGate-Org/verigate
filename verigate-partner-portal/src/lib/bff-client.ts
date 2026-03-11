@@ -1,9 +1,13 @@
 import axios from "axios";
 import type { BffVerificationType } from "./types";
+import { config } from "./config";
 
 const bffApi = axios.create({
-  baseURL: "/api/bff",
-  headers: { "Content-Type": "application/json" },
+  baseURL: config.bffBaseUrl,
+  headers: {
+    "Content-Type": "application/json",
+    ...(config.bffApiKey ? { "X-API-Key": config.bffApiKey } : {}),
+  },
 });
 
 export interface BffVerificationSubmission {
@@ -29,14 +33,14 @@ export interface BffVerificationStatusResponse {
 export async function submitVerification(
   payload: BffVerificationSubmission
 ): Promise<BffVerificationResponse> {
-  const { data } = await bffApi.post<BffVerificationResponse>("/verify", payload);
+  const { data } = await bffApi.post<BffVerificationResponse>("/api/verifications", payload);
   return data;
 }
 
 export async function getVerificationStatus(
   commandId: string
 ): Promise<BffVerificationStatusResponse> {
-  const { data } = await bffApi.get<BffVerificationStatusResponse>(`/verify/${commandId}`);
+  const { data } = await bffApi.get<BffVerificationStatusResponse>(`/api/verifications/${commandId}`);
   return data;
 }
 
