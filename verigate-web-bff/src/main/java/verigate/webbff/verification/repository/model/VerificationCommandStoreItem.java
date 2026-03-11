@@ -61,4 +61,35 @@ public class VerificationCommandStoreItem {
   public void setAuxiliaryData(Map<String, String> auxiliaryData) {
     this.auxiliaryData = auxiliaryData;
   }
+
+  private String partnerId;
+  private String createdAt;
+  private String statusCreatedAt;
+
+  @DynamoDbAttribute("partnerId")
+  public String getPartnerId() {
+    return partnerId;
+  }
+
+  public void setPartnerId(String partnerId) {
+    this.partnerId = partnerId;
+  }
+
+  @DynamoDbAttribute("createdAt")
+  public String getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  @DynamoDbAttribute("statusCreatedAt")
+  public String getStatusCreatedAt() {
+    return statusCreatedAt;
+  }
+
+  public void setStatusCreatedAt(String statusCreatedAt) {
+    this.statusCreatedAt = statusCreatedAt;
+  }
 }

@@ -73,6 +73,13 @@ public final class VerificationCommandStoreDynamoDbRepository
       datamodel.setStatus(record.getStatus());
       datamodel.setErrorDetails(record.getErrorDetails());
       datamodel.setAuxiliaryData(record.getAuxiliaryData());
+      datamodel.setPartnerId(record.getPartnerId());
+      datamodel.setCreatedAt(record.getCreatedAt());
+
+      // Composite sort key for partner-index GSI: STATUS#ISO-datetime
+      if (record.getStatus() != null && record.getCreatedAt() != null) {
+        datamodel.setStatusCreatedAt(record.getStatus().name() + "#" + record.getCreatedAt());
+      }
 
       logger.info("Persisting record to command store: " + jsonSerializer.serialize(datamodel));
 
