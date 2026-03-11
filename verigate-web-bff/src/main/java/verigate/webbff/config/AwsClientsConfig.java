@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.retry.RetryPolicy;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient.Builder;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -45,17 +44,18 @@ public class AwsClientsConfig {
   }
 
   @Bean
-  DynamoDbEnhancedClient dynamoDbEnhancedClient(AwsProperties properties, Region region) {
-    Builder builder = DynamoDbEnhancedClient.builder();
-    builder.dynamoDbClient(dynamoDbClient(properties, region));
-    return builder.build();
-  }
-
-  private DynamoDbClient dynamoDbClient(AwsProperties properties, Region region) {
+  DynamoDbClient dynamoDbClient(AwsProperties properties, Region region) {
     var builder = DynamoDbClient.builder()
         .region(region)
         .overrideConfiguration(CLIENT_OVERRIDE);
     properties.getDynamodbEndpoint().ifPresent(builder::endpointOverride);
     return builder.build();
+  }
+
+  @Bean
+  DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
+    return DynamoDbEnhancedClient.builder()
+        .dynamoDbClient(dynamoDbClient)
+        .build();
   }
 }

@@ -1,0 +1,10 @@
+verigate:
+  aws:
+    region: eu-west-1
+  cors:
+    allowed-origins: http://localhost:3000,https://portal.verigate.co.za
+  auth:
+    cognito:
+      enabled: false
+    rate-limit:
+      enabled: false
