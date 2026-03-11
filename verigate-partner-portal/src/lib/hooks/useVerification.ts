@@ -1,8 +1,16 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { submitVerification, getVerificationStatus, pollVerificationStatus } from "@/lib/bff-client";
+import {
+  submitVerification,
+  getVerificationStatus,
+  pollVerificationStatus,
+} from "@/lib/bff-client";
 import type { BffVerificationSubmission } from "@/lib/bff-client";
+import {
+  listVerifications,
+  type VerificationListParams,
+} from "@/lib/verification-api";
 
 export function useSubmitVerification() {
   return useMutation({
@@ -13,11 +21,14 @@ export function useSubmitVerification() {
   });
 }
 
-export function useVerificationStatus(commandId: string | null, options?: { enabled?: boolean }) {
+export function useVerificationStatus(
+  commandId: string | null,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: ["verification-status", commandId],
     queryFn: () => getVerificationStatus(commandId!),
-    enabled: !!commandId && (options?.enabled !== false),
+    enabled: !!commandId && options?.enabled !== false,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       if (
@@ -30,5 +41,12 @@ export function useVerificationStatus(commandId: string | null, options?: { enab
       }
       return 1500;
     },
+  });
+}
+
+export function useVerificationList(params: VerificationListParams) {
+  return useQuery({
+    queryKey: ["verification-list", params],
+    queryFn: () => listVerifications(params),
   });
 }

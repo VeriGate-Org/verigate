@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
+import { ToastProvider } from "@/components/ui/Toast";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
@@ -26,7 +28,11 @@ export default function RootLayout({
       <body className="antialiased min-h-screen bg-background text-text">
         <ThemeProvider>
           <QueryProvider>
-            <AppShell>{children}</AppShell>
+            <ToastProvider>
+              <ErrorBoundary>
+                <AppShell>{children}</AppShell>
+              </ErrorBoundary>
+            </ToastProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>
