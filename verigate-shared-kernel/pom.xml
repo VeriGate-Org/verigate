@@ -324,6 +324,14 @@
             <version>0.5.0</version>
         </dependency>
 
+        <!-- ch.qos.logback (test only - needed for SLF4J MDC in tests) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- org.junit.jupiter-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -200,6 +200,64 @@ Resources:
         - !Ref AlarmSNSTopic
       TreatMissingData: notBreaching
 
+  # SQS message age alarm - triggers when messages sit too long in queue
+  SqsMessageAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "SQS message age exceeds threshold for ${AWS::StackName}-verify-party"
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions:
+        - Name: QueueName
+          Value: !Sub "${AWS::StackName}-verify-party"
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  # Lambda error rate alarm - triggers when error rate exceeds 5%
+  LambdaErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "Lambda error rate >5% for ${AWS::StackName}-verify-party-router"
+      Metrics:
+        - Id: errors
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: !Sub "${AWS::StackName}-verify-party-router"
+            Period: 300
+            Stat: Sum
+          ReturnData: false
+        - Id: invocations
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Invocations
+              Dimensions:
+                - Name: FunctionName
+                  Value: !Sub "${AWS::StackName}-verify-party-router"
+            Period: 300
+            Stat: Sum
+          ReturnData: false
+        - Id: error_rate
+          Expression: "IF(invocations > 0, errors / invocations * 100, 0)"
+          Label: "Error Rate %"
+          ReturnData: true
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
   ## Lambda Functions
   VerifyPartyLambdaHandler:
     Type: AWS::Serverless::Function

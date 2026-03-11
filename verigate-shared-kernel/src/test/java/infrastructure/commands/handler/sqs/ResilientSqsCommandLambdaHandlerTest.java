@@ -28,7 +28,9 @@ import domain.messages.DeadLetterQueue;
 import domain.messages.InvalidMessageQueue;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.MDC;
 
 final class ResilientSqsCommandLambdaHandlerTest {
 
@@ -247,6 +250,64 @@ final class ResilientSqsCommandLambdaHandlerTest {
     SQSBatchResponse actualSqsBatchResponse = handler.handleRequest(sqsEvent, null);
     assertTrue(actualSqsBatchResponse.getBatchItemFailures().isEmpty());
     verifyNoMoreInteractions(commandHandler, invalidMessageQueue, deadLetterQueue);
+  }
+
+  @Test
+  public void populatesMdcFromCorrelationIdMessageAttribute() {
+    // Use a real capturing command handler instead of Mockito
+    AtomicReference<String> capturedCorrelationId = new AtomicReference<>();
+    CommandHandler<TestCommand, Void> capturingHandler = command -> {
+      capturedCorrelationId.set(MDC.get("correlationId"));
+      return null;
+    };
+    var capturingResilientHandler = new ResilientSqsCommandLambdaHandler<>(
+        body -> new TestCommand(body), capturingHandler, invalidMessageQueue, deadLetterQueue);
+
+    SQSMessage sqsMessage = new SQSMessage();
+    sqsMessage.setMessageId("corr-1");
+    sqsMessage.setBody("payload1");
+
+    SQSEvent.MessageAttribute correlationAttr = new SQSEvent.MessageAttribute();
+    correlationAttr.setStringValue("test-corr-id-789");
+    correlationAttr.setDataType("String");
+    var attrs = new java.util.HashMap<String, SQSEvent.MessageAttribute>();
+    attrs.put("correlationId", correlationAttr);
+    sqsMessage.setMessageAttributes(attrs);
+
+    SQSEvent sqsEvent = new SQSEvent();
+    sqsEvent.setRecords(List.of(sqsMessage));
+
+    capturingResilientHandler.handleRequest(sqsEvent, null);
+
+    assertEquals("test-corr-id-789", capturedCorrelationId.get());
+    // MDC should be cleared after processing
+    assertEquals(null, MDC.get("correlationId"));
+  }
+
+  @Test
+  public void mdcClearedEvenOnException() {
+    SQSMessage sqsMessage = new SQSMessage();
+    sqsMessage.setMessageId("corr-2");
+    sqsMessage.setBody(testCommand1.payload);
+
+    SQSEvent.MessageAttribute correlationAttr = new SQSEvent.MessageAttribute();
+    correlationAttr.setStringValue("should-be-cleared");
+    correlationAttr.setDataType("String");
+    var attrs = new java.util.HashMap<String, SQSEvent.MessageAttribute>();
+    attrs.put("correlationId", correlationAttr);
+    sqsMessage.setMessageAttributes(attrs);
+
+    SQSEvent sqsEvent = new SQSEvent();
+    sqsEvent.setRecords(List.of(sqsMessage));
+
+    when(extractCommandFromMessageBody.apply(testCommand1.payload)).thenReturn(testCommand1);
+    when(commandHandler.handle(org.mockito.ArgumentMatchers.any()))
+        .thenThrow(new PermanentException("fail"));
+
+    handler.handleRequest(sqsEvent, null);
+
+    assertEquals("MDC should be cleared even when exception occurs",
+        null, MDC.get("correlationId"));
   }
 
   private record TestCommand(String payload) {}

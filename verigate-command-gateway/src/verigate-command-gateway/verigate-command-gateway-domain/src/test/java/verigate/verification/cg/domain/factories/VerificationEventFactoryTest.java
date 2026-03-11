@@ -3,6 +3,7 @@ package verigate.verification.cg.domain.factories;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import crosscutting.metrics.Meter;
 import domain.events.EventIdFactory;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +21,13 @@ class VerificationEventFactoryTest {
 
   private VerificationEventFactory factory;
   private EventIdFactory eventIdFactory;
+  private Meter meter;
 
   @BeforeEach
   void setUp() {
     eventIdFactory = mock(EventIdFactory.class);
-    factory = new VerificationEventFactory(eventIdFactory);
+    meter = mock(Meter.class);
+    factory = new VerificationEventFactory(eventIdFactory, meter);
     when(eventIdFactory.createFromCommand(any(), any()))
         .thenReturn(UUID.fromString("fa2cf2ea-76a9-4fd2-9b56-64c5a8cbb9b7"));
   }

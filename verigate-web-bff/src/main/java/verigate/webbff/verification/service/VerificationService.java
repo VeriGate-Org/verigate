@@ -2,19 +2,25 @@ package verigate.webbff.verification.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import verigate.webbff.observability.CorrelationIdFilter;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.verification.model.CommandStatus;
 import verigate.webbff.verification.model.VerificationListItem;
@@ -36,18 +42,23 @@ public class VerificationService {
   private final CommandStatusRepository statusRepository;
   private final ResponsePollingProperties pollingProperties;
   private final String queueName;
+  private final Counter verificationSubmittedCounter;
 
   public VerificationService(
       SqsClient sqsClient,
       ObjectMapper objectMapper,
       CommandStatusRepository statusRepository,
       ResponsePollingProperties pollingProperties,
+      MeterRegistry meterRegistry,
       @Value("${verigate.verification.queue-name:verify-party}") String queueName) {
     this.sqsClient = sqsClient;
     this.objectMapper = objectMapper;
     this.statusRepository = statusRepository;
     this.pollingProperties = pollingProperties;
     this.queueName = queueName;
+    this.verificationSubmittedCounter = Counter.builder("verification.submitted")
+        .description("Number of verification commands submitted")
+        .register(meterRegistry);
   }
 
   public VerificationResponse submitVerification(VerificationRequest request) {
@@ -55,6 +66,7 @@ public class VerificationService {
     var command = buildCommand(commandId, request);
 
     dispatch(command);
+    verificationSubmittedCounter.increment();
 
     var status = pollForStatus(commandId)
         .map(VerificationCommandStoreItem::getStatus)
@@ -90,7 +102,12 @@ public class VerificationService {
 
   private VerifyPartyCommandMessage buildCommand(UUID commandId, VerificationRequest request) {
     Origination origination = new Origination(request.originationType(), request.originationId());
-    Map<String, Object> metadata = Optional.ofNullable(request.metadata()).orElse(Map.of());
+    Map<String, Object> metadata = new HashMap<>(
+        Optional.ofNullable(request.metadata()).orElse(Map.of()));
+    String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
+    if (correlationId != null) {
+      metadata.put("correlationId", correlationId);
+    }
     return new VerifyPartyCommandMessage(
         commandId,
         Instant.now(),
@@ -109,8 +126,18 @@ public class VerificationService {
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Failed to serialize command", e);
     }
-    sqsClient.sendMessage(
-        SendMessageRequest.builder().queueUrl(queueUrl).messageBody(payload).build());
+    var requestBuilder = SendMessageRequest.builder()
+        .queueUrl(queueUrl)
+        .messageBody(payload);
+
+    String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
+    if (correlationId != null) {
+      requestBuilder.messageAttributes(Map.of(
+          "correlationId", MessageAttributeValue.builder()
+              .dataType("String").stringValue(correlationId).build()));
+    }
+
+    sqsClient.sendMessage(requestBuilder.build());
     LOGGER.info("Dispatched verification command {} to queue {}", command.getId(), queueName);
   }
 

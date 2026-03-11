@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,6 +73,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
       // Set partner context
       PartnerContextHolder.setPartnerId(partnerId);
+      MDC.put("partnerId", partnerId);
 
       // Set Spring Security authentication
       UsernamePasswordAuthenticationToken authentication =
@@ -91,6 +93,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
       response.getWriter().write("{\"error\":\"Authentication error\"}");
     } finally {
       PartnerContextHolder.clear();
+      MDC.remove("partnerId");
     }
   }
 }

@@ -10,6 +10,7 @@ import crosscutting.serialization.DataContract;
 import domain.events.BaseEvent;
 import java.time.Instant;
 import java.util.UUID;
+import org.slf4j.MDC;
 import verigate.verification.cg.domain.models.Origination;
 import verigate.verification.cg.domain.models.VerificationType;
 
@@ -18,9 +19,10 @@ import verigate.verification.cg.domain.models.VerificationType;
  */
 public class VerificationEvent extends BaseEvent<Object> {
 
-  // TODO: Add more fields that can be used to store the info needed in VerificationHistory
   @DataContract VerificationType verificationType;
   @DataContract Origination origination;
+  @DataContract String correlationId;
+  @DataContract String partnerId;
 
   /**
    * No-args constructor for serialization.
@@ -30,6 +32,8 @@ public class VerificationEvent extends BaseEvent<Object> {
     super();
     this.verificationType = null;
     this.origination = null;
+    this.correlationId = null;
+    this.partnerId = null;
   }
 
   /**
@@ -49,5 +53,15 @@ public class VerificationEvent extends BaseEvent<Object> {
     super(id, eventType, noticedDate, effectedDate, logicalClockReading);
     this.verificationType = verificationType;
     this.origination = origination;
+    this.correlationId = MDC.get("correlationId");
+    this.partnerId = MDC.get("partnerId");
+  }
+
+  public String getCorrelationId() {
+    return correlationId;
+  }
+
+  public String getPartnerId() {
+    return partnerId;
   }
 }

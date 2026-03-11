@@ -9,9 +9,12 @@ package verigate.billing.infrastructure.functions.lambda.handlers;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import verigate.billing.application.handlers.UsageEventHandler;
 import verigate.billing.infrastructure.functions.lambda.di.factories.UsageEventDependencyFactory;
 
@@ -29,6 +32,7 @@ public class UsageEventConsumerLambdaHandler implements RequestHandler<KinesisEv
 
     private static final Logger LOG =
         LoggerFactory.getLogger(UsageEventConsumerLambdaHandler.class);
+    private static final ObjectMapper MDC_MAPPER = new ObjectMapper();
 
     private final UsageEventHandler usageEventHandler;
 
@@ -74,6 +78,8 @@ public class UsageEventConsumerLambdaHandler implements RequestHandler<KinesisEv
                 String data = new String(
                     record.getKinesis().getData().array(), StandardCharsets.UTF_8);
 
+                populateMdcFromEvent(data);
+
                 LOG.debug("Processing Kinesis record: sequenceNumber={}, partitionKey={}",
                     record.getKinesis().getSequenceNumber(),
                     record.getKinesis().getPartitionKey());
@@ -85,6 +91,8 @@ public class UsageEventConsumerLambdaHandler implements RequestHandler<KinesisEv
                 failureCount++;
                 LOG.error("Failed to process Kinesis record: sequenceNumber={}, error={}",
                     record.getKinesis().getSequenceNumber(), e.getMessage(), e);
+            } finally {
+                MDC.clear();
             }
         }
 
@@ -98,5 +106,23 @@ public class UsageEventConsumerLambdaHandler implements RequestHandler<KinesisEv
         }
 
         return null;
+    }
+
+    private void populateMdcFromEvent(String rawJson) {
+        try {
+            JsonNode node = MDC_MAPPER.readTree(rawJson);
+            putMdcIfPresent(node, "correlationId");
+            putMdcIfPresent(node, "partnerId");
+            putMdcIfPresent(node, "verificationId");
+        } catch (Exception e) {
+            LOG.debug("Could not extract MDC fields from event payload", e);
+        }
+    }
+
+    private void putMdcIfPresent(JsonNode node, String field) {
+        JsonNode value = node.get(field);
+        if (value != null && !value.isNull() && value.isTextual()) {
+            MDC.put(field, value.asText());
+        }
     }
 }
