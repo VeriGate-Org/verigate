@@ -18,8 +18,13 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup SAM
+        uses: aws-actions/setup-sam@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -27,28 +32,37 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "corretto"
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        working-directory: verigate-web-bff
-        run: |
-          IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
-          docker push ${ECR_REPO}:${IMAGE_TAG}
-          docker push ${ECR_REPO}:latest
+      - name: Retrieve Maven cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      - name: Deploy to ECS
+      - name: SAM build
+        run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-web-bff/iac/sam/template.yaml
+
+      - name: SAM deploy
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --service ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --force-new-deployment
-          aws ecs wait services-stable \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
+          GIT_HEAD_SHA=$(git rev-parse --short HEAD)
+          sam deploy -t .aws-sam/build/template.yaml \
+            --stack-name=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --resolve-s3 \
+            --region=${{ vars.AWS_REGION }} \
+            --s3-prefix=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --on-failure DELETE \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${{ vars.ENVIRONMENT_SHORTNAME }}"
 
   deploy-development:
     needs: [deploy-sandbox]
@@ -58,8 +72,13 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup SAM
+        uses: aws-actions/setup-sam@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -67,25 +86,34 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "corretto"
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        working-directory: verigate-web-bff
-        run: |
-          IMAGE_TAG="${{ github.sha }}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${{ env.SERVICE_NAME }}"
-          docker build -t ${ECR_REPO}:${IMAGE_TAG} -t ${ECR_REPO}:latest .
-          docker push ${ECR_REPO}:${IMAGE_TAG}
-          docker push ${ECR_REPO}:latest
+      - name: Retrieve Maven cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      - name: Deploy to ECS
+      - name: SAM build
+        run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-web-bff/iac/sam/template.yaml
+
+      - name: SAM deploy
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --service ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --force-new-deployment
-          aws ecs wait services-stable \
-            --cluster ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --services ${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }}
+          GIT_HEAD_SHA=$(git rev-parse --short HEAD)
+          sam deploy -t .aws-sam/build/template.yaml \
+            --stack-name=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --resolve-s3 \
+            --region=${{ vars.AWS_REGION }} \
+            --s3-prefix=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --on-failure DELETE \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${{ vars.ENVIRONMENT_SHORTNAME }}"

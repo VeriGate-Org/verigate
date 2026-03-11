@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: VeriGate Web BFF - Lambda + API Gateway deployment
+
+Parameters:
+  ApplicationVersion:
+    Type: String
+    Description: "The latest version tag for the application"
+  EnvironmentShortname:
+    Type: String
+    Description: "Environment shortname (sbx, dev, ppe, prod)"
+
+Globals:
+  Function:
+    MemorySize: 2048
+    Timeout: 30
+    Runtime: java21
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Type: AllAtOnce
+    LoggingConfig:
+      ApplicationLogLevel: INFO
+      LogFormat: JSON
+    Environment:
+      Variables:
+        DD_ENV: !Sub "sds-${EnvironmentShortname}"
+        DD_SERVICE: verigate-web-bff
+        DD_VERSION: !Ref ApplicationVersion
+    VpcConfig:
+      SecurityGroupIds:
+        - "{{resolve:ssm:/platform/security_groups/verigate_verigate_verification}}"
+      SubnetIds:
+        - "{{resolve:ssm:/platform/privateSubnet-1}}"
+        - "{{resolve:ssm:/platform/privateSubnet-2}}"
+        - "{{resolve:ssm:/platform/privateSubnet-3}}"
+
+Resources:
+  WebBffApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - "https://*.verigate.co.za"
+          - "http://localhost:3000"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-API-Key
+          - X-Request-ID
+          - Accept
+        ExposeHeaders:
+          - X-API-Key
+        MaxAge: 3600
+        AllowCredentials: true
+
+  WebBffFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-web-bff-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-api"
+      Handler: verigate.webbff.StreamLambdaHandler
+      CodeUri: ../../
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: !Ref EnvironmentShortname
+          VERIGATE_COGNITO_ENABLED: !Sub "{{resolve:ssm:/${AWS::StackName}/cognito/enabled}}"
+          VERIGATE_COGNITO_USER_POOL_ID: !Sub "{{resolve:ssm:/${AWS::StackName}/cognito/user-pool-id}}"
+          VERIGATE_COGNITO_REGION: !Sub "{{resolve:ssm:/${AWS::StackName}/cognito/region}}"
+          VERIGATE_COGNITO_APP_CLIENT_ID: !Sub "{{resolve:ssm:/${AWS::StackName}/cognito/app-client-id}}"
+          VERIGATE_VERIFICATION_QUEUE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/verify-party/name}}"
+          VERIGATE_COMMAND_STORE_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/command-store/name}}"
+          VERIGATE_API_KEYS_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/api-keys/name}}"
+          VERIGATE_PARTNER_CREATE_QUEUE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-create/name}}"
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WebBffApi
+            Path: /{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WebBffApi
+            Path: /
+            Method: ANY
+
+  WebBffFunctionErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "Errors in ${AWS::StackName}-api Lambda"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref WebBffFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  WebBffApi5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub "5xx errors on ${AWS::StackName} API Gateway"
+      Namespace: AWS/ApiGateway
+      MetricName: 5xx
+      Dimensions:
+        - Name: ApiId
+          Value: !Ref WebBffApi
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      TreatMissingData: notBreaching
+
+  AlarmSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-alarms"
+      DisplayName: WebBffAlarms
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${WebBffApi}.execute-api.${AWS::Region}.amazonaws.com"
+  FunctionArn:
+    Description: "Lambda function ARN"
+    Value: !GetAtt WebBffFunction.Arn
