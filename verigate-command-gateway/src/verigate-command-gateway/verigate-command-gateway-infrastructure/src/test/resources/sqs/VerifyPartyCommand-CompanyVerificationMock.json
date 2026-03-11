@@ -1,0 +1,15 @@
+{
+  "__artifact_type__": "VerifyPartyCommand",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "createdDate": "2025-06-15T10:30:00Z",
+  "createdBy": "integration-test",
+  "verificationType": "COMPANY_VERIFICATION",
+  "origination": {
+    "originationType": "ADHOC",
+    "originationId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  },
+  "metadata": {
+    "companyName": "Test Corp (Pty) Ltd",
+    "registrationNumber": "2020/123456/07"
+  }
+}

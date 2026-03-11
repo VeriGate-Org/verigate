@@ -10,6 +10,13 @@ on:
 jobs:
   integration-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      checks: write
+    timeout-minutes: 30
+    env:
+      TESTCONTAINERS_RYUK_DISABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,6 +36,22 @@ jobs:
       - name: Install shared-kernel
         working-directory: verigate-shared-kernel
         run: mvn install -DskipTests
-      - name: Run integration tests
+      - name: Run command-gateway integration tests
         working-directory: verigate-command-gateway
         run: mvn verify -Dsurefire.skip=true
+      - name: Run web-bff integration tests
+        if: always()
+        working-directory: verigate-web-bff
+        run: mvn verify -Dsurefire.skip=true
+      - name: Run billing integration tests
+        if: always()
+        working-directory: verigate-billing
+        run: mvn verify -Dsurefire.skip=true
+      - name: Publish test results
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: |
+            **/target/failsafe-reports/TEST-*.xml
+            **/target/surefire-reports/TEST-*.xml
+          check_name: Integration Test Results

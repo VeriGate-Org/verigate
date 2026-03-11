@@ -1,0 +1,16 @@
+{
+  "__artifact_type__": "VerifyPartyCommand",
+  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "createdDate": "2025-06-15T10:30:00Z",
+  "createdBy": "integration-test",
+  "verificationType": "IDENTITY_VERIFICATION",
+  "origination": {
+    "originationType": "ADHOC",
+    "originationId": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+  },
+  "metadata": {
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "idNumber": "9001015800085"
+  }
+}
