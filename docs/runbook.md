@@ -161,6 +161,137 @@ aws dynamodb query \
 - Check partner status in partner-table
 - Adjust rate limits in BFF application.yaml if needed
 
+## Secrets Management
+
+### API Key Rotation
+
+API keys should be rotated periodically or immediately if compromised. The web-bff supports zero-downtime key rotation.
+
+**Rotation Process**:
+
+1. Generate a new API key for the partner:
+   ```bash
+   # Via BFF API (requires admin credentials)
+   curl -X POST https://api.verigate.com/api/admin/partners/PARTNER_ID/api-keys \
+     -H "Authorization: Bearer $ADMIN_TOKEN"
+   ```
+
+2. The response contains the new raw API key (shown only once):
+   ```json
+   {
+     "rawApiKey": "vg_abc123...",
+     "partnerId": "partner-001",
+     "keyPrefix": "vg_abc12",
+     "status": "ACTIVE",
+     "createdAt": "2025-01-15T10:30:00"
+   }
+   ```
+
+3. Provide the new key to the partner via secure channel (encrypted email, vault, etc.)
+
+4. Verify the new key works before revoking the old one:
+   ```bash
+   curl -X POST https://api.verigate.com/api/verifications \
+     -H "X-API-Key: vg_abc123..." \
+     -H "Content-Type: application/json" \
+     -d '{"verificationType": "ID_VERIFICATION", ...}'
+   ```
+
+5. Once confirmed, revoke the old key:
+   ```bash
+   curl -X DELETE https://api.verigate.com/api/admin/partners/PARTNER_ID/api-keys/OLD_PREFIX \
+     -H "Authorization: Bearer $ADMIN_TOKEN"
+   ```
+
+6. Verify the old key no longer works (should return 401).
+
+**Emergency Revocation** (if key is compromised):
+
+```bash
+# Immediately revoke without rotation
+curl -X DELETE https://api.verigate.com/api/admin/partners/PARTNER_ID/api-keys/KEY_PREFIX \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+**Security Notes**:
+- API keys use salted SHA-256 hashing with constant-time comparison to prevent rainbow table and timing attacks
+- Raw keys are never stored; only lookup hash (unsalted) and verification hash (salted) are persisted
+- Keys should be rotated every 90 days as a security best practice
+- Monitor CloudWatch Logs for failed authentication attempts (potential key compromise indicators)
+
+### Adapter Secrets Rotation (AWS Secrets Manager)
+
+External adapter credentials (CIPC, DHA, QLink, etc.) are stored in AWS Secrets Manager and should be rotated when provider credentials change or every 180 days.
+
+**List all adapter secrets**:
+```bash
+aws secretsmanager list-secrets \
+  --filters Key=name,Values=verigate-adapter \
+  --query 'SecretList[].{Name:Name,LastChanged:LastChangedDate}' \
+  --output table
+```
+
+**Rotate a secret** (e.g., CIPC adapter credentials):
+
+1. Obtain new credentials from the external provider
+
+2. Update the secret value:
+   ```bash
+   aws secretsmanager update-secret \
+     --secret-id verigate-adapter-cipc-credentials \
+     --secret-string '{
+       "username": "new_username",
+       "password": "new_password",
+       "apiKey": "new_api_key"
+     }'
+   ```
+
+3. Verify the Lambda functions pick up the new secret (they cache for up to 5 minutes):
+   ```bash
+   # Trigger a test verification to force secret refresh
+   # Monitor CloudWatch Logs for the adapter Lambda
+   aws logs tail /aws/lambda/verigate-verification-cg-verify-company-details --follow
+   ```
+
+4. If immediate refresh is required, restart the Lambda by updating environment variable:
+   ```bash
+   aws lambda update-function-configuration \
+     --function-name verigate-verification-cg-verify-company-details \
+     --environment Variables={FORCE_REFRESH=$(date +%s)}
+   ```
+
+**Enable automatic rotation** (requires rotation Lambda):
+```bash
+aws secretsmanager rotate-secret \
+  --secret-id verigate-adapter-cipc-credentials \
+  --rotation-lambda-arn arn:aws:lambda:REGION:ACCOUNT:function:SecretsManagerRotation \
+  --rotation-rules AutomaticallyAfterDays=180
+```
+
+**Rollback if new credentials fail**:
+```bash
+# List secret versions
+aws secretsmanager list-secret-version-ids \
+  --secret-id verigate-adapter-cipc-credentials
+
+# Restore previous version
+aws secretsmanager update-secret-version-stage \
+  --secret-id verigate-adapter-cipc-credentials \
+  --version-stage AWSCURRENT \
+  --move-to-version-id PREVIOUS_VERSION_ID \
+  --remove-from-version-id CURRENT_VERSION_ID
+```
+
+**Audit secret access**:
+```bash
+# Check CloudTrail for secret access events
+aws cloudtrail lookup-events \
+  --lookup-attributes AttributeKey=ResourceName,AttributeValue=verigate-adapter-cipc-credentials \
+  --max-results 50 \
+  --query 'Events[].{Time:EventTime,User:Username,Action:EventName}' \
+  --output table
+```
+
 ## Deployment
 
 ### Rolling Back a Deployment
