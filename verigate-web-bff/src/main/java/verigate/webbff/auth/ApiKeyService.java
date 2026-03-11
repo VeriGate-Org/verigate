@@ -52,6 +52,9 @@ public class ApiKeyService {
   /** Length of the raw API key in bytes (before Base64 encoding). */
   private static final int KEY_BYTE_LENGTH = 32;
 
+  /** Length of the salt in bytes (before Base64 encoding). */
+  private static final int SALT_BYTE_LENGTH = 16;
+
   /** Number of prefix characters stored for human-readable identification. */
   private static final int KEY_PREFIX_LENGTH = 8;
 
@@ -90,13 +93,20 @@ public class ApiKeyService {
     }
     String rawApiKey = "vg_live_" + hex;
 
-    String apiKeyHash = hashApiKey(rawApiKey);
+    // Generate a cryptographically secure salt
+    String salt = generateSalt();
+
+    // Generate both hashes
+    String lookupHash = hashApiKeyForLookup(rawApiKey);
+    String verificationHash = hashApiKeyForVerification(rawApiKey, salt);
     String keyPrefix = rawApiKey.substring(0, Math.min(KEY_PREFIX_LENGTH, rawApiKey.length()));
     LocalDateTime now = LocalDateTime.now();
 
     // Build DynamoDB item
     Map<String, AttributeValue> item = new HashMap<>();
-    item.put("apiKeyHash", AttributeValue.builder().s(apiKeyHash).build());
+    item.put("lookupHash", AttributeValue.builder().s(lookupHash).build());
+    item.put("verificationHash", AttributeValue.builder().s(verificationHash).build());
+    item.put("salt", AttributeValue.builder().s(salt).build());
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
     item.put("status", AttributeValue.builder().s(ApiKeyRecord.STATUS_ACTIVE).build());
     item.put("keyPrefix", AttributeValue.builder().s(keyPrefix).build());
@@ -116,7 +126,7 @@ public class ApiKeyService {
     logger.info("Generated new API key for partner {} (prefix: {})", partnerId, keyPrefix);
 
     ApiKeyRecord record = new ApiKeyRecord(
-        apiKeyHash, partnerId, ApiKeyRecord.STATUS_ACTIVE,
+        lookupHash, verificationHash, salt, partnerId, ApiKeyRecord.STATUS_ACTIVE,
         keyPrefix, now, null, createdBy);
 
     return new GeneratedApiKey(rawApiKey, record);
@@ -125,16 +135,16 @@ public class ApiKeyService {
   /**
    * Revokes an API key by setting its status to REVOKED.
    *
-   * @param apiKeyHash SHA-256 hash of the key to revoke
+   * @param lookupHash unsalted SHA-256 hash of the key to revoke (partition key)
    * @throws IllegalArgumentException if the key is not found
    */
-  public void revokeApiKey(String apiKeyHash) {
+  public void revokeApiKey(String lookupHash) {
     GetItemResponse existing;
     try {
       // Verify the key exists
       existing = dynamoDbClient.getItem(GetItemRequest.builder()
           .tableName(tableName)
-          .key(Map.of("apiKeyHash", AttributeValue.builder().s(apiKeyHash).build()))
+          .key(Map.of("lookupHash", AttributeValue.builder().s(lookupHash).build()))
           .build());
     } catch (DynamoDbException e) {
       logger.error("DynamoDB getItem failed during key revocation: {}", e.getMessage());
@@ -142,13 +152,13 @@ public class ApiKeyService {
     }
 
     if (!existing.hasItem() || existing.item().isEmpty()) {
-      throw new IllegalArgumentException("API key not found: " + apiKeyHash);
+      throw new IllegalArgumentException("API key not found: " + lookupHash);
     }
 
     try {
       dynamoDbClient.updateItem(UpdateItemRequest.builder()
           .tableName(tableName)
-          .key(Map.of("apiKeyHash", AttributeValue.builder().s(apiKeyHash).build()))
+          .key(Map.of("lookupHash", AttributeValue.builder().s(lookupHash).build()))
           .updateExpression("SET #status = :revoked, revokedAt = :revokedAt")
           .expressionAttributeNames(Map.of("#status", "status"))
           .expressionAttributeValues(Map.of(
@@ -163,27 +173,27 @@ public class ApiKeyService {
     String partnerId = existing.item().containsKey("partnerId")
         ? existing.item().get("partnerId").s() : "unknown";
     logger.info("Revoked API key for partner {} (hash: {}...)",
-        partnerId, apiKeyHash.substring(0, Math.min(12, apiKeyHash.length())));
+        partnerId, lookupHash.substring(0, Math.min(12, lookupHash.length())));
   }
 
   /**
    * Rotates an API key: revokes the old key and generates a new one atomically.
    *
-   * @param partnerId     the partner whose key is being rotated
-   * @param oldApiKeyHash SHA-256 hash of the key to revoke
-   * @param createdBy     identifier of the user/system performing the rotation
+   * @param partnerId      the partner whose key is being rotated
+   * @param oldLookupHash  unsalted SHA-256 hash of the key to revoke
+   * @param createdBy      identifier of the user/system performing the rotation
    * @return the newly generated key
    */
-  public GeneratedApiKey rotateApiKey(String partnerId, String oldApiKeyHash, String createdBy) {
+  public GeneratedApiKey rotateApiKey(String partnerId, String oldLookupHash, String createdBy) {
     // Revoke the old key first
-    revokeApiKey(oldApiKeyHash);
+    revokeApiKey(oldLookupHash);
 
     // Generate and store a new key
     GeneratedApiKey newKey = generateApiKey(partnerId, createdBy);
 
     logger.info("Rotated API key for partner {} (old hash: {}..., new prefix: {})",
         partnerId,
-        oldApiKeyHash.substring(0, Math.min(12, oldApiKeyHash.length())),
+        oldLookupHash.substring(0, Math.min(12, oldLookupHash.length())),
         newKey.record().keyPrefix());
 
     return newKey;
@@ -227,7 +237,9 @@ public class ApiKeyService {
    */
   private ApiKeyRecord toApiKeyRecord(Map<String, AttributeValue> item) {
     return new ApiKeyRecord(
-        getStringAttribute(item, "apiKeyHash"),
+        getStringAttribute(item, "lookupHash"),
+        getStringAttribute(item, "verificationHash"),
+        getStringAttribute(item, "salt"),
         getStringAttribute(item, "partnerId"),
         getStringAttribute(item, "status"),
         getStringAttribute(item, "keyPrefix"),
@@ -261,24 +273,71 @@ public class ApiKeyService {
   }
 
   /**
-   * Computes the SHA-256 hash of a raw API key.
+   * Computes an unsalted SHA-256 hash of a raw API key.
+   * Used for lookup (partition key) only, not for secure verification.
+   *
+   * @param apiKey the raw API key
+   * @return hex-encoded SHA-256 hash
    */
-  private String hashApiKey(String apiKey) {
+  private String hashApiKeyForLookup(String apiKey) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hash = digest.digest(apiKey.getBytes(StandardCharsets.UTF_8));
-      StringBuilder hexString = new StringBuilder();
-      for (byte b : hash) {
-        String hex = Integer.toHexString(0xff & b);
-        if (hex.length() == 1) {
-          hexString.append('0');
-        }
-        hexString.append(hex);
-      }
-      return hexString.toString();
+      return bytesToHex(hash);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("SHA-256 not available", e);
     }
+  }
+
+  /**
+   * Computes the salted SHA-256 hash of a raw API key for secure verification.
+   * The salt is prepended to the API key before hashing to prevent rainbow table attacks.
+   *
+   * @param apiKey the raw API key
+   * @param salt   the base64-encoded salt
+   * @return hex-encoded SHA-256 hash of (salt + apiKey)
+   */
+  private String hashApiKeyForVerification(String apiKey, String salt) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      // Combine salt and API key before hashing
+      byte[] saltBytes = Base64.getUrlDecoder().decode(salt);
+      byte[] apiKeyBytes = apiKey.getBytes(StandardCharsets.UTF_8);
+      byte[] combined = new byte[saltBytes.length + apiKeyBytes.length];
+      System.arraycopy(saltBytes, 0, combined, 0, saltBytes.length);
+      System.arraycopy(apiKeyBytes, 0, combined, saltBytes.length, apiKeyBytes.length);
+
+      byte[] hash = digest.digest(combined);
+      return bytesToHex(hash);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("SHA-256 not available", e);
+    }
+  }
+
+  /**
+   * Converts a byte array to a hex string.
+   */
+  private String bytesToHex(byte[] bytes) {
+    StringBuilder hexString = new StringBuilder();
+    for (byte b : bytes) {
+      String hex = Integer.toHexString(0xff & b);
+      if (hex.length() == 1) {
+        hexString.append('0');
+      }
+      hexString.append(hex);
+    }
+    return hexString.toString();
+  }
+
+  /**
+   * Generates a cryptographically secure random salt.
+   *
+   * @return base64-encoded salt
+   */
+  private String generateSalt() {
+    byte[] saltBytes = new byte[SALT_BYTE_LENGTH];
+    secureRandom.nextBytes(saltBytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(saltBytes);
   }
 
   /**

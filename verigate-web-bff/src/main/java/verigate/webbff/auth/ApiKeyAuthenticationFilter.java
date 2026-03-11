@@ -23,8 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Filter that extracts the X-API-Key header, hashes it, and resolves
- * the partner identity. Sets the partner context for downstream use.
+ * Filter that extracts the X-API-Key header and resolves the partner identity.
+ * The resolver performs secure verification with salt and constant-time comparison.
+ * Sets the partner context for downstream use.
  */
 public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
@@ -59,8 +60,8 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     }
 
     try {
-      String apiKeyHash = hashApiKey(apiKey);
-      String partnerId = apiKeyResolver.resolvePartnerId(apiKeyHash);
+      // Pass raw API key to resolver for secure verification
+      String partnerId = apiKeyResolver.resolvePartnerId(apiKey);
 
       if (partnerId == null) {
         logger.warn("Invalid API key provided for request to {}", request.getRequestURI());
@@ -90,24 +91,6 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
       response.getWriter().write("{\"error\":\"Authentication error\"}");
     } finally {
       PartnerContextHolder.clear();
-    }
-  }
-
-  private String hashApiKey(String apiKey) {
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      byte[] hash = digest.digest(apiKey.getBytes(StandardCharsets.UTF_8));
-      StringBuilder hexString = new StringBuilder();
-      for (byte b : hash) {
-        String hex = Integer.toHexString(0xff & b);
-        if (hex.length() == 1) {
-          hexString.append('0');
-        }
-        hexString.append(hex);
-      }
-      return hexString.toString();
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("SHA-256 not available", e);
     }
   }
 }

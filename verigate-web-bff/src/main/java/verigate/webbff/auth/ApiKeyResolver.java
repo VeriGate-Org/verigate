@@ -7,16 +7,18 @@
 package verigate.webbff.auth;
 
 /**
- * Resolves a partner ID from a hashed API key.
- * Implementations should look up the API key hash in the partner configuration store.
+ * Resolves a partner ID from a raw API key.
+ * Implementations should look up the API key in the partner configuration store
+ * and perform secure, constant-time verification.
  */
 public interface ApiKeyResolver {
 
   /**
-   * Resolves the partner ID associated with the given API key hash.
+   * Resolves the partner ID associated with the given raw API key.
+   * Uses constant-time comparison to prevent timing attacks.
    *
-   * @param apiKeyHash SHA-256 hash of the API key
+   * @param rawApiKey the raw API key from the X-API-Key header
    * @return partnerId if the key is valid, null otherwise
    */
-  String resolvePartnerId(String apiKeyHash);
+  String resolvePartnerId(String rawApiKey);
 }

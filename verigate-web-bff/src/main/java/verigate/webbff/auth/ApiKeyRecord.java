@@ -11,20 +11,28 @@ import java.time.LocalDateTime;
 /**
  * Immutable representation of an API key record stored in DynamoDB.
  * <p>
- * The raw API key value is never persisted; only the SHA-256 hash is
- * stored. The {@code keyPrefix} (first 8 characters of the raw key) is
- * kept solely for human-readable identification in dashboards and logs.
+ * The raw API key value is never persisted. Two hashes are stored:
+ * <ul>
+ *   <li>{@code lookupHash}: unsalted SHA-256 hash used as partition key for efficient lookup</li>
+ *   <li>{@code verificationHash}: salted SHA-256 hash used for secure verification with constant-time comparison</li>
+ * </ul>
+ * The {@code keyPrefix} (first 8 characters of the raw key) is kept solely
+ * for human-readable identification in dashboards and logs.
  *
- * @param apiKeyHash SHA-256 hex digest of the raw API key (partition key)
- * @param partnerId  the partner this key belongs to
- * @param status     lifecycle status: ACTIVE, REVOKED, or EXPIRED
- * @param keyPrefix  first 8 characters of the raw key for display purposes
- * @param createdAt  when the key was created
- * @param expiresAt  optional expiry timestamp; {@code null} means no expiry
- * @param createdBy  identifier of the user/system that created this key
+ * @param lookupHash       unsalted SHA-256 hex digest used as partition key
+ * @param verificationHash salted SHA-256 hex digest used for secure verification
+ * @param salt             base64-encoded salt used for verification hash
+ * @param partnerId        the partner this key belongs to
+ * @param status           lifecycle status: ACTIVE, REVOKED, or EXPIRED
+ * @param keyPrefix        first 8 characters of the raw key for display purposes
+ * @param createdAt        when the key was created
+ * @param expiresAt        optional expiry timestamp; {@code null} means no expiry
+ * @param createdBy        identifier of the user/system that created this key
  */
 public record ApiKeyRecord(
-    String apiKeyHash,
+    String lookupHash,
+    String verificationHash,
+    String salt,
     String partnerId,
     String status,
     String keyPrefix,
