@@ -79,6 +79,7 @@ Resources:
           VERIGATE_COMMAND_STORE_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/command-store/name}}"
           VERIGATE_API_KEYS_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/api-keys/name}}"
           VERIGATE_PARTNER_CREATE_QUEUE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-create/name}}"
+          VERIGATE_PARTNER_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/partner/name}}"
       Events:
         ApiProxy:
           Type: HttpApi

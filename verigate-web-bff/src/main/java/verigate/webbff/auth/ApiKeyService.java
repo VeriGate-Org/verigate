@@ -12,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +84,11 @@ public class ApiKeyService {
     // Generate a cryptographically secure random key
     byte[] keyBytes = new byte[KEY_BYTE_LENGTH];
     secureRandom.nextBytes(keyBytes);
-    String rawApiKey = "vg_" + Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
+    StringBuilder hex = new StringBuilder(KEY_BYTE_LENGTH * 2);
+    for (byte b : keyBytes) {
+      hex.append(String.format("%02x", b));
+    }
+    String rawApiKey = "vg_live_" + hex;
 
     String apiKeyHash = hashApiKey(rawApiKey);
     String keyPrefix = rawApiKey.substring(0, Math.min(KEY_PREFIX_LENGTH, rawApiKey.length()));
