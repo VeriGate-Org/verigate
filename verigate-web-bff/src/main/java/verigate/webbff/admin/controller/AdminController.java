@@ -1,6 +1,7 @@
 package verigate.webbff.admin.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -11,12 +12,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import verigate.webbff.admin.model.ApiKeyListResponse;
 import verigate.webbff.admin.model.ApiKeyResponse;
 import verigate.webbff.admin.model.CreatePartnerRequest;
+import verigate.webbff.admin.model.PartnerResponse;
+import verigate.webbff.admin.model.UpdatePartnerStatusRequest;
+import verigate.webbff.admin.repository.PartnerRepository;
 import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
@@ -30,10 +36,15 @@ public class AdminController {
 
   private final ApiKeyService apiKeyService;
   private final PartnerService partnerService;
+  private final PartnerRepository partnerRepository;
 
-  public AdminController(ApiKeyService apiKeyService, PartnerService partnerService) {
+  public AdminController(
+      ApiKeyService apiKeyService,
+      PartnerService partnerService,
+      PartnerRepository partnerRepository) {
     this.apiKeyService = apiKeyService;
     this.partnerService = partnerService;
+    this.partnerRepository = partnerRepository;
   }
 
   @PostMapping("/partners")
@@ -45,6 +56,35 @@ public class AdminController {
     logger.info("Create partner command submitted: commandId={}", commandId);
     return ResponseEntity.status(HttpStatus.ACCEPTED)
         .body(Map.of("commandId", commandId.toString(), "status", "ACCEPTED"));
+  }
+
+  @GetMapping("/partners")
+  public List<PartnerResponse> listPartners() {
+    logger.info("Listing all partners");
+    return partnerRepository.findAll();
+  }
+
+  @GetMapping("/partners/{partnerId}")
+  public PartnerResponse getPartner(@PathVariable String partnerId) {
+    logger.info("Getting partner details: {}", partnerId);
+    return partnerRepository.findById(partnerId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Partner not found: " + partnerId));
+  }
+
+  @PutMapping("/partners/{partnerId}/status")
+  public ResponseEntity<Map<String, String>> updatePartnerStatus(
+      @PathVariable String partnerId,
+      @Valid @RequestBody UpdatePartnerStatusRequest request) {
+    logger.info("Updating partner {} status to {}",
+        partnerId, request.status());
+    partnerRepository.findById(partnerId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Partner not found: " + partnerId));
+    partnerRepository.updateStatus(partnerId, request.status());
+    return ResponseEntity.ok(Map.of(
+        "partnerId", partnerId,
+        "status", request.status().name()));
   }
 
   @PostMapping("/partners/{partnerId}/api-keys")
