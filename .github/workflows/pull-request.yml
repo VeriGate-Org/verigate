@@ -10,6 +10,8 @@ on:
       - "verigate-partner/**"
       - "verigate-billing/**"
       - "verigate-shared-kernel/**"
+      - "verigate-web-bff/**"
+      - ".github/workflows/**"
   merge_group:
     types: [checks_requested]
 

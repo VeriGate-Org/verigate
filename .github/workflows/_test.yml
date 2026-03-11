@@ -18,3 +18,9 @@ jobs:
     uses: ./.github/workflows/_test-integration.yml
     with:
       java-version: ${{ inputs.java-version }}
+
+  integration-test-e2e:
+    uses: ./.github/workflows/_test-integration-e2e.yml
+    with:
+      java-version: ${{ inputs.java-version }}
+    secrets: inherit
