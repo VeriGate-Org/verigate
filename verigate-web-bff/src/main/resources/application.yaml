@@ -41,6 +41,7 @@ verigate:
   partner:
     create-queue-name: ${VERIGATE_PARTNER_CREATE_QUEUE_NAME:partner-create}
     table-name: ${VERIGATE_PARTNER_TABLE:verigate-partner-table}
+    data-table: ${VERIGATE_PARTNER_DATA_TABLE:verigate-partner-data}
   verification:
     queue-name: ${VERIGATE_VERIFICATION_QUEUE_NAME:verify-party}
     command-store:
