@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BarChart3, CheckCircle2, Clock, XCircle } from "lucide-react";
-import type { Verification, VerificationStatus } from "@/lib/types";
-import { listVerifications } from "@/lib/verification-api";
+import type { VerificationStatus } from "@/lib/types";
+import { useVerificationList } from "@/lib/hooks/useVerification";
 
 const STATUS: VerificationStatus[] = [
   "success",
@@ -13,90 +13,53 @@ const STATUS: VerificationStatus[] = [
   "hard_fail",
 ];
 
+function computeFromIso(range: "24h" | "7d" | "30d" | "ytd"): string {
+  const now = Date.now();
+  if (range === "24h") return new Date(now - 24 * 60 * 60 * 1000).toISOString();
+  if (range === "7d") return new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+  if (range === "30d") return new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const d = new Date();
+  return new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0).toISOString();
+}
+
 export default function VeriDeck() {
-  const [recent, setRecent] = useState<Verification[]>([]);
-  const [rangeItems, setRangeItems] = useState<Verification[]>([]);
-  const [totals, setTotals] = useState<Record<string, number>>({ total: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<"24h" | "7d" | "30d" | "ytd">("24h");
-  const [fromIso, setFromIso] = useState<string>("");
-  const [prevWindowTotal, setPrevWindowTotal] = useState<number | null>(null);
 
-  useEffect(() => {
-    const now = Date.now();
-    let iso = "";
-    if (range === "24h") iso = new Date(now - 24 * 60 * 60 * 1000).toISOString();
-    else if (range === "7d") iso = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
-    else if (range === "30d") iso = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
-    else {
-      const d = new Date();
-      const ytd = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
-      iso = ytd.toISOString();
-    }
-    setFromIso(iso);
-  }, [range]);
+  const fromIso = useMemo(() => computeFromIso(range), [range]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
-        const fromParam = fromIso || undefined;
-        const recJson = await listVerifications({ pageSize: 15, sortBy: "startedAt", sortDir: "desc", from: fromParam });
-        const setJson = await listVerifications({ pageSize: 1000, sortBy: "startedAt", sortDir: "asc", from: fromParam });
-        const totalJson = await listVerifications({ pageSize: 1, from: fromParam });
-
-        const statusTotalsEntries = await Promise.all(
-          STATUS.map(async (s) => {
-            const j = await listVerifications({ status: s, pageSize: 1, from: fromParam });
-            return [s, j.total] as const;
-          })
-        );
-
-        if (!cancelled) {
-          setRecent(recJson.items);
-          setRangeItems(setJson.items);
-          setTotals(Object.fromEntries([["total", totalJson.total], ...statusTotalsEntries]));
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load dashboard";
-        if (!cancelled) setError(message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => {
-      cancelled = true;
+  const prevWindow = useMemo(() => {
+    const start = Date.parse(fromIso);
+    const end = Date.now();
+    const span = Math.max(1, end - start);
+    return {
+      from: new Date(start - span).toISOString(),
+      to: new Date(start - 1).toISOString(),
     };
   }, [fromIso]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadPrev() {
-      if (!fromIso) {
-        setPrevWindowTotal(null);
-        return;
-      }
-      const start = Date.parse(fromIso);
-      const end = Date.now();
-      const span = Math.max(1, end - start);
-      const prevFrom = new Date(start - span).toISOString();
-      const prevTo = new Date(start - 1).toISOString();
-      try {
-        const j = await listVerifications({ pageSize: 1, from: prevFrom, to: prevTo });
-        if (!cancelled) setPrevWindowTotal(j.total);
-      } catch {
-        if (!cancelled) setPrevWindowTotal(null);
-      }
-    }
-    loadPrev();
-    return () => {
-      cancelled = true;
-    };
-  }, [fromIso]);
+  const recentQuery = useVerificationList({ pageSize: 15, sortBy: "startedAt", sortDir: "desc", from: fromIso });
+  const rangeQuery = useVerificationList({ pageSize: 1000, sortBy: "startedAt", sortDir: "asc", from: fromIso });
+  const totalQuery = useVerificationList({ pageSize: 1, from: fromIso });
+  const prevWindowQuery = useVerificationList({ pageSize: 1, from: prevWindow.from, to: prevWindow.to });
+
+  const successQuery = useVerificationList({ status: "success", pageSize: 1, from: fromIso });
+  const inProgressQuery = useVerificationList({ status: "in_progress", pageSize: 1, from: fromIso });
+  const softFailQuery = useVerificationList({ status: "soft_fail", pageSize: 1, from: fromIso });
+  const hardFailQuery = useVerificationList({ status: "hard_fail", pageSize: 1, from: fromIso });
+
+  const loading = recentQuery.isLoading || rangeQuery.isLoading || totalQuery.isLoading;
+  const error = recentQuery.error || rangeQuery.error || totalQuery.error;
+  const recent = recentQuery.data?.items ?? [];
+  const rangeItems = useMemo(() => rangeQuery.data?.items ?? [], [rangeQuery.data?.items]);
+  const prevWindowTotal = prevWindowQuery.data?.total ?? null;
+
+  const totals: Record<string, number> = useMemo(() => ({
+    total: totalQuery.data?.total ?? 0,
+    success: successQuery.data?.total ?? 0,
+    in_progress: inProgressQuery.data?.total ?? 0,
+    soft_fail: softFailQuery.data?.total ?? 0,
+    hard_fail: hardFailQuery.data?.total ?? 0,
+  }), [totalQuery.data, successQuery.data, inProgressQuery.data, softFailQuery.data, hardFailQuery.data]);
 
   const successRate = useMemo(() => {
     const total = totals.total || 0;
@@ -310,7 +273,19 @@ export default function VeriDeck() {
 
       {error && (
         <div className="console-card border-danger/40 bg-danger/5 text-sm text-danger">
-          <div className="console-card-body">{error}</div>
+          <div className="console-card-body flex items-center justify-between">
+            <span>{error instanceof Error ? error.message : "Failed to load dashboard"}</span>
+            <button
+              onClick={() => {
+                recentQuery.refetch();
+                rangeQuery.refetch();
+                totalQuery.refetch();
+              }}
+              className="rounded border border-danger/40 px-3 py-1 text-xs font-medium hover:bg-danger/10"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       )}
 
