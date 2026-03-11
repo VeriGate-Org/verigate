@@ -16,25 +16,28 @@ processing to the existing command gateway infrastructure.
 
 ## Local Development
 
-1. Ensure the command gateway modules are installed locally so the shared domain artifacts are
+1. **Configure environment variables**:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Edit `.env.local` with your AWS and service configuration. See `.env.example` for detailed
+   documentation of all available variables.
+
+2. Ensure the command gateway modules are installed locally so the shared domain artifacts are
    available:
    ```bash
    mvn -pl src/verigate-command-gateway/verigate-command-gateway-domain,src/verigate-command-gateway/verigate-command-gateway-application install
    ```
-2. From this directory build and run the BFF:
+
+3. From this directory build and run the BFF:
    ```bash
    mvn spring-boot:run
    ```
 
-Set the following environment variables to point at your AWS (or LocalStack) endpoints as needed:
-
-- `AWS_REGION`
-- `AWS_SQS_ENDPOINT`
-- `AWS_DYNAMODB_ENDPOINT`
-- `VERIGATE_QUEUE_*` for queue mappings
-- `VERIGATE_COMMAND_STORE_TABLE`
+For a complete list of environment variables and their defaults, see `.env.example`.
 
 ## Configuration
 
-Configuration is provided via `application.yaml` and overridable environment variables. Queue
-mappings are kept external so providers can be re-routed without code changes.
+Configuration is provided via `application.yaml` and overridable environment variables. See
+`.env.example` for a complete reference of all available environment variables with defaults and
+descriptions. Queue mappings are kept external so providers can be re-routed without code changes.
