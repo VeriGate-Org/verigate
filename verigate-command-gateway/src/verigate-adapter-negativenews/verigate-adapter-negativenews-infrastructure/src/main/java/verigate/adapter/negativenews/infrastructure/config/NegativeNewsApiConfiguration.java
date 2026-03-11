@@ -121,7 +121,8 @@ public class NegativeNewsApiConfiguration {
    * Returns the desired logging level for HTTP operations.
    */
   public String getLogLevel() {
-    String level = getValue(EnvironmentConstants.NEGATIVENEWS_LOG_LEVEL, "negativenews.logging.level");
+    String level = getValue(
+        EnvironmentConstants.NEGATIVENEWS_LOG_LEVEL, "negativenews.logging.level");
     return level != null ? level : DomainConstants.DEFAULT_LOG_LEVEL;
   }
 

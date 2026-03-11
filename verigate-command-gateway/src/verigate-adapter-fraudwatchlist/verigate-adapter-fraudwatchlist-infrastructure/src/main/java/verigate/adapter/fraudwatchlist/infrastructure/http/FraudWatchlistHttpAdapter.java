@@ -95,8 +95,12 @@ public class FraudWatchlistHttpAdapter {
   }
 
   private HttpRequest buildHttpRequest(String endpoint, String body) {
-    String apiKey = requireValue(EnvironmentConstants.FRAUDWATCHLIST_API_KEY, "FRAUDWATCHLIST_API_KEY");
-    String apiUrl = requireValue(EnvironmentConstants.FRAUDWATCHLIST_API_URL, "FRAUDWATCHLIST_API_URL");
+    String apiKey = requireValue(
+        EnvironmentConstants.FRAUDWATCHLIST_API_KEY,
+        "FRAUDWATCHLIST_API_KEY");
+    String apiUrl = requireValue(
+        EnvironmentConstants.FRAUDWATCHLIST_API_URL,
+        "FRAUDWATCHLIST_API_URL");
 
     return HttpRequest.newBuilder()
         .uri(URI.create(apiUrl + endpoint))

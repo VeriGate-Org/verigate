@@ -56,14 +56,15 @@ public record CompanyComplianceScore(
 
     List<Director> activeDirectors = profile.getActiveDirectors();
     boolean activeDirectorsPresent = !activeDirectors.isEmpty();
-    int activeCount = activeDirectors.size();
-    int totalCount = profile.directors() != null ? profile.directors().size() : 0;
+    final int activeCount = activeDirectors.size();
+    final int totalCount = profile.directors() != null ? profile.directors().size() : 0;
 
     boolean registeredAddress = hasValidAddress(profile.officeAddress());
 
-    boolean auditorAssigned = profile.auditors() != null && !profile.auditors().isEmpty();
+    final boolean auditorAssigned = profile.auditors() != null
+        && !profile.auditors().isEmpty();
 
-    boolean taxNumberRegistered = profile.taxNumber() != null
+    final boolean taxNumberRegistered = profile.taxNumber() != null
         && !profile.taxNumber().trim().isEmpty();
 
     double score = 0.0;

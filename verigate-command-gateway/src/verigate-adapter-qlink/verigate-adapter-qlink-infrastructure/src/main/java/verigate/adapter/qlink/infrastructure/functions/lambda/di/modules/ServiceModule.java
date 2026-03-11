@@ -56,8 +56,8 @@ import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.factories.VerificationEventFactory;
 
 /**
- * This class is responsible for configuring the dependency injection bindings for the QLink adapter.
- * It extends the AbstractModule class from the Google Guice library.
+ * Configures dependency injection bindings for the QLink adapter.
+ * Extends AbstractModule from the Google Guice library.
  */
 public class ServiceModule extends AbstractModule {
 

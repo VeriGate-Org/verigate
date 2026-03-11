@@ -21,7 +21,8 @@ public interface IncomeVerificationService {
    *
    * <p>The verification process cross-references multiple data sources:
    * <ul>
-   *   <li>Payslip data (via OCR-based document parsing from Document Verification service P2.4)</li>
+   *   <li>Payslip data (via OCR-based document parsing from
+   *       Document Verification service P2.4)</li>
    *   <li>Bank statement analysis (transaction pattern matching)</li>
    *   <li>Employer confirmation (direct employer verification)</li>
    * </ul>

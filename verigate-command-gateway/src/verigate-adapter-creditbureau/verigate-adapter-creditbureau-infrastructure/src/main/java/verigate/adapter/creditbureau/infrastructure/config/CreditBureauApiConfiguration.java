@@ -121,8 +121,11 @@ public class CreditBureauApiConfiguration {
    * Returns the desired logging level for HTTP operations.
    */
   public String getLogLevel() {
-    String level = getValue(EnvironmentConstants.CREDITBUREAU_LOG_LEVEL, "creditbureau.logging.level");
-    return level != null ? level : DomainConstants.DEFAULT_LOG_LEVEL;
+    String level = getValue(
+        EnvironmentConstants.CREDITBUREAU_LOG_LEVEL,
+        "creditbureau.logging.level");
+    return level != null
+        ? level : DomainConstants.DEFAULT_LOG_LEVEL;
   }
 
   /**
