@@ -3,21 +3,56 @@
 import * as React from "react";
 import { ReportBuilder } from "@/components/ui/Reports";
 import type { Report } from "@/components/ui/Reports";
-import { FileText, Calendar, Download } from "lucide-react";
+import { FileText, Calendar, Download, Loader2 } from "lucide-react";
+import { generateReport, scheduleReport, listReports, type BffReportResponse } from "@/lib/bff-client";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ReportsPage() {
+  const { toast } = useToast();
   const [savedReports, setSavedReports] = React.useState<Report[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
-  const handleGenerate = (report: Report) => {
-    console.log("Generating report:", report);
-    setSavedReports(prev => [report, ...prev]);
-    // In production, this would call an API to generate the report
+  const handleGenerate = async (report: Report) => {
+    setLoading(true);
+    try {
+      await generateReport({
+        name: report.name,
+        type: report.type,
+        description: report.description,
+        filter: report.filter as unknown as Record<string, unknown>,
+      });
+      setSavedReports(prev => [report, ...prev]);
+      toast({ title: "Report generated", description: `"${report.name}" is ready.`, variant: "success" });
+    } catch (err) {
+      toast({ title: "Generation failed", description: err instanceof Error ? err.message : "Could not generate report.", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSchedule = (report: Report) => {
-    console.log("Scheduling report:", report);
-    setSavedReports(prev => [report, ...prev]);
-    // In production, this would call an API to schedule the report
+  const handleSchedule = async (report: Report) => {
+    setLoading(true);
+    try {
+      const generated = await generateReport({
+        name: report.name,
+        type: report.type,
+        description: report.description,
+        filter: report.filter as unknown as Record<string, unknown>,
+      });
+      if (report.scheduled) {
+        await scheduleReport(generated.id, {
+          frequency: report.scheduled.frequency,
+          time: report.scheduled.time,
+          recipients: report.scheduled.recipients,
+        });
+      }
+      setSavedReports(prev => [report, ...prev]);
+      toast({ title: "Report scheduled", description: `"${report.name}" will run ${report.scheduled?.frequency ?? "on demand"}.`, variant: "success" });
+    } catch (err) {
+      toast({ title: "Scheduling failed", description: err instanceof Error ? err.message : "Could not schedule report.", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,10 +67,15 @@ export default function ReportsPage() {
         </p>
       </div>
 
-      {/* Report Builder */}
       <ReportBuilder onGenerate={handleGenerate} onSchedule={handleSchedule} />
 
-      {/* Recent Reports */}
+      {loading && (
+        <div className="flex items-center justify-center gap-2 py-4 text-sm text-text-muted">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Processing report…
+        </div>
+      )}
+
       {savedReports.length > 0 && (
         <div className="console-card">
           <div className="console-card-header">

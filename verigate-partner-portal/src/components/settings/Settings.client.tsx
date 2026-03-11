@@ -1,8 +1,21 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { useToast } from "@/components/ui/Toast";
+import {
+  getProfile,
+  updateProfile,
+  listApiKeys,
+  generateApiKey,
+  revokeApiKey,
+  getNotifications,
+  updateNotifications,
+  type BffProfileResponse,
+  type BffApiKeyItem,
+  type BffNotificationPreferences,
+} from "@/lib/bff-client";
 
 const TABS = [
   { id: "profile", label: "Profile" },
@@ -12,33 +25,6 @@ const TABS = [
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
-
-interface ApiKey {
-  id: string;
-  prefix: string;
-  status: "active" | "revoked";
-  created: string;
-}
-
-const INITIAL_API_KEYS: ApiKey[] = [
-  { id: "1", prefix: "vg_abc1...", status: "active", created: "2025-11-02" },
-  { id: "2", prefix: "vg_def2...", status: "active", created: "2025-12-14" },
-  { id: "3", prefix: "vg_ghi3...", status: "revoked", created: "2025-08-20" },
-];
-
-interface NotificationPrefs {
-  verificationComplete: boolean;
-  verificationFailure: boolean;
-  weeklySummary: boolean;
-  securityAlerts: boolean;
-}
-
-const DEFAULT_NOTIFICATIONS: NotificationPrefs = {
-  verificationComplete: true,
-  verificationFailure: true,
-  weeklySummary: false,
-  securityAlerts: true,
-};
 
 export default function Settings() {
   const searchParams = useSearchParams();
@@ -62,7 +48,6 @@ export default function Settings() {
         </p>
       </div>
 
-      {/* Tab bar */}
       <div className="flex flex-wrap gap-2 border-b border-border pb-px">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -82,7 +67,6 @@ export default function Settings() {
         })}
       </div>
 
-      {/* Tab content */}
       {activeTab === "profile" && <ProfileTab />}
       {activeTab === "api-keys" && <ApiKeysTab />}
       {activeTab === "notifications" && <NotificationsTab />}
@@ -96,6 +80,24 @@ export default function Settings() {
 /* ------------------------------------------------------------------ */
 
 function ProfileTab() {
+  const [profile, setProfile] = useState<BffProfileResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProfile()
+      .then(setProfile)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="console-card">
+        <div className="console-card-body py-8 text-center text-sm text-text-muted">Loading profile…</div>
+      </div>
+    );
+  }
+
   return (
     <div className="console-card">
       <div className="console-card-header">
@@ -105,9 +107,9 @@ function ProfileTab() {
         </div>
       </div>
       <div className="console-card-body space-y-4">
-        <ReadOnlyField label="Partner name" value="VeriGate Demo Partner" />
-        <ReadOnlyField label="Email address" value="partner@verigate.co.za" />
-        <ReadOnlyField label="Billing plan" value="Enterprise" />
+        <ReadOnlyField label="Partner name" value={profile?.name ?? "—"} />
+        <ReadOnlyField label="Email address" value={profile?.contactEmail ?? "—"} />
+        <ReadOnlyField label="Billing plan" value={profile?.billingPlan ?? "—"} />
         <div className="pt-2">
           <p className="text-xs text-text-muted">
             To update your profile or billing plan, contact your account manager or reach out to{" "}
@@ -140,32 +142,88 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
 /*  API Keys Tab                                                       */
 /* ------------------------------------------------------------------ */
 
+interface ApiKeyRow {
+  keyPrefix: string;
+  status: string;
+  createdAt: string | null;
+  createdBy: string | null;
+}
+
 function ApiKeysTab() {
-  const [keys, setKeys] = useState<ApiKey[]>(INITIAL_API_KEYS);
+  const { toast } = useToast();
+  const [keys, setKeys] = useState<ApiKeyRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
 
-  const handleGenerate = useCallback(() => {
-    const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const mockFullKey = `vg_live_${randomSuffix}${"x".repeat(24)}`;
-    alert(`New API key generated (copy it now, it will not be shown again):\n\n${mockFullKey}`);
-    const newKey: ApiKey = {
-      id: String(Date.now()),
-      prefix: `vg_${randomSuffix.slice(0, 4)}...`,
-      status: "active",
-      created: new Date().toISOString().split("T")[0],
-    };
-    setKeys((prev) => [newKey, ...prev]);
-  }, []);
+  const loadKeys = useCallback(() => {
+    setLoading(true);
+    listApiKeys()
+      .then((res) => setKeys(res.keys))
+      .catch(() => toast({ title: "Failed to load API keys", variant: "error" }))
+      .finally(() => setLoading(false));
+  }, [toast]);
 
-  const handleRevoke = useCallback((id: string) => {
+  useEffect(() => { loadKeys(); }, [loadKeys]);
+
+  const handleGenerate = useCallback(async () => {
+    try {
+      const res = await generateApiKey();
+      setGeneratedKey(res.apiKey);
+      loadKeys();
+      toast({ title: "API key generated", description: "Copy it now — it won't be shown again.", variant: "success" });
+    } catch (err) {
+      toast({ title: "Generation failed", description: err instanceof Error ? err.message : "Could not generate key.", variant: "error" });
+    }
+  }, [loadKeys, toast]);
+
+  const handleRevoke = useCallback(async (prefix: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to revoke this API key? This action cannot be undone and any integrations using this key will stop working.",
     );
     if (!confirmed) return;
-    setKeys((prev) => prev.filter((k) => k.id !== id));
-  }, []);
+    try {
+      await revokeApiKey(prefix);
+      loadKeys();
+      toast({ title: "API key revoked", variant: "success" });
+    } catch (err) {
+      toast({ title: "Revocation failed", description: err instanceof Error ? err.message : "Could not revoke key.", variant: "error" });
+    }
+  }, [loadKeys, toast]);
 
   return (
     <div className="space-y-4">
+      {/* One-time key display modal */}
+      {generatedKey && (
+        <div className="console-card border-success/40 bg-success/5">
+          <div className="console-card-body space-y-2">
+            <div className="text-sm font-semibold text-text">Your new API key</div>
+            <p className="text-xs text-text-muted">
+              Copy this key now. For security, it will not be displayed again.
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 rounded border border-border bg-[color:var(--color-base-200)] px-3 py-2 font-mono text-sm text-text">
+                {generatedKey}
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedKey);
+                  toast({ title: "Copied to clipboard", variant: "success" });
+                }}
+                className="aws-button aws-button--primary text-xs"
+              >
+                Copy
+              </button>
+            </div>
+            <button
+              onClick={() => setGeneratedKey(null)}
+              className="text-xs text-text-muted hover:text-text"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="console-card">
         <div className="console-card-header">
           <div>
@@ -190,7 +248,13 @@ function ApiKeysTab() {
                 </tr>
               </thead>
               <tbody>
-                {keys.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-8 text-center text-xs text-text-muted">
+                      Loading API keys…
+                    </td>
+                  </tr>
+                ) : keys.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-8 text-center text-xs text-text-muted">
                       No API keys configured. Generate one to get started.
@@ -198,24 +262,24 @@ function ApiKeysTab() {
                   </tr>
                 ) : (
                   keys.map((key) => (
-                    <tr key={key.id} className="border-b border-border last:border-0">
-                      <td className="px-4 py-2.5 font-mono text-sm text-text">{key.prefix}</td>
+                    <tr key={key.keyPrefix} className="border-b border-border last:border-0">
+                      <td className="px-4 py-2.5 font-mono text-sm text-text">{key.keyPrefix}…</td>
                       <td className="px-4 py-2.5">
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                            key.status === "active"
+                            key.status === "ACTIVE"
                               ? "bg-success/10 text-success"
                               : "bg-[color:var(--color-base-200)] text-text-muted"
                           }`}
                         >
-                          {key.status === "active" ? "Active" : "Revoked"}
+                          {key.status === "ACTIVE" ? "Active" : "Revoked"}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-text-muted">{key.created}</td>
+                      <td className="px-4 py-2.5 text-text-muted">{key.createdAt ?? "—"}</td>
                       <td className="px-4 py-2.5 text-right">
-                        {key.status === "active" && (
+                        {key.status === "ACTIVE" && (
                           <button
-                            onClick={() => handleRevoke(key.id)}
+                            onClick={() => handleRevoke(key.keyPrefix)}
                             className="aws-button aws-button--destructive text-xs"
                           >
                             Revoke
@@ -252,13 +316,37 @@ function ApiKeysTab() {
 /* ------------------------------------------------------------------ */
 
 function NotificationsTab() {
-  const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIFICATIONS);
+  const { toast } = useToast();
+  const [prefs, setPrefs] = useState<BffNotificationPreferences>({
+    verificationComplete: true,
+    verificationFailure: true,
+    weeklySummary: false,
+    securityAlerts: true,
+  });
+  const [loading, setLoading] = useState(true);
 
-  const toggle = useCallback((key: keyof NotificationPrefs) => {
-    setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    getNotifications()
+      .then(setPrefs)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; description: string }[] = [
+  const toggle = useCallback(
+    async (key: keyof BffNotificationPreferences) => {
+      const updated = { ...prefs, [key]: !prefs[key] };
+      setPrefs(updated);
+      try {
+        await updateNotifications(updated);
+      } catch {
+        setPrefs(prefs);
+        toast({ title: "Failed to save", description: "Could not update notification preferences.", variant: "error" });
+      }
+    },
+    [prefs, toast],
+  );
+
+  const NOTIFICATION_OPTIONS: { key: keyof BffNotificationPreferences; label: string; description: string }[] = [
     {
       key: "verificationComplete",
       label: "Email on verification complete",
@@ -290,36 +378,39 @@ function NotificationsTab() {
         </div>
       </div>
       <div className="console-card-body space-y-5">
-        {NOTIFICATION_OPTIONS.map((opt) => (
-          <label
-            key={opt.key}
-            className="flex cursor-pointer items-start gap-3 rounded border border-transparent p-2 transition-colors hover:bg-hover"
-          >
-            {/* Toggle switch */}
-            <span className="relative mt-0.5 inline-flex h-5 w-9 shrink-0">
-              <input
-                type="checkbox"
-                checked={prefs[opt.key]}
-                onChange={() => toggle(opt.key)}
-                className="peer sr-only"
-              />
-              <span
-                className={`block h-5 w-9 rounded-full transition-colors ${
-                  prefs[opt.key] ? "bg-accent" : "bg-[color:var(--color-base-300)]"
-                }`}
-              />
-              <span
-                className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-[color:var(--color-base-100)] shadow transition-transform ${
-                  prefs[opt.key] ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </span>
-            <span className="space-y-0.5">
-              <span className="block text-sm font-medium text-text">{opt.label}</span>
-              <span className="block text-xs text-text-muted">{opt.description}</span>
-            </span>
-          </label>
-        ))}
+        {loading ? (
+          <div className="py-4 text-center text-sm text-text-muted">Loading preferences…</div>
+        ) : (
+          NOTIFICATION_OPTIONS.map((opt) => (
+            <label
+              key={opt.key}
+              className="flex cursor-pointer items-start gap-3 rounded border border-transparent p-2 transition-colors hover:bg-hover"
+            >
+              <span className="relative mt-0.5 inline-flex h-5 w-9 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={prefs[opt.key]}
+                  onChange={() => toggle(opt.key)}
+                  className="peer sr-only"
+                />
+                <span
+                  className={`block h-5 w-9 rounded-full transition-colors ${
+                    prefs[opt.key] ? "bg-accent" : "bg-[color:var(--color-base-300)]"
+                  }`}
+                />
+                <span
+                  className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-[color:var(--color-base-100)] shadow transition-transform ${
+                    prefs[opt.key] ? "translate-x-4" : "translate-x-0"
+                  }`}
+                />
+              </span>
+              <span className="space-y-0.5">
+                <span className="block text-sm font-medium text-text">{opt.label}</span>
+                <span className="block text-xs text-text-muted">{opt.description}</span>
+              </span>
+            </label>
+          ))
+        )}
 
         <div className="pt-2 text-xs text-text-muted">
           Changes are saved automatically. Email delivery may take up to 5 minutes to take effect.
@@ -387,7 +478,6 @@ function AppearanceTab() {
                     : "border-border bg-[color:var(--color-base-100)] hover:border-accent/50"
                 }`}
               >
-                {/* Theme preview swatch */}
                 <div
                   className={`h-10 w-full rounded border ${
                     opt.value === "light"

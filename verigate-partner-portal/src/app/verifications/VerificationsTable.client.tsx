@@ -10,6 +10,8 @@ import { QuickFilters, type QuickFilter } from "@/components/ui/Filters/QuickFil
 import { FilterBuilder, type FilterGroup } from "@/components/ui/Filters/FilterBuilder";
 import { Filter, ChevronDown, Square, CheckSquare, Minus } from "lucide-react";
 import { listVerifications, parseSearchParams } from "@/lib/verification-api";
+import { exportVerifications, retryVerifications, archiveVerifications, deleteVerifications } from "@/lib/bff-client";
+import { useToast } from "@/components/ui/Toast";
 
 export default function VerificationsTable() {
   const params = useSearchParams();
@@ -22,6 +24,7 @@ export default function VerificationsTable() {
   const [quickFilters, setQuickFilters] = useState<QuickFilter[]>([]);
   const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([]);
   
+  const { toast } = useToast();
   const page = Number(params.get("page") || 1);
   const pageSize = Number(params.get("pageSize") || 10);
 
@@ -84,27 +87,33 @@ export default function VerificationsTable() {
   };
 
   const handleBulkAction = async (actionId: string) => {
-    console.log(`Performing bulk action: ${actionId} on ${selectedCount} items`, selectedItems);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // For demo, just show what would happen
-    switch (actionId) {
-      case "export":
-        alert(`Exporting ${selectedCount} verifications...`);
-        break;
-      case "retry":
-        alert(`Retrying ${selectedCount} verifications...`);
-        break;
-      case "archive":
-        alert(`Archiving ${selectedCount} verifications...`);
-        break;
-      case "delete":
-        alert(`Deleting ${selectedCount} verifications...`);
-        break;
+    const ids = selectedItems.map((v) => v.correlationId);
+    try {
+      let result;
+      switch (actionId) {
+        case "export":
+          result = await exportVerifications(ids, "csv");
+          break;
+        case "retry":
+          result = await retryVerifications(ids);
+          break;
+        case "archive":
+          result = await archiveVerifications(ids);
+          break;
+        case "delete":
+          result = await deleteVerifications(ids);
+          break;
+        default:
+          return;
+      }
+      toast({ title: result.message, variant: "success" });
+    } catch (err) {
+      toast({
+        title: `${actionId} failed`,
+        description: err instanceof Error ? err.message : `Could not ${actionId} verifications.`,
+        variant: "error",
+      });
     }
-    
     deselectAll();
   };
 

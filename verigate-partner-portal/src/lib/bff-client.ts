@@ -152,6 +152,235 @@ export async function listVerificationsBff(params?: {
   return data;
 }
 
+// ── Policy APIs ──────────────────────────────────────────────────────
+
+export interface BffPolicyStep {
+  type: string;
+  name: string;
+  config: Record<string, unknown>;
+  next?: string;
+  onSuccess?: string;
+  onFail?: string;
+  parallel?: string[];
+}
+
+export interface BffPolicyResponse {
+  id: string;
+  partnerId: string;
+  name: string;
+  description: string | null;
+  version: number;
+  status: string;
+  steps: BffPolicyStep[] | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface BffPolicyListResponse {
+  items: BffPolicyResponse[];
+}
+
+export async function listPolicies(): Promise<BffPolicyListResponse> {
+  const { data } = await bffApi.get<BffPolicyListResponse>("/api/partner/policies");
+  return data;
+}
+
+export async function createPolicy(payload: {
+  name: string;
+  description?: string;
+  steps: BffPolicyStep[];
+}): Promise<BffPolicyResponse> {
+  const { data } = await bffApi.post<BffPolicyResponse>("/api/partner/policies", payload);
+  return data;
+}
+
+export async function updatePolicy(
+  policyId: string,
+  payload: { name: string; description?: string; steps: BffPolicyStep[] },
+): Promise<BffPolicyResponse> {
+  const { data } = await bffApi.put<BffPolicyResponse>(`/api/partner/policies/${policyId}`, payload);
+  return data;
+}
+
+export async function deletePolicy(policyId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/policies/${policyId}`);
+}
+
+export async function publishPolicy(policyId: string): Promise<BffPolicyResponse> {
+  const { data } = await bffApi.post<BffPolicyResponse>(`/api/partner/policies/${policyId}/publish`);
+  return data;
+}
+
+// ── Report APIs ─────────────────────────────────────────────────────
+
+export interface BffReportResponse {
+  id: string;
+  partnerId: string;
+  name: string;
+  type: string;
+  description: string | null;
+  status: string;
+  filter: Record<string, unknown> | null;
+  schedule: { frequency: string; time: string; recipients: string[] } | null;
+  createdAt: string | null;
+}
+
+export interface BffReportListResponse {
+  items: BffReportResponse[];
+}
+
+export async function generateReport(payload: {
+  name: string;
+  type: string;
+  description?: string;
+  filter?: Record<string, unknown>;
+}): Promise<BffReportResponse> {
+  const { data } = await bffApi.post<BffReportResponse>("/api/partner/reports/generate", payload);
+  return data;
+}
+
+export async function listReports(): Promise<BffReportListResponse> {
+  const { data } = await bffApi.get<BffReportListResponse>("/api/partner/reports");
+  return data;
+}
+
+export async function scheduleReport(
+  reportId: string,
+  schedule: { frequency: string; time: string; recipients: string[] },
+): Promise<BffReportResponse> {
+  const { data } = await bffApi.post<BffReportResponse>(
+    `/api/partner/reports/${reportId}/schedule`,
+    schedule,
+  );
+  return data;
+}
+
+export async function deleteReport(reportId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/reports/${reportId}`);
+}
+
+// ── Profile APIs ────────────────────────────────────────────────────
+
+export interface BffProfileResponse {
+  partnerId: string;
+  name: string;
+  contactEmail: string;
+  billingPlan: string;
+  status: string;
+  createdAt: string | null;
+}
+
+export async function getProfile(): Promise<BffProfileResponse> {
+  const { data } = await bffApi.get<BffProfileResponse>("/api/partner/profile");
+  return data;
+}
+
+export async function updateProfile(payload: {
+  name?: string;
+  contactEmail?: string;
+}): Promise<BffProfileResponse> {
+  const { data } = await bffApi.put<BffProfileResponse>("/api/partner/profile", payload);
+  return data;
+}
+
+// ── API Key APIs ────────────────────────────────────────────────────
+
+export interface BffApiKeyItem {
+  keyPrefix: string;
+  status: string;
+  createdAt: string | null;
+  createdBy: string | null;
+}
+
+export interface BffApiKeyListResponse {
+  partnerId: string;
+  keys: BffApiKeyItem[];
+}
+
+export interface BffApiKeyGenerateResponse {
+  apiKey: string;
+  partnerId: string;
+  keyPrefix: string;
+  status: string;
+  createdAt: string;
+}
+
+export async function listApiKeys(): Promise<BffApiKeyListResponse> {
+  const { data } = await bffApi.get<BffApiKeyListResponse>("/api/partner/api-keys");
+  return data;
+}
+
+export async function generateApiKey(): Promise<BffApiKeyGenerateResponse> {
+  const { data } = await bffApi.post<BffApiKeyGenerateResponse>("/api/partner/api-keys");
+  return data;
+}
+
+export async function revokeApiKey(keyPrefix: string): Promise<void> {
+  await bffApi.delete(`/api/partner/api-keys/${keyPrefix}`);
+}
+
+// ── Notification APIs ───────────────────────────────────────────────
+
+export interface BffNotificationPreferences {
+  verificationComplete: boolean;
+  verificationFailure: boolean;
+  weeklySummary: boolean;
+  securityAlerts: boolean;
+}
+
+export async function getNotifications(): Promise<BffNotificationPreferences> {
+  const { data } = await bffApi.get<BffNotificationPreferences>("/api/partner/notifications");
+  return data;
+}
+
+export async function updateNotifications(
+  prefs: BffNotificationPreferences,
+): Promise<BffNotificationPreferences> {
+  const { data } = await bffApi.put<BffNotificationPreferences>("/api/partner/notifications", prefs);
+  return data;
+}
+
+// ── Bulk Verification APIs ──────────────────────────────────────────
+
+export interface BffBulkActionResponse {
+  action: string;
+  processed: number;
+  failed: number;
+  message: string;
+}
+
+export async function exportVerifications(
+  commandIds: string[],
+  format?: string,
+): Promise<BffBulkActionResponse> {
+  const { data } = await bffApi.post<BffBulkActionResponse>("/api/partner/verifications/export", {
+    commandIds,
+    format: format ?? "csv",
+  });
+  return data;
+}
+
+export async function retryVerifications(commandIds: string[]): Promise<BffBulkActionResponse> {
+  const { data } = await bffApi.post<BffBulkActionResponse>("/api/partner/verifications/retry", {
+    commandIds,
+  });
+  return data;
+}
+
+export async function archiveVerifications(commandIds: string[]): Promise<BffBulkActionResponse> {
+  const { data } = await bffApi.post<BffBulkActionResponse>("/api/partner/verifications/archive", {
+    commandIds,
+  });
+  return data;
+}
+
+export async function deleteVerifications(commandIds: string[]): Promise<BffBulkActionResponse> {
+  const { data } = await bffApi.delete<BffBulkActionResponse>("/api/partner/verifications", {
+    data: { commandIds },
+  });
+  return data;
+}
+
 export async function pollVerificationStatus(
   commandId: string,
   options?: { maxAttempts?: number; intervalMs?: number },
