@@ -27,11 +27,16 @@ public interface FraudWatchlistMapper {
    */
   static FraudCheckRequest mapToFraudCheckRequestDefault(VerifyPartyCommand command) {
 
-    String idNumber = extractField(command, "idNumber", "id_number", "identityNumber", "identity_number");
-    String firstName = extractField(command, "firstName", "first_name", "givenName", "given_name");
-    String lastName = extractField(command, "lastName", "last_name", "surname", "family_name");
-    String dateOfBirth = extractField(command, "dateOfBirth", "date_of_birth", "dob");
-    String phoneNumber = extractField(command, "phoneNumber", "phone_number", "mobileNumber", "mobile_number");
+    String idNumber = extractField(command,
+        "idNumber", "id_number", "identityNumber", "identity_number");
+    String firstName = extractField(command,
+        "firstName", "first_name", "givenName", "given_name");
+    String lastName = extractField(command,
+        "lastName", "last_name", "surname", "family_name");
+    String dateOfBirth = extractField(command,
+        "dateOfBirth", "date_of_birth", "dob");
+    String phoneNumber = extractField(command,
+        "phoneNumber", "phone_number", "mobileNumber", "mobile_number");
 
     if (idNumber == null || idNumber.trim().isEmpty()) {
       throw new IllegalArgumentException("ID number is required for fraud watchlist screening");

@@ -39,7 +39,8 @@ public class DirectorshipCheck {
       CompanyProfile companyProfile,
       DirectorshipVerificationResult result,
       CompanyComplianceScore complianceScore) {
-    this.enterpriseNumber = Objects.requireNonNull(enterpriseNumber, "enterpriseNumber is required");
+    this.enterpriseNumber = Objects.requireNonNull(
+        enterpriseNumber, "enterpriseNumber is required");
     this.subjectIdNumber = Objects.requireNonNull(subjectIdNumber, "subjectIdNumber is required");
     this.subjectName = Objects.requireNonNull(subjectName, "subjectName is required");
     this.companyProfile = companyProfile;

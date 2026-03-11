@@ -123,7 +123,6 @@ public class DefaultVerifyIncomeCommandHandler
 
     VerificationOutcome outcome = analyzeIncomeVerificationStatus(response.status());
     String details = buildDetailsMessage(response);
-    IncomeAssessment assessment = response.assessment();
 
     Map<String, String> result = new HashMap<>();
     result.put(DomainConstants.RESULT_KEY_OUTCOME, outcome.toString());
@@ -132,6 +131,7 @@ public class DefaultVerifyIncomeCommandHandler
     result.put(DomainConstants.RESULT_KEY_REASON,
         response.reason() != null ? response.reason() : "");
 
+    final IncomeAssessment assessment = response.assessment();
     if (assessment != null) {
       result.put(DomainConstants.RESULT_KEY_VERIFIED_MONTHLY_INCOME,
           assessment.verifiedMonthlyIncome() != null

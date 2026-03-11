@@ -42,8 +42,12 @@ public class FraudWatchlistApiConfiguration {
    * Returns the base URL for the Fraud Watchlist API.
    */
   public String getApiUrl() {
-    String apiUrl = getValue(EnvironmentConstants.FRAUDWATCHLIST_API_URL, "fraudwatchlist.api.base-url");
-    return apiUrl != null ? apiUrl : EnvironmentConstants.DEFAULT_FRAUDWATCHLIST_API_URL;
+    String apiUrl = getValue(
+        EnvironmentConstants.FRAUDWATCHLIST_API_URL,
+        "fraudwatchlist.api.base-url");
+    return apiUrl != null
+        ? apiUrl
+        : EnvironmentConstants.DEFAULT_FRAUDWATCHLIST_API_URL;
   }
 
   /**
@@ -120,8 +124,11 @@ public class FraudWatchlistApiConfiguration {
    * Returns the desired logging level for HTTP operations.
    */
   public String getLogLevel() {
-    String level = getValue(EnvironmentConstants.FRAUDWATCHLIST_LOG_LEVEL, "fraudwatchlist.logging.level");
-    return level != null ? level : DomainConstants.DEFAULT_LOG_LEVEL;
+    String level = getValue(
+        EnvironmentConstants.FRAUDWATCHLIST_LOG_LEVEL,
+        "fraudwatchlist.logging.level");
+    return level != null
+        ? level : DomainConstants.DEFAULT_LOG_LEVEL;
   }
 
   /**
@@ -129,7 +136,9 @@ public class FraudWatchlistApiConfiguration {
    */
   public int getHttpConnectionPoolSize() {
     return getIntValue(
-        EnvironmentConstants.FRAUDWATCHLIST_HTTP_TIMEOUT_SECONDS, "fraudwatchlist.http.connection-pool-size", 5);
+        EnvironmentConstants.FRAUDWATCHLIST_HTTP_TIMEOUT_SECONDS,
+        "fraudwatchlist.http.connection-pool-size",
+        5);
   }
 
   private String getValue(String environmentKey, String configKey) {

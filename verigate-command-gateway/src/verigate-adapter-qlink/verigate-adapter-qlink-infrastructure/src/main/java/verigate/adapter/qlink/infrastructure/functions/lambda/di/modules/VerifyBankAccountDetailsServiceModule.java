@@ -24,8 +24,8 @@ import verigate.adapter.qlink.application.handlers.DefaultVerifyBankAccountDetai
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 
 /**
- * This class is responsible for configuring the dependency injection bindings for the QLink adapter.
- * It extends the ServiceModule class and provides specific bindings for bank account verification.
+ * Configures dependency injection bindings for the QLink adapter.
+ * Extends ServiceModule with specific bindings for bank account verification.
  */
 public final class VerifyBankAccountDetailsServiceModule extends ServiceModule {
 

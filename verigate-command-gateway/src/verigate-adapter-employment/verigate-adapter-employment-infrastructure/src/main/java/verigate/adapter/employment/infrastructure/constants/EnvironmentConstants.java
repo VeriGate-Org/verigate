@@ -25,8 +25,10 @@ public class EnvironmentConstants {
   public static final String EMPLOYMENT_RATE_LIMIT_BURST = "EMPLOYMENT_RATE_LIMIT_BURST";
 
   // Monitoring and Logging
-  public static final String EMPLOYMENT_ENABLE_REQUEST_LOGGING = "EMPLOYMENT_ENABLE_REQUEST_LOGGING";
-  public static final String EMPLOYMENT_ENABLE_RESPONSE_LOGGING = "EMPLOYMENT_ENABLE_RESPONSE_LOGGING";
+  public static final String EMPLOYMENT_ENABLE_REQUEST_LOGGING =
+      "EMPLOYMENT_ENABLE_REQUEST_LOGGING";
+  public static final String EMPLOYMENT_ENABLE_RESPONSE_LOGGING =
+      "EMPLOYMENT_ENABLE_RESPONSE_LOGGING";
   public static final String EMPLOYMENT_LOG_LEVEL = "EMPLOYMENT_LOG_LEVEL";
 
   // Queue Configuration
