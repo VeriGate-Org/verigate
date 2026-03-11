@@ -11,11 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.verification.model.CommandStatus;
+import verigate.webbff.verification.model.VerificationListItem;
+import verigate.webbff.verification.model.VerificationListResponse;
 import verigate.webbff.verification.model.VerificationRequest;
 import verigate.webbff.verification.model.VerificationResponse;
 import verigate.webbff.verification.model.VerifyPartyCommandMessage;
@@ -62,6 +65,27 @@ public class VerificationService {
 
   public Optional<VerificationCommandStoreItem> findVerification(UUID commandId) {
     return statusRepository.findById(commandId);
+  }
+
+  public VerificationListResponse listVerifications(
+      String partnerId, String status, int limit, Map<String, AttributeValue> cursor) {
+    var page = statusRepository.findByPartnerId(partnerId, status, limit, cursor);
+    var items = page.items().stream()
+        .map(item -> new VerificationListItem(
+            UUID.fromString(item.getCommandId()),
+            item.getStatus(),
+            item.getCreatedAt(),
+            item.getCommandName()))
+        .toList();
+
+    String nextCursor = null;
+    if (page.hasMore()) {
+      var lastKey = page.lastEvaluatedKey();
+      var cursorCommandId = lastKey.get("commandId");
+      nextCursor = cursorCommandId != null ? cursorCommandId.s() : null;
+    }
+
+    return new VerificationListResponse(items, nextCursor, page.hasMore());
   }
 
   private VerifyPartyCommandMessage buildCommand(UUID commandId, VerificationRequest request) {
