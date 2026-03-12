@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { executeVerification } from "@/lib/services/verification-service";
 import { type IncomeResponse } from "@/lib/mock-services";
+import { DollarSign } from "lucide-react";
 
 const PERIOD_OPTIONS = ["Last 3 months", "Last 6 months", "Last 12 months"];
 
@@ -22,6 +25,7 @@ export default function IncomeVerification() {
   const [result, setResult] = useState<IncomeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -29,8 +33,7 @@ export default function IncomeVerification() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -41,6 +44,7 @@ export default function IncomeVerification() {
         period,
       })) as IncomeResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
@@ -48,6 +52,11 @@ export default function IncomeVerification() {
     } finally {
       setLoading(false);
     }
+  }, [idNumber, employerName, period]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled = loading || idNumber.length !== 13;
@@ -74,6 +83,8 @@ export default function IncomeVerification() {
             <Field label="ID number" description="13-digit South African ID number.">
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
                 onChange={(event) => {
                   const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
@@ -82,12 +93,13 @@ export default function IncomeVerification() {
                 className="aws-input w-full"
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
               />
             </Field>
 
             <Field label="Employer name (optional)" description="Current or most recent employer.">
               <input
+                id="employerName"
+                name="employerName"
                 value={employerName}
                 onChange={(event) => setEmployerName(event.target.value)}
                 className="aws-input w-full"
@@ -96,6 +108,8 @@ export default function IncomeVerification() {
 
             <Field label="Period" description="Select the income verification period.">
               <select
+                id="period"
+                name="period"
                 className="aws-select w-full select-input"
                 value={period}
                 onChange={(event) => setPeriod(event.target.value)}
@@ -131,133 +145,60 @@ export default function IncomeVerification() {
           </form>
         </div>
 
-        {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div className="border border-border rounded overflow-hidden">
-                <div className="divide-y divide-border">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center px-4 py-2.5">
-                      <Skeleton className="h-4 w-32 bg-background/50" />
-                      <Skeleton className="h-4 w-24 ml-auto" />
-                    </div>
-                  ))}
+              <div className="console-card-body space-y-6 p-4">
+                <div className="border border-border rounded overflow-hidden">
+                  <div className="divide-y divide-border">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex items-center px-4 py-2.5">
+                        <Skeleton className="h-4 w-32 bg-background/50" />
+                        <Skeleton className="h-4 w-24 ml-auto" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">Income results</div>
-                <div className="text-xs text-text-muted">Reference {result.reference}</div>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div className="border border-border rounded overflow-hidden">
-                <table className="w-full">
-                  <tbody className="divide-y divide-border">
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30 w-1/3">
-                        Verified
-                      </td>
-                      <td className="px-4 py-2.5 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            result.income.verified
-                              ? "bg-success/10 text-success"
-                              : "bg-danger/10 text-danger"
-                          }`}
-                        >
-                          {result.income.verified ? "Yes" : "No"}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Gross monthly income
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-text">
-                        {formatZAR(result.income.grossMonthly)}
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Net monthly income
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-text">
-                        {formatZAR(result.income.netMonthly)}
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Period
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-text">
-                        {result.income.period}
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Pay frequency
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-text">
-                        {result.income.payFrequency}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Provider info */}
-              <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
-                <span className="font-medium">Provider:</span>
-                <span>{result.provider}</span>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Income results</div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter an ID number and click Verify to see results
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          ) : result ? (
+            <VerificationResultCard
+              title="Income results"
+              reference={result.reference}
+              status={result.income.verified ? "verified" : "not_verified"}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+                { label: "Gross monthly", value: formatZAR(result.income.grossMonthly) },
+                { label: "Net monthly", value: formatZAR(result.income.netMonthly) },
+                { label: "Period", value: result.income.period },
+                { label: "Pay frequency", value: result.income.payFrequency },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={DollarSign}
+              heading="No results yet"
+              description="Enter an ID number and click Verify to see income results."
+            />
+          )}
+        </div>
       </div>
 
-      {result && (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Raw response</div>
-          </div>
-          <div className="console-card-body bg-background">
-            <JsonViewer data={result} />
-          </div>
-        </div>
-      )}
       <ProcessingDialog
         open={loading}
         title="Verifying income"

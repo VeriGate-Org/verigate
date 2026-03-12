@@ -1,18 +1,21 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import FileUpload from "@/components/ui/FileUpload/FileUpload";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { type DocumentVerificationResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
 import {
   getDocumentPresignedUrl,
   uploadFileToS3,
 } from "@/lib/bff-client";
+import { FileCheck } from "lucide-react";
 
 const DOCUMENT_TYPES = [
   { value: "passport", label: "Passport" },
@@ -31,6 +34,7 @@ export default function DocumentVerification() {
   );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   // File upload state
   const [, setSelectedFile] = useState<File | null>(null);
@@ -88,13 +92,11 @@ export default function DocumentVerification() {
     setUploadError(null);
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Build metadata, adding S3 info only when a file was uploaded
       const metadata: Record<string, unknown> = {
         documentType,
         documentNumber,
@@ -110,6 +112,7 @@ export default function DocumentVerification() {
         metadata
       )) as DocumentVerificationResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Verification failed";
@@ -118,6 +121,11 @@ export default function DocumentVerification() {
     } finally {
       setLoading(false);
     }
+  }, [documentType, documentNumber, s3ObjectKey, s3BucketName]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled =
@@ -156,6 +164,8 @@ export default function DocumentVerification() {
               description="Select the type of identity document."
             >
               <select
+                id="documentType"
+                name="documentType"
                 className="aws-select w-full select-input"
                 value={documentType}
                 onChange={(event) => setDocumentType(event.target.value)}
@@ -174,10 +184,11 @@ export default function DocumentVerification() {
             >
               <input
                 required
+                id="documentNumber"
+                name="documentNumber"
                 value={documentNumber}
                 onChange={(event) => setDocumentNumber(event.target.value)}
                 className="aws-input w-full"
-                autoComplete="off"
               />
             </Field>
 
@@ -220,18 +231,17 @@ export default function DocumentVerification() {
         </div>
 
         {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div>
-                <Skeleton className="h-4 w-36 mb-2" />
+              <div className="console-card-body space-y-6 p-4">
                 <div className="border border-border rounded overflow-hidden">
                   <div className="divide-y divide-border">
                     {[...Array(4)].map((_, i) => (
@@ -244,115 +254,44 @@ export default function DocumentVerification() {
                 </div>
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">
-                  Verification results
-                </div>
-                <div className="text-xs text-text-muted">
-                  Reference {result.reference}
-                </div>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              {/* Document Details Section */}
-              <div>
-                <h3 className="text-sm font-medium text-text mb-2">
-                  Document Details
-                </h3>
-                <div className="border border-border rounded overflow-hidden">
-                  <table className="w-full">
-                    <tbody className="divide-y divide-border">
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30 w-1/3">
-                          Verified
-                        </td>
-                        <td className="px-4 py-2.5 text-sm">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              result.document.verified
-                                ? "bg-success/10 text-success"
-                                : "bg-danger/10 text-danger"
-                            }`}
-                          >
-                            {result.document.verified ? "Yes" : "No"}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Status
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.document.status}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Issued date
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {new Date(
-                            result.document.issuedDate
-                          ).toLocaleDateString()}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Expiry date
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.document.expiryDate
-                            ? new Date(
-                                result.document.expiryDate
-                              ).toLocaleDateString()
-                            : "No expiry"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">
-                Verification results
-              </div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter document details and click Verify to see results
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          ) : result ? (
+            <VerificationResultCard
+              title="Document results"
+              reference={result.reference}
+              status={result.document.verified ? "verified" : "not_verified"}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+                { label: "Status", value: result.document.status },
+                {
+                  label: "Issued date",
+                  value: new Date(result.document.issuedDate).toLocaleDateString(),
+                },
+                {
+                  label: "Expiry date",
+                  value: result.document.expiryDate
+                    ? new Date(result.document.expiryDate).toLocaleDateString()
+                    : "No expiry",
+                },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={FileCheck}
+              heading="No results yet"
+              description="Enter document details and click Verify to see results."
+            />
+          )}
+        </div>
       </div>
 
-      {result && (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Raw response</div>
-          </div>
-          <div className="console-card-body bg-background">
-            <JsonViewer data={result} />
-          </div>
-        </div>
-      )}
       <ProcessingDialog
         open={loading}
         title="Verifying document"

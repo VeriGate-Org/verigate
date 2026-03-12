@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { executeVerification } from "@/lib/services/verification-service";
 import { type CreditCheckResponse } from "@/lib/mock-services";
+import { FileDown, TrendingUp } from "lucide-react";
 
 const RISK_GRADE_COLORS: Record<string, string> = {
   A: "bg-success/10 text-success",
@@ -27,6 +29,7 @@ export default function CreditCheck() {
   const [result, setResult] = useState<CreditCheckResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -34,8 +37,7 @@ export default function CreditCheck() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -45,6 +47,7 @@ export default function CreditCheck() {
         consent,
       })) as CreditCheckResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
@@ -52,6 +55,11 @@ export default function CreditCheck() {
     } finally {
       setLoading(false);
     }
+  }, [idNumber, consent]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled = loading || idNumber.length !== 13 || !consent;
@@ -78,6 +86,8 @@ export default function CreditCheck() {
             <Field label="ID number" description="13-digit South African ID number.">
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
                 onChange={(event) => {
                   const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
@@ -86,7 +96,6 @@ export default function CreditCheck() {
                 className="aws-input w-full"
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
               />
             </Field>
 
@@ -126,114 +135,109 @@ export default function CreditCheck() {
           </form>
         </div>
 
-        {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
+              <div className="console-card-body space-y-6 p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="border border-border rounded p-4">
+                      <Skeleton className="h-3 w-20 mb-2" />
+                      <Skeleton className="h-6 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="border border-border rounded p-4">
-                    <Skeleton className="h-3 w-20 mb-2" />
-                    <Skeleton className="h-6 w-16" />
-                  </div>
-                ))}
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">Credit check results</div>
-                <div className="text-xs text-text-muted">Reference {result.reference}</div>
+          ) : result ? (
+            <div className="console-card" role="region" aria-label="Credit check results">
+              <div className="console-card-header">
+                <div>
+                  <div className="text-sm font-semibold text-text">Credit check results</div>
+                  <div className="text-xs text-text-muted">Reference {result.reference}</div>
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleExport}
+                  icon={<FileDown className="h-4 w-4" />}
+                >
+                  Export PDF
+                </Button>
               </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              {/* Summary Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Credit score</div>
-                  <div className="text-3xl font-bold text-text">{result.credit.score}</div>
-                </div>
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Risk grade</div>
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded text-lg font-bold ${
-                      RISK_GRADE_COLORS[result.credit.riskGrade] ?? "bg-text-muted/10 text-text-muted"
-                    }`}
-                  >
-                    {result.credit.riskGrade}
-                  </span>
-                </div>
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Accounts in good standing</div>
-                  <div className="text-2xl font-semibold text-text">
-                    {result.credit.accountsInGoodStanding}
+              <div className="console-card-body space-y-6 p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Credit score</div>
+                    <div className="text-3xl font-bold text-text">{result.credit.score}</div>
+                  </div>
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Risk grade</div>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded text-lg font-bold ${
+                        RISK_GRADE_COLORS[result.credit.riskGrade] ??
+                        "bg-text-muted/10 text-text-muted"
+                      }`}
+                    >
+                      {result.credit.riskGrade}
+                    </span>
+                  </div>
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Accounts in good standing</div>
+                    <div className="text-2xl font-semibold text-text">
+                      {result.credit.accountsInGoodStanding}
+                    </div>
+                  </div>
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Defaults</div>
+                    <div className="text-2xl font-semibold text-text">
+                      {result.credit.defaults}
+                    </div>
+                  </div>
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Judgements</div>
+                    <div className="text-2xl font-semibold text-text">
+                      {result.credit.judgements}
+                    </div>
+                  </div>
+                  <div className="border border-border rounded p-4 text-center">
+                    <div className="text-xs text-text-muted mb-1">Total debt</div>
+                    <div className="text-lg font-semibold text-text">
+                      {formatZAR(result.credit.totalDebt)}
+                    </div>
                   </div>
                 </div>
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Defaults</div>
-                  <div className="text-2xl font-semibold text-text">{result.credit.defaults}</div>
-                </div>
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Judgements</div>
-                  <div className="text-2xl font-semibold text-text">{result.credit.judgements}</div>
-                </div>
-                <div className="border border-border rounded p-4 text-center">
-                  <div className="text-xs text-text-muted mb-1">Total debt</div>
-                  <div className="text-lg font-semibold text-text">
-                    {formatZAR(result.credit.totalDebt)}
-                  </div>
-                </div>
-              </div>
 
-              {/* Provider info */}
-              <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
-                <span className="font-medium">Provider:</span>
-                <span>{result.provider}</span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Credit check results</div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter an ID number and confirm consent to run a credit check
+                <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
+                  <span className="font-medium">Provider:</span>
+                  <span>{result.provider}</span>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <VerificationEmptyState
+              icon={TrendingUp}
+              heading="No results yet"
+              description="Enter an ID number and confirm consent to run a credit check."
+            />
+          )}
+        </div>
       </div>
 
-      {result && (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Raw response</div>
-          </div>
-          <div className="console-card-body bg-background">
-            <JsonViewer data={result} />
-          </div>
-        </div>
-      )}
       <ProcessingDialog
         open={loading}
         title="Running credit check"

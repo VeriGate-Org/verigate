@@ -2,7 +2,6 @@
 
 import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
@@ -189,50 +188,15 @@ export default function IdCheck() {
           </form>
         </div>
 
-        <div className="space-y-4">
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Service notes</div>
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={handleRetry} />
+              </div>
             </div>
-            <div className="console-card-body space-y-3 text-sm text-text-muted">
-              <p>The sandbox response is deterministic and mirrors the production payload structure.</p>
-              <ul className="list-disc space-y-1 pl-5">
-                <li>Checksum validation runs locally; failures return an error before hitting the provider.</li>
-                <li>ID numbers ending in 9 simulate a deceased flag; ending in 99 also sets the restricted flag.</li>
-                <li>Every call is recorded in the verification log with the reference ID for follow-up.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Response fields</div>
-            </div>
-            <div className="console-card-body space-y-2 text-xs text-text-muted">
-              <SchemaRow name="validation.verified" type="Boolean" />
-              <SchemaRow name="validation.nameMatchConfidence" type="Integer" />
-              <SchemaRow name="derived.birthDate" type="ISO date" />
-              <SchemaRow name="derived.gender" type="Enum" />
-              <SchemaRow name="derived.citizenship" type="Enum" />
-              <SchemaRow name="flags.deceased" type="Boolean" />
-              <SchemaRow name="flags.restricted" type="Boolean" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div ref={resultRef} tabIndex={-1} className="outline-none space-y-4">
-        {error && !result && (
-          <div className="console-card">
-            <div className="console-card-body flex items-center justify-between">
-              <span className="text-sm text-danger">{error}</span>
-              <RetryButton onRetry={handleRetry} />
-            </div>
-          </div>
-        )}
-
-        {result ? (
-          <>
+          ) : result ? (
             <VerificationResultCard
               title="Verification summary"
               reference={result.reference}
@@ -264,24 +228,14 @@ export default function IdCheck() {
                 ...(result.metadata?.reason ? [{ label: "Reason", value: result.metadata.reason }] : []),
               ]}
             />
-
-            <div className="console-card">
-              <div className="console-card-header">
-                <div className="text-sm font-semibold text-text">Raw response</div>
-                <div className="text-xs text-text-muted">Generated {new Date(result.generatedAt).toLocaleString()}</div>
-              </div>
-              <div className="console-card-body bg-background">
-                <JsonViewer data={result} />
-              </div>
-            </div>
-          </>
-        ) : !error && !loading ? (
-          <VerificationEmptyState
-            icon={Shield}
-            heading="No verification results"
-            description="Enter an ID number and submit to verify against the Department of Home Affairs."
-          />
-        ) : null}
+          ) : !loading ? (
+            <VerificationEmptyState
+              icon={Shield}
+              heading="No verification results"
+              description="Enter an ID number and submit to verify against the Department of Home Affairs."
+            />
+          ) : null}
+        </div>
       </div>
       <ProcessingDialog open={loading} title="Verifying ID" message="Fetching Home Affairs sandbox data..." />
     </div>
@@ -289,17 +243,6 @@ export default function IdCheck() {
 }
 
 type Flags = PersonalDetailsResponse["flags"];
-
-type SchemaRowProps = { name: string; type: string };
-
-function SchemaRow({ name, type }: SchemaRowProps) {
-  return (
-    <div className="flex items-center justify-between rounded border border-transparent px-2 py-1 hover:border-border">
-      <span className="font-medium text-text">{name}</span>
-      <span>{type}</span>
-    </div>
-  );
-}
 
 function formatFlags(flags: Flags) {
   const values = [flags.deceased && "Deceased", flags.restricted && "Restricted"].filter(Boolean);

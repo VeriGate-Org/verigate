@@ -1,19 +1,23 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { type SanctionsResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
-import { FileDown } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 export default function SanctionsCheck() {
   const [name, setName] = useState("");
   const [result, setResult] = useState<SanctionsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -21,14 +25,16 @@ export default function SanctionsCheck() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await executeVerification("SANCTIONS_SCREENING", { name }) as SanctionsResponse;
+      const data = (await executeVerification("SANCTIONS_SCREENING", {
+        name,
+      })) as SanctionsResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Screening failed";
       setError(message);
@@ -36,15 +42,27 @@ export default function SanctionsCheck() {
     } finally {
       setLoading(false);
     }
+  }, [name]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled = loading || name.trim().length < 3;
+
+  const isClean = result
+    ? !result.result.pep && result.result.sanctionsHitCount === 0
+    : false;
 
   return (
     <div className="space-y-6">
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">Sanctions & PEP screening</h1>
-        <p className="text-sm text-text-muted">Run a deterministic World-Check style search for politically exposed persons and sanctions hits.</p>
+        <p className="text-sm text-text-muted">
+          Run a deterministic World-Check style search for politically exposed persons and sanctions
+          hits.
+        </p>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
@@ -59,6 +77,9 @@ export default function SanctionsCheck() {
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
             <Field label="Full name" description="We recommend including middle names where possible.">
               <input
+                required
+                id="name"
+                name="name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 className="aws-input w-full"
@@ -67,10 +88,12 @@ export default function SanctionsCheck() {
             </Field>
 
             <div className="flex items-center justify-between gap-3 pt-2">
-              <p className="text-xs text-text-muted">Sandbox returns a consistent PEP result for testing.</p>
-              <Button 
-                type="submit" 
-                variant="cta" 
+              <p className="text-xs text-text-muted">
+                Sandbox returns a consistent PEP result for testing.
+              </p>
+              <Button
+                type="submit"
+                variant="cta"
                 size="md"
                 disabled={submitDisabled}
                 loading={loading}
@@ -79,79 +102,83 @@ export default function SanctionsCheck() {
               </Button>
             </div>
 
-            {error && <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">{error}</div>}
+            {error && (
+              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+                {error}
+              </div>
+            )}
           </form>
         </div>
 
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Response fields</div>
-          </div>
-          <div className="console-card-body space-y-2 text-xs text-text-muted">
-            <SchemaRow name="result.pep" type="Boolean" />
-            <SchemaRow name="result.sanctionsHitCount" type="Integer" />
-          </div>
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
+              </div>
+              <div className="console-card-body space-y-6 p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="border border-border rounded p-4">
+                      <Skeleton className="h-3 w-20 mb-2" />
+                      <Skeleton className="h-6 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
+              </div>
+            </div>
+          ) : result ? (
+            <VerificationResultCard
+              title="Screening summary"
+              reference={result.correlationId}
+              status={isClean ? "verified" : "not_verified"}
+              onExport={handleExport}
+              fields={[
+                {
+                  label: "Sanctions hits",
+                  value: String(result.result.sanctionsHitCount),
+                },
+              ]}
+              matchFields={[
+                {
+                  label: result.result.pep ? "Politically exposed person" : "Not a PEP",
+                  matched: !result.result.pep,
+                },
+                {
+                  label:
+                    result.result.sanctionsHitCount > 0
+                      ? `${result.result.sanctionsHitCount} sanctions hit(s)`
+                      : "No sanctions hits",
+                  matched: result.result.sanctionsHitCount === 0,
+                },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={ShieldAlert}
+              heading="No results yet"
+              description="Enter a name and click Screen to check for sanctions and PEP matches."
+            />
+          )}
         </div>
       </div>
 
-      {result && (
-        <div className="space-y-4">
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">Screening summary</div>
-                <div className="text-xs text-text-muted">Correlation {result.correlationId}</div>
-              </div>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={handleExport} 
-                icon={<FileDown className="h-4 w-4" />}
-              >
-                Export PDF
-              </Button>
-            </div>
-            <div className="console-card-body grid gap-4 sm:grid-cols-2">
-              <SummaryCard label="PEP" value={result.result.pep ? "Yes" : "No"} tone={result.result.pep ? "alert" : "muted"} />
-              <SummaryCard label="Sanctions hits" value={String(result.result.sanctionsHitCount)} tone={result.result.sanctionsHitCount ? "alert" : "muted"} />
-            </div>
-          </div>
-
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Raw response</div>
-            </div>
-            <div className="console-card-body bg-background">
-              <JsonViewer data={result} />
-            </div>
-          </div>
-        </div>
-      )}
-      <ProcessingDialog open={loading} title="Screening subject" message="Checking mock sanctions & PEP datasets..." />
-    </div>
-  );
-}
-
-function SummaryCard({ label, value, tone }: { label: string; value: string; tone: "alert" | "muted" }) {
-  const styles = tone === "alert" ? "bg-danger/10 text-danger" : "bg-background text-text";
-  return (
-    <div className="space-y-1 rounded border border-border bg-background p-3">
-      <div className="text-xs uppercase tracking-wide text-text-muted">{label}</div>
-      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${styles}`}>{value}</span>
-    </div>
-  );
-}
-
-interface SchemaRowProps {
-  name: string;
-  type: string;
-}
-
-function SchemaRow({ name, type }: SchemaRowProps) {
-  return (
-    <div className="flex items-center justify-between rounded border border-transparent px-2 py-1 hover:border-border">
-      <span className="font-medium text-text">{name}</span>
-      <span>{type}</span>
+      <ProcessingDialog
+        open={loading}
+        title="Screening subject"
+        message="Checking mock sanctions & PEP datasets..."
+      />
     </div>
   );
 }

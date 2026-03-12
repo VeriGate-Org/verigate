@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { type FraudWatchlistResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import { AlertTriangle } from "lucide-react";
 
 export default function FraudWatchlistScreening() {
   const [firstName, setFirstName] = useState("");
@@ -16,6 +19,7 @@ export default function FraudWatchlistScreening() {
   const [result, setResult] = useState<FraudWatchlistResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -23,8 +27,7 @@ export default function FraudWatchlistScreening() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -35,6 +38,7 @@ export default function FraudWatchlistScreening() {
         idNumber,
       })) as FraudWatchlistResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Screening failed";
@@ -43,6 +47,11 @@ export default function FraudWatchlistScreening() {
     } finally {
       setLoading(false);
     }
+  }, [firstName, lastName, idNumber]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled =
@@ -87,10 +96,12 @@ export default function FraudWatchlistScreening() {
             >
               <input
                 required
+                id="firstName"
+                name="firstName"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 className="aws-input w-full"
-                autoComplete="off"
+                autoComplete="given-name"
               />
             </Field>
 
@@ -100,10 +111,12 @@ export default function FraudWatchlistScreening() {
             >
               <input
                 required
+                id="lastName"
+                name="lastName"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
                 className="aws-input w-full"
-                autoComplete="off"
+                autoComplete="family-name"
               />
             </Field>
 
@@ -113,6 +126,8 @@ export default function FraudWatchlistScreening() {
             >
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
                 onChange={(event) => {
                   const digits = event.target.value
@@ -123,7 +138,6 @@ export default function FraudWatchlistScreening() {
                 className="aws-input w-full"
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
               />
             </Field>
 
@@ -150,19 +164,17 @@ export default function FraudWatchlistScreening() {
           </form>
         </div>
 
-        {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div>
-                <Skeleton className="h-4 w-36 mb-2" />
+              <div className="console-card-body space-y-6 p-4">
                 <div className="border border-border rounded overflow-hidden">
                   <div className="divide-y divide-border">
                     {[...Array(4)].map((_, i) => (
@@ -175,113 +187,50 @@ export default function FraudWatchlistScreening() {
                 </div>
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">
-                  Screening results
-                </div>
-                <div className="text-xs text-text-muted">
-                  Reference {result.reference}
-                </div>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              {/* Watchlist Details Section */}
-              <div>
-                <h3 className="text-sm font-medium text-text mb-2">
-                  Watchlist Details
-                </h3>
-                <div className="border border-border rounded overflow-hidden">
-                  <table className="w-full">
-                    <tbody className="divide-y divide-border">
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30 w-1/3">
-                          Listed
-                        </td>
-                        <td className="px-4 py-2.5 text-sm">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              result.watchlist.listed
-                                ? "bg-danger/10 text-danger"
-                                : "bg-success/10 text-success"
-                            }`}
-                          >
-                            {result.watchlist.listed ? "Yes" : "No"}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          List type
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.watchlist.listType}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Date added
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.watchlist.dateAdded
-                            ? new Date(
-                                result.watchlist.dateAdded
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Case reference
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.watchlist.caseReference ?? "N/A"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">
-                Screening results
-              </div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter subject details and click Screen to see results
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          ) : result ? (
+            <VerificationResultCard
+              title="Screening results"
+              reference={result.reference}
+              status={result.watchlist.listed ? "not_verified" : "verified"}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+                { label: "List type", value: result.watchlist.listType },
+                {
+                  label: "Date added",
+                  value: result.watchlist.dateAdded
+                    ? new Date(result.watchlist.dateAdded).toLocaleDateString()
+                    : "N/A",
+                },
+                {
+                  label: "Case reference",
+                  value: result.watchlist.caseReference ?? "N/A",
+                },
+              ]}
+              matchFields={[
+                {
+                  label: result.watchlist.listed ? "Listed on watchlist" : "Not listed",
+                  matched: !result.watchlist.listed,
+                },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={AlertTriangle}
+              heading="No results yet"
+              description="Enter subject details and click Screen to see results."
+            />
+          )}
+        </div>
       </div>
 
-      {result && (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Raw response</div>
-          </div>
-          <div className="console-card-body bg-background">
-            <JsonViewer data={result} />
-          </div>
-        </div>
-      )}
       <ProcessingDialog
         open={loading}
         title="Screening fraud watchlist"

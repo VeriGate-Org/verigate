@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { type EmploymentResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import { Briefcase } from "lucide-react";
 
 export default function EmploymentVerification() {
   const [idNumber, setIdNumber] = useState("");
@@ -16,6 +19,7 @@ export default function EmploymentVerification() {
   const [result, setResult] = useState<EmploymentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -23,8 +27,7 @@ export default function EmploymentVerification() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -35,6 +38,7 @@ export default function EmploymentVerification() {
         employeeNumber,
       })) as EmploymentResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Verification failed";
@@ -43,6 +47,11 @@ export default function EmploymentVerification() {
     } finally {
       setLoading(false);
     }
+  }, [idNumber, employerName, employeeNumber]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await doVerification();
   };
 
   const submitDisabled = loading || idNumber.length !== 13;
@@ -81,6 +90,8 @@ export default function EmploymentVerification() {
             >
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
                 onChange={(event) => {
                   const digits = event.target.value
@@ -91,7 +102,6 @@ export default function EmploymentVerification() {
                 className="aws-input w-full"
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
               />
             </Field>
 
@@ -100,6 +110,8 @@ export default function EmploymentVerification() {
               description="Name of the employer to verify against."
             >
               <input
+                id="employerName"
+                name="employerName"
                 value={employerName}
                 onChange={(event) => setEmployerName(event.target.value)}
                 className="aws-input w-full"
@@ -111,6 +123,8 @@ export default function EmploymentVerification() {
               description="Internal employee or payroll number."
             >
               <input
+                id="employeeNumber"
+                name="employeeNumber"
                 value={employeeNumber}
                 onChange={(event) => setEmployeeNumber(event.target.value)}
                 className="aws-input w-full"
@@ -141,19 +155,17 @@ export default function EmploymentVerification() {
           </form>
         </div>
 
-        {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div>
-                <Skeleton className="h-4 w-36 mb-2" />
+              <div className="console-card-body space-y-6 p-4">
                 <div className="border border-border rounded overflow-hidden">
                   <div className="divide-y divide-border">
                     {[...Array(5)].map((_, i) => (
@@ -166,119 +178,40 @@ export default function EmploymentVerification() {
                 </div>
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">
-                  Verification results
-                </div>
-                <div className="text-xs text-text-muted">
-                  Reference {result.reference}
-                </div>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              {/* Employment Details Section */}
-              <div>
-                <h3 className="text-sm font-medium text-text mb-2">
-                  Employment Details
-                </h3>
-                <div className="border border-border rounded overflow-hidden">
-                  <table className="w-full">
-                    <tbody className="divide-y divide-border">
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30 w-1/3">
-                          Verified
-                        </td>
-                        <td className="px-4 py-2.5 text-sm">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              result.employment.verified
-                                ? "bg-success/10 text-success"
-                                : "bg-danger/10 text-danger"
-                            }`}
-                          >
-                            {result.employment.verified ? "Yes" : "No"}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Status
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.employment.status}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Start date
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {new Date(
-                            result.employment.startDate
-                          ).toLocaleDateString()}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Job title
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.employment.jobTitle}
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-background/50">
-                        <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                          Department
-                        </td>
-                        <td className="px-4 py-2.5 text-sm font-medium text-text">
-                          {result.employment.department}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">
-                Verification results
-              </div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter employee details and click Verify to see results
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          ) : result ? (
+            <VerificationResultCard
+              title="Employment results"
+              reference={result.reference}
+              status={result.employment.verified ? "verified" : "not_verified"}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+                { label: "Status", value: result.employment.status },
+                {
+                  label: "Start date",
+                  value: new Date(result.employment.startDate).toLocaleDateString(),
+                },
+                { label: "Job title", value: result.employment.jobTitle },
+                { label: "Department", value: result.employment.department },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={Briefcase}
+              heading="No results yet"
+              description="Enter employee details and click Verify to see results."
+            />
+          )}
+        </div>
       </div>
 
-      {result && (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div className="text-sm font-semibold text-text">Raw response</div>
-          </div>
-          <div className="console-card-body bg-background">
-            <JsonViewer data={result} />
-          </div>
-        </div>
-      )}
       <ProcessingDialog
         open={loading}
         title="Verifying employment"
