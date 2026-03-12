@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { PolicyBuilder } from "@/components/ui/PolicyBuilder";
 import type { Policy } from "@/components/ui/PolicyBuilder";
-import { createPolicy, publishPolicy } from "@/lib/bff-client";
+import { createPolicy, publishPolicy } from "@/lib/services/policy-service";
 
 export default function NewPolicyPage() {
   const router = useRouter();

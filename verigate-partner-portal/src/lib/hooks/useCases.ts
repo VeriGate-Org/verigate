@@ -6,7 +6,7 @@ import {
   getCase,
   updateCase,
   addCaseComment,
-} from "@/lib/bff-client";
+} from "@/lib/services/case-service";
 import type { CaseStatus, CasePriority } from "@/lib/bff-client";
 
 export function useCases(params?: { status?: string; pageSize?: number }) {

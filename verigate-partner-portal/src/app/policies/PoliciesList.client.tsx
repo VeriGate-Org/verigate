@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listPolicies, deletePolicy, publishPolicy } from "@/lib/bff-client";
+import { listPolicies, deletePolicy, publishPolicy } from "@/lib/services/policy-service";
 import type { Policy } from "@/lib/bff-client";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";

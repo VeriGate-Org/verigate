@@ -11,7 +11,20 @@ import {
   Save,
   Upload,
   Download,
-  Settings
+  Settings,
+  Fingerprint,
+  MapPin,
+  ShieldAlert,
+  Building2,
+  CreditCard,
+  Receipt,
+  FileSearch,
+  Scale,
+  Layers,
+  GitFork,
+  Search,
+  Home,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -92,18 +105,262 @@ const DEFAULT_SCORING_CONFIG: ScoringConfig = {
   overrideRules: [],
 };
 
-const STEP_TYPES: Record<VerificationStepType, { label: string; color: string; icon: string }> = {
-  id_verification: { label: "ID Verification", color: "bg-blue-500", icon: "👤" },
-  address_verification: { label: "Address Verification", color: "bg-purple-500", icon: "🏠" },
-  sanctions_check: { label: "Sanctions Check", color: "bg-red-500", icon: "⚠️" },
-  company_check: { label: "Company Check", color: "bg-green-500", icon: "🏢" },
-  credit_check: { label: "Credit Check", color: "bg-yellow-500", icon: "💳" },
-  tax_check: { label: "Tax Check", color: "bg-orange-500", icon: "📊" },
-  document_check: { label: "Document Check", color: "bg-indigo-500", icon: "📄" },
-  decision: { label: "Decision Point", color: "bg-gray-500", icon: "🔀" },
-  parallel: { label: "Parallel Execution", color: "bg-teal-500", icon: "⚡" },
-  conditional: { label: "Conditional Logic", color: "bg-pink-500", icon: "❓" },
+const STEP_TYPES: Record<VerificationStepType, { label: string; color: string; icon: React.ReactNode }> = {
+  id_verification: { label: "ID Verification", color: "bg-blue-500", icon: <Fingerprint className="h-5 w-5" /> },
+  address_verification: { label: "Address Verification", color: "bg-purple-500", icon: <MapPin className="h-5 w-5" /> },
+  sanctions_check: { label: "Sanctions Check", color: "bg-red-500", icon: <ShieldAlert className="h-5 w-5" /> },
+  company_check: { label: "Company Check", color: "bg-green-500", icon: <Building2 className="h-5 w-5" /> },
+  credit_check: { label: "Credit Check", color: "bg-yellow-500", icon: <CreditCard className="h-5 w-5" /> },
+  tax_check: { label: "Tax Check", color: "bg-orange-500", icon: <Receipt className="h-5 w-5" /> },
+  document_check: { label: "Document Check", color: "bg-indigo-500", icon: <FileSearch className="h-5 w-5" /> },
+  decision: { label: "Decision Point", color: "bg-gray-500", icon: <Scale className="h-5 w-5" /> },
+  parallel: { label: "Parallel Execution", color: "bg-teal-500", icon: <Layers className="h-5 w-5" /> },
+  conditional: { label: "Conditional Logic", color: "bg-pink-500", icon: <GitFork className="h-5 w-5" /> },
 };
+
+// --- Step-specific configuration schema ---
+
+type FieldType = "toggle" | "select" | "slider" | "number" | "text" | "multiselect";
+
+interface ConfigFieldDef {
+  key: string;
+  label: string;
+  type: FieldType;
+  options?: { label: string; value: string }[];
+  min?: number;
+  max?: number;
+  step?: number;
+  defaultValue: unknown;
+  showWhen?: (config: Record<string, unknown>) => boolean;
+}
+
+const VERIFICATION_STEP_TYPES = new Set<VerificationStepType>([
+  "id_verification", "address_verification", "sanctions_check",
+  "company_check", "credit_check", "tax_check", "document_check",
+]);
+
+const COMMON_EXECUTION_FIELDS: ConfigFieldDef[] = [
+  { key: "timeoutSeconds", label: "Timeout (seconds)", type: "number", min: 5, max: 120, defaultValue: 30 },
+  { key: "retryOnFailure", label: "Retry on failure", type: "toggle", defaultValue: false },
+  { key: "maxRetries", label: "Max retries", type: "number", min: 1, max: 5, defaultValue: 3, showWhen: (c) => c.retryOnFailure === true },
+];
+
+const STEP_CONFIGS: Record<VerificationStepType, ConfigFieldDef[]> = {
+  id_verification: [
+    { key: "idType", label: "ID Type", type: "select", defaultValue: "sa_id", options: [
+      { label: "SA ID", value: "sa_id" }, { label: "Passport", value: "passport" }, { label: "Foreign ID", value: "foreign" },
+    ]},
+    { key: "checkDeceased", label: "Check deceased status", type: "toggle", defaultValue: false },
+    { key: "checkFraud", label: "Check fraud indicators", type: "toggle", defaultValue: false },
+    { key: "nameMatchThreshold", label: "Name match threshold", type: "slider", min: 50, max: 100, step: 5, defaultValue: 80 },
+  ],
+  address_verification: [
+    { key: "proofSource", label: "Proof source", type: "select", defaultValue: "utility_bill", options: [
+      { label: "Utility Bill", value: "utility_bill" }, { label: "Bank Statement", value: "bank_statement" },
+      { label: "Municipal Account", value: "municipal" }, { label: "Lease Agreement", value: "lease" },
+    ]},
+    { key: "maxDocumentAge", label: "Max document age (months)", type: "number", min: 1, max: 24, defaultValue: 3 },
+    { key: "matchThreshold", label: "Match threshold", type: "slider", min: 50, max: 100, step: 5, defaultValue: 75 },
+  ],
+  sanctions_check: [
+    { key: "screeningLists", label: "Screening lists", type: "multiselect", defaultValue: ["un", "ofac"], options: [
+      { label: "UN", value: "un" }, { label: "EU", value: "eu" }, { label: "OFAC", value: "ofac" },
+      { label: "UK HMT", value: "uk_hmt" }, { label: "SA FIC", value: "sa_fic" },
+    ]},
+    { key: "includeAliases", label: "Include aliases", type: "toggle", defaultValue: true },
+    { key: "fuzzyMatching", label: "Fuzzy matching", type: "toggle", defaultValue: true },
+    { key: "matchThreshold", label: "Match threshold", type: "slider", min: 50, max: 100, step: 5, defaultValue: 80 },
+  ],
+  company_check: [
+    { key: "checkDirectors", label: "Check directors", type: "toggle", defaultValue: true },
+    { key: "checkAnnualReturns", label: "Check annual returns", type: "toggle", defaultValue: false },
+    { key: "checkBbee", label: "Check B-BBEE status", type: "toggle", defaultValue: false },
+    { key: "checkTaxClearance", label: "Check tax clearance", type: "toggle", defaultValue: false },
+  ],
+  credit_check: [
+    { key: "bureau", label: "Bureau", type: "select", defaultValue: "auto", options: [
+      { label: "Auto", value: "auto" }, { label: "TransUnion", value: "transunion" },
+      { label: "Experian", value: "experian" }, { label: "XDS", value: "xds" },
+    ]},
+    { key: "minCreditScore", label: "Min credit score", type: "number", min: 0, max: 900, defaultValue: 0 },
+    { key: "includePaymentProfile", label: "Include payment profile", type: "toggle", defaultValue: true },
+    { key: "includeJudgments", label: "Include judgments", type: "toggle", defaultValue: true },
+    { key: "includeEnquiries", label: "Include enquiries", type: "toggle", defaultValue: false },
+  ],
+  tax_check: [
+    { key: "checkCompliance", label: "Check compliance", type: "toggle", defaultValue: true },
+    { key: "checkClearance", label: "Check clearance", type: "toggle", defaultValue: true },
+    { key: "checkOutstandingReturns", label: "Check outstanding returns", type: "toggle", defaultValue: false },
+    { key: "includePaymentHistory", label: "Include payment history", type: "toggle", defaultValue: false },
+  ],
+  document_check: [
+    { key: "acceptedDocuments", label: "Accepted documents", type: "multiselect", defaultValue: ["passport", "id_card"], options: [
+      { label: "Passport", value: "passport" }, { label: "Driver's License", value: "drivers_license" },
+      { label: "ID Card", value: "id_card" }, { label: "Work Permit", value: "work_permit" },
+    ]},
+    { key: "requireOcr", label: "Require OCR", type: "toggle", defaultValue: false },
+    { key: "verifyIssuingAuth", label: "Verify issuing authority", type: "toggle", defaultValue: false },
+    { key: "checkExpiry", label: "Check expiry", type: "toggle", defaultValue: true },
+  ],
+  decision: [
+    { key: "conditionSource", label: "Condition source", type: "select", defaultValue: "composite_score", options: [
+      { label: "Composite Score", value: "composite_score" }, { label: "Step Signal", value: "step_signal" },
+      { label: "External API", value: "external_api" },
+    ]},
+    { key: "signalKey", label: "Signal key", type: "text", defaultValue: "" },
+    { key: "operator", label: "Operator", type: "select", defaultValue: "GTE", options: [
+      { label: ">", value: "GT" }, { label: ">=", value: "GTE" }, { label: "<", value: "LT" },
+      { label: "<=", value: "LTE" }, { label: "=", value: "EQ" },
+    ]},
+    { key: "thresholdValue", label: "Threshold value", type: "text", defaultValue: "" },
+  ],
+  parallel: [
+    { key: "maxConcurrent", label: "Max concurrent", type: "number", min: 2, max: 10, defaultValue: 5 },
+    { key: "timeoutSeconds", label: "Timeout (seconds)", type: "number", min: 10, max: 300, defaultValue: 60 },
+    { key: "failureStrategy", label: "Failure strategy", type: "select", defaultValue: "fail_fast", options: [
+      { label: "Fail Fast", value: "fail_fast" }, { label: "Wait All", value: "wait_all" },
+      { label: "Ignore Failures", value: "ignore" },
+    ]},
+  ],
+  conditional: [
+    { key: "conditionSource", label: "Condition source", type: "select", defaultValue: "composite_score", options: [
+      { label: "Composite Score", value: "composite_score" }, { label: "Step Signal", value: "step_signal" },
+      { label: "External API", value: "external_api" },
+    ]},
+    { key: "signalKey", label: "Signal key", type: "text", defaultValue: "" },
+    { key: "operator", label: "Operator", type: "select", defaultValue: "GTE", options: [
+      { label: ">", value: "GT" }, { label: ">=", value: "GTE" }, { label: "<", value: "LT" },
+      { label: "<=", value: "LTE" }, { label: "=", value: "EQ" },
+    ]},
+    { key: "thresholdValue", label: "Threshold value", type: "text", defaultValue: "" },
+  ],
+};
+
+// --- Policy Templates ---
+
+interface PolicyTemplate {
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  steps: VerificationStep[];
+}
+
+const POLICY_TEMPLATES: PolicyTemplate[] = [
+  {
+    name: "Standard KYC",
+    description: "Individual onboarding baseline with ID, sanctions, and credit checks",
+    icon: <Fingerprint className="h-6 w-6 text-blue-500" />,
+    steps: [
+      { id: "tpl-1", type: "id_verification", name: "ID Verification", config: { weight: 0.4, minScore: 60, idType: "sa_id", checkDeceased: true, checkFraud: true, nameMatchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-2", type: "sanctions_check", name: "Sanctions Check", config: { weight: 0.3, minScore: 70, screeningLists: ["un", "eu", "ofac", "uk_hmt", "sa_fic"], includeAliases: true, fuzzyMatching: true, matchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-3", type: "credit_check", name: "Credit Check", config: { weight: 0.3, minScore: 50, bureau: "auto", minCreditScore: 300, includePaymentProfile: true, includeJudgments: true, includeEnquiries: false, timeoutSeconds: 30, retryOnFailure: false } },
+    ],
+  },
+  {
+    name: "Enhanced Due Diligence",
+    description: "High-risk individual screening with comprehensive checks",
+    icon: <Search className="h-6 w-6 text-amber-500" />,
+    steps: [
+      { id: "tpl-1", type: "id_verification", name: "ID Verification", config: { weight: 0.25, minScore: 70, idType: "sa_id", checkDeceased: true, checkFraud: true, nameMatchThreshold: 90, timeoutSeconds: 30, retryOnFailure: true, maxRetries: 2 } },
+      { id: "tpl-2", type: "sanctions_check", name: "Sanctions Check", config: { weight: 0.25, minScore: 80, screeningLists: ["un", "eu", "ofac", "uk_hmt", "sa_fic"], includeAliases: true, fuzzyMatching: true, matchThreshold: 85, timeoutSeconds: 30, retryOnFailure: true, maxRetries: 2 } },
+      { id: "tpl-3", type: "document_check", name: "Document Check", config: { weight: 0.2, minScore: 60, acceptedDocuments: ["passport", "id_card"], requireOcr: true, verifyIssuingAuth: true, checkExpiry: true, timeoutSeconds: 60, retryOnFailure: false } },
+      { id: "tpl-4", type: "credit_check", name: "Credit Check", config: { weight: 0.15, minScore: 50, bureau: "auto", minCreditScore: 300, includePaymentProfile: true, includeJudgments: true, includeEnquiries: true, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-5", type: "address_verification", name: "Address Verification", config: { weight: 0.15, minScore: 60, proofSource: "utility_bill", maxDocumentAge: 3, matchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
+    ],
+  },
+  {
+    name: "Business Verification",
+    description: "Corporate onboarding with company, tax, and sanctions checks",
+    icon: <Building2 className="h-6 w-6 text-green-500" />,
+    steps: [
+      { id: "tpl-1", type: "company_check", name: "Company Check", config: { weight: 0.4, minScore: 60, checkDirectors: true, checkAnnualReturns: true, checkBbee: false, checkTaxClearance: true, timeoutSeconds: 60, retryOnFailure: false } },
+      { id: "tpl-2", type: "tax_check", name: "Tax Check", config: { weight: 0.3, minScore: 60, checkCompliance: true, checkClearance: true, checkOutstandingReturns: true, includePaymentHistory: false, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-3", type: "sanctions_check", name: "Sanctions Check", config: { weight: 0.3, minScore: 70, screeningLists: ["un", "eu", "ofac", "uk_hmt", "sa_fic"], includeAliases: true, fuzzyMatching: true, matchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
+    ],
+  },
+  {
+    name: "Property Transaction",
+    description: "Property-related workflows with ID, address, and credit verification",
+    icon: <Home className="h-6 w-6 text-purple-500" />,
+    steps: [
+      { id: "tpl-1", type: "id_verification", name: "ID Verification", config: { weight: 0.35, minScore: 60, idType: "sa_id", checkDeceased: true, checkFraud: true, nameMatchThreshold: 85, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-2", type: "address_verification", name: "Address Verification", config: { weight: 0.35, minScore: 60, proofSource: "utility_bill", maxDocumentAge: 3, matchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
+      { id: "tpl-3", type: "credit_check", name: "Credit Check", config: { weight: 0.3, minScore: 50, bureau: "auto", minCreditScore: 500, includePaymentProfile: true, includeJudgments: true, includeEnquiries: true, timeoutSeconds: 30, retryOnFailure: false } },
+    ],
+  },
+];
+
+// --- Canvas summary helper ---
+
+function getStepSummary(step: VerificationStep): string {
+  const c = step.config;
+  const parts: string[] = [];
+
+  switch (step.type) {
+    case "id_verification": {
+      const idLabels: Record<string, string> = { sa_id: "SA ID", passport: "Passport", foreign: "Foreign" };
+      if (c.idType) parts.push(idLabels[c.idType as string] ?? String(c.idType));
+      if (c.checkDeceased) parts.push("Deceased ✓");
+      if (c.checkFraud) parts.push("Fraud ✓");
+      if (c.nameMatchThreshold !== undefined && c.nameMatchThreshold !== 80) parts.push(`Match ≥${c.nameMatchThreshold}%`);
+      break;
+    }
+    case "address_verification": {
+      const srcLabels: Record<string, string> = { utility_bill: "Utility", bank_statement: "Bank", municipal: "Municipal", lease: "Lease" };
+      if (c.proofSource) parts.push(srcLabels[c.proofSource as string] ?? String(c.proofSource));
+      if (c.maxDocumentAge) parts.push(`≤${c.maxDocumentAge}mo`);
+      if (c.matchThreshold !== undefined && c.matchThreshold !== 75) parts.push(`Match ≥${c.matchThreshold}%`);
+      break;
+    }
+    case "sanctions_check": {
+      const lists = c.screeningLists as string[] | undefined;
+      if (lists?.length) parts.push(`${lists.length} lists`);
+      if (c.fuzzyMatching) parts.push("Fuzzy ✓");
+      if (c.matchThreshold !== undefined && c.matchThreshold !== 80) parts.push(`Match ≥${c.matchThreshold}%`);
+      break;
+    }
+    case "company_check": {
+      if (c.checkDirectors) parts.push("Directors ✓");
+      if (c.checkAnnualReturns) parts.push("Returns ✓");
+      if (c.checkBbee) parts.push("B-BBEE ✓");
+      if (c.checkTaxClearance) parts.push("Tax ✓");
+      break;
+    }
+    case "credit_check": {
+      const bureauLabels: Record<string, string> = { auto: "Auto", transunion: "TransUnion", experian: "Experian", xds: "XDS" };
+      if (c.bureau) parts.push(bureauLabels[c.bureau as string] ?? String(c.bureau));
+      if (c.minCreditScore && (c.minCreditScore as number) > 0) parts.push(`Score ≥${c.minCreditScore}`);
+      if (c.includeJudgments) parts.push("Judgments ✓");
+      break;
+    }
+    case "tax_check": {
+      if (c.checkCompliance) parts.push("Compliance ✓");
+      if (c.checkClearance) parts.push("Clearance ✓");
+      if (c.checkOutstandingReturns) parts.push("Returns ✓");
+      break;
+    }
+    case "document_check": {
+      const docs = c.acceptedDocuments as string[] | undefined;
+      if (docs?.length) parts.push(`${docs.length} doc types`);
+      if (c.requireOcr) parts.push("OCR ✓");
+      if (c.checkExpiry) parts.push("Expiry ✓");
+      break;
+    }
+    case "decision":
+    case "conditional": {
+      if (c.operator && c.thresholdValue) parts.push(`${c.signalKey || "score"} ${c.operator} ${c.thresholdValue}`);
+      break;
+    }
+    case "parallel": {
+      if (c.maxConcurrent) parts.push(`Max ${c.maxConcurrent}`);
+      const stratLabels: Record<string, string> = { fail_fast: "Fail fast", wait_all: "Wait all", ignore: "Ignore" };
+      if (c.failureStrategy) parts.push(stratLabels[c.failureStrategy as string] ?? String(c.failureStrategy));
+      break;
+    }
+  }
+
+  return parts.join(" · ");
+}
 
 export interface PolicyBuilderProps {
   initialPolicy?: Policy;
@@ -324,10 +581,47 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
         <div className="flex-1 bg-base-200 overflow-auto p-8">
           <div className="max-w-4xl mx-auto space-y-4">
             {policy.steps.length === 0 ? (
-              <div className="text-center py-16">
-                <GitBranch className="h-12 w-12 text-text-muted mx-auto mb-4" />
-                <p className="text-text-muted">No steps added yet</p>
-                <p className="text-sm text-text-muted mt-2">Select a step type from the left panel to begin</p>
+              <div className="py-8">
+                <div className="text-center mb-8">
+                  <GitBranch className="h-12 w-12 text-text-muted mx-auto mb-4" />
+                  <p className="text-text font-medium">Start with a template or build from scratch</p>
+                  <p className="text-sm text-text-muted mt-1">Choose a pre-configured workflow below, or add steps from the left panel</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {POLICY_TEMPLATES.map((tpl) => (
+                    <button
+                      key={tpl.name}
+                      onClick={() => {
+                        const stamped = tpl.steps.map((s, i) => ({ ...s, id: `step-${Date.now()}-${i}`, config: { ...s.config } }));
+                        setPolicy(prev => ({ ...prev, steps: stamped, updatedAt: new Date() }));
+                      }}
+                      className="text-left console-card hover:ring-2 hover:ring-accent transition-all"
+                    >
+                      <div className="console-card-body">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span>{tpl.icon}</span>
+                          <div>
+                            <h4 className="font-medium text-text text-sm">{tpl.name}</h4>
+                            <p className="text-xs text-text-muted">{tpl.steps.length} steps</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-text-muted">{tpl.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {}}
+                    className="text-left console-card border-dashed hover:ring-2 hover:ring-accent transition-all"
+                  >
+                    <div className="console-card-body flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <FileText className="h-6 w-6 text-text-muted mx-auto" />
+                        <h4 className="font-medium text-text text-sm mt-2">Blank Policy</h4>
+                        <p className="text-xs text-text-muted mt-1">Start from scratch</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </div>
             ) : (
               policy.steps.map((step, index) => (
@@ -351,7 +645,7 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -374,6 +668,23 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
                           </Button>
                         </div>
                       </div>
+
+                      {(() => {
+                        const summary = getStepSummary(step);
+                        if (!summary) return null;
+                        return (
+                          <div className="mt-2 pt-2 border-t border-border">
+                            <p className="text-xs text-text-muted truncate">{summary}</p>
+                            {!CONTROL_STEP_TYPES.has(step.type) && (step.config.weight !== undefined || step.config.timeoutSeconds !== undefined) && (
+                              <p className="text-[10px] text-text-muted mt-0.5">
+                                {step.config.weight !== undefined && <span>⚖ {(step.config.weight as number).toFixed(1)}</span>}
+                                {step.config.weight !== undefined && step.config.timeoutSeconds !== undefined && <span> · </span>}
+                                {step.config.timeoutSeconds !== undefined && <span>⏱ {step.config.timeoutSeconds as number}s</span>}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {step.type === "conditional" && (
                         <div className="mt-4 pt-4 border-t border-border">
@@ -508,15 +819,7 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
                       </div>
                     )}
 
-                    <div className="pt-4 border-t border-border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Settings className="h-4 w-4 text-text-muted" />
-                        <span className="text-xs font-semibold text-text">Configuration</span>
-                      </div>
-                      <p className="text-xs text-text-muted">
-                        Step-specific configuration options would appear here
-                      </p>
-                    </div>
+                    <StepConfigFields step={step} onUpdate={updateStepConfig} />
                   </div>
                 );
               })()}
@@ -536,6 +839,157 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
     </div>
   );
 };
+
+/* ------------------------------------------------------------------ */
+/*  Step Config Fields (dynamic renderer)                             */
+/* ------------------------------------------------------------------ */
+
+function StepConfigFields({
+  step,
+  onUpdate,
+}: {
+  step: VerificationStep;
+  onUpdate: (key: string, value: unknown) => void;
+}) {
+  const fields = STEP_CONFIGS[step.type] ?? [];
+  const isVerification = VERIFICATION_STEP_TYPES.has(step.type);
+  const allFields = isVerification ? [...fields, ...COMMON_EXECUTION_FIELDS] : fields;
+
+  const getVal = (key: string, defaultValue: unknown) =>
+    step.config[key] !== undefined ? step.config[key] : defaultValue;
+
+  return (
+    <div className="pt-4 border-t border-border space-y-4">
+      <div className="flex items-center gap-2 mb-1">
+        <Settings className="h-4 w-4 text-text-muted" />
+        <span className="text-xs font-semibold text-text">Configuration</span>
+      </div>
+
+      {allFields.map((field) => {
+        if (field.showWhen && !field.showWhen(step.config)) return null;
+
+        switch (field.type) {
+          case "toggle":
+            return (
+              <label key={field.key} className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-text">{field.label}</span>
+                <input
+                  type="checkbox"
+                  checked={!!getVal(field.key, field.defaultValue)}
+                  onChange={(e) => onUpdate(field.key, e.target.checked)}
+                  className="accent-[color:var(--color-accent)] h-4 w-4"
+                />
+              </label>
+            );
+
+          case "select":
+            return (
+              <div key={field.key}>
+                <label className="text-xs text-text-muted mb-1 block">{field.label}</label>
+                <select
+                  value={String(getVal(field.key, field.defaultValue))}
+                  onChange={(e) => onUpdate(field.key, e.target.value)}
+                  className="aws-select w-full text-xs"
+                >
+                  {field.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            );
+
+          case "slider":
+            return (
+              <div key={field.key}>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-text-muted">{field.label}</label>
+                  <span className="text-xs font-medium text-text">{String(getVal(field.key, field.defaultValue))}</span>
+                </div>
+                <input
+                  type="range"
+                  min={field.min ?? 0}
+                  max={field.max ?? 100}
+                  step={field.step ?? 5}
+                  value={Number(getVal(field.key, field.defaultValue))}
+                  onChange={(e) => onUpdate(field.key, parseInt(e.target.value))}
+                  className="w-full accent-[color:var(--color-accent)]"
+                />
+                <div className="flex justify-between text-[10px] text-text-muted">
+                  <span>{field.min ?? 0}</span>
+                  <span>{field.max ?? 100}</span>
+                </div>
+              </div>
+            );
+
+          case "number":
+            return (
+              <div key={field.key}>
+                <label className="text-xs text-text-muted mb-1 block">{field.label}</label>
+                <input
+                  type="number"
+                  min={field.min}
+                  max={field.max}
+                  value={Number(getVal(field.key, field.defaultValue))}
+                  onChange={(e) => onUpdate(field.key, parseInt(e.target.value) || 0)}
+                  className="aws-input w-full text-xs"
+                />
+              </div>
+            );
+
+          case "text":
+            return (
+              <div key={field.key}>
+                <label className="text-xs text-text-muted mb-1 block">{field.label}</label>
+                <input
+                  type="text"
+                  value={String(getVal(field.key, field.defaultValue))}
+                  onChange={(e) => onUpdate(field.key, e.target.value)}
+                  className="aws-input w-full text-xs"
+                  placeholder={field.label}
+                />
+              </div>
+            );
+
+          case "multiselect": {
+            const selected = (getVal(field.key, field.defaultValue) as string[]) || [];
+            return (
+              <div key={field.key}>
+                <label className="text-xs text-text-muted mb-1 block">{field.label}</label>
+                <div className="space-y-1">
+                  {field.options?.map((opt) => (
+                    <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(opt.value)}
+                        onChange={(e) => {
+                          const next = e.target.checked
+                            ? [...selected, opt.value]
+                            : selected.filter((v) => v !== opt.value);
+                          onUpdate(field.key, next);
+                        }}
+                        className="accent-[color:var(--color-accent)] h-3.5 w-3.5"
+                      />
+                      <span className="text-xs text-text">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          default:
+            return null;
+        }
+      })}
+
+      {isVerification && (
+        <p className="text-[10px] text-text-muted mt-2 border-t border-border pt-2">
+          Execution settings apply when this step runs in the verification pipeline.
+        </p>
+      )}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Scoring Config Panel                                              */

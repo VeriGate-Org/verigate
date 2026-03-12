@@ -4,7 +4,7 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PolicyBuilder } from "@/components/ui/PolicyBuilder";
 import type { Policy as BuilderPolicy } from "@/components/ui/PolicyBuilder";
-import { getPolicy, updatePolicy, publishPolicy } from "@/lib/bff-client";
+import { getPolicy, updatePolicy, publishPolicy } from "@/lib/services/policy-service";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 
 export default function EditPolicyPage() {

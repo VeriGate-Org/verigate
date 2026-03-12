@@ -2,9 +2,25 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BarChart3, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertTriangle,
+  GitBranch,
+  ClipboardList,
+  Eye,
+  FileText,
+  Settings,
+} from "lucide-react";
 import type { VerificationStatus } from "@/lib/types";
+import type { Case, MonitoringAlert, Policy } from "@/lib/bff-client";
 import { useVerificationList } from "@/lib/hooks/useVerification";
+import { listCases } from "@/lib/services/case-service";
+import { listMonitoringAlerts } from "@/lib/services/monitoring-service";
+import { listPolicies } from "@/lib/services/policy-service";
 
 const STATUS: VerificationStatus[] = [
   "success",
@@ -46,6 +62,23 @@ export default function VeriDeck() {
   const inProgressQuery = useVerificationList({ status: "in_progress", pageSize: 1, from: fromIso });
   const softFailQuery = useVerificationList({ status: "soft_fail", pageSize: 1, from: fromIso });
   const hardFailQuery = useVerificationList({ status: "hard_fail", pageSize: 1, from: fromIso });
+
+  const alertsQuery = useQuery({
+    queryKey: ["monitoring-alerts", { pageSize: 100 }],
+    queryFn: () => listMonitoringAlerts({ pageSize: 100 }),
+  });
+  const openCasesQuery = useQuery({
+    queryKey: ["cases", { status: "OPEN", pageSize: 5 }],
+    queryFn: () => listCases({ status: "OPEN", pageSize: 5 }),
+  });
+  const inReviewCasesQuery = useQuery({
+    queryKey: ["cases", { status: "IN_REVIEW", pageSize: 5 }],
+    queryFn: () => listCases({ status: "IN_REVIEW", pageSize: 5 }),
+  });
+  const policiesQuery = useQuery({
+    queryKey: ["policies"],
+    queryFn: () => listPolicies(),
+  });
 
   const loading = recentQuery.isLoading || rangeQuery.isLoading || totalQuery.isLoading;
   const error = recentQuery.error || rangeQuery.error || totalQuery.error;
@@ -135,6 +168,34 @@ export default function VeriDeck() {
     };
   }, [trend]);
 
+  const alertStats = useMemo(() => {
+    const alerts: MonitoringAlert[] = alertsQuery.data ?? [];
+    const unacknowledged = alerts.filter((a) => !a.acknowledged);
+    const highSeverity = unacknowledged.filter((a) => a.severity === "HIGH");
+    return { total: unacknowledged.length, high: highSeverity.length };
+  }, [alertsQuery.data]);
+
+  const pendingCases = useMemo(() => {
+    const open: Case[] = openCasesQuery.data ?? [];
+    const inReview: Case[] = inReviewCasesQuery.data ?? [];
+    return [...open, ...inReview]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [openCasesQuery.data, inReviewCasesQuery.data]);
+
+  const pendingCaseCount = (openCasesQuery.data?.length ?? 0) + (inReviewCasesQuery.data?.length ?? 0);
+  const casesError = openCasesQuery.error || inReviewCasesQuery.error;
+
+  const policyStats = useMemo(() => {
+    const policies: Policy[] = policiesQuery.data ?? [];
+    const published = policies.filter((p) => p.status === "PUBLISHED");
+    const draft = policies.filter((p) => p.status === "DRAFT");
+    const recentPolicies = [...policies]
+      .sort((a, b) => new Date(b.updatedAt ?? "").getTime() - new Date(a.updatedAt ?? "").getTime())
+      .slice(0, 3);
+    return { total: policies.length, published: published.length, draft: draft.length, recent: recentPolicies };
+  }, [policiesQuery.data]);
+
   const rangeOptions: { label: string; value: typeof range }[] = [
     { label: "Last 24 hours", value: "24h" },
     { label: "Last 7 days", value: "7d" },
@@ -197,55 +258,26 @@ export default function VeriDeck() {
       iconBgColor: "bg-red-50",
       valueColor: "text-red-700",
     },
+    {
+      label: "Active alerts",
+      value: alertsQuery.error ? "—" : fmtNum(alertStats.total),
+      helper: alertsQuery.error
+        ? "Unable to load alerts"
+        : `${alertStats.high} high severity`,
+      icon: AlertTriangle,
+      iconColor: "text-amber-600",
+      iconBgColor: "bg-amber-50",
+      valueColor: "text-amber-700",
+    },
   ];
 
-  const featureLinks = [
-    {
-      name: "Home Affairs ID verification",
-      description: "Validate IDs directly with DHA",
-      href: "/services/personal-details",
-    },
-    {
-      name: "Identity verification",
-      description: "Biometric identity matching",
-      href: "/services/identity",
-    },
-    {
-      name: "Bank account validation",
-      description: "Account verification via AVS",
-      href: "/services/bank-account",
-    },
-    {
-      name: "Credit check",
-      description: "Credit bureau risk assessment",
-      href: "/services/credit-check",
-    },
-    {
-      name: "Company & director search",
-      description: "CIPC entity and directorship data",
-      href: "/services/company",
-    },
-    {
-      name: "Employment verification",
-      description: "Verify employment status and history",
-      href: "/services/employment",
-    },
-    {
-      name: "Sanctions & PEP screening",
-      description: "World-Check style name screening",
-      href: "/services/sanctions",
-    },
-    {
-      name: "Fraud watchlist",
-      description: "SAFPS fraud prevention database",
-      href: "/services/fraud-watchlist",
-    },
-    {
-      name: "Full verification",
-      description: "Comprehensive multi-check workflow",
-      href: "/services/full-verification",
-    },
-  ] as const;
+  const shortcuts = [
+    { label: "Policies", description: "Manage verification workflows", href: "/policies", icon: GitBranch, color: "text-violet-600", bgColor: "bg-violet-50" },
+    { label: "Cases", description: "Review flagged subjects", href: "/cases", icon: ClipboardList, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { label: "Monitoring", description: "Continuous screening alerts", href: "/monitoring", icon: Eye, color: "text-emerald-600", bgColor: "bg-emerald-50" },
+    { label: "Reports", description: "Analytics and exports", href: "/reports", icon: FileText, color: "text-orange-600", bgColor: "bg-orange-50" },
+    { label: "Settings", description: "Partner configuration", href: "/settings", icon: Settings, color: "text-gray-600", bgColor: "bg-gray-100" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -289,7 +321,8 @@ export default function VeriDeck() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-aws-m">
+      {/* KPI cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-aws-m">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
@@ -309,23 +342,26 @@ export default function VeriDeck() {
         })}
       </div>
 
-      <div className="console-card">
-        <div className="console-card-header">
-          <div className="text-sm font-semibold text-text">Quick actions</div>
-          <span className="text-xs text-text-muted">Launch a verification</span>
-        </div>
-          <div className="console-card-body grid gap-aws-m md:grid-cols-2 xl:grid-cols-3">
-            {featureLinks.map((feature) => (
-              <Link
-                key={feature.href}
-                href={feature.href}
-                className="flex flex-col rounded-aws-control border border-border px-aws-m py-aws-s text-aws-body text-text hover:border-accent hover:bg-accent-soft/50 transition-all duration-aws-quick"
-              >
-                <span className="font-medium">{feature.name}</span>
-                <span className="text-aws-body text-text-muted mt-aws-2xs">{feature.description}</span>
-              </Link>
-            ))}
-          </div>
+      {/* Enterprise shortcuts */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-aws-m">
+        {shortcuts.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="console-card hover:border-accent transition-all duration-aws-quick"
+            >
+              <div className="console-card-body flex flex-col items-center text-center space-y-2 py-4">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${s.bgColor}`}>
+                  <Icon className={`h-5 w-5 ${s.color}`} />
+                </div>
+                <div className="text-sm font-medium text-text">{s.label}</div>
+                <div className="text-xs text-text-muted">{s.description}</div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -417,7 +453,8 @@ export default function VeriDeck() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Bottom grid: Provider Performance, Pending Cases, Policy Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className="console-card">
           <div className="console-card-header">
             <h2 className="text-sm font-semibold text-text">Provider performance</h2>
@@ -457,29 +494,118 @@ export default function VeriDeck() {
           </div>
         </div>
 
+        {/* Pending Cases */}
         <div className="console-card">
           <div className="console-card-header">
-            <h2 className="text-sm font-semibold text-text">Live activity</h2>
-            <div className="flex items-center gap-2 text-xs text-text-muted">
-              <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-success" />
-              Live
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-text">Pending cases</h2>
+              {pendingCaseCount > 0 && (
+                <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600">
+                  {pendingCaseCount}
+                </span>
+              )}
             </div>
+            <Link href="/cases" className="text-xs font-medium text-primary hover:underline">
+              View all &rarr;
+            </Link>
+          </div>
+          <div className="console-card-body space-y-2">
+            {casesError ? (
+              <div className="flex flex-col items-center gap-2 py-4 text-center">
+                <span className="text-xs text-text-muted">Unable to load cases</span>
+                <button
+                  onClick={() => { openCasesQuery.refetch(); inReviewCasesQuery.refetch(); }}
+                  className="rounded border border-border px-3 py-1 text-xs font-medium text-text hover:bg-background"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : openCasesQuery.isLoading || inReviewCasesQuery.isLoading ? (
+              <div className="py-4 text-center text-xs text-text-muted">Loading cases…</div>
+            ) : pendingCases.length === 0 ? (
+              <div className="py-4 text-center text-xs text-text-muted">No pending cases</div>
+            ) : (
+              pendingCases.map((c) => (
+                <Link
+                  key={c.caseId}
+                  href={`/cases/${c.caseId}`}
+                  className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-sm hover:border-accent hover:bg-accent-soft/50 transition-all duration-aws-quick"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-text">{c.subjectName || c.subjectId || "Unknown"}</div>
+                    <div className="text-xs text-text-muted">{formatTimeAgo(c.createdAt)}</div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadgeStyle(c.priority)}`}>
+                      {c.priority}
+                    </span>
+                    <span className="text-xs text-text-muted">{c.compositeRiskScore}%</span>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Policy Overview */}
+        <div className="console-card">
+          <div className="console-card-header">
+            <h2 className="text-sm font-semibold text-text">Policies</h2>
+            <Link href="/policies" className="text-xs font-medium text-primary hover:underline">
+              Manage &rarr;
+            </Link>
           </div>
           <div className="console-card-body space-y-3">
-            {recent.slice(0, 6).map((v) => (
-              <div key={`${v.correlationId}-activity`} className="flex items-center justify-between gap-3 text-sm">
-                <div className="min-w-0">
-                  <div className="truncate font-medium text-text">{v.type}</div>
-                  <div className="truncate text-xs text-text-muted">{formatTimestamp(v.startedAt)}</div>
-                </div>
-                <StatusBadge status={v.status} />
+            {policiesQuery.error ? (
+              <div className="flex flex-col items-center gap-2 py-4 text-center">
+                <span className="text-xs text-text-muted">Unable to load policies</span>
+                <button
+                  onClick={() => policiesQuery.refetch()}
+                  className="rounded border border-border px-3 py-1 text-xs font-medium text-text hover:bg-background"
+                >
+                  Retry
+                </button>
               </div>
-            ))}
-            {recent.length === 0 && !loading && (
-              <div className="text-xs text-text-muted">No recent activity.</div>
-            )}
-            {loading && (
-              <div className="text-xs text-text-muted">Refreshing activity…</div>
+            ) : policiesQuery.isLoading ? (
+              <div className="py-4 text-center text-xs text-text-muted">Loading policies…</div>
+            ) : policyStats.total === 0 ? (
+              <div className="flex flex-col items-center gap-2 py-4 text-center">
+                <span className="text-xs text-text-muted">No policies configured</span>
+                <Link href="/policies/new" className="text-xs font-medium text-primary hover:underline">
+                  Create your first policy &rarr;
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-text-muted">{policyStats.published} published</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-2 w-2 rounded-full bg-yellow-500" />
+                    <span className="text-text-muted">{policyStats.draft} draft</span>
+                  </span>
+                </div>
+                <ul className="space-y-2">
+                  {policyStats.recent.map((p) => (
+                    <li key={p.policyId}>
+                      <Link
+                        href={`/policies/${p.policyId}`}
+                        className="flex items-center justify-between gap-2 rounded border border-border px-3 py-2 text-sm hover:border-accent hover:bg-accent-soft/50 transition-all duration-aws-quick"
+                      >
+                        <span className="truncate font-medium text-text">{p.name}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${policyStatusStyle(p.status)}`}>
+                            {p.status}
+                          </span>
+                          <span className="text-xs text-text-muted">{formatShortDate(p.updatedAt)}</span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </div>
         </div>
@@ -540,4 +666,48 @@ function formatDuration(ms?: number) {
   const minutes = Math.floor(seconds / 60);
   const remain = Math.round(seconds % 60);
   return `${minutes}m ${remain}s`;
+}
+
+function formatTimeAgo(iso: string): string {
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  } catch {
+    return iso;
+  }
+}
+
+function formatShortDate(iso?: string): string {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    return `${d.getDate()} ${d.toLocaleString("default", { month: "short" })}`;
+  } catch {
+    return iso;
+  }
+}
+
+function priorityBadgeStyle(priority?: string): string {
+  switch (priority) {
+    case "CRITICAL": return "bg-red-500/10 text-red-600";
+    case "HIGH": return "bg-orange-500/10 text-orange-600";
+    case "MEDIUM": return "bg-yellow-500/10 text-yellow-600";
+    case "LOW": return "bg-gray-500/10 text-gray-500";
+    default: return "bg-gray-500/10 text-gray-500";
+  }
+}
+
+function policyStatusStyle(status?: string): string {
+  switch (status) {
+    case "PUBLISHED": return "bg-green-500/10 text-green-600 border-green-500/20";
+    case "DRAFT": return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20";
+    case "ARCHIVED": return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+  }
 }
