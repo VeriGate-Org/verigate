@@ -239,9 +239,13 @@ export function useBulkSelection<T>(items: T[], getId?: (item: T) => string) {
           next.add(id);
         }
       }
+      if (next.size === prev.size && [...next].every(id => prev.has(id))) {
+        return prev;
+      }
       return next;
     });
-  }, [items, resolveId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length, resolveId]);
 
   return {
     selectedIds,
