@@ -6,8 +6,13 @@ import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import FileUpload from "@/components/ui/FileUpload/FileUpload";
 import { type DocumentVerificationResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import {
+  getDocumentPresignedUrl,
+  uploadFileToS3,
+} from "@/lib/bff-client";
 
 const DOCUMENT_TYPES = [
   { value: "passport", label: "Passport" },
@@ -27,10 +32,60 @@ export default function DocumentVerification() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // File upload state
+  const [, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [s3ObjectKey, setS3ObjectKey] = useState<string>("");
+  const [s3BucketName, setS3BucketName] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
       window.print();
     }
+  }, []);
+
+  const handleFileSelect = useCallback(
+    async (file: File) => {
+      setSelectedFile(file);
+      setUploadError(null);
+      setUploadProgress(0);
+      setS3ObjectKey("");
+      setS3BucketName("");
+      setIsUploading(true);
+
+      try {
+        const presigned = await getDocumentPresignedUrl({
+          fileName: file.name,
+          contentType: file.type,
+          documentType,
+        });
+
+        await uploadFileToS3(presigned.uploadUrl, file, (percent) => {
+          setUploadProgress(percent);
+        });
+
+        setS3ObjectKey(presigned.s3ObjectKey);
+        setS3BucketName(presigned.s3BucketName);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "File upload failed";
+        setUploadError(message);
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [documentType]
+  );
+
+  const handleFileClear = useCallback(() => {
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setS3ObjectKey("");
+    setS3BucketName("");
+    setIsUploading(false);
+    setUploadError(null);
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -39,10 +94,21 @@ export default function DocumentVerification() {
     setError(null);
 
     try {
-      const data = (await executeVerification("DOCUMENT_VERIFICATION", {
+      // Build metadata, adding S3 info only when a file was uploaded
+      const metadata: Record<string, unknown> = {
         documentType,
         documentNumber,
-      })) as DocumentVerificationResponse;
+      };
+
+      if (s3ObjectKey && s3BucketName) {
+        metadata.s3BucketName = s3BucketName;
+        metadata.s3ObjectKey = s3ObjectKey;
+      }
+
+      const data = (await executeVerification(
+        "DOCUMENT_VERIFICATION",
+        metadata
+      )) as DocumentVerificationResponse;
       setResult(data);
     } catch (err) {
       const message =
@@ -54,7 +120,8 @@ export default function DocumentVerification() {
     }
   };
 
-  const submitDisabled = loading || documentNumber.trim().length < 1;
+  const submitDisabled =
+    loading || documentNumber.trim().length < 1 || isUploading;
 
   return (
     <div className="space-y-6">
@@ -111,6 +178,21 @@ export default function DocumentVerification() {
                 onChange={(event) => setDocumentNumber(event.target.value)}
                 className="aws-input w-full"
                 autoComplete="off"
+              />
+            </Field>
+
+            <Field
+              label="Document image (optional)"
+              description="Upload a scan or photo of the document for enhanced verification."
+            >
+              <FileUpload
+                accept="image/*,.pdf"
+                maxSize={10 * 1024 * 1024}
+                progress={uploadProgress}
+                uploading={isUploading}
+                error={uploadError ?? undefined}
+                onFileSelect={handleFileSelect}
+                onClear={handleFileClear}
               />
             </Field>
 

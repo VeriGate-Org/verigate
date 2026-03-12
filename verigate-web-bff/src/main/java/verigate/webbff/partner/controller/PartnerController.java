@@ -184,7 +184,7 @@ public class PartnerController {
     if (match.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
-    apiKeyService.revokeApiKey(match.get().apiKeyHash());
+    apiKeyService.revokeApiKey(match.get().lookupHash());
     return ResponseEntity.noContent().build();
   }
 

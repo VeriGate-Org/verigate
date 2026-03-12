@@ -605,6 +605,147 @@ resource "aws_ssm_parameter" "policies_table_name" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# Case Management DynamoDB Tables
+#----------------------------------------------------------------------------------------------------------------
+
+module "cases_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "cases"
+  hash_key                 = {
+                                 name = "caseId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "caseId"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "statusCreatedAt"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name               = "partner-status-index"
+      hash_key           = "partnerId"
+      range_key          = "statusCreatedAt"
+      projection_type    = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "cases_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/cases/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-cases"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Enhanced Due Diligence (Ongoing Monitoring) DynamoDB Tables
+#----------------------------------------------------------------------------------------------------------------
+
+module "monitored_subjects_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "monitored-subjects"
+  hash_key            = {
+                             name = "subjectId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "subjectId"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "statusNextCheck"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "partner-status-index"
+      hash_key        = "partnerId"
+      range_key       = "statusNextCheck"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "monitoring_alerts_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "monitoring-alerts"
+  hash_key            = {
+                             name = "alertId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "alertId"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "subjectIdCreatedAt"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "partner-subject-index"
+      hash_key        = "partnerId"
+      range_key       = "subjectIdCreatedAt"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# SSM Parameters - Monitoring Table Names
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "monitored_subjects_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/monitored-subjects/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-monitored-subjects"
+}
+
+resource "aws_ssm_parameter" "monitoring_alerts_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/monitoring-alerts/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-monitoring-alerts"
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Kinesis
 #----------------------------------------------------------------------------------------------------------------
 

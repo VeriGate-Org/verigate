@@ -10,6 +10,23 @@ function bffHeaders(): Record<string, string> {
   };
 }
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ policyId: string }> },
+) {
+  try {
+    const { policyId } = await params;
+    const response = await fetch(`${BFF_BASE_URL}/api/partner/policies/${policyId}`, {
+      headers: bffHeaders(),
+    });
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "BFF proxy error";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ policyId: string }> },

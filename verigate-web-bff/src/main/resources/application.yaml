@@ -28,6 +28,9 @@ verigate:
     region: ${AWS_REGION:eu-west-1}
     sqs-endpoint: ${AWS_SQS_ENDPOINT:}
     dynamodb-endpoint: ${AWS_DYNAMODB_ENDPOINT:}
+    s3-endpoint: ${AWS_S3_ENDPOINT:}
+  documents:
+    s3-bucket-name: ${VERIGATE_DOCUMENTS_BUCKET:verigate-documents}
   auth:
     cognito:
       enabled: ${VERIGATE_COGNITO_ENABLED:false}
@@ -49,3 +52,15 @@ verigate:
     response:
       poll-timeout-ms: ${VERIGATE_RESPONSE_POLL_TIMEOUT_MS:50}
       poll-max-attempts: ${VERIGATE_RESPONSE_POLL_MAX_ATTEMPTS:1}
+  cases:
+    table-name: ${VERIGATE_CASES_TABLE:cases}
+  policy:
+    table-name: ${VERIGATE_POLICY_TABLE:policies}
+  monitoring:
+    subjects-table-name: ${VERIGATE_MONITORING_SUBJECTS_TABLE:monitored-subjects}
+    alerts-table-name: ${VERIGATE_MONITORING_ALERTS_TABLE:monitoring-alerts}
+  risk:
+    assessment:
+      table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}
+    scoring-config:
+      table-name: ${VERIGATE_RISK_SCORING_CONFIG_TABLE:risk-scoring-config}

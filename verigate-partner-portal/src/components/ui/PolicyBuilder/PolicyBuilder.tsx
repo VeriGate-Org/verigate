@@ -174,15 +174,51 @@ export const PolicyBuilder: React.FC<PolicyBuilderProps> = ({
     }));
   };
 
+  const CONTROL_STEP_TYPES = new Set(["decision", "parallel", "conditional"]);
+
   const validatePolicy = (): boolean => {
     const errors: string[] = [];
 
-    if (policy.steps.length === 0) {
-      errors.push("Policy must have at least one step");
-    }
-
     if (!policy.name || policy.name.trim() === "") {
       errors.push("Policy name is required");
+    }
+
+    const verificationSteps = policy.steps.filter(s => !CONTROL_STEP_TYPES.has(s.type));
+    if (verificationSteps.length === 0) {
+      errors.push("Policy must have at least one verification step");
+    }
+
+    // Validate weight bounds (0-1) for non-control steps
+    for (const step of verificationSteps) {
+      const weight = step.config.weight;
+      if (weight !== undefined && (weight < 0 || weight > 1)) {
+        errors.push(`Step "${step.name}" has invalid weight: must be between 0 and 1`);
+      }
+    }
+
+    // Validate tier coverage (0-100, no gaps or overlaps)
+    const tiers = policy.scoringConfig.tiers;
+    if (tiers.length > 0) {
+      for (const tier of tiers) {
+        if (tier.lowerBound < 0 || tier.upperBound > 100) {
+          errors.push(`Tier "${tier.name}" bounds must be between 0 and 100`);
+        }
+        if (tier.lowerBound >= tier.upperBound) {
+          errors.push(`Tier "${tier.name}" lower bound must be less than upper bound`);
+        }
+      }
+
+      // Check for gaps and overlaps in tiers
+      const sortedTiers = [...tiers].sort((a, b) => a.lowerBound - b.lowerBound);
+      for (let i = 1; i < sortedTiers.length; i++) {
+        const prev = sortedTiers[i - 1];
+        const curr = sortedTiers[i];
+        if (curr.lowerBound < prev.upperBound) {
+          errors.push(`Tiers "${prev.name}" and "${curr.name}" overlap`);
+        } else if (curr.lowerBound > prev.upperBound + 1) {
+          errors.push(`Gap between tiers "${prev.name}" and "${curr.name}"`);
+        }
+      }
     }
 
     setValidationErrors(errors);

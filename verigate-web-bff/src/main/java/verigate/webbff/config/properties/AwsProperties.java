@@ -10,6 +10,7 @@ public class AwsProperties {
   private String region = "eu-west-1";
   private URI sqsEndpoint;
   private URI dynamodbEndpoint;
+  private URI s3Endpoint;
 
   public String getRegion() {
     return region;
@@ -33,5 +34,13 @@ public class AwsProperties {
 
   public void setDynamodbEndpoint(URI dynamodbEndpoint) {
     this.dynamodbEndpoint = dynamodbEndpoint;
+  }
+
+  public Optional<URI> getS3Endpoint() {
+    return Optional.ofNullable(s3Endpoint);
+  }
+
+  public void setS3Endpoint(URI s3Endpoint) {
+    this.s3Endpoint = s3Endpoint;
   }
 }

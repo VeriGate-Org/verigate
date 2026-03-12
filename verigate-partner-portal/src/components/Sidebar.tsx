@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Shield, Building2, Map, CreditCard, ShieldAlert, Search,
   ChevronRight, ChevronDown, Star, X, Settings, HelpCircle, FileText, GitBranch,
   Fingerprint, FileCheck, TrendingUp, DollarSign, Receipt, Briefcase,
-  GraduationCap, Newspaper, AlertTriangle, CheckSquare,
+  GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -31,6 +31,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { name: "Verification Log", path: "/verifications", icon: Search },
+      { name: "Cases", path: "/cases", icon: ClipboardList, badge: "NEW" },
     ],
   },
   {
@@ -83,6 +84,7 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     items: [
       { name: "Policy Builder", path: "/policies", icon: GitBranch, badge: "NEW" },
+      { name: "Monitoring", path: "/monitoring", icon: Eye, badge: "NEW" },
       { name: "Reports & Analytics", path: "/reports", icon: FileText, badge: "NEW" },
     ],
   },

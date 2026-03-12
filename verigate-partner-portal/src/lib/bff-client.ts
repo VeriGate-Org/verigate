@@ -164,53 +164,6 @@ export interface BffPolicyStep {
   parallel?: string[];
 }
 
-export interface BffPolicyResponse {
-  id: string;
-  partnerId: string;
-  name: string;
-  description: string | null;
-  version: number;
-  status: string;
-  steps: BffPolicyStep[] | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-}
-
-export interface BffPolicyListResponse {
-  items: BffPolicyResponse[];
-}
-
-export async function listPolicies(): Promise<BffPolicyListResponse> {
-  const { data } = await bffApi.get<BffPolicyListResponse>("/api/partner/policies");
-  return data;
-}
-
-export async function createPolicy(payload: {
-  name: string;
-  description?: string;
-  steps: BffPolicyStep[];
-}): Promise<BffPolicyResponse> {
-  const { data } = await bffApi.post<BffPolicyResponse>("/api/partner/policies", payload);
-  return data;
-}
-
-export async function updatePolicy(
-  policyId: string,
-  payload: { name: string; description?: string; steps: BffPolicyStep[] },
-): Promise<BffPolicyResponse> {
-  const { data } = await bffApi.put<BffPolicyResponse>(`/api/partner/policies/${policyId}`, payload);
-  return data;
-}
-
-export async function deletePolicy(policyId: string): Promise<void> {
-  await bffApi.delete(`/api/partner/policies/${policyId}`);
-}
-
-export async function publishPolicy(policyId: string): Promise<BffPolicyResponse> {
-  const { data } = await bffApi.post<BffPolicyResponse>(`/api/partner/policies/${policyId}/publish`);
-  return data;
-}
-
 // ── Report APIs ─────────────────────────────────────────────────────
 
 export interface BffReportResponse {
@@ -406,4 +359,312 @@ export async function pollVerificationStatus(
   }
 
   return getVerificationStatus(commandId);
+}
+
+// --- Risk Config ---
+
+export interface RiskTier {
+  name: string;
+  lowerBound: number;
+  upperBound: number;
+  decision: string;
+}
+
+export interface OverrideRule {
+  id: string;
+  name: string;
+  condition: {
+    checkType: string;
+    signalKey: string;
+    operator: string;
+    value: string;
+  };
+  forcedDecision: string;
+  priority: number;
+}
+
+export interface RiskConfig {
+  strategy: string;
+  weights: Record<string, number>;
+  tiers: RiskTier[];
+  overrideRules: OverrideRule[];
+}
+
+export async function getRiskConfig(): Promise<RiskConfig> {
+  const { data } = await bffApi.get<RiskConfig>("/risk-config");
+  return data;
+}
+
+export async function updateRiskConfig(config: RiskConfig): Promise<RiskConfig> {
+  const { data } = await bffApi.put<RiskConfig>("/risk-config", config);
+  return data;
+}
+
+export async function getDefaultRiskConfig(): Promise<RiskConfig> {
+  const { data } = await bffApi.get<RiskConfig>("/risk-config/default");
+  return data;
+}
+
+// --- Policies ---
+
+export interface Policy {
+  policyId?: string;
+  partnerId?: string;
+  name?: string;
+  description?: string;
+  status?: string;
+  version?: number;
+  steps?: Array<Record<string, unknown>>;
+  scoringConfig?: RiskConfig;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+}
+
+export async function getPolicy(policyId: string): Promise<Policy> {
+  const { data } = await bffApi.get<Policy>(`/policies/${policyId}`);
+  return data;
+}
+
+export async function listPolicies(): Promise<Policy[]> {
+  const { data } = await bffApi.get<Policy[]>("/policies");
+  return data;
+}
+
+export async function createPolicy(policy: Policy): Promise<Policy> {
+  const { data } = await bffApi.post<Policy>("/policies", policy);
+  return data;
+}
+
+export async function updatePolicy(policyId: string, policy: Policy): Promise<Policy> {
+  const { data } = await bffApi.put<Policy>(`/policies/${policyId}`, policy);
+  return data;
+}
+
+export async function publishPolicy(policyId: string): Promise<Policy> {
+  const { data } = await bffApi.post<Policy>(`/policies/${policyId}/publish`);
+  return data;
+}
+
+export async function deletePolicy(policyId: string): Promise<void> {
+  await bffApi.delete(`/policies/${policyId}`);
+}
+
+// --- Documents ---
+
+export interface PresignedUrlRequest {
+  fileName: string;
+  contentType: string;
+  documentType: string;
+}
+
+export interface PresignedUrlResponse {
+  uploadUrl: string;
+  s3BucketName: string;
+  s3ObjectKey: string;
+}
+
+export async function getDocumentPresignedUrl(
+  request: PresignedUrlRequest
+): Promise<PresignedUrlResponse> {
+  const { data } = await bffApi.post<PresignedUrlResponse>("/documents/presigned-url", request);
+  return data;
+}
+
+export async function uploadFileToS3(
+  uploadUrl: string,
+  file: File,
+  onProgress?: (percent: number) => void
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", uploadUrl);
+    xhr.setRequestHeader("Content-Type", file.type);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else {
+        reject(new Error(`Upload failed: ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => reject(new Error("Upload failed"));
+    xhr.send(file);
+  });
+}
+
+// --- Cases ---
+
+export type CaseStatus = "OPEN" | "IN_REVIEW" | "RESOLVED" | "ESCALATED";
+export type CasePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export interface CaseComment {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface CaseTimelineEntry {
+  event: string;
+  timestamp: string;
+  actor: string;
+}
+
+export interface Case {
+  caseId: string;
+  verificationId?: string;
+  workflowId?: string;
+  partnerId?: string;
+  status: CaseStatus;
+  assignee?: string;
+  priority: CasePriority;
+  decision?: string;
+  decisionReason?: string;
+  compositeRiskScore: number;
+  riskTier?: string;
+  subjectName?: string;
+  subjectId?: string;
+  comments: CaseComment[];
+  timeline: CaseTimelineEntry[];
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+}
+
+export async function listCases(params?: {
+  status?: string;
+  pageSize?: number;
+}): Promise<Case[]> {
+  const queryParams = new URLSearchParams();
+  if (params?.status) queryParams.set("status", params.status);
+  if (params?.pageSize) queryParams.set("pageSize", String(params.pageSize));
+  const query = queryParams.toString();
+  const { data } = await bffApi.get<Case[]>(`/cases${query ? `?${query}` : ""}`);
+  return data;
+}
+
+export async function getCase(caseId: string): Promise<Case> {
+  const { data } = await bffApi.get<Case>(`/cases/${caseId}`);
+  return data;
+}
+
+export async function updateCase(
+  caseId: string,
+  updates: Partial<Pick<Case, "status" | "assignee" | "priority" | "decision" | "decisionReason">>
+): Promise<Case> {
+  const { data } = await bffApi.patch<Case>(`/cases/${caseId}`, updates);
+  return data;
+}
+
+export async function addCaseComment(
+  caseId: string,
+  comment: { author: string; text: string }
+): Promise<Case> {
+  const { data } = await bffApi.post<Case>(`/cases/${caseId}/comments`, comment);
+  return data;
+}
+
+// --- Monitoring ---
+
+export type MonitoringFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "QUARTERLY";
+export type MonitoringStatus = "ACTIVE" | "PAUSED" | "REMOVED";
+export type AlertSeverity = "HIGH" | "MEDIUM" | "LOW";
+
+export interface MonitoredSubject {
+  subjectId: string;
+  partnerId?: string;
+  policyId?: string;
+  subjectType?: string;
+  subjectName?: string;
+  subjectIdentifier?: string;
+  metadata?: Record<string, unknown>;
+  monitoringFrequency: MonitoringFrequency;
+  status: MonitoringStatus;
+  lastCheckedAt?: string;
+  nextCheckAt?: string;
+  lastRiskScore?: number;
+  lastRiskDecision?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MonitoringAlert {
+  alertId: string;
+  subjectId: string;
+  partnerId?: string;
+  severity: AlertSeverity;
+  alertType: string;
+  title: string;
+  description?: string;
+  previousRiskScore?: number;
+  currentRiskScore?: number;
+  previousDecision?: string;
+  currentDecision?: string;
+  acknowledged: boolean;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  createdAt: string;
+}
+
+export async function listMonitoredSubjects(params?: {
+  status?: string;
+  pageSize?: number;
+}): Promise<MonitoredSubject[]> {
+  const queryParams = new URLSearchParams();
+  if (params?.status) queryParams.set("status", params.status);
+  if (params?.pageSize) queryParams.set("pageSize", String(params.pageSize));
+  const query = queryParams.toString();
+  const { data } = await bffApi.get<MonitoredSubject[]>(`/monitoring/subjects${query ? `?${query}` : ""}`);
+  return data;
+}
+
+export async function createMonitoredSubject(
+  subject: Partial<MonitoredSubject>
+): Promise<MonitoredSubject> {
+  const { data } = await bffApi.post<MonitoredSubject>("/monitoring/subjects", subject);
+  return data;
+}
+
+export async function getMonitoredSubject(subjectId: string): Promise<MonitoredSubject> {
+  const { data } = await bffApi.get<MonitoredSubject>(`/monitoring/subjects/${subjectId}`);
+  return data;
+}
+
+export async function updateMonitoredSubject(
+  subjectId: string,
+  updates: Partial<Pick<MonitoredSubject, "status" | "monitoringFrequency">>
+): Promise<MonitoredSubject> {
+  const { data } = await bffApi.patch<MonitoredSubject>(`/monitoring/subjects/${subjectId}`, updates);
+  return data;
+}
+
+export async function deleteMonitoredSubject(subjectId: string): Promise<void> {
+  await bffApi.delete(`/monitoring/subjects/${subjectId}`);
+}
+
+export async function listMonitoringAlerts(params?: {
+  subjectId?: string;
+  severity?: string;
+  pageSize?: number;
+}): Promise<MonitoringAlert[]> {
+  const queryParams = new URLSearchParams();
+  if (params?.subjectId) queryParams.set("subjectId", params.subjectId);
+  if (params?.severity) queryParams.set("severity", params.severity);
+  if (params?.pageSize) queryParams.set("pageSize", String(params.pageSize));
+  const query = queryParams.toString();
+  const { data } = await bffApi.get<MonitoringAlert[]>(`/monitoring/alerts${query ? `?${query}` : ""}`);
+  return data;
+}
+
+export async function acknowledgeAlert(alertId: string): Promise<MonitoringAlert> {
+  const { data } = await bffApi.post<MonitoringAlert>(`/monitoring/alerts/${alertId}/acknowledge`);
+  return data;
 }

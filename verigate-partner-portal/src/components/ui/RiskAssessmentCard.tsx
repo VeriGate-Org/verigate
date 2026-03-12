@@ -1,6 +1,6 @@
 "use client";
 
-import type { CheckScore } from "@/lib/bff-client";
+import type { CheckScore } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 
 interface RiskAssessmentCardProps {
