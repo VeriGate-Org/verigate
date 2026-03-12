@@ -1,0 +1,16 @@
+verigate:
+  aws:
+    region: eu-west-1
+    dynamodb-endpoint: http://localhost:4566
+    sqs-endpoint: http://localhost:4566
+    s3-endpoint: http://localhost:4566
+  auth:
+    cognito:
+      enabled: false
+    rate-limit:
+      enabled: false
+
+logging:
+  level:
+    verigate.webbff: DEBUG
+    org.springframework.security: DEBUG
