@@ -1,13 +1,19 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { AnimatedResult } from "@/components/verification/AnimatedResult";
 import { RetryButton } from "@/components/verification/RetryButton";
+import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
+import { ServiceField } from "@/components/services/shared/ServiceField";
+import { useToast } from "@/components/ui/Toast";
 import { executeVerification } from "@/lib/services/verification-service";
+import { validateSaId } from "@/lib/utils/sa-id-validation";
+import { exportPdf } from "@/lib/utils/export-pdf";
 import { type FullVerificationResponse } from "@/lib/mock-services";
 import { CheckSquare, FileDown } from "lucide-react";
 
@@ -27,12 +33,26 @@ export default function FullVerification() {
   const [selectedSubTypes, setSelectedSubTypes] = useState<string[]>([]);
   const [result, setResult] = useState<FullVerificationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const resultCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleExport = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleExport = useCallback(async () => {
+    if (resultCardRef.current) {
+      await exportPdf(resultCardRef.current, "verigate-full-verification.pdf");
+    }
+  }, []);
+
+  const handleIdChange = useCallback((value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 13);
+    setIdNumber(digits);
+    if (digits.length === 13) {
+      const validation = validateSaId(digits);
+      setIdError(validation.valid ? null : validation.errors[0]);
+    } else {
+      setIdError(null);
     }
   }, []);
 
@@ -54,26 +74,44 @@ export default function FullVerification() {
         subTypes: selectedSubTypes,
       })) as FullVerificationResponse;
       setResult(data);
+      toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [idNumber, firstName, lastName, selectedSubTypes]);
+  }, [idNumber, firstName, lastName, selectedSubTypes, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const validation = validateSaId(idNumber);
+    if (!validation.valid) {
+      setIdError(validation.errors[0]);
+      return;
+    }
+
     await doVerification();
   };
 
   const submitDisabled =
-    loading || idNumber.length !== 13 || !firstName.trim() || !lastName.trim() || selectedSubTypes.length === 0;
+    loading || idNumber.length !== 13 || idError !== null || !firstName.trim() || !lastName.trim() || selectedSubTypes.length === 0;
+
+  const srMessage = loading
+    ? "Loading verification results"
+    : error
+      ? "Verification failed"
+      : result
+        ? "Verification complete"
+        : "";
 
   return (
     <div className="space-y-6">
+      <ScreenReaderAnnounce message={srMessage} />
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">Full verification</h1>
         <p className="text-sm text-text-muted">
@@ -93,23 +131,22 @@ export default function FullVerification() {
           </div>
 
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
-            <Field label="ID number" description="13-digit South African ID number.">
+            <ServiceField label="ID number" description="13-digit South African ID number." error={idError}>
               <input
                 required
                 id="idNumber"
                 name="idNumber"
                 value={idNumber}
-                onChange={(event) => {
-                  const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
-                  setIdNumber(digits);
-                }}
-                className="aws-input w-full"
+                onChange={(event) => handleIdChange(event.target.value)}
+                className={`aws-input w-full ${idError ? "border-danger" : ""}`}
                 inputMode="numeric"
                 maxLength={13}
+                aria-invalid={!!idError}
+                aria-describedby={idError ? "idNumber-error" : undefined}
               />
-            </Field>
+            </ServiceField>
 
-            <Field label="First name">
+            <ServiceField label="First name">
               <input
                 required
                 id="firstName"
@@ -119,9 +156,9 @@ export default function FullVerification() {
                 className="aws-input w-full"
                 autoComplete="given-name"
               />
-            </Field>
+            </ServiceField>
 
-            <Field label="Last name">
+            <ServiceField label="Last name">
               <input
                 required
                 id="lastName"
@@ -131,7 +168,7 @@ export default function FullVerification() {
                 className="aws-input w-full"
                 autoComplete="family-name"
               />
-            </Field>
+            </ServiceField>
 
             <div className="space-y-1">
               <span className="block text-sm font-medium text-text">Verification types</span>
@@ -169,7 +206,7 @@ export default function FullVerification() {
             </div>
 
             {error && (
-              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+              <div role="alert" className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
                 {error}
               </div>
             )}
@@ -177,141 +214,109 @@ export default function FullVerification() {
         </div>
 
         <div ref={resultRef} tabIndex={-1} className="outline-none">
-          {loading ? (
-            <div className="console-card">
-              <div className="console-card-header">
-                <div>
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-3 w-48" />
+          <AnimatedResult>
+            {loading ? (
+              <div className="console-card">
+                <div className="console-card-header">
+                  <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-9 w-28 rounded-full" />
                 </div>
-                <Skeleton className="h-9 w-28 rounded-full" />
-              </div>
-              <div className="console-card-body space-y-6 p-4">
-                <Skeleton className="h-12 w-32 mx-auto rounded" />
-                <div className="border border-border rounded overflow-hidden">
-                  <div className="divide-y divide-border">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="flex items-center px-4 py-2.5">
-                        <Skeleton className="h-4 w-24 bg-background/50" />
-                        <Skeleton className="h-4 w-16 ml-auto" />
-                        <Skeleton className="h-4 w-20 ml-4" />
-                        <Skeleton className="h-4 w-12 ml-4" />
-                      </div>
-                    ))}
+                <div className="console-card-body space-y-6 p-4">
+                  <Skeleton className="h-12 w-32 mx-auto rounded" />
+                  <div className="border border-border rounded overflow-hidden">
+                    <div className="divide-y divide-border">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="flex items-center px-4 py-2.5">
+                          <Skeleton className="h-4 w-24 bg-background/50" />
+                          <Skeleton className="h-4 w-16 ml-auto" />
+                          <Skeleton className="h-4 w-20 ml-4" />
+                          <Skeleton className="h-4 w-12 ml-4" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : error && !result ? (
-            <div className="console-card">
-              <div className="console-card-body flex items-center justify-between">
-                <span className="text-sm text-danger">{error}</span>
-                <RetryButton onRetry={doVerification} />
-              </div>
-            </div>
-          ) : result ? (
-            <div className="console-card" role="region" aria-label="Full verification results">
-              <div className="console-card-header">
-                <div>
-                  <div className="text-sm font-semibold text-text">Verification results</div>
-                  <div className="text-xs text-text-muted">Reference {result.reference}</div>
+            ) : error && !result ? (
+              <div className="console-card">
+                <div className="console-card-body flex items-center justify-between">
+                  <span className="text-sm text-danger">{error}</span>
+                  <RetryButton onRetry={doVerification} />
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleExport}
-                  icon={<FileDown className="h-4 w-4" />}
-                >
-                  Export PDF
-                </Button>
               </div>
-              <div className="console-card-body space-y-6 p-4">
-                {/* Overall Status Badge */}
-                <div className="flex justify-center">
-                  <span
-                    className={`inline-flex items-center px-6 py-2 rounded text-lg font-bold ${
-                      result.overallStatus === "PASSED"
-                        ? "bg-success/10 text-success"
-                        : "bg-danger/10 text-danger"
-                    }`}
+            ) : result ? (
+              <div ref={resultCardRef} className="console-card" role="region" aria-label="Full verification results">
+                <div className="console-card-header">
+                  <div>
+                    <div className="text-sm font-semibold text-text">Verification results</div>
+                    <div className="text-xs text-text-muted">Reference {result.reference}</div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleExport}
+                    icon={<FileDown className="h-4 w-4" />}
                   >
-                    {result.overallStatus}
-                  </span>
+                    Export PDF
+                  </Button>
                 </div>
+                <div className="console-card-body space-y-6 p-4">
+                  <div className="flex justify-center">
+                    <span
+                      className={`inline-flex items-center px-6 py-2 rounded text-lg font-bold ${
+                        result.overallStatus === "PASSED"
+                          ? "bg-success/10 text-success"
+                          : "bg-danger/10 text-danger"
+                      }`}
+                    >
+                      {result.overallStatus}
+                    </span>
+                  </div>
 
-                {/* Results Table */}
-                <div className="border border-border rounded overflow-hidden">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-background/50 border-b border-border">
-                        <th
-                          scope="col"
-                          className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                        >
-                          Type
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                        >
-                          Status
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                        >
-                          Provider
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-4 py-2.5 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
-                        >
-                          Duration
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {result.results.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-background/50">
-                          <td className="px-4 py-2.5 text-sm font-medium text-text">
-                            {item.type}
-                          </td>
-                          <td className="px-4 py-2.5 text-sm">
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                item.status === "PASSED"
-                                  ? "bg-success/10 text-success"
-                                  : "bg-danger/10 text-danger"
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </td>
-                          <td className="px-4 py-2.5 text-sm text-text-muted">
-                            {item.provider}
-                          </td>
-                          <td className="px-4 py-2.5 text-sm text-text-muted text-right">
-                            {item.durationMs}ms
-                          </td>
+                  <div className="border border-border rounded overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-background/50 border-b border-border">
+                          <th scope="col" className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Type</th>
+                          <th scope="col" className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
+                          <th scope="col" className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Provider</th>
+                          <th scope="col" className="px-4 py-2.5 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Duration</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {result.results.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-background/50">
+                            <td className="px-4 py-2.5 text-sm font-medium text-text">{item.type}</td>
+                            <td className="px-4 py-2.5 text-sm">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${item.status === "PASSED" ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
+                                {item.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-sm text-text-muted">{item.provider}</td>
+                            <td className="px-4 py-2.5 text-sm text-text-muted text-right">{item.durationMs}ms</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
-                  <span className="font-medium">Provider:</span>
-                  <span>{result.provider}</span>
+                  <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
+                    <span className="font-medium">Provider:</span>
+                    <span>{result.provider}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <VerificationEmptyState
-              icon={CheckSquare}
-              heading="No results yet"
-              description="Enter details, select verification types, and click Run verification to see results."
-            />
-          )}
+            ) : (
+              <VerificationEmptyState
+                icon={CheckSquare}
+                heading="No results yet"
+                description="Enter details, select verification types, and click Run verification to see results."
+              />
+            )}
+          </AnimatedResult>
         </div>
       </div>
 
@@ -321,21 +326,5 @@ export default function FullVerification() {
         message="Executing all selected verification checks in parallel."
       />
     </div>
-  );
-}
-
-interface FieldProps {
-  label: string;
-  description?: string;
-  children: ReactNode;
-}
-
-function Field({ label, description, children }: FieldProps) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium text-text">{label}</span>
-      {description && <span className="block text-xs text-text-muted">{description}</span>}
-      {children}
-    </label>
   );
 }

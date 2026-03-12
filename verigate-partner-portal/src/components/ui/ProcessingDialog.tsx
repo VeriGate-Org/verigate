@@ -12,7 +12,7 @@ export function ProcessingDialog({ open, title = "Processing", message = "Please
   if (!open) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-6 right-6 z-[200] flex min-w-[220px] justify-end">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed bottom-6 right-6 z-[200] flex min-w-[220px] justify-end">
       <div className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-border bg-[color:var(--color-base-100)] p-4 text-sm shadow-xl">
         <Loader2 className="mt-0.5 h-5 w-5 animate-spin text-[color:var(--color-accent-strong)]" />
         <div>

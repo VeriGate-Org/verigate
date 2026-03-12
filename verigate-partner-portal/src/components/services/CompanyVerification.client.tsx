@@ -1,15 +1,20 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { AnimatedResult } from "@/components/verification/AnimatedResult";
 import { RetryButton } from "@/components/verification/RetryButton";
+import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
+import { ServiceField } from "@/components/services/shared/ServiceField";
+import { useToast } from "@/components/ui/Toast";
 import { type CompanyResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import { exportPdf } from "@/lib/utils/export-pdf";
 import { Building2 } from "lucide-react";
 
 export default function CompanyVerification() {
@@ -19,10 +24,12 @@ export default function CompanyVerification() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const resultCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleExport = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleExport = useCallback(async () => {
+    if (resultCardRef.current) {
+      await exportPdf(resultCardRef.current, "verigate-company-verification.pdf");
     }
   }, []);
 
@@ -42,15 +49,17 @@ export default function CompanyVerification() {
         name,
       })) as CompanyResponse;
       setResult(data);
+      toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [regNumber, name, canSubmit]);
+  }, [regNumber, name, canSubmit, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,8 +68,17 @@ export default function CompanyVerification() {
 
   const submitDisabled = loading || !canSubmit;
 
+  const srMessage = loading
+    ? "Loading verification results"
+    : error
+      ? "Verification failed"
+      : result
+        ? "Verification complete"
+        : "";
+
   return (
     <div className="space-y-6">
+      <ScreenReaderAnnounce message={srMessage} />
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">CIPC company & director search</h1>
         <p className="text-sm text-text-muted">
@@ -80,7 +98,7 @@ export default function CompanyVerification() {
           </div>
 
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
-            <Field
+            <ServiceField
               label="Registration number"
               description="Format: YYYY/######_##. Optional if company name provided."
             >
@@ -92,9 +110,9 @@ export default function CompanyVerification() {
                 className="aws-input w-full"
                 placeholder="2014/123456/07"
               />
-            </Field>
+            </ServiceField>
 
-            <Field
+            <ServiceField
               label="Company name"
               description="Minimum three characters if registration number omitted."
             >
@@ -106,7 +124,7 @@ export default function CompanyVerification() {
                 className="aws-input w-full"
                 placeholder="Acme Holdings"
               />
-            </Field>
+            </ServiceField>
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
@@ -124,7 +142,7 @@ export default function CompanyVerification() {
             </div>
 
             {error && (
-              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+              <div role="alert" className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
                 {error}
               </div>
             )}
@@ -132,116 +150,118 @@ export default function CompanyVerification() {
         </div>
 
         <div ref={resultRef} tabIndex={-1} className="outline-none">
-          {loading ? (
-            <div className="console-card">
-              <div className="console-card-header">
-                <div>
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-3 w-48" />
+          <AnimatedResult>
+            {loading ? (
+              <div className="console-card">
+                <div className="console-card-header">
+                  <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-9 w-28 rounded-full" />
                 </div>
-                <Skeleton className="h-9 w-28 rounded-full" />
-              </div>
-              <div className="console-card-body space-y-6 p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="border border-border rounded p-3">
-                      <Skeleton className="h-3 w-20 mb-2" />
-                      <Skeleton className="h-4 w-28" />
-                    </div>
-                  ))}
+                <div className="console-card-body space-y-6 p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="border border-border rounded p-3">
+                        <Skeleton className="h-3 w-20 mb-2" />
+                        <Skeleton className="h-4 w-28" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : error && !result ? (
-            <div className="console-card">
-              <div className="console-card-body flex items-center justify-between">
-                <span className="text-sm text-danger">{error}</span>
-                <RetryButton onRetry={doVerification} />
+            ) : error && !result ? (
+              <div className="console-card">
+                <div className="console-card-body flex items-center justify-between">
+                  <span className="text-sm text-danger">{error}</span>
+                  <RetryButton onRetry={doVerification} />
+                </div>
               </div>
-            </div>
-          ) : result ? (
-            <VerificationResultCard
-              title="Entity summary"
-              reference={result.reference}
-              status="verified"
-              onExport={handleExport}
-              fields={[
-                { label: "Company", value: result.entity.name },
-                { label: "Registration", value: result.entity.regNumber },
-                { label: "Status", value: result.entity.status },
-                { label: "Incorporated", value: formatDate(result.entity.incorporationDate) },
-                {
-                  label: "Last annual return",
-                  value: formatDate(result.entity.lastAnnualReturn),
-                },
-                { label: "Registered address", value: result.entity.registeredAddress },
-              ]}
-              matchFields={[
-                {
-                  label: result.complianceFlags.annualReturnOverdue
-                    ? "Annual return overdue"
-                    : "Annual return current",
-                  matched: !result.complianceFlags.annualReturnOverdue,
-                },
-                {
-                  label: result.complianceFlags.deregistrationPending
-                    ? "Deregistration pending"
-                    : "No deregistration pending",
-                  matched: !result.complianceFlags.deregistrationPending,
-                },
-                {
-                  label: result.complianceFlags.addressMismatch
-                    ? "Address mismatch"
-                    : "Address verified",
-                  matched: !result.complianceFlags.addressMismatch,
-                },
-              ]}
-            >
-              {/* Directors Table */}
-              <div className="mt-4 border-t border-border pt-3">
-                <h4 className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">
-                  Directors ({result.directors.length})
-                </h4>
-                <div className="overflow-x-auto border border-border rounded">
-                  <table className="min-w-full text-left text-sm">
-                    <thead className="bg-background text-xs uppercase tracking-wide text-text-muted">
-                      <tr>
-                        <th scope="col" className="px-3 py-2">Name</th>
-                        <th scope="col" className="px-3 py-2">ID number</th>
-                        <th scope="col" className="px-3 py-2">Appointed</th>
-                        <th scope="col" className="px-3 py-2">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.directors.map((director) => (
-                        <tr
-                          key={director.idNumber}
-                          className="border-b border-border last:border-0"
-                        >
-                          <td className="px-3 py-2 font-medium text-text">
-                            {director.name}
-                          </td>
-                          <td className="px-3 py-2 text-text-muted">
-                            {director.idNumber}
-                          </td>
-                          <td className="px-3 py-2 text-text-muted">
-                            {formatDate(director.appointed)}
-                          </td>
-                          <td className="px-3 py-2 text-text">{director.status}</td>
+            ) : result ? (
+              <VerificationResultCard
+                ref={resultCardRef}
+                title="Entity summary"
+                reference={result.reference}
+                status="verified"
+                onExport={handleExport}
+                fields={[
+                  { label: "Company", value: result.entity.name },
+                  { label: "Registration", value: result.entity.regNumber },
+                  { label: "Status", value: result.entity.status },
+                  { label: "Incorporated", value: formatDate(result.entity.incorporationDate) },
+                  {
+                    label: "Last annual return",
+                    value: formatDate(result.entity.lastAnnualReturn),
+                  },
+                  { label: "Registered address", value: result.entity.registeredAddress },
+                ]}
+                matchFields={[
+                  {
+                    label: result.complianceFlags.annualReturnOverdue
+                      ? "Annual return overdue"
+                      : "Annual return current",
+                    matched: !result.complianceFlags.annualReturnOverdue,
+                  },
+                  {
+                    label: result.complianceFlags.deregistrationPending
+                      ? "Deregistration pending"
+                      : "No deregistration pending",
+                    matched: !result.complianceFlags.deregistrationPending,
+                  },
+                  {
+                    label: result.complianceFlags.addressMismatch
+                      ? "Address mismatch"
+                      : "Address verified",
+                    matched: !result.complianceFlags.addressMismatch,
+                  },
+                ]}
+              >
+                <div className="mt-4 border-t border-border pt-3">
+                  <h4 className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">
+                    Directors ({result.directors.length})
+                  </h4>
+                  <div className="overflow-x-auto border border-border rounded">
+                    <table className="min-w-full text-left text-sm">
+                      <thead className="bg-background text-xs uppercase tracking-wide text-text-muted">
+                        <tr>
+                          <th scope="col" className="px-3 py-2">Name</th>
+                          <th scope="col" className="px-3 py-2">ID number</th>
+                          <th scope="col" className="px-3 py-2">Appointed</th>
+                          <th scope="col" className="px-3 py-2">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {result.directors.map((director) => (
+                          <tr
+                            key={director.idNumber}
+                            className="border-b border-border last:border-0"
+                          >
+                            <td className="px-3 py-2 font-medium text-text">
+                              {director.name}
+                            </td>
+                            <td className="px-3 py-2 text-text-muted">
+                              {director.idNumber}
+                            </td>
+                            <td className="px-3 py-2 text-text-muted">
+                              {formatDate(director.appointed)}
+                            </td>
+                            <td className="px-3 py-2 text-text">{director.status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            </VerificationResultCard>
-          ) : (
-            <VerificationEmptyState
-              icon={Building2}
-              heading="No results yet"
-              description="Enter a registration number or company name and click Search to see results."
-            />
-          )}
+              </VerificationResultCard>
+            ) : (
+              <VerificationEmptyState
+                icon={Building2}
+                heading="No results yet"
+                description="Enter a registration number or company name and click Search to see results."
+              />
+            )}
+          </AnimatedResult>
         </div>
       </div>
 
@@ -258,20 +278,4 @@ function formatDate(iso: string) {
   if (!iso) return "—";
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
-}
-
-interface FieldProps {
-  label: string;
-  description?: string;
-  children: ReactNode;
-}
-
-function Field({ label, description, children }: FieldProps) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium text-text">{label}</span>
-      {description && <span className="block text-xs text-text-muted">{description}</span>}
-      {children}
-    </label>
-  );
 }

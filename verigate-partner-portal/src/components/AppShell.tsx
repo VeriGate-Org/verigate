@@ -22,10 +22,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
           children
         ) : (
           <>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[999] focus:rounded focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
+            >
+              Skip to content
+            </a>
             <TopNav />
             <div className="flex pt-14">
               <Sidebar />
-              <main className="flex-1 md:ml-60 p-6 bg-background min-h-screen">
+              <main id="main-content" className="flex-1 md:ml-60 p-6 bg-background min-h-screen">
                 {children}
               </main>
             </div>

@@ -45,10 +45,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const hasChildren = React.Children.count(children) > 0;
     
     return (
-      <button 
-        ref={ref} 
-        className={cn(buttonStyles({ variant, size }), className)} 
+      <button
+        ref={ref}
+        className={cn(buttonStyles({ variant, size }), className)}
         disabled={disabled || loading}
+        aria-busy={loading || undefined}
         {...props}
       >
         {loading && (

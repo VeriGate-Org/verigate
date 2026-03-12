@@ -1,3 +1,4 @@
+import React from "react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { FileDown } from "lucide-react";
@@ -20,16 +21,22 @@ export interface VerificationResultCardProps {
   children?: ReactNode;
 }
 
-export function VerificationResultCard({
-  title,
-  reference,
-  status,
-  confidenceScore,
-  fields,
-  matchFields,
-  onExport,
-  children,
-}: VerificationResultCardProps) {
+export const VerificationResultCard = React.forwardRef<
+  HTMLDivElement,
+  VerificationResultCardProps
+>(function VerificationResultCard(
+  {
+    title,
+    reference,
+    status,
+    confidenceScore,
+    fields,
+    matchFields,
+    onExport,
+    children,
+  },
+  ref,
+) {
   const statusBadge = {
     verified: { text: "Verified", className: "bg-success/10 text-success" },
     not_verified: { text: "Not verified", className: "bg-danger/10 text-danger" },
@@ -37,7 +44,7 @@ export function VerificationResultCard({
   }[status];
 
   return (
-    <div className="console-card" role="region" aria-label={title}>
+    <div ref={ref} className="console-card" role="region" aria-label={title}>
       <div className="console-card-header">
         <div>
           <div className="flex items-center gap-2">
@@ -99,4 +106,4 @@ export function VerificationResultCard({
       </div>
     </div>
   );
-}
+});

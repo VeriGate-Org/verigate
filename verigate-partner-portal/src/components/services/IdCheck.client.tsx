@@ -1,15 +1,20 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { AnimatedResult } from "@/components/verification/AnimatedResult";
 import { RetryButton } from "@/components/verification/RetryButton";
+import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
+import { ServiceField } from "@/components/services/shared/ServiceField";
+import { useToast } from "@/components/ui/Toast";
 import { type PersonalDetailsResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
 import { validateSaId } from "@/lib/utils/sa-id-validation";
+import { exportPdf } from "@/lib/utils/export-pdf";
 import { Shield } from "lucide-react";
 
 const REASONS = [
@@ -29,10 +34,12 @@ export default function IdCheck() {
   const [idError, setIdError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const resultCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleExport = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleExport = useCallback(async () => {
+    if (resultCardRef.current) {
+      await exportPdf(resultCardRef.current, "verigate-id-check.pdf");
     }
   }, []);
 
@@ -62,11 +69,13 @@ export default function IdCheck() {
     try {
       const data = await executeVerification("VERIFICATION_OF_PERSONAL_DETAILS", { firstName, surname, idNumber, reason }) as PersonalDetailsResponse;
       setResult(data);
+      toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -78,20 +87,31 @@ export default function IdCheck() {
     try {
       const data = await executeVerification("VERIFICATION_OF_PERSONAL_DETAILS", { firstName, surname, idNumber, reason }) as PersonalDetailsResponse;
       setResult(data);
+      toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [firstName, surname, idNumber, reason]);
+  }, [firstName, surname, idNumber, reason, toast]);
 
   const submitDisabled = loading || idNumber.length !== 13 || idError !== null;
 
+  const srMessage = loading
+    ? "Loading verification results"
+    : error
+      ? "Verification failed"
+      : result
+        ? "Verification complete"
+        : "";
+
   return (
     <div className="space-y-6">
+      <ScreenReaderAnnounce message={srMessage} />
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">Home Affairs ID verification</h1>
         <p className="text-sm text-text-muted">
@@ -109,7 +129,7 @@ export default function IdCheck() {
           </div>
 
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
-            <Field
+            <ServiceField
               label="ID number"
               description="13-digit South African ID. We validate format and checksum before calling the provider."
               error={idError}
@@ -126,9 +146,9 @@ export default function IdCheck() {
                 aria-invalid={!!idError}
                 aria-describedby={idError ? "idNumber-error" : undefined}
               />
-            </Field>
+            </ServiceField>
 
-            <Field label="Given name (optional)">
+            <ServiceField label="Given name (optional)">
               <input
                 id="firstName"
                 name="firstName"
@@ -137,9 +157,9 @@ export default function IdCheck() {
                 className="aws-input w-full"
                 autoComplete="given-name"
               />
-            </Field>
+            </ServiceField>
 
-            <Field label="Surname (optional)">
+            <ServiceField label="Surname (optional)">
               <input
                 id="surname"
                 name="surname"
@@ -148,9 +168,9 @@ export default function IdCheck() {
                 className="aws-input w-full"
                 autoComplete="family-name"
               />
-            </Field>
+            </ServiceField>
 
-            <Field label="Reason for enquiry" description="Stored for audit reporting only.">
+            <ServiceField label="Reason for enquiry" description="Stored for audit reporting only.">
               <select
                 id="reason"
                 name="reason"
@@ -165,15 +185,15 @@ export default function IdCheck() {
                   </option>
                 ))}
               </select>
-            </Field>
+            </ServiceField>
 
             <div className="flex items-start justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
                 By submitting you confirm consent to access this individual&apos;s identity record.
               </p>
-              <Button 
-                type="submit" 
-                variant="cta" 
+              <Button
+                type="submit"
+                variant="cta"
                 size="md"
                 disabled={submitDisabled}
                 loading={loading}
@@ -183,58 +203,61 @@ export default function IdCheck() {
             </div>
 
             {error && (
-              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">{error}</div>
+              <div role="alert" className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">{error}</div>
             )}
           </form>
         </div>
 
         <div ref={resultRef} tabIndex={-1} className="outline-none">
-          {error && !result ? (
-            <div className="console-card">
-              <div className="console-card-body flex items-center justify-between">
-                <span className="text-sm text-danger">{error}</span>
-                <RetryButton onRetry={handleRetry} />
+          <AnimatedResult>
+            {error && !result ? (
+              <div className="console-card">
+                <div className="console-card-body flex items-center justify-between">
+                  <span className="text-sm text-danger">{error}</span>
+                  <RetryButton onRetry={handleRetry} />
+                </div>
               </div>
-            </div>
-          ) : result ? (
-            <VerificationResultCard
-              title="Verification summary"
-              reference={result.reference}
-              status={result.validation.verified ? "verified" : "not_verified"}
-              confidenceScore={result.validation.nameMatchConfidence}
-              onExport={handleExport}
-              fields={[
-                { label: "Provider", value: result.provider },
-                {
-                  label: "Date of birth",
-                  value: result.derived.birthDate ? new Date(result.derived.birthDate).toLocaleDateString() : "—",
-                },
-                {
-                  label: "Gender",
-                  value: formatGender(result.derived.gender),
-                },
-                {
-                  label: "Citizenship",
-                  value: formatCitizenship(result.derived.citizenship),
-                },
-                {
-                  label: "Age",
-                  value: result.derived.age == null ? "—" : `${result.derived.age}`,
-                },
-                {
-                  label: "Flags",
-                  value: formatFlags(result.flags),
-                },
-                ...(result.metadata?.reason ? [{ label: "Reason", value: result.metadata.reason }] : []),
-              ]}
-            />
-          ) : !loading ? (
-            <VerificationEmptyState
-              icon={Shield}
-              heading="No verification results"
-              description="Enter an ID number and submit to verify against the Department of Home Affairs."
-            />
-          ) : null}
+            ) : result ? (
+              <VerificationResultCard
+                ref={resultCardRef}
+                title="Verification summary"
+                reference={result.reference}
+                status={result.validation.verified ? "verified" : "not_verified"}
+                confidenceScore={result.validation.nameMatchConfidence}
+                onExport={handleExport}
+                fields={[
+                  { label: "Provider", value: result.provider },
+                  {
+                    label: "Date of birth",
+                    value: result.derived.birthDate ? new Date(result.derived.birthDate).toLocaleDateString() : "—",
+                  },
+                  {
+                    label: "Gender",
+                    value: formatGender(result.derived.gender),
+                  },
+                  {
+                    label: "Citizenship",
+                    value: formatCitizenship(result.derived.citizenship),
+                  },
+                  {
+                    label: "Age",
+                    value: result.derived.age == null ? "—" : `${result.derived.age}`,
+                  },
+                  {
+                    label: "Flags",
+                    value: formatFlags(result.flags),
+                  },
+                  ...(result.metadata?.reason ? [{ label: "Reason", value: result.metadata.reason }] : []),
+                ]}
+              />
+            ) : !loading ? (
+              <VerificationEmptyState
+                icon={Shield}
+                heading="No verification results"
+                description="Enter an ID number and submit to verify against the Department of Home Affairs."
+              />
+            ) : null}
+          </AnimatedResult>
         </div>
       </div>
       <ProcessingDialog open={loading} title="Verifying ID" message="Fetching Home Affairs sandbox data..." />
@@ -259,24 +282,4 @@ function formatCitizenship(value: PersonalDetailsResponse["derived"]["citizenshi
   if (value === "SA") return "SA citizen";
   if (value === "Non-SA") return "Non-SA";
   return value;
-}
-
-interface FieldProps {
-  label: string;
-  description?: string;
-  error?: string | null;
-  children: ReactNode;
-}
-
-function Field({ label, description, error, children }: FieldProps) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium text-text">{label}</span>
-      {description && <span className="block text-xs text-text-muted">{description}</span>}
-      {children}
-      {error && (
-        <span className="block text-xs text-danger mt-1" role="alert">{error}</span>
-      )}
-    </label>
-  );
 }

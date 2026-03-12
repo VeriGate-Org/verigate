@@ -1,15 +1,20 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { AnimatedResult } from "@/components/verification/AnimatedResult";
 import { RetryButton } from "@/components/verification/RetryButton";
+import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
+import { ServiceField } from "@/components/services/shared/ServiceField";
+import { useToast } from "@/components/ui/Toast";
 import { type SanctionsResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import { exportPdf } from "@/lib/utils/export-pdf";
 import { ShieldAlert } from "lucide-react";
 
 export default function SanctionsCheck() {
@@ -18,10 +23,12 @@ export default function SanctionsCheck() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const resultCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleExport = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleExport = useCallback(async () => {
+    if (resultCardRef.current) {
+      await exportPdf(resultCardRef.current, "verigate-sanctions-check.pdf");
     }
   }, []);
 
@@ -34,15 +41,17 @@ export default function SanctionsCheck() {
         name,
       })) as SanctionsResponse;
       setResult(data);
+      toast({ title: "Screening complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Screening failed";
       setError(message);
       setResult(null);
+      toast({ title: "Screening failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [name]);
+  }, [name, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,8 +64,17 @@ export default function SanctionsCheck() {
     ? !result.result.pep && result.result.sanctionsHitCount === 0
     : false;
 
+  const srMessage = loading
+    ? "Loading screening results"
+    : error
+      ? "Screening failed"
+      : result
+        ? "Screening complete"
+        : "";
+
   return (
     <div className="space-y-6">
+      <ScreenReaderAnnounce message={srMessage} />
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">Sanctions & PEP screening</h1>
         <p className="text-sm text-text-muted">
@@ -75,7 +93,7 @@ export default function SanctionsCheck() {
           </div>
 
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
-            <Field label="Full name" description="We recommend including middle names where possible.">
+            <ServiceField label="Full name" description="We recommend including middle names where possible.">
               <input
                 required
                 id="name"
@@ -85,7 +103,7 @@ export default function SanctionsCheck() {
                 className="aws-input w-full"
                 placeholder="e.g. John Michael Doe"
               />
-            </Field>
+            </ServiceField>
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
@@ -103,7 +121,7 @@ export default function SanctionsCheck() {
             </div>
 
             {error && (
-              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+              <div role="alert" className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
                 {error}
               </div>
             )}
@@ -111,66 +129,69 @@ export default function SanctionsCheck() {
         </div>
 
         <div ref={resultRef} tabIndex={-1} className="outline-none">
-          {loading ? (
-            <div className="console-card">
-              <div className="console-card-header">
-                <div>
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-3 w-48" />
+          <AnimatedResult>
+            {loading ? (
+              <div className="console-card">
+                <div className="console-card-header">
+                  <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-9 w-28 rounded-full" />
                 </div>
-                <Skeleton className="h-9 w-28 rounded-full" />
-              </div>
-              <div className="console-card-body space-y-6 p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {[...Array(2)].map((_, i) => (
-                    <div key={i} className="border border-border rounded p-4">
-                      <Skeleton className="h-3 w-20 mb-2" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                  ))}
+                <div className="console-card-body space-y-6 p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="border border-border rounded p-4">
+                        <Skeleton className="h-3 w-20 mb-2" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : error && !result ? (
-            <div className="console-card">
-              <div className="console-card-body flex items-center justify-between">
-                <span className="text-sm text-danger">{error}</span>
-                <RetryButton onRetry={doVerification} />
+            ) : error && !result ? (
+              <div className="console-card">
+                <div className="console-card-body flex items-center justify-between">
+                  <span className="text-sm text-danger">{error}</span>
+                  <RetryButton onRetry={doVerification} />
+                </div>
               </div>
-            </div>
-          ) : result ? (
-            <VerificationResultCard
-              title="Screening summary"
-              reference={result.correlationId}
-              status={isClean ? "verified" : "not_verified"}
-              onExport={handleExport}
-              fields={[
-                {
-                  label: "Sanctions hits",
-                  value: String(result.result.sanctionsHitCount),
-                },
-              ]}
-              matchFields={[
-                {
-                  label: result.result.pep ? "Politically exposed person" : "Not a PEP",
-                  matched: !result.result.pep,
-                },
-                {
-                  label:
-                    result.result.sanctionsHitCount > 0
-                      ? `${result.result.sanctionsHitCount} sanctions hit(s)`
-                      : "No sanctions hits",
-                  matched: result.result.sanctionsHitCount === 0,
-                },
-              ]}
-            />
-          ) : (
-            <VerificationEmptyState
-              icon={ShieldAlert}
-              heading="No results yet"
-              description="Enter a name and click Screen to check for sanctions and PEP matches."
-            />
-          )}
+            ) : result ? (
+              <VerificationResultCard
+                ref={resultCardRef}
+                title="Screening summary"
+                reference={result.correlationId}
+                status={isClean ? "verified" : "not_verified"}
+                onExport={handleExport}
+                fields={[
+                  {
+                    label: "Sanctions hits",
+                    value: String(result.result.sanctionsHitCount),
+                  },
+                ]}
+                matchFields={[
+                  {
+                    label: result.result.pep ? "Politically exposed person" : "Not a PEP",
+                    matched: !result.result.pep,
+                  },
+                  {
+                    label:
+                      result.result.sanctionsHitCount > 0
+                        ? `${result.result.sanctionsHitCount} sanctions hit(s)`
+                        : "No sanctions hits",
+                    matched: result.result.sanctionsHitCount === 0,
+                  },
+                ]}
+              />
+            ) : (
+              <VerificationEmptyState
+                icon={ShieldAlert}
+                heading="No results yet"
+                description="Enter a name and click Screen to check for sanctions and PEP matches."
+              />
+            )}
+          </AnimatedResult>
         </div>
       </div>
 
@@ -180,21 +201,5 @@ export default function SanctionsCheck() {
         message="Checking mock sanctions & PEP datasets..."
       />
     </div>
-  );
-}
-
-interface FieldProps {
-  label: string;
-  description?: string;
-  children: ReactNode;
-}
-
-function Field({ label, description, children }: FieldProps) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium text-text">{label}</span>
-      {description && <span className="block text-xs text-text-muted">{description}</span>}
-      {children}
-    </label>
   );
 }

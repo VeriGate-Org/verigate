@@ -1,16 +1,21 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import FileUpload from "@/components/ui/FileUpload/FileUpload";
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { AnimatedResult } from "@/components/verification/AnimatedResult";
 import { RetryButton } from "@/components/verification/RetryButton";
+import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
+import { ServiceField } from "@/components/services/shared/ServiceField";
+import { useToast } from "@/components/ui/Toast";
 import { type DocumentVerificationResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
+import { exportPdf } from "@/lib/utils/export-pdf";
 import {
   getDocumentPresignedUrl,
   uploadFileToS3,
@@ -35,8 +40,9 @@ export default function DocumentVerification() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const resultCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  // File upload state
   const [, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [s3ObjectKey, setS3ObjectKey] = useState<string>("");
@@ -44,9 +50,9 @@ export default function DocumentVerification() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleExport = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleExport = useCallback(async () => {
+    if (resultCardRef.current) {
+      await exportPdf(resultCardRef.current, "verigate-document-verification.pdf");
     }
   }, []);
 
@@ -112,16 +118,18 @@ export default function DocumentVerification() {
         metadata
       )) as DocumentVerificationResponse;
       setResult(data);
+      toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [documentType, documentNumber, s3ObjectKey, s3BucketName]);
+  }, [documentType, documentNumber, s3ObjectKey, s3BucketName, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -131,8 +139,17 @@ export default function DocumentVerification() {
   const submitDisabled =
     loading || documentNumber.trim().length < 1 || isUploading;
 
+  const srMessage = loading
+    ? "Loading verification results"
+    : error
+      ? "Verification failed"
+      : result
+        ? "Verification complete"
+        : "";
+
   return (
     <div className="space-y-6">
+      <ScreenReaderAnnounce message={srMessage} />
       <header className="space-y-1">
         <h1 className="text-xl font-semibold text-text">
           Document verification
@@ -159,7 +176,7 @@ export default function DocumentVerification() {
             className="console-card-body space-y-4"
             onSubmit={handleSubmit}
           >
-            <Field
+            <ServiceField
               label="Document type"
               description="Select the type of identity document."
             >
@@ -176,9 +193,9 @@ export default function DocumentVerification() {
                   </option>
                 ))}
               </select>
-            </Field>
+            </ServiceField>
 
-            <Field
+            <ServiceField
               label="Document number"
               description="The unique number printed on the document."
             >
@@ -190,9 +207,9 @@ export default function DocumentVerification() {
                 onChange={(event) => setDocumentNumber(event.target.value)}
                 className="aws-input w-full"
               />
-            </Field>
+            </ServiceField>
 
-            <Field
+            <ServiceField
               label="Document image (optional)"
               description="Upload a scan or photo of the document for enhanced verification."
             >
@@ -205,7 +222,7 @@ export default function DocumentVerification() {
                 onFileSelect={handleFileSelect}
                 onClear={handleFileClear}
               />
-            </Field>
+            </ServiceField>
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
@@ -223,72 +240,74 @@ export default function DocumentVerification() {
             </div>
 
             {error && (
-              <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+              <div role="alert" className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
                 {error}
               </div>
             )}
           </form>
         </div>
 
-        {/* Results Panel */}
         <div ref={resultRef} tabIndex={-1} className="outline-none">
-          {loading ? (
-            <div className="console-card">
-              <div className="console-card-header">
-                <div>
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-3 w-48" />
+          <AnimatedResult>
+            {loading ? (
+              <div className="console-card">
+                <div className="console-card-header">
+                  <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-9 w-28 rounded-full" />
                 </div>
-                <Skeleton className="h-9 w-28 rounded-full" />
-              </div>
-              <div className="console-card-body space-y-6 p-4">
-                <div className="border border-border rounded overflow-hidden">
-                  <div className="divide-y divide-border">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="flex items-center px-4 py-2.5">
-                        <Skeleton className="h-4 w-32 bg-background/50" />
-                        <Skeleton className="h-4 w-24 ml-auto" />
-                      </div>
-                    ))}
+                <div className="console-card-body space-y-6 p-4">
+                  <div className="border border-border rounded overflow-hidden">
+                    <div className="divide-y divide-border">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="flex items-center px-4 py-2.5">
+                          <Skeleton className="h-4 w-32 bg-background/50" />
+                          <Skeleton className="h-4 w-24 ml-auto" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : error && !result ? (
-            <div className="console-card">
-              <div className="console-card-body flex items-center justify-between">
-                <span className="text-sm text-danger">{error}</span>
-                <RetryButton onRetry={doVerification} />
+            ) : error && !result ? (
+              <div className="console-card">
+                <div className="console-card-body flex items-center justify-between">
+                  <span className="text-sm text-danger">{error}</span>
+                  <RetryButton onRetry={doVerification} />
+                </div>
               </div>
-            </div>
-          ) : result ? (
-            <VerificationResultCard
-              title="Document results"
-              reference={result.reference}
-              status={result.document.verified ? "verified" : "not_verified"}
-              onExport={handleExport}
-              fields={[
-                { label: "Provider", value: result.provider },
-                { label: "Status", value: result.document.status },
-                {
-                  label: "Issued date",
-                  value: new Date(result.document.issuedDate).toLocaleDateString(),
-                },
-                {
-                  label: "Expiry date",
-                  value: result.document.expiryDate
-                    ? new Date(result.document.expiryDate).toLocaleDateString()
-                    : "No expiry",
-                },
-              ]}
-            />
-          ) : (
-            <VerificationEmptyState
-              icon={FileCheck}
-              heading="No results yet"
-              description="Enter document details and click Verify to see results."
-            />
-          )}
+            ) : result ? (
+              <VerificationResultCard
+                ref={resultCardRef}
+                title="Document results"
+                reference={result.reference}
+                status={result.document.verified ? "verified" : "not_verified"}
+                onExport={handleExport}
+                fields={[
+                  { label: "Provider", value: result.provider },
+                  { label: "Status", value: result.document.status },
+                  {
+                    label: "Issued date",
+                    value: new Date(result.document.issuedDate).toLocaleDateString(),
+                  },
+                  {
+                    label: "Expiry date",
+                    value: result.document.expiryDate
+                      ? new Date(result.document.expiryDate).toLocaleDateString()
+                      : "No expiry",
+                  },
+                ]}
+              />
+            ) : (
+              <VerificationEmptyState
+                icon={FileCheck}
+                heading="No results yet"
+                description="Enter document details and click Verify to see results."
+              />
+            )}
+          </AnimatedResult>
         </div>
       </div>
 
@@ -298,23 +317,5 @@ export default function DocumentVerification() {
         message="Checking document authenticity against issuing authority records."
       />
     </div>
-  );
-}
-
-interface FieldProps {
-  label: string;
-  description?: string;
-  children: ReactNode;
-}
-
-function Field({ label, description, children }: FieldProps) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium text-text">{label}</span>
-      {description && (
-        <span className="block text-xs text-text-muted">{description}</span>
-      )}
-      {children}
-    </label>
   );
 }
