@@ -323,4 +323,48 @@ class DefaultVerifyIdentityCommandHandlerTest {
 
         verify(identityVerificationService).verifyIdentity(any(IdentityVerificationRequest.class));
     }
+
+    @Test
+    void testHandleChecksumInvalidId() {
+        // Arrange - 8501015009088 fails Luhn (changed last digit from 7 to 8)
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of(
+                "idNumber", "8501015009088",
+                "firstName", "John",
+                "lastName", "Doe"
+            )
+        );
+
+        // Act & Assert - should throw before calling DHA service
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+
+        verifyNoInteractions(identityVerificationService);
+    }
+
+    @Test
+    void testHandleChecksumInvalidIdAllZeros() {
+        // Arrange - 0000000000000 has valid format but fails Luhn
+        VerifyPartyCommand command = new VerifyPartyCommand(
+            UUID.randomUUID(),
+            Instant.now(),
+            "test-user",
+            null,
+            null,
+            Map.of(
+                "idNumber", "1234567890123",
+                "firstName", "Test",
+                "lastName", "User"
+            )
+        );
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+
+        verifyNoInteractions(identityVerificationService);
+    }
 }

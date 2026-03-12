@@ -64,3 +64,14 @@ verigate:
       table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}
     scoring-config:
       table-name: ${VERIGATE_RISK_SCORING_CONFIG_TABLE:risk-scoring-config}
+  cache:
+    enabled: ${VERIGATE_CACHE_ENABLED:true}
+    policies:
+      max-size: ${VERIGATE_CACHE_POLICIES_MAX_SIZE:500}
+      ttl-minutes: ${VERIGATE_CACHE_POLICIES_TTL_MINUTES:60}
+    risk-assessments:
+      max-size: ${VERIGATE_CACHE_RISK_ASSESSMENTS_MAX_SIZE:1000}
+      ttl-minutes: ${VERIGATE_CACHE_RISK_ASSESSMENTS_TTL_MINUTES:30}
+    command-status:
+      max-size: ${VERIGATE_CACHE_COMMAND_STATUS_MAX_SIZE:2000}
+      ttl-minutes: ${VERIGATE_CACHE_COMMAND_STATUS_TTL_MINUTES:5}

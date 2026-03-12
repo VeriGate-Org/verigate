@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -42,6 +43,7 @@ public class CommandStatusRepository {
             tableName, TableSchema.fromBean(VerificationCommandStoreItem.class));
   }
 
+  @Cacheable(value = "command-status", key = "#commandId")
   public Optional<VerificationCommandStoreItem> findById(UUID commandId) {
     VerificationCommandStoreItem item;
     try {

@@ -1,3 +1,5 @@
+import { luhnCheck, extractDateOfBirth, extractGender, extractCitizenship } from "@/lib/utils/sa-id-validation";
+
 const DEFAULT_DELAY_RANGE = { min: 600, max: 1400 };
 
 const towns = ["Sandton", "Midrand", "Centurion", "Fourways", "Bryanston", "Randburg"];
@@ -167,10 +169,10 @@ export function generatePersonalDetailsResponse({
     throw new Error("ID number is required");
   }
 
-  const birthDateIso = parseDob(idNumber);
-  const gender = deriveGender(idNumber);
-  const citizenship = deriveCitizenship(idNumber);
-  const idNumberValid = luhnValid(idNumber);
+  const birthDateIso = extractDateOfBirth(idNumber);
+  const gender = extractGender(idNumber);
+  const citizenship = extractCitizenship(idNumber);
+  const idNumberValid = luhnCheck(idNumber);
 
   let age: number | null = null;
   if (birthDateIso) {
@@ -386,48 +388,6 @@ function wait(delayMs?: number) {
 function randomDelay(range = DEFAULT_DELAY_RANGE) {
   const { min, max } = range;
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function parseDob(idNumber: string) {
-  if (!/^\d{13}$/.test(idNumber)) return null;
-  const yy = parseInt(idNumber.slice(0, 2), 10);
-  const mm = parseInt(idNumber.slice(2, 4), 10) - 1;
-  const dd = parseInt(idNumber.slice(4, 6), 10);
-  const now = new Date();
-  const currentYY = now.getFullYear() % 100;
-  const century = yy > currentYY ? 1900 : 2000;
-  const d = new Date(century + yy, mm, dd);
-  if (isNaN(d.getTime())) return null;
-  return d.toISOString();
-}
-
-function deriveGender(idNumber: string): "male" | "female" | "unknown" {
-  if (!/^\d{13}$/.test(idNumber)) return "unknown";
-  const seq = parseInt(idNumber.slice(6, 10), 10);
-  if (isNaN(seq)) return "unknown";
-  return seq >= 5000 ? "male" : "female";
-}
-
-function deriveCitizenship(idNumber: string): "SA" | "Non-SA" | "unknown" {
-  if (!/^\d{13}$/.test(idNumber)) return "unknown";
-  const c = idNumber.charAt(10);
-  if (c === "0") return "SA";
-  if (c === "1") return "Non-SA";
-  return "unknown";
-}
-
-function luhnValid(idNumber: string) {
-  if (!/^\d{13}$/.test(idNumber)) return false;
-  let sum = 0;
-  for (let i = 0; i < 13; i++) {
-    let digit = parseInt(idNumber.charAt(12 - i), 10);
-    if (i % 2 === 1) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    sum += digit;
-  }
-  return sum % 10 === 0;
 }
 
 function similarity(a: string, b: string) {

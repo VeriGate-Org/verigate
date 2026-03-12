@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { executeVerification } from "@/lib/services/verification-service";
+import { validateSaId } from "@/lib/utils/sa-id-validation";
 import { type IdentityResponse } from "@/lib/mock-services";
+import { Fingerprint } from "lucide-react";
 
 export default function IdentityVerification() {
   const [idNumber, setIdNumber] = useState("");
@@ -15,7 +20,20 @@ export default function IdentityVerification() {
   const [lastName, setLastName] = useState("");
   const [result, setResult] = useState<IdentityResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const handleIdChange = useCallback((value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 13);
+    setIdNumber(digits);
+    if (digits.length === 13) {
+      const validation = validateSaId(digits);
+      setIdError(validation.valid ? null : validation.errors[0]);
+    } else {
+      setIdError(null);
+    }
+  }, []);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -23,8 +41,7 @@ export default function IdentityVerification() {
     }
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const doVerification = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -35,6 +52,7 @@ export default function IdentityVerification() {
         lastName,
       })) as IdentityResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
@@ -42,9 +60,21 @@ export default function IdentityVerification() {
     } finally {
       setLoading(false);
     }
+  }, [idNumber, firstName, lastName]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const validation = validateSaId(idNumber);
+    if (!validation.valid) {
+      setIdError(validation.errors[0]);
+      return;
+    }
+
+    await doVerification();
   };
 
-  const submitDisabled = loading || idNumber.length !== 13 || !firstName.trim() || !lastName.trim();
+  const submitDisabled = loading || idNumber.length !== 13 || idError !== null || !firstName.trim() || !lastName.trim();
 
   return (
     <div className="space-y-6">
@@ -65,38 +95,42 @@ export default function IdentityVerification() {
           </div>
 
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
-            <Field label="ID number" description="13-digit South African ID number.">
+            <Field label="ID number" description="13-digit South African ID number." error={idError}>
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
-                onChange={(event) => {
-                  const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
-                  setIdNumber(digits);
-                }}
-                className="aws-input w-full"
+                onChange={(event) => handleIdChange(event.target.value)}
+                className={`aws-input w-full ${idError ? "border-danger" : ""}`}
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
+                aria-invalid={!!idError}
+                aria-describedby={idError ? "idNumber-error" : undefined}
               />
             </Field>
 
             <Field label="First name">
               <input
                 required
+                id="firstName"
+                name="firstName"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 className="aws-input w-full"
-                autoComplete="off"
+                autoComplete="given-name"
               />
             </Field>
 
             <Field label="Last name">
               <input
                 required
+                id="lastName"
+                name="lastName"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
                 className="aws-input w-full"
-                autoComplete="off"
+                autoComplete="family-name"
               />
             </Field>
 
@@ -124,128 +158,59 @@ export default function IdentityVerification() {
         </div>
 
         {/* Results Panel */}
-        {loading ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-3 w-48" />
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          {loading ? (
+            <div className="console-card">
+              <div className="console-card-header">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-9 w-28 rounded-full" />
               </div>
-              <Skeleton className="h-9 w-28 rounded-full" />
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div className="border border-border rounded overflow-hidden">
-                <div className="divide-y divide-border">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="flex items-center px-4 py-2.5">
-                      <Skeleton className="h-4 w-32 bg-background/50" />
-                      <Skeleton className="h-4 w-24 ml-auto" />
-                    </div>
-                  ))}
+              <div className="console-card-body space-y-6 p-4">
+                <div className="border border-border rounded overflow-hidden">
+                  <div className="divide-y divide-border">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="flex items-center px-4 py-2.5">
+                        <Skeleton className="h-4 w-32 bg-background/50" />
+                        <Skeleton className="h-4 w-24 ml-auto" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">Identity results</div>
-                <div className="text-xs text-text-muted">Reference {result.reference}</div>
-              </div>
-              <button
-                onClick={handleExport}
-                className="rounded-full border border-[color:var(--color-cta)] bg-[color:var(--color-base-100)] text-[color:var(--color-cta)] hover:bg-[color:var(--color-cta)] hover:text-white px-aws-l py-aws-s text-sm transition-all shadow-sm"
-              >
-                Export PDF
-              </button>
-            </div>
-            <div className="console-card-body space-y-6 p-4">
-              <div className="border border-border rounded overflow-hidden">
-                <table className="w-full">
-                  <tbody className="divide-y divide-border">
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30 w-1/3">
-                        Verified
-                      </td>
-                      <td className="px-4 py-2.5 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            result.identity.verified
-                              ? "bg-success/10 text-success"
-                              : "bg-danger/10 text-danger"
-                          }`}
-                        >
-                          {result.identity.verified ? "Yes" : "No"}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Match score
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-medium text-text">
-                        {result.identity.matchScore}%
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Photo match
-                      </td>
-                      <td className="px-4 py-2.5 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            result.identity.photoMatch
-                              ? "bg-success/10 text-success"
-                              : "bg-danger/10 text-danger"
-                          }`}
-                        >
-                          {result.identity.photoMatch ? "Yes" : "No"}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-background/50">
-                      <td className="px-4 py-2.5 text-sm text-text-muted bg-background/30">
-                        Liveness check
-                      </td>
-                      <td className="px-4 py-2.5 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            result.identity.livenessCheck
-                              ? "bg-success/10 text-success"
-                              : "bg-danger/10 text-danger"
-                          }`}
-                        >
-                          {result.identity.livenessCheck ? "Yes" : "No"}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Provider info */}
-              <div className="flex items-start gap-2 px-1 py-2 text-xs text-text-muted border-t border-border">
-                <span className="font-medium">Provider:</span>
-                <span>{result.provider}</span>
+          ) : error && !result ? (
+            <div className="console-card">
+              <div className="console-card-body flex items-center justify-between">
+                <span className="text-sm text-danger">{error}</span>
+                <RetryButton onRetry={doVerification} />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Identity results</div>
-            </div>
-            <div className="console-card-body flex items-center justify-center py-12">
-              <div className="text-center text-sm text-text-muted">
-                <div className="mb-2">No results yet</div>
-                <div className="text-xs">
-                  Enter identity details and click Verify to see results
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          ) : result ? (
+            <VerificationResultCard
+              title="Identity results"
+              reference={result.reference}
+              status={result.identity.verified ? "verified" : "not_verified"}
+              confidenceScore={result.identity.matchScore}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+              ]}
+              matchFields={[
+                { label: result.identity.photoMatch ? "Photo matched" : "Photo not matched", matched: result.identity.photoMatch },
+                { label: result.identity.livenessCheck ? "Liveness passed" : "Liveness failed", matched: result.identity.livenessCheck },
+              ]}
+            />
+          ) : (
+            <VerificationEmptyState
+              icon={Fingerprint}
+              heading="No results yet"
+              description="Enter identity details and click Verify to see results."
+            />
+          )}
+        </div>
       </div>
 
       {result && (
@@ -270,15 +235,19 @@ export default function IdentityVerification() {
 interface FieldProps {
   label: string;
   description?: string;
+  error?: string | null;
   children: ReactNode;
 }
 
-function Field({ label, description, children }: FieldProps) {
+function Field({ label, description, error, children }: FieldProps) {
   return (
     <label className="block space-y-1 text-sm">
       <span className="font-medium text-text">{label}</span>
       {description && <span className="block text-xs text-text-muted">{description}</span>}
       {children}
+      {error && (
+        <span className="block text-xs text-danger mt-1" role="alert">{error}</span>
+      )}
     </label>
   );
 }

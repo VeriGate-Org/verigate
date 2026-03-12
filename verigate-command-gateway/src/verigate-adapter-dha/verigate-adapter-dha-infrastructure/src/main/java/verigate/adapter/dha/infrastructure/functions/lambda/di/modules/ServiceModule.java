@@ -44,10 +44,13 @@ import software.amazon.awssdk.services.glue.GlueClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import verigate.adapter.dha.application.handlers.DefaultVerifyIdentityCommandHandler;
 import verigate.adapter.dha.domain.services.DhaIdentityVerificationService;
+import verigate.adapter.dha.domain.services.IdentityVaultService;
 import verigate.adapter.dha.infrastructure.config.DhaApiConfiguration;
 import verigate.adapter.dha.infrastructure.http.DhaHttpAdapter;
+import verigate.adapter.dha.infrastructure.vault.DynamoDbIdentityVaultAdapter;
 import verigate.adapter.dha.infrastructure.http.DhaIdentityApiAdapter;
 import verigate.adapter.dha.infrastructure.mappers.DhaDtoMapper;
 import verigate.adapter.dha.infrastructure.services.DefaultDhaIdentityVerificationService;
@@ -195,9 +198,30 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private DynamoDbClient provideDynamoDbClient() {
+    return DynamoDbClient.builder().build();
+  }
+
+  @Provides
+  @Singleton
+  private IdentityVaultService provideIdentityVaultService(
+      DynamoDbClient dynamoDbClient, Environment environment) {
+    String tableName = environment.getVariable("IDENTITY_VAULT_TABLE_NAME");
+    int freshnessDays = Integer.parseInt(
+        environment.getVariable("IDENTITY_VAULT_FRESHNESS_DAYS", "90"));
+    return new DynamoDbIdentityVaultAdapter(dynamoDbClient, tableName, freshnessDays);
+  }
+
+  @Provides
+  @Singleton
   private DefaultVerifyIdentityCommandHandler provideVerifyIdentityCommandHandler(
-      DhaIdentityVerificationService identityVerificationService) {
-    return new DefaultVerifyIdentityCommandHandler(identityVerificationService);
+      DhaIdentityVerificationService identityVerificationService,
+      IdentityVaultService identityVaultService,
+      Environment environment) {
+    boolean vaultEnabled = Boolean.parseBoolean(
+        environment.getVariable("IDENTITY_VAULT_ENABLED", "false"));
+    return new DefaultVerifyIdentityCommandHandler(
+        identityVerificationService, identityVaultService, vaultEnabled);
   }
 
   protected DefaultRetry getDefaultRetry(Config config) {

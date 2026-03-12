@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
@@ -30,6 +32,7 @@ public class DynamoDbPolicyRepository {
         properties.getTableName(), TableSchema.fromBean(PolicyDataModel.class));
   }
 
+  @CacheEvict(value = "policies", key = "#policy.partnerPolicyId")
   public void save(PolicyDataModel policy) {
     try {
       table.putItem(policy);
@@ -39,6 +42,7 @@ public class DynamoDbPolicyRepository {
     }
   }
 
+  @Cacheable(value = "policies", key = "#partnerPolicyId")
   public Optional<PolicyDataModel> findById(String partnerPolicyId) {
     try {
       PolicyDataModel item = table.getItem(
@@ -66,6 +70,7 @@ public class DynamoDbPolicyRepository {
     }
   }
 
+  @CacheEvict(value = "policies", key = "#partnerPolicyId")
   public void delete(String partnerPolicyId) {
     try {
       table.deleteItem(Key.builder().partitionValue(partnerPolicyId).build());

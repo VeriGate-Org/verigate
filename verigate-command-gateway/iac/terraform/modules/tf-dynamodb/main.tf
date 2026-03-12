@@ -22,6 +22,14 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
+  dynamic "ttl" {
+    for_each = var.ttl_attribute != null ? [var.ttl_attribute] : []
+    content {
+      attribute_name = ttl.value
+      enabled        = true
+    }
+  }
+
   point_in_time_recovery {
     enabled = var.fis_az_failure_ready
   }

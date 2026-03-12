@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import JsonViewer from "@/components/code/JsonViewer";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
+import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { RetryButton } from "@/components/verification/RetryButton";
 import { type PersonalDetailsResponse } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
-import { FileDown } from "lucide-react";
+import { validateSaId } from "@/lib/utils/sa-id-validation";
+import { Shield } from "lucide-react";
 
 const REASONS = [
   { value: "fraud_prevention", label: "Fraud prevention" },
@@ -23,7 +27,9 @@ export default function IdCheck() {
   const [reason, setReason] = useState("");
   const [result, setResult] = useState<PersonalDetailsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleExport = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -31,14 +37,33 @@ export default function IdCheck() {
     }
   }, []);
 
+  const handleIdChange = useCallback((value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 13);
+    setIdNumber(digits);
+    if (digits.length === 13) {
+      const validation = validateSaId(digits);
+      setIdError(validation.valid ? null : validation.errors[0]);
+    } else {
+      setIdError(null);
+    }
+  }, []);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const validation = validateSaId(idNumber);
+    if (!validation.valid) {
+      setIdError(validation.errors[0]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const data = await executeVerification("VERIFICATION_OF_PERSONAL_DETAILS", { firstName, surname, idNumber, reason }) as PersonalDetailsResponse;
       setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Verification failed";
       setError(message);
@@ -48,52 +73,23 @@ export default function IdCheck() {
     }
   };
 
-  const summaryItems = result
-    ? ([
-        {
-          label: "Status",
-          value: (
-            <span
-              className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                result.validation.verified ? "bg-success/10 text-success" : "bg-danger/10 text-danger"
-              }`}
-            >
-              {result.validation.verified ? "Verified" : "Not verified"}
-            </span>
-          ),
-        },
-        { label: "Provider", value: result.provider },
-        {
-          label: "Name match",
-          value: `${Math.round(result.validation.nameMatchConfidence ?? 0)}%`,
-        },
-        {
-          label: "Date of birth",
-          value: result.derived.birthDate ? new Date(result.derived.birthDate).toLocaleDateString() : "—",
-        },
-        {
-          label: "Gender • Citizenship",
-          value: `${formatGender(result.derived.gender)} • ${formatCitizenship(result.derived.citizenship)}`,
-        },
-        {
-          label: "Age",
-          value: result.derived.age == null ? "—" : `${result.derived.age}`,
-        },
-        {
-          label: "Flags",
-          value: formatFlags(result.flags),
-        },
-        result.metadata?.reason
-          ? {
-              label: "Reason",
-              value: result.metadata.reason,
-            }
-          : null,
-      ] as Array<{ label: string; value: ReactNode } | null>)
-        .filter((item): item is { label: string; value: ReactNode } => Boolean(item))
-    : [];
+  const handleRetry = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await executeVerification("VERIFICATION_OF_PERSONAL_DETAILS", { firstName, surname, idNumber, reason }) as PersonalDetailsResponse;
+      setResult(data);
+      setTimeout(() => resultRef.current?.focus(), 100);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Verification failed";
+      setError(message);
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [firstName, surname, idNumber, reason]);
 
-  const submitDisabled = loading || idNumber.length !== 13;
+  const submitDisabled = loading || idNumber.length !== 13 || idError !== null;
 
   return (
     <div className="space-y-6">
@@ -116,40 +112,49 @@ export default function IdCheck() {
           <form className="console-card-body space-y-4" onSubmit={handleSubmit}>
             <Field
               label="ID number"
-              description="13-digit South African ID. We validate format before calling the provider."
+              description="13-digit South African ID. We validate format and checksum before calling the provider."
+              error={idError}
             >
               <input
                 required
+                id="idNumber"
+                name="idNumber"
                 value={idNumber}
-                onChange={(event) => {
-                  const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
-                  setIdNumber(digits);
-                }}
-                className="aws-input w-full"
+                onChange={(event) => handleIdChange(event.target.value)}
+                className={`aws-input w-full ${idError ? "border-danger" : ""}`}
                 inputMode="numeric"
                 maxLength={13}
-                autoComplete="off"
+                aria-invalid={!!idError}
+                aria-describedby={idError ? "idNumber-error" : undefined}
               />
             </Field>
 
             <Field label="Given name (optional)">
               <input
+                id="firstName"
+                name="firstName"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 className="aws-input w-full"
+                autoComplete="given-name"
               />
             </Field>
 
             <Field label="Surname (optional)">
               <input
+                id="surname"
+                name="surname"
                 value={surname}
                 onChange={(event) => setSurname(event.target.value)}
                 className="aws-input w-full"
+                autoComplete="family-name"
               />
             </Field>
 
             <Field label="Reason for enquiry" description="Stored for audit reporting only.">
               <select
+                id="reason"
+                name="reason"
                 className="aws-select w-full select-input"
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
@@ -216,46 +221,68 @@ export default function IdCheck() {
         </div>
       </div>
 
-      {result && (
-        <div className="space-y-4">
+      <div ref={resultRef} tabIndex={-1} className="outline-none space-y-4">
+        {error && !result && (
           <div className="console-card">
-            <div className="console-card-header">
-              <div>
-                <div className="text-sm font-semibold text-text">Verification summary</div>
-                <div className="text-xs text-text-muted">Reference {result.reference}</div>
-              </div>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={handleExport} 
-                icon={<FileDown className="h-4 w-4" />}
-              >
-                Export PDF
-              </Button>
-            </div>
-            <div className="console-card-body">
-              <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {summaryItems.map((item) => (
-                  <div key={item.label} className="space-y-1 rounded border border-border bg-background p-3">
-                    <dt className="text-xs uppercase tracking-wide text-text-muted">{item.label}</dt>
-                    <dd className="text-sm font-medium text-text">{item.value}</dd>
-                  </div>
-                ))}
-              </dl>
+            <div className="console-card-body flex items-center justify-between">
+              <span className="text-sm text-danger">{error}</span>
+              <RetryButton onRetry={handleRetry} />
             </div>
           </div>
+        )}
 
-          <div className="console-card">
-            <div className="console-card-header">
-              <div className="text-sm font-semibold text-text">Raw response</div>
-              <div className="text-xs text-text-muted">Generated {new Date(result.generatedAt).toLocaleString()}</div>
+        {result ? (
+          <>
+            <VerificationResultCard
+              title="Verification summary"
+              reference={result.reference}
+              status={result.validation.verified ? "verified" : "not_verified"}
+              confidenceScore={result.validation.nameMatchConfidence}
+              onExport={handleExport}
+              fields={[
+                { label: "Provider", value: result.provider },
+                {
+                  label: "Date of birth",
+                  value: result.derived.birthDate ? new Date(result.derived.birthDate).toLocaleDateString() : "—",
+                },
+                {
+                  label: "Gender",
+                  value: formatGender(result.derived.gender),
+                },
+                {
+                  label: "Citizenship",
+                  value: formatCitizenship(result.derived.citizenship),
+                },
+                {
+                  label: "Age",
+                  value: result.derived.age == null ? "—" : `${result.derived.age}`,
+                },
+                {
+                  label: "Flags",
+                  value: formatFlags(result.flags),
+                },
+                ...(result.metadata?.reason ? [{ label: "Reason", value: result.metadata.reason }] : []),
+              ]}
+            />
+
+            <div className="console-card">
+              <div className="console-card-header">
+                <div className="text-sm font-semibold text-text">Raw response</div>
+                <div className="text-xs text-text-muted">Generated {new Date(result.generatedAt).toLocaleString()}</div>
+              </div>
+              <div className="console-card-body bg-background">
+                <JsonViewer data={result} />
+              </div>
             </div>
-            <div className="console-card-body bg-background">
-              <JsonViewer data={result} />
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        ) : !error && !loading ? (
+          <VerificationEmptyState
+            icon={Shield}
+            heading="No verification results"
+            description="Enter an ID number and submit to verify against the Department of Home Affairs."
+          />
+        ) : null}
+      </div>
       <ProcessingDialog open={loading} title="Verifying ID" message="Fetching Home Affairs sandbox data..." />
     </div>
   );
@@ -294,15 +321,19 @@ function formatCitizenship(value: PersonalDetailsResponse["derived"]["citizenshi
 interface FieldProps {
   label: string;
   description?: string;
+  error?: string | null;
   children: ReactNode;
 }
 
-function Field({ label, description, children }: FieldProps) {
+function Field({ label, description, error, children }: FieldProps) {
   return (
     <label className="block space-y-1 text-sm">
       <span className="font-medium text-text">{label}</span>
       {description && <span className="block text-xs text-text-muted">{description}</span>}
       {children}
+      {error && (
+        <span className="block text-xs text-danger mt-1" role="alert">{error}</span>
+      )}
     </label>
   );
 }

@@ -63,7 +63,9 @@ public class VerificationService {
       Map.entry(VerificationType.QUALIFICATION_VERIFICATION, "adapter-saqa"),
       Map.entry(VerificationType.CREDIT_CHECK, "adapter-creditbureau"),
       Map.entry(VerificationType.TAX_COMPLIANCE_VERIFICATION, "adapter-sars"),
-      Map.entry(VerificationType.INCOME_VERIFICATION, "adapter-income")
+      Map.entry(VerificationType.INCOME_VERIFICATION, "adapter-income"),
+      Map.entry(VerificationType.BIOMETRIC_VERIFICATION, "adapter-biometric"),
+      Map.entry(VerificationType.LIVENESS_CHECK, "adapter-biometric")
   );
 
   /**
@@ -261,6 +263,9 @@ public class VerificationService {
     String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
     if (correlationId != null) {
       metadata.put("correlationId", correlationId);
+    }
+    if (request.documentS3Keys() != null && !request.documentS3Keys().isEmpty()) {
+      metadata.put("documentS3Keys", request.documentS3Keys());
     }
     return new VerifyPartyCommandMessage(
         commandId,

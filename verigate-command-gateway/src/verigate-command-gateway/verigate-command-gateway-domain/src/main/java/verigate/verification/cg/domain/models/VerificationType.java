@@ -35,5 +35,9 @@ public enum VerificationType {
   FULL_VERIFICATION,
 
   // Watchlist (alias for backward compat with verification module)
-  WATCHLIST_SCREENING
+  WATCHLIST_SCREENING,
+
+  // Biometric (future - adapter not yet implemented)
+  BIOMETRIC_VERIFICATION,
+  LIVENESS_CHECK
 }

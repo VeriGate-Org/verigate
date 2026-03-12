@@ -62,6 +62,9 @@ resource "aws_iam_role_policy" "lambda" {
           "ssm:GetParameter",
           "ssm:GetParameters",
           "ssm:GetParametersByPath",
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket",
           "cognito-idp:*"
         ]
         Resource = "*"

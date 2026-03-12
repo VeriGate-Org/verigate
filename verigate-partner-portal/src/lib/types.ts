@@ -6,7 +6,8 @@ export type VerificationType =
   | "ID" | "AVS" | "SANCTIONS" | "CIPC" | "DEEDS"
   | "EMPLOYMENT" | "NEGATIVE_NEWS" | "FRAUD_WATCHLIST"
   | "DOCUMENT" | "QUALIFICATION" | "CREDIT"
-  | "TAX" | "INCOME" | "IDENTITY" | "FULL_VERIFICATION" | "WATCHLIST";
+  | "TAX" | "INCOME" | "IDENTITY" | "FULL_VERIFICATION" | "WATCHLIST"
+  | "BIOMETRIC" | "LIVENESS";
 
 /** BFF wire-format verification type enum values. */
 export type BffVerificationType =
@@ -17,7 +18,8 @@ export type BffVerificationType =
   | "DOCUMENT_VERIFICATION" | "QUALIFICATION_VERIFICATION"
   | "CREDIT_CHECK" | "TAX_COMPLIANCE_VERIFICATION"
   | "INCOME_VERIFICATION" | "IDENTITY_VERIFICATION"
-  | "FULL_VERIFICATION" | "WATCHLIST_SCREENING";
+  | "FULL_VERIFICATION" | "WATCHLIST_SCREENING"
+  | "BIOMETRIC_VERIFICATION" | "LIVENESS_CHECK";
 
 export interface CheckScore {
   verificationType: string;

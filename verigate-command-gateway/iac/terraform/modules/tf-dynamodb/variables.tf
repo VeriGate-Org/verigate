@@ -44,6 +44,12 @@ variable "global_secondary_indexes" {
   default = []
 }
 
+variable "ttl_attribute" {
+  description = "Name of the TTL attribute. Set to null to disable TTL."
+  type        = string
+  default     = null
+}
+
 variable "fis_az_failure_ready" {
   description = "Enable point-in-time recovery for AZ failure readiness"
   type        = bool

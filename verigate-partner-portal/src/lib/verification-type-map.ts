@@ -2,7 +2,7 @@ import type { VerificationType, BffVerificationType } from "./types";
 import {
   Shield, CreditCard, ShieldAlert, Building2, Map, Briefcase,
   Newspaper, AlertTriangle, FileCheck, GraduationCap, TrendingUp,
-  Receipt, DollarSign, Fingerprint, CheckSquare, Eye,
+  Receipt, DollarSign, Fingerprint, CheckSquare, Eye, ScanFace, Camera,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -14,7 +14,7 @@ export interface VerificationTypeInfo {
   provider: string;
   icon: ComponentType<{ className?: string }>;
   route: string;
-  category: "identity" | "financial" | "business" | "screening" | "composite";
+  category: "identity" | "financial" | "business" | "screening" | "composite" | "biometric";
 }
 
 const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
@@ -177,6 +177,26 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     icon: CheckSquare,
     route: "/services/full-verification",
     category: "composite",
+  },
+  BIOMETRIC: {
+    portalType: "BIOMETRIC",
+    bffType: "BIOMETRIC_VERIFICATION",
+    label: "Biometric Verification",
+    shortLabel: "Biometric",
+    provider: "Coming Soon",
+    icon: ScanFace,
+    route: "/services/biometric",
+    category: "biometric",
+  },
+  LIVENESS: {
+    portalType: "LIVENESS",
+    bffType: "LIVENESS_CHECK",
+    label: "Liveness Detection",
+    shortLabel: "Liveness",
+    provider: "Coming Soon",
+    icon: Camera,
+    route: "/services/liveness",
+    category: "biometric",
   },
 };
 

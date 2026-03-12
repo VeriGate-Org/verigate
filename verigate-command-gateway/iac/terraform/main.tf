@@ -246,6 +246,92 @@ module "billing_plans_dynamodb" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# Identity Vault DynamoDB Table (DHA cost optimization)
+#----------------------------------------------------------------------------------------------------------------
+
+module "verified_identities_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  table_name               = "verified-identities"
+  hash_key                 = {
+                                 name = "identityHash"
+                                 type = "S"
+                             }
+  range_key                = {
+                                 name = "partnerId"
+                                 type = "S"
+                             }
+  attributes               = [
+    {
+      name = "identityHash"
+      type = "S"
+    },
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "verifiedAt"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name               = "partner-verified-index"
+      hash_key           = "partnerId"
+      range_key          = "verifiedAt"
+      projection_type    = "ALL"
+    }
+  ]
+
+  ttl_attribute        = "expiresAt"
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "verified_identities_table_name" {
+  name  = "/${var.stack_name}-${var.project_name}/dynamodb/verified-identities/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-verified-identities"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# S3 Buckets
+#----------------------------------------------------------------------------------------------------------------
+
+module "documents_s3" {
+  source = "./modules/tf-s3"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  bucket_name         = "documents"
+
+  lifecycle_rules = [
+    {
+      id                         = "glacier-transition"
+      enabled                    = true
+      transition_days            = 90
+      transition_storage_class   = "GLACIER"
+      expiration_days            = 2555 # ~7 years
+      noncurrent_transition_days = 30
+      noncurrent_storage_class   = "GLACIER"
+      noncurrent_expiration_days = 2555
+    }
+  ]
+
+  cors_allowed_origins = ["*"]
+
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "documents_bucket_name" {
+  name  = "/${var.stack_name}-${var.project_name}/s3/documents/name"
+  type  = "String"
+  value = module.documents_s3.bucket_name
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # IAM Role and policy
 #----------------------------------------------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@ import domain.exceptions.InvariantViolationException;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,9 @@ import verigate.adapter.dha.domain.mappers.IdentityVerificationMapper;
 import verigate.adapter.dha.domain.models.IdVerificationStatus;
 import verigate.adapter.dha.domain.models.IdentityVerificationRequest;
 import verigate.adapter.dha.domain.models.IdentityVerificationResponse;
+import verigate.adapter.dha.domain.models.VerifiedIdentity;
 import verigate.adapter.dha.domain.services.DhaIdentityVerificationService;
+import verigate.adapter.dha.domain.services.IdentityVaultService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationOutcome;
 import verigate.verification.cg.domain.models.VerificationResult;
@@ -34,6 +37,8 @@ public class DefaultVerifyIdentityCommandHandler
       LoggerFactory.getLogger(DefaultVerifyIdentityCommandHandler.class);
 
   private final DhaIdentityVerificationService identityVerificationService;
+  private final IdentityVaultService identityVaultService;
+  private final boolean vaultEnabled;
 
   /**
    * Constructor for default identity verification handler.
@@ -42,7 +47,23 @@ public class DefaultVerifyIdentityCommandHandler
    */
   public DefaultVerifyIdentityCommandHandler(
       DhaIdentityVerificationService identityVerificationService) {
+    this(identityVerificationService, null, false);
+  }
+
+  /**
+   * Constructor with identity vault support.
+   *
+   * @param identityVerificationService the DHA identity verification service
+   * @param identityVaultService        the identity vault service (nullable)
+   * @param vaultEnabled                whether to use the vault
+   */
+  public DefaultVerifyIdentityCommandHandler(
+      DhaIdentityVerificationService identityVerificationService,
+      IdentityVaultService identityVaultService,
+      boolean vaultEnabled) {
     this.identityVerificationService = identityVerificationService;
+    this.identityVaultService = identityVaultService;
+    this.vaultEnabled = vaultEnabled && identityVaultService != null;
   }
 
   /**
@@ -65,12 +86,47 @@ public class DefaultVerifyIdentityCommandHandler
           "Mapped command to identity verification request for ID number ending: ...{}",
           maskIdNumber(verificationRequest.idNumber()));
 
+      // Check identity vault before calling DHA
+      String partnerId = extractPartnerId(command);
+      if (vaultEnabled && partnerId != null) {
+        Optional<VerifiedIdentity> cached =
+            identityVaultService.findVerifiedIdentity(verificationRequest.idNumber(), partnerId);
+        if (cached.isPresent()) {
+          logger.info("Identity vault HIT for command: {} (dha.vault.hit)", command.getId());
+          VerifiedIdentity v = cached.get();
+          IdentityVerificationResponse cachedResponse = new IdentityVerificationResponse(
+              IdVerificationStatus.valueOf(v.verificationStatus()),
+              verigate.adapter.dha.domain.models.CitizenshipStatus.valueOf(v.citizenshipStatus()),
+              null,
+              verigate.adapter.dha.domain.models.VitalStatus.valueOf(v.vitalStatus()),
+              v.matchDetails());
+          VerificationResult cachedResult = analyzeVerificationResponse(cachedResponse, command);
+          return Map.of(
+              "outcome", cachedResult.outcome().toString(),
+              "details", cachedResult.failureReason() != null ? cachedResult.failureReason() : "",
+              "idNumber", maskIdNumber(verificationRequest.idNumber()),
+              "verificationStatus", cachedResponse.status().toString(),
+              "citizenshipStatus", cachedResponse.citizenshipStatus().toString(),
+              "vitalStatus", cachedResponse.vitalStatus().toString(),
+              "matchDetails", cachedResponse.matchDetails() != null ? cachedResponse.matchDetails() : "",
+              "source", "vault");
+        }
+        logger.info("Identity vault MISS for command: {} (dha.vault.miss)", command.getId());
+      }
+
       IdentityVerificationResponse verificationResponse =
           identityVerificationService.verifyIdentity(verificationRequest);
 
       logger.info(
           "Identity verification completed with status: {}",
           verificationResponse.status());
+
+      // Store VERIFIED results in the vault
+      if (vaultEnabled && partnerId != null
+          && verificationResponse.status() == IdVerificationStatus.VERIFIED) {
+        identityVaultService.storeVerifiedIdentity(
+            verificationRequest, verificationResponse, partnerId, command.getId().toString());
+      }
 
       VerificationResult verificationResult =
           analyzeVerificationResponse(verificationResponse, command);
@@ -93,7 +149,8 @@ public class DefaultVerifyIdentityCommandHandler
           "vitalStatus",
           verificationResponse.vitalStatus().toString(),
           "matchDetails",
-          verificationResponse.matchDetails() != null ? verificationResponse.matchDetails() : "");
+          verificationResponse.matchDetails() != null ? verificationResponse.matchDetails() : "",
+          "source", "dha");
     } catch (TransientException | PermanentException e) {
       logger.error(
           "Identity verification failed for command {}: {}",
@@ -192,6 +249,16 @@ public class DefaultVerifyIdentityCommandHandler
         yield new VerificationResult(VerificationOutcome.SOFT_FAIL, reason);
       }
     };
+  }
+
+  /**
+   * Extracts the partner ID from command metadata if available.
+   */
+  private String extractPartnerId(VerifyPartyCommand command) {
+    if (command.getMetaData() != null && command.getMetaData().containsKey("partnerId")) {
+      return String.valueOf(command.getMetaData().get("partnerId"));
+    }
+    return null;
   }
 
   /**

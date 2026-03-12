@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -27,6 +28,7 @@ public class RiskAssessmentRepository {
             properties.getTableName(), TableSchema.fromBean(RiskAssessmentItem.class));
   }
 
+  @Cacheable(value = "risk-assessments", key = "#verificationId")
   public Optional<RiskAssessmentItem> findByVerificationId(UUID verificationId) {
     RiskAssessmentItem item;
     try {

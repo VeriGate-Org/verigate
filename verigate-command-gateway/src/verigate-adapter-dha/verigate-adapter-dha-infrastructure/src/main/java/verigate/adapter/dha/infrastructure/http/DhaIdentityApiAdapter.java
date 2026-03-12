@@ -6,6 +6,7 @@
 
 package verigate.adapter.dha.infrastructure.http;
 
+import crosscutting.util.SAIdNumberValidityCheck;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import org.slf4j.Logger;
@@ -70,6 +71,13 @@ public class DhaIdentityApiAdapter {
               "Invalid South African ID number format: %s. Expected 13 digits (e.g., %s)",
               maskIdNumber(trimmed),
               DomainConstants.SA_ID_NUMBER_EXAMPLE));
+    }
+
+    if (!SAIdNumberValidityCheck.check(trimmed)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Invalid South African ID number checksum: %s. Luhn validation failed.",
+              maskIdNumber(trimmed)));
     }
   }
 
