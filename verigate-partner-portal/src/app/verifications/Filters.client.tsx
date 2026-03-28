@@ -78,11 +78,24 @@ export default function Filters() {
             className="aws-select"
           >
             <option value="">All types</option>
-            <option value="ID">ID</option>
-            <option value="CIPC">CIPC</option>
-            <option value="DEEDS">DEEDS</option>
-            <option value="AVS">AVS</option>
-            <option value="SANCTIONS">SANCTIONS</option>
+            <option value="ID">Home Affairs ID</option>
+            <option value="IDENTITY">Identity</option>
+            <option value="AVS">Bank Account (AVS)</option>
+            <option value="CREDIT">Credit Check</option>
+            <option value="INCOME">Income</option>
+            <option value="TAX">Tax Compliance</option>
+            <option value="CIPC">Company (CIPC)</option>
+            <option value="DEEDS">Deeds Registry</option>
+            <option value="EMPLOYMENT">Employment</option>
+            <option value="QUALIFICATION">Qualification</option>
+            <option value="SANCTIONS">Sanctions &amp; PEP</option>
+            <option value="NEGATIVE_NEWS">Negative News</option>
+            <option value="FRAUD_WATCHLIST">Fraud Watchlist</option>
+            <option value="DOCUMENT">Document</option>
+            <option value="FULL_VERIFICATION">Full Verification</option>
+            <option value="WATCHLIST">Watchlist</option>
+            <option value="BIOMETRIC">Biometric</option>
+            <option value="LIVENESS">Liveness</option>
           </select>
 
           <input
@@ -94,7 +107,10 @@ export default function Filters() {
 
           <input
             value={from}
-            onChange={(e) => setFrom(e.target.value)}
+            onChange={(e) => {
+              setFrom(e.target.value);
+              if (to && e.target.value && e.target.value > to) setTo("");
+            }}
             type="datetime-local"
             placeholder="From date"
             className="aws-input"
@@ -105,6 +121,7 @@ export default function Filters() {
             onChange={(e) => setTo(e.target.value)}
             type="datetime-local"
             placeholder="To date"
+            min={from || undefined}
             className="aws-input"
           />
 

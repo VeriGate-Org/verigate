@@ -1,5 +1,5 @@
 import { config } from "@/lib/config";
-import { type Verification, type VerificationType } from "@/lib/types";
+import { type Verification, type VerificationType, type VerificationEvent } from "@/lib/types";
 
 export interface VerificationListParams {
   q?: string;
@@ -152,4 +152,83 @@ export function parseSearchParams(searchParams: string): VerificationListParams 
     sortBy: sp.get("sortBy") || undefined,
     sortDir: sp.get("sortDir") || undefined,
   };
+}
+
+// ── Single verification detail ──────────────────────────────────────
+
+export interface VerificationDetail {
+  verification: Verification;
+  events: VerificationEvent[];
+}
+
+function generateMockEvents(v: Verification): VerificationEvent[] {
+  const events: VerificationEvent[] = [
+    {
+      ts: v.startedAt,
+      eventType: "VerificationRequested",
+      source: v.provider || "VeriGate",
+      correlationId: v.correlationId,
+      detail: { type: v.type, provider: v.provider },
+      stepSequence: 1,
+    },
+  ];
+
+  if (v.status === "success" || v.status === "completed") {
+    events.push({
+      ts: v.completedAt || new Date(Date.parse(v.startedAt) + 10_000).toISOString(),
+      eventType: "VerificationSucceeded",
+      source: v.provider || "VeriGate",
+      correlationId: v.correlationId,
+      detail: { confidenceScore: 95 },
+      stepSequence: 2,
+    });
+  } else if (v.status === "soft_fail" || v.status === "transient_error") {
+    events.push({
+      ts: v.completedAt || new Date(Date.parse(v.startedAt) + 10_000).toISOString(),
+      eventType: "VerificationSoftFail",
+      source: v.provider || "VeriGate",
+      correlationId: v.correlationId,
+      detail: { reason: "Partial match — manual review recommended" },
+      stepSequence: 2,
+    });
+  } else if (v.status === "hard_fail" || v.status === "permanent_failure") {
+    events.push({
+      ts: v.completedAt || new Date(Date.parse(v.startedAt) + 10_000).toISOString(),
+      eventType: "VerificationHardFail",
+      source: v.provider || "VeriGate",
+      correlationId: v.correlationId,
+      detail: { reason: "Identity mismatch — no match found in source system" },
+      stepSequence: 2,
+    });
+  }
+
+  return events;
+}
+
+function fetchMockVerification(correlationId: string): VerificationDetail | null {
+  const all = generateMockVerifications();
+  const v = all.find((item) => item.correlationId === correlationId);
+  if (!v) return null;
+  return { verification: v, events: generateMockEvents(v) };
+}
+
+async function fetchBffVerification(correlationId: string): Promise<VerificationDetail> {
+  const url = `${config.bffBaseUrl}/api/verifications/${correlationId}`;
+  const resp = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(config.bffApiKey ? { "X-API-Key": config.bffApiKey } : {}),
+    },
+  });
+  if (!resp.ok) {
+    throw new Error(`BFF returned ${resp.status}`);
+  }
+  return resp.json();
+}
+
+export async function getVerificationDetail(correlationId: string): Promise<VerificationDetail | null> {
+  if (config.useMockServices) {
+    return fetchMockVerification(correlationId);
+  }
+  return fetchBffVerification(correlationId);
 }

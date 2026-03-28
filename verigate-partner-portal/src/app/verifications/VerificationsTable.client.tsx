@@ -1,34 +1,50 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { type Verification, type VerificationStatus } from "@/lib/types";
+import { type VerificationStatus } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { BulkOperationsBar, useBulkSelection, VERIFICATION_BULK_ACTIONS } from "@/components/ui/BulkOperations";
-import { QuickFilters, type QuickFilter } from "@/components/ui/Filters/QuickFilters";
-import { FilterBuilder, type FilterGroup } from "@/components/ui/Filters/FilterBuilder";
-import { Filter, ChevronDown, Square, CheckSquare, Minus } from "lucide-react";
-import { listVerifications, parseSearchParams } from "@/lib/verification-api";
+import { Square, CheckSquare, Minus, ChevronUp, ChevronDown } from "lucide-react";
+import { useVerificationList } from "@/lib/hooks/useVerification";
+import { type VerificationListParams } from "@/lib/verification-api";
 import { exportVerifications, retryVerifications, archiveVerifications, deleteVerifications } from "@/lib/bff-client";
 import { useToast } from "@/components/ui/Toast";
+
+function parseParams(params: URLSearchParams): VerificationListParams {
+  return {
+    q: params.get("q") || undefined,
+    status: params.get("status") || undefined,
+    type: params.get("type") || undefined,
+    provider: params.get("provider") || undefined,
+    from: params.get("from") || undefined,
+    to: params.get("to") || undefined,
+    page: params.has("page") ? Number(params.get("page")) : 1,
+    pageSize: params.has("pageSize") ? Number(params.get("pageSize")) : 10,
+    sortBy: params.get("sortBy") || "startedAt",
+    sortDir: params.get("sortDir") || "desc",
+  };
+}
+
+type SortableKey = "startedAt" | "status" | "type" | "provider";
 
 export default function VerificationsTable() {
   const params = useSearchParams();
   const router = useRouter();
-  const [items, setItems] = useState<Verification[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [density, setDensity] = useState<"compact" | "comfortable">("comfortable");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [quickFilters, setQuickFilters] = useState<QuickFilter[]>([]);
-  const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([]);
-  
   const { toast } = useToast();
-  const page = Number(params.get("page") || 1);
-  const pageSize = Number(params.get("pageSize") || 10);
 
-  // Bulk selection
+  const queryParams = useMemo(() => parseParams(params), [params]);
+  const { data, isLoading, error, refetch } = useVerificationList(queryParams);
+
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const page = queryParams.page || 1;
+  const pageSize = queryParams.pageSize || 10;
+  const sortBy = queryParams.sortBy || "startedAt";
+  const sortDir = queryParams.sortDir || "desc";
+  const totalPages = Math.ceil(total / pageSize);
+
   const {
     selectedCount,
     totalCount,
@@ -40,50 +56,26 @@ export default function VerificationsTable() {
     selectedItems,
   } = useBulkSelection(items, (v) => v.correlationId);
 
-  const query = useMemo(() => {
-    const sp = new URLSearchParams();
-    ["q", "status", "type", "provider", "from", "to", "page", "pageSize"].forEach((k) => {
-      const v = params.get(k);
+  const navigate = (updates: Record<string, string>) => {
+    const sp = new URLSearchParams(params);
+    for (const [k, v] of Object.entries(updates)) {
       if (v) sp.set(k, v);
-    });
-    if (!sp.get("page")) sp.set("page", String(page));
-    if (!sp.get("pageSize")) sp.set("pageSize", String(pageSize));
-    return sp.toString();
-  }, [params, page, pageSize]);
+      else sp.delete(k);
+    }
+    router.push(`/verifications?${sp.toString()}`);
+  };
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await listVerifications(parseSearchParams(query));
-        if (!cancelled) {
-          setItems(data.items);
-          setTotal(data.total);
-        }
-      } catch {
-        if (!cancelled) {
-          setItems([]);
-          setTotal(0);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [query]);
+  const handleSort = (column: SortableKey) => {
+    const newDir = sortBy === column && sortDir === "asc" ? "desc" : "asc";
+    navigate({ sortBy: column, sortDir: newDir, page: "1" });
+  };
 
   const handlePageChange = (newPage: number) => {
-    const newParams = new URLSearchParams(params);
-    newParams.set("page", String(newPage));
-    router.push(`/verifications?${newParams.toString()}`);
+    navigate({ page: String(newPage) });
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    const newParams = new URLSearchParams(params);
-    newParams.set("pageSize", String(newPageSize));
-    newParams.set("page", "1");
-    router.push(`/verifications?${newParams.toString()}`);
+    navigate({ pageSize: String(newPageSize), page: "1" });
   };
 
   const handleBulkAction = async (actionId: string) => {
@@ -117,64 +109,21 @@ export default function VerificationsTable() {
     deselectAll();
   };
 
-  const removeQuickFilter = (filterId: string) => {
-    setQuickFilters(prev => prev.filter(f => f.id !== filterId));
-  };
-
-  const clearAllFilters = () => {
-    setQuickFilters([]);
-  };
-
-  const totalPages = Math.ceil(total / pageSize);
-
   const getSelectionIcon = () => {
-    if (selectedCount === 0) {
-      return <Square className="h-4 w-4" />;
-    } else if (selectedCount === totalCount) {
-      return <CheckSquare className="h-4 w-4 text-accent" />;
-    } else {
-      return <Minus className="h-4 w-4 text-accent" />;
-    }
+    if (selectedCount === 0) return <Square className="h-4 w-4" />;
+    if (selectedCount === totalCount) return <CheckSquare className="h-4 w-4 text-accent" />;
+    return <Minus className="h-4 w-4 text-accent" />;
   };
 
-  const availableFields = [
-    { key: "correlationId", label: "Correlation ID", type: "text" as const },
-    { key: "partnerId", label: "Partner ID", type: "text" as const },
-    { key: "type", label: "Type", type: "select" as const, options: [
-      { value: "ID", label: "Home Affairs ID" },
-      { value: "IDENTITY", label: "Identity" },
-      { value: "DOCUMENT", label: "Document" },
-      { value: "AVS", label: "Bank Account" },
-      { value: "CREDIT", label: "Credit Check" },
-      { value: "INCOME", label: "Income" },
-      { value: "TAX", label: "Tax Compliance" },
-      { value: "CIPC", label: "Company" },
-      { value: "DEEDS", label: "Deeds Registry" },
-      { value: "EMPLOYMENT", label: "Employment" },
-      { value: "QUALIFICATION", label: "Qualification" },
-      { value: "SANCTIONS", label: "Sanctions & PEP" },
-      { value: "NEGATIVE_NEWS", label: "Negative News" },
-      { value: "FRAUD_WATCHLIST", label: "Fraud Watchlist" },
-      { value: "FULL_VERIFICATION", label: "Full Verification" },
-      { value: "WATCHLIST", label: "Watchlist" },
-    ]},
-    { key: "status", label: "Status", type: "select" as const, options: [
-      { value: "success", label: "Success" },
-      { value: "in_progress", label: "In Progress" },
-      { value: "soft_fail", label: "Soft Fail" },
-      { value: "hard_fail", label: "Hard Fail" },
-      { value: "pending", label: "Pending" },
-      { value: "completed", label: "Completed" },
-      { value: "transient_error", label: "Transient Error" },
-      { value: "permanent_failure", label: "Permanent Failure" },
-    ]},
-    { key: "provider", label: "Provider", type: "text" as const },
-    { key: "startedAt", label: "Started Date", type: "date" as const },
-  ];
+  const renderSortIcon = (column: SortableKey) => {
+    if (sortBy !== column) return null;
+    return sortDir === "asc"
+      ? <ChevronUp className="inline h-3.5 w-3.5 ml-1" />
+      : <ChevronDown className="inline h-3.5 w-3.5 ml-1" />;
+  };
 
   return (
     <div className="space-y-4">
-      {/* Bulk Operations Bar */}
       <BulkOperationsBar
         selectedCount={selectedCount}
         totalCount={totalCount}
@@ -183,21 +132,24 @@ export default function VerificationsTable() {
         onSelectAll={selectAll}
         onDeselectAll={deselectAll}
         onToggleAll={toggleAll}
-        loading={loading}
+        loading={isLoading}
       />
 
-      {/* Quick Filters */}
-      {quickFilters.length > 0 && (
-        <QuickFilters
-          filters={quickFilters}
-          onRemoveFilter={removeQuickFilter}
-          onClearAll={clearAllFilters}
-        />
+      {error && (
+        <div className="console-card border-danger/40 bg-danger/5 text-sm text-danger">
+          <div className="console-card-body flex items-center justify-between">
+            <span>{error instanceof Error ? error.message : "Failed to load verifications"}</span>
+            <button
+              onClick={() => refetch()}
+              className="rounded border border-danger/40 px-3 py-1 text-xs font-medium hover:bg-danger/10"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* Main Table Card */}
       <div className="console-card">
-        {/* Enhanced Toolbar */}
         <div className="console-card-header">
           <div>
             <h2 className="text-aws-heading-s font-medium text-text">
@@ -210,39 +162,8 @@ export default function VerificationsTable() {
               Recent verification jobs and their status
             </p>
           </div>
-          <div className="flex items-center gap-aws-s">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Advanced Filters
-              <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
-            </Button>
-            <Button
-              variant={density === "compact" ? "primary" : "secondary"}
-              size="sm"
-              onClick={() => setDensity(density === "compact" ? "comfortable" : "compact")}
-            >
-              {density === "compact" ? "Compact" : "Comfortable"}
-            </Button>
-          </div>
         </div>
 
-        {/* Advanced Filters */}
-        {showAdvancedFilters && (
-          <div className="border-b border-border p-4">
-            <FilterBuilder
-              groups={filterGroups}
-              onGroupsChange={setFilterGroups}
-              availableFields={availableFields}
-            />
-          </div>
-        )}
-        
-        {/* Table */}
         <div className="overflow-hidden">
           <table className="aws-table">
             <thead>
@@ -257,23 +178,39 @@ export default function VerificationsTable() {
                 </th>
                 <th>Correlation ID</th>
                 <th>Partner</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Provider</th>
+                <th>
+                  <button onClick={() => handleSort("type")} className="inline-flex items-center hover:text-text">
+                    Type{renderSortIcon("type")}
+                  </button>
+                </th>
+                <th>
+                  <button onClick={() => handleSort("status")} className="inline-flex items-center hover:text-text">
+                    Status{renderSortIcon("status")}
+                  </button>
+                </th>
+                <th>
+                  <button onClick={() => handleSort("provider")} className="inline-flex items-center hover:text-text">
+                    Provider{renderSortIcon("provider")}
+                  </button>
+                </th>
                 <th>Workflow</th>
-                <th>Started</th>
+                <th>
+                  <button onClick={() => handleSort("startedAt")} className="inline-flex items-center hover:text-text">
+                    Started{renderSortIcon("startedAt")}
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {isLoading ? (
                 Array.from({ length: pageSize }).map((_, index) => (
                   <tr key={index}>
                     <td colSpan={8} className="text-center py-aws-xxl text-text-muted">
-                      <div className="animate-pulse bg-background h-4 rounded"></div>
+                      <div className="animate-pulse bg-background h-4 rounded" />
                     </td>
                   </tr>
                 ))
-              ) : items.length === 0 ? (
+              ) : items.length === 0 && !error ? (
                 <tr>
                   <td colSpan={8} className="text-center py-aws-xxl text-text-muted">
                     <p className="text-text-muted mb-aws-s">No verifications found</p>
@@ -298,7 +235,7 @@ export default function VerificationsTable() {
                       </button>
                     </td>
                     <td>
-                      <Link 
+                      <Link
                         href={`/verifications/${verification.correlationId}`}
                         className="text-accent hover:text-accent-strong font-medium"
                       >
@@ -344,9 +281,8 @@ export default function VerificationsTable() {
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination */}
-        {!loading && items.length > 0 && (
+
+        {!isLoading && items.length > 0 && (
           <div className="flex items-center justify-between px-aws-l py-aws-m border-t border-border">
             <div className="flex items-center gap-aws-l">
               <div className="flex items-center gap-aws-s">
@@ -362,7 +298,7 @@ export default function VerificationsTable() {
                   <option value={100}>100</option>
                 </select>
               </div>
-              
+
               <div className="text-aws-body text-text-muted">
                 Showing {((page - 1) * pageSize + 1).toLocaleString()}-{Math.min(page * pageSize, total).toLocaleString()} of{" "}
                 {total.toLocaleString()} items
@@ -380,7 +316,7 @@ export default function VerificationsTable() {
                 >
                   Previous
                 </Button>
-                
+
                 <span className="px-aws-m text-aws-body">
                   Page {page} of {totalPages}
                 </span>

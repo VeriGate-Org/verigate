@@ -9,6 +9,7 @@ import {
 import type { BffVerificationSubmission } from "@/lib/bff-client";
 import {
   listVerifications,
+  getVerificationDetail,
   type VerificationListParams,
 } from "@/lib/verification-api";
 
@@ -48,5 +49,13 @@ export function useVerificationList(params: VerificationListParams) {
   return useQuery({
     queryKey: ["verification-list", params],
     queryFn: () => listVerifications(params),
+  });
+}
+
+export function useVerificationDetail(correlationId: string | null) {
+  return useQuery({
+    queryKey: ["verification-detail", correlationId],
+    queryFn: () => getVerificationDetail(correlationId!),
+    enabled: !!correlationId,
   });
 }
