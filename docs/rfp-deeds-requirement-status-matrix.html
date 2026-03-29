@@ -1,0 +1,633 @@
+LLet
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deeds RFP Requirement Status Matrix</title>
+    <style>
+        :root {
+            color-scheme: light only;
+            --bg: #f6f7fb;
+            --surface: #ffffff;
+            --text: #172033;
+            --muted: #5b6474;
+            --border: #d9deea;
+            --accent: #0f5fd7;
+            --table-head: #eef3ff;
+            --code: #f3f5fa
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+        }
+
+        main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px 64px
+        }
+
+        article {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 12px 30px rgba(23, 32, 51, .06)
+        }
+
+        h1,
+        h2,
+        h3 {
+            line-height: 1.25;
+            margin: 0 0 16px
+        }
+
+        h1 {
+            font-size: 32px
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-top: 32px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border)
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-top: 24px
+        }
+
+        p,
+        ul,
+        ol {
+            margin: 0 0 16px
+        }
+
+        li {
+            margin: 0 0 6px
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        code {
+            background: var(--code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1px 6px;
+            font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow: auto;
+            margin: 20px 0 28px;
+            background: var(--surface)
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            vertical-align: top;
+            text-align: left;
+            min-width: 220px
+        }
+
+        th {
+            background: var(--table-head);
+            font-weight: 700
+        }
+
+        tr:nth-child(even) td {
+            background: #fbfcff
+        }
+
+        blockquote {
+            margin: 0 0 16px;
+            padding: 12px 16px;
+            border-left: 4px solid var(--accent);
+            background: #f7faff;
+            color: var(--muted)
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 28px 0
+        }
+
+        strong {
+            font-weight: 700
+        }
+
+        @media (max-width:720px) {
+            main {
+                padding: 16px
+            }
+
+            article {
+                padding: 20px
+            }
+
+            h1 {
+                font-size: 26px
+            }
+
+            h2 {
+                font-size: 22px
+            }
+
+            th,
+            td {
+                min-width: 180px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <article>
+            <h1>Deeds RFP Requirement Status Matrix</h1>
+            <p>This matrix reflects the current codebase after the provider-independent deeds work already implemented.
+            </p>
+            <p>Status legend:</p>
+            <ul>
+                <li><code>Covered</code>: implemented in a materially usable way in code.</li>
+                <li><code>Partial</code>: implemented in part, but still missing important scope or production
+                    hardening.</li>
+                <li><code>Scaffold</code>: implemented as a placeholder or heuristic shell, not yet RFP-grade.</li>
+                <li><code>Blocked</code>: not finishable without the external DeedsWeb/provider contract or external
+                    datasets.</li>
+                <li><code>Operational</code>: requirement is outside product code and still needs business/ops delivery
+                    proof.</li>
+            </ul>
+            <h2>Functional Requirements</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>RFP requirement</th>
+                        <th>Status</th>
+                        <th>Evidence in code</th>
+                        <th>Remaining gap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Online access to Deeds Office records through a web portal</td>
+                        <td><code>Partial</code></td>
+                        <td>Portal deeds search screen exists in
+                            <code>verigate-partner-portal/src/components/services/PropertyOwnership.client.tsx:49</code>;
+                            deeds endpoints exist in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:19</code>;
+                            services landing and sidebar navigation exist in
+                            <code>verigate-partner-portal/src/app/services/page.tsx:16</code> and
+                            <code>verigate-partner-portal/src/components/Sidebar.tsx:61</code></td>
+                        <td>Portal exists, but the live provider is still cached/mock/provider-independent rather than a
+                            real Deeds Office integration.</td>
+                    </tr>
+                    <tr>
+                        <td>Accurate property maintenance, ownership verification, and ownership transfer maintenance
+                        </td>
+                        <td><code>Partial</code></td>
+                        <td>Search payload generation and provider label are in
+                            <code>verigate-command-gateway/src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application/src/main/java/verigate/adapter/deedsweb/application/handlers/DefaultPropertyVerificationCommandHandler.java:88</code>;
+                            ownership lookup logic is in
+                            <code>verigate-command-gateway/src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application/src/main/java/verigate/adapter/deedsweb/application/services/DefaultPropertyOwnershipVerificationService.java:52</code>;
+                            property reports are built from cached history in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:137</code>
+                        </td>
+                        <td>No official provider-backed maintenance loop yet; accuracy depends on cached command
+                            payloads, not the municipal/provider source of truth.</td>
+                    </tr>
+                    <tr>
+                        <td>Notify municipality of transfers, subdivisions, consolidations, portions list, parent
+                            ownership, registration dates</td>
+                        <td><code>Partial</code></td>
+                        <td>Watch creation/update/list/alerts exist in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:147</code>;
+                            alert detection for <code>TRANSFER</code>, <code>BOND_CHANGE</code>,
+                            <code>MUNICIPAL_CHANGE</code>, and <code>PORTION_CHANGE</code> is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:597</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:625</code>
+                        </td>
+                        <td>True subdivision/consolidation detection is not implemented; parent-property ownership is
+                            not modeled explicitly; alerts are derived from cached snapshots, not official provider
+                            deltas.</td>
+                    </tr>
+                    <tr>
+                        <td>Spatial mapping of municipal boundaries and property-register updates</td>
+                        <td><code>Scaffold</code></td>
+                        <td>Spatial search endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:124</code>;
+                            synthetic boundaries and parcel shapes are generated in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:376</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1040</code>;
+                            portal map shell is in
+                            <code>verigate-partner-portal/src/app/services/deeds-map/page.tsx:8</code></td>
+                        <td>Uses synthetic geometry and cached properties only; no cadastral, SG, or official municipal
+                            boundary dataset is connected.</td>
+                    </tr>
+                    <tr>
+                        <td>Map-based search and visual investigation of properties and streets, including street-name
+                            variation handling</td>
+                        <td><code>Partial</code></td>
+                        <td>Map search filters are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:376</code>;
+                            portal workspace is in
+                            <code>verigate-partner-portal/src/app/services/deeds-map/page.tsx:16</code></td>
+                        <td>Works only against cached properties with simple string matching; no robust street-name
+                            normalization, no official GIS layers, no live cadastral investigation.</td>
+                    </tr>
+                    <tr>
+                        <td>Standard and custom area reports for changes in property information</td>
+                        <td><code>Partial</code></td>
+                        <td>Area report generation and transfer filtering are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:75</code>;
+                            API endpoints are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:29</code>;
+                            report UI is in <code>verigate-partner-portal/src/app/reports/page.tsx:23</code></td>
+                        <td>Supports current cached area-style reports, but not the full municipal custom-report scope
+                            or provider-backed datasets.</td>
+                    </tr>
+                    <tr>
+                        <td>Export results for transfers, subdivisions, and consolidations for import into municipal
+                            systems</td>
+                        <td><code>Partial</code></td>
+                        <td>Area/saved report export endpoints are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:35</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:71</code>;
+                            export creation/history is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:289</code>,
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:315</code>,
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:919</code>;
+                            export UI is in <code>verigate-partner-portal/src/app/reports/page.tsx:152</code></td>
+                        <td>Exports are generic CSV/JSON report outputs only; no municipal import schema certification,
+                            no subdivision/consolidation-specific delivery contract, no SFTP/API delivery adapter wired.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Deep-dive individual property reports for unpaid properties</td>
+                        <td><code>Partial</code></td>
+                        <td>Property report and summary/timeline generation are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:137</code>;
+                            endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:119</code>;
+                            portal detail loading is in
+                            <code>verigate-partner-portal/src/components/services/PropertyOwnership.client.tsx:161</code>
+                        </td>
+                        <td>Deep-dive reporting exists from cached data, but unpaid-property handling is only inferred
+                            from municipal flags, not a formal unpaid-property workflow.</td>
+                    </tr>
+                    <tr>
+                        <td>Centralized single view of property information and related reports</td>
+                        <td><code>Partial</code></td>
+                        <td>Property report bundles property snapshot, timeline, summary, documents, and alert types in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:164</code>;
+                            portal search/details screen is in
+                            <code>verigate-partner-portal/src/components/services/PropertyOwnership.client.tsx:49</code>
+                        </td>
+                        <td>Single-view experience exists for cached search results only; not yet a full cross-system
+                            municipal property master record.</td>
+                    </tr>
+                    <tr>
+                        <td>Saved current reports that auto-update</td>
+                        <td><code>Partial</code></td>
+                        <td>Saved reports with <code>currentReport</code> and <code>autoRefresh</code> flags are created
+                            in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:200</code>;
+                            refresh and next-run data are handled in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:268</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1011</code>;
+                            refresh cycle endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:494</code>;
+                            report UI is in <code>verigate-partner-portal/src/app/reports/page.tsx:112</code></td>
+                        <td>Auto-update is modeled, but actual scheduling infrastructure is not deployed; refresh is
+                            currently manual via API.</td>
+                    </tr>
+                    <tr>
+                        <td>Searches using full title details, farm details, sectional title details</td>
+                        <td><code>Partial</code></td>
+                        <td>Search screen supports owner name, owner ID, and ERF/title input in
+                            <code>verigate-partner-portal/src/components/services/PropertyOwnership.client.tsx:252</code>;
+                            search-type filtering is implemented in
+                            <code>verigate-command-gateway/src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application/src/main/java/verigate/adapter/deedsweb/application/services/DefaultPropertyOwnershipVerificationService.java:236</code>
+                        </td>
+                        <td>No explicit farm-details or sectional-title-specific search contracts or UI modes; depends
+                            on generic query matching.</td>
+                    </tr>
+                    <tr>
+                        <td>Deed property reports</td>
+                        <td><code>Partial</code></td>
+                        <td>Property report generation is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:137</code>;
+                            endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:119</code>
+                        </td>
+                        <td>Report exists, but it is cache-based and not backed by the real provider contract.</td>
+                    </tr>
+                    <tr>
+                        <td>Automated valuation</td>
+                        <td><code>Scaffold</code></td>
+                        <td>Valuation endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:136</code>;
+                            rules-based valuation engine is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:446</code>;
+                            UI and disclaimer are in
+                            <code>verigate-partner-portal/src/app/services/property-valuation/page.tsx:35</code></td>
+                        <td>Current valuation is explicitly a provider-independent estimate, not an official or
+                            provider-backed valuation service.</td>
+                    </tr>
+                    <tr>
+                        <td>Transfer searches by day and by month</td>
+                        <td><code>Partial</code></td>
+                        <td>Area-report date filtering is implemented in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:111</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:805</code>
+                        </td>
+                        <td>Date-range support exists in reports, but there is no dedicated transfer-search product flow
+                            by day/month with official provider data.</td>
+                    </tr>
+                    <tr>
+                        <td>Street-to-ERF conversion</td>
+                        <td><code>Scaffold</code></td>
+                        <td>Conversion endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:130</code>;
+                            matching logic is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:426</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1065</code>;
+                            portal page is in
+                            <code>verigate-partner-portal/src/app/services/property-conversion/page.tsx:8</code></td>
+                        <td>Implemented heuristically against cached addresses only; not an authoritative conversion
+                            service.</td>
+                    </tr>
+                    <tr>
+                        <td>ERF-to-street conversion</td>
+                        <td><code>Scaffold</code></td>
+                        <td>Same conversion flow as above in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:426</code>;
+                            UI direction toggle is in
+                            <code>verigate-partner-portal/src/app/services/property-conversion/page.tsx:39</code></td>
+                        <td>Same limitation: no official reference dataset or provider-backed conversion.</td>
+                    </tr>
+                    <tr>
+                        <td>Deed alerts</td>
+                        <td><code>Partial</code></td>
+                        <td>Watch APIs are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:147</code>;
+                            watch compare logic is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:625</code>;
+                            portal watch actions are in
+                            <code>verigate-partner-portal/src/components/services/PropertyOwnership.client.tsx:178</code>
+                        </td>
+                        <td>Alerts exist, but are derived from cached comparisons and do not yet cover the full official
+                            deeds event set.</td>
+                    </tr>
+                    <tr>
+                        <td>Document searches for title deed copies, endorsements, DOTS barcode/person/property,
+                            title-linked docs, SG diagrams, judgment copies, automated DOTS tracking</td>
+                        <td><code>Blocked</code></td>
+                        <td>Document manifest endpoint is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:142</code>;
+                            placeholder document descriptors are built in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1183</code>
+                        </td>
+                        <td>Actual retrieval is explicitly pending provider configuration for title deeds, endorsements,
+                            DOTS, SG diagrams, and judgments.</td>
+                    </tr>
+                    <tr>
+                        <td>Nationwide property ownership profile including registration date, purchase price, deeds
+                            copies, SG diagrams</td>
+                        <td><code>Partial</code></td>
+                        <td>Property payload includes deed number, title deed, registration date, owner, transfer, and
+                            bonds in
+                            <code>verigate-command-gateway/src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application/src/main/java/verigate/adapter/deedsweb/application/handlers/DefaultPropertyVerificationCommandHandler.java:121</code>;
+                            provider service maps registration date and purchase price in
+                            <code>verigate-command-gateway/src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application/src/main/java/verigate/adapter/deedsweb/application/services/DefaultPropertyOwnershipVerificationService.java:175</code>
+                        </td>
+                        <td>Registration and price fields exist, but document copies and SG diagrams are blocked, and
+                            nationwide completeness is not proven without the live provider/data contract.</td>
+                    </tr>
+                    <tr>
+                        <td>Unlimited portal access for unlimited users</td>
+                        <td><code>Operational</code></td>
+                        <td>General portal/auth scaffolding exists, but no code enforces or proves unlimited-user
+                            licensing</td>
+                        <td>Licensing/commercial commitment is outside the codebase and still needs business
+                            confirmation.</td>
+                    </tr>
+                    <tr>
+                        <td>Administrator rights to five or more people to manage user access</td>
+                        <td><code>Partial</code></td>
+                        <td>Deeds team CRUD exists in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:322</code>;
+                            UI for deeds team admins/operators/viewers is in
+                            <code>verigate-partner-portal/src/components/settings/Settings.client.tsx:435</code>; deeds
+                            permissions are declared in <code>verigate-partner-portal/src/lib/permissions.ts:21</code>
+                        </td>
+                        <td>Delegated team management exists, but there is no hard proof of a full backend-enforced
+                            multi-admin access-control model or explicit “5+ admin” provisioning rule.</td>
+                    </tr>
+                    <tr>
+                        <td>Deliver system access within 30 days of award</td>
+                        <td><code>Operational</code></td>
+                        <td>No code artifact can prove delivery lead time</td>
+                        <td>Requires implementation, project plan, onboarding process, and commercial commitment.</td>
+                    </tr>
+                    <tr>
+                        <td>Provide training and ongoing technical support</td>
+                        <td><code>Operational</code></td>
+                        <td>No training or support workflow is represented in code</td>
+                        <td>Requires service delivery material, training plan, and support operations.</td>
+                    </tr>
+                    <tr>
+                        <td>Provide telephone and email support within 24 hours</td>
+                        <td><code>Operational</code></td>
+                        <td>Support contact text exists in settings UI in
+                            <code>verigate-partner-portal/src/components/settings/Settings.client.tsx:123</code>, but
+                            not an SLA workflow</td>
+                        <td>Needs actual support process, staffing, and SLA proof.</td>
+                    </tr>
+                    <tr>
+                        <td>Interface with other municipal operational systems</td>
+                        <td><code>Partial</code></td>
+                        <td>Export/report APIs exist in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:29</code>;
+                            export history and persistence are in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:315</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/partner/repository/PartnerDataRepository.java:142</code>
+                        </td>
+                        <td>There is no concrete municipal integration adapter, schema mapping, or live data-exchange
+                            contract yet.</td>
+                    </tr>
+                    <tr>
+                        <td>Provide at least monthly extracts/exports/data transfer or migration</td>
+                        <td><code>Partial</code></td>
+                        <td>Saved reports store schedule metadata in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:200</code>;
+                            next-run calculation is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1011</code>;
+                            export UI/history is in <code>verigate-partner-portal/src/app/reports/page.tsx:112</code>
+                        </td>
+                        <td>Monthly cadence is modeled, but no real scheduler, transport, or municipal migration
+                            mechanism is deployed.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>Technical / Non-Functional Requirements</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>RFP requirement</th>
+                        <th>Status</th>
+                        <th>Evidence in code</th>
+                        <th>Remaining gap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Web-based software with an online portal</td>
+                        <td><code>Covered</code></td>
+                        <td>Next.js portal routes exist for services, reports, settings, map, conversion, valuation, and
+                            property search in <code>verigate-partner-portal/src/app/services/page.tsx:102</code>,
+                            <code>verigate-partner-portal/src/app/reports/page.tsx:47</code>, and
+                            <code>verigate-partner-portal/src/components/settings/Settings.client.tsx:36</code></td>
+                        <td>Covered at application level; still depends on production deployment and provider readiness
+                            for full scope.</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-user access with administrator-controlled access rights</td>
+                        <td><code>Partial</code></td>
+                        <td>Role/permission definitions are in
+                            <code>verigate-partner-portal/src/lib/permissions.ts:31</code>; deeds team management is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:322</code>
+                            and <code>verigate-partner-portal/src/components/settings/Settings.client.tsx:435</code>
+                        </td>
+                        <td>Frontend and partner-scoped team controls exist, but backend enforcement is not yet a
+                            hardened enterprise RBAC implementation across all deeds APIs.</td>
+                    </tr>
+                    <tr>
+                        <td>Ability to install, test, commission, and demonstrate deeds search and monitoring tools</td>
+                        <td><code>Partial</code></td>
+                        <td>BFF deeds APIs are concentrated in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:19</code>;
+                            portal demonstration surfaces exist in
+                            <code>verigate-partner-portal/src/app/services/page.tsx:16</code>,
+                            <code>verigate-partner-portal/src/app/reports/page.tsx:192</code>, and
+                            <code>verigate-partner-portal/src/components/settings/Settings.client.tsx:516</code></td>
+                        <td>Demonstrable provider-independent product exists, but not yet full provider-backed
+                            commissioning; automated test coverage is still incomplete.</td>
+                    </tr>
+                    <tr>
+                        <td>Ability to interface with external municipal systems</td>
+                        <td><code>Partial</code></td>
+                        <td>Export/report infrastructure exists in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:184</code>,
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:289</code>,
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:919</code>
+                        </td>
+                        <td>No actual municipal integration adapters or agreed exchange interfaces are implemented.</td>
+                    </tr>
+                    <tr>
+                        <td>Data extract/export capability at least monthly</td>
+                        <td><code>Partial</code></td>
+                        <td>Schedule metadata and next-run calculation exist in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:200</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:1011</code>;
+                            refresh cycle is in
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/service/DeedsPortfolioService.java:494</code>
+                        </td>
+                        <td>Scheduling is modeled, but no production scheduler or delivery channel exists yet.</td>
+                    </tr>
+                    <tr>
+                        <td>Bulk search turnaround of two weeks or less</td>
+                        <td><code>Operational</code></td>
+                        <td>No code path can prove turnaround SLA</td>
+                        <td>Requires delivery/process commitment and operational measurement.</td>
+                    </tr>
+                    <tr>
+                        <td>POPIA compliance and municipal ICT governance alignment</td>
+                        <td><code>Partial</code></td>
+                        <td>Partner-scoped APIs and auth scaffolding exist; monitoring/document/config flows are
+                            server-side in the BFF, for example
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/deeds/controller/DeedsController.java:19</code>
+                            and
+                            <code>verigate-web-bff/src/main/java/verigate/webbff/verification/service/MonitoringService.java:33</code>
+                        </td>
+                        <td>No deeds-specific compliance evidence pack, governance controls, or POPIA implementation
+                            proof has been assembled from the code alone.</td>
+                    </tr>
+                    <tr>
+                        <td>Training / transfer of skills for municipal users</td>
+                        <td><code>Operational</code></td>
+                        <td>No product code proves training delivery</td>
+                        <td>Needs training program, manuals, and operational commitment.</td>
+                    </tr>
+                    <tr>
+                        <td>Support model via telephone and email within 24 hours</td>
+                        <td><code>Operational</code></td>
+                        <td>No enforceable support workflow in code</td>
+                        <td>Needs support desk process and SLA proof.</td>
+                    </tr>
+                    <tr>
+                        <td>Operational onboarding within 30 days from appointment</td>
+                        <td><code>Operational</code></td>
+                        <td>No code proves onboarding timeline</td>
+                        <td>Needs implementation plan, staffing, and delivery commitment.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>Overall Position</h2>
+            <h3>What is materially covered in code now</h3>
+            <ul>
+                <li>Web portal access and navigation for deeds search, reports, settings, map, conversion, and
+                    valuation.</li>
+                <li>Cached deeds reports, exports, watches, alerts, audit events, and delegated deeds team management.
+                </li>
+                <li>Provider-independent map, conversion, and valuation scaffolding.</li>
+            </ul>
+            <h3>What is still the main blocker</h3>
+            <ul>
+                <li>Real provider-backed deeds/document/DOTS behavior remains blocked by the external DeedsWeb contract
+                    and related datasets.</li>
+            </ul>
+            <h3>What still falls short even without the provider</h3>
+            <ul>
+                <li>Spatial and conversion accuracy are not RFP-grade yet.</li>
+                <li>Valuation is placeholder logic only.</li>
+                <li>Scheduling/integration/compliance/support/onboarding requirements are not fully closed by code.</li>
+            </ul>
+        </article>
+    </main>
+</body>
+
+</html>

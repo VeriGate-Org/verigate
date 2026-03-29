@@ -27,6 +27,9 @@ import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
 import verigate.webbff.auth.ApiKeyService.GeneratedApiKey;
+import verigate.webbff.partner.model.PartnerProfileResponse;
+import verigate.webbff.partner.model.PartnerProfileUpdateRequest;
+import verigate.webbff.partner.service.PartnerFeatureService;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -37,14 +40,17 @@ public class AdminController {
   private final ApiKeyService apiKeyService;
   private final PartnerService partnerService;
   private final PartnerRepository partnerRepository;
+  private final PartnerFeatureService partnerFeatureService;
 
   public AdminController(
       ApiKeyService apiKeyService,
       PartnerService partnerService,
-      PartnerRepository partnerRepository) {
+      PartnerRepository partnerRepository,
+      PartnerFeatureService partnerFeatureService) {
     this.apiKeyService = apiKeyService;
     this.partnerService = partnerService;
     this.partnerRepository = partnerRepository;
+    this.partnerFeatureService = partnerFeatureService;
   }
 
   @PostMapping("/partners")
@@ -70,6 +76,24 @@ public class AdminController {
     return partnerRepository.findById(partnerId)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Partner not found: " + partnerId));
+  }
+
+  @GetMapping("/partners/{partnerId}/profile")
+  public PartnerProfileResponse getPartnerProfile(@PathVariable String partnerId) {
+    partnerRepository.findById(partnerId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Partner not found: " + partnerId));
+    return partnerFeatureService.getProfile(partnerId);
+  }
+
+  @PutMapping("/partners/{partnerId}/entitlements")
+  public PartnerProfileResponse updatePartnerEntitlements(
+      @PathVariable String partnerId,
+      @RequestBody PartnerProfileUpdateRequest request) {
+    partnerRepository.findById(partnerId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Partner not found: " + partnerId));
+    return partnerFeatureService.updateEntitlements(partnerId, request);
   }
 
   @PutMapping("/partners/{partnerId}/status")

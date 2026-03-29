@@ -10,12 +10,15 @@ import {
   GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
+import { Feature, type FeatureKey, getRequiredPlan } from "@/lib/tenant-features";
 
 interface NavItem {
   name: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
+  feature?: FeatureKey;
 }
 
 interface NavSection {
@@ -31,7 +34,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { name: "Verification Log", path: "/verifications", icon: Search },
-      { name: "Cases", path: "/cases", icon: ClipboardList, badge: "NEW" },
+      { name: "Cases", path: "/cases", icon: ClipboardList, badge: "NEW", feature: Feature.CASE_MANAGEMENT },
     ],
   },
   {
@@ -58,10 +61,10 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     items: [
       { name: "Company & Directors", path: "/services/company", icon: Building2 },
-      { name: "Deeds Registry", path: "/services/property-ownership", icon: Map },
-      { name: "Deeds Map", path: "/services/deeds-map", icon: Map },
-      { name: "Street / ERF Conversion", path: "/services/property-conversion", icon: Search },
-      { name: "Property Valuation", path: "/services/property-valuation", icon: TrendingUp },
+      { name: "Deeds Registry", path: "/services/property-ownership", icon: Map, feature: Feature.DEEDS_REGISTRY },
+      { name: "Deeds Map", path: "/services/deeds-map", icon: Map, feature: Feature.DEEDS_MAP },
+      { name: "Street / ERF Conversion", path: "/services/property-conversion", icon: Search, feature: Feature.DEEDS_CONVERSION },
+      { name: "Property Valuation", path: "/services/property-valuation", icon: TrendingUp, feature: Feature.DEEDS_VALUATION },
       { name: "Employment", path: "/services/employment", icon: Briefcase },
       { name: "Qualification", path: "/services/qualification", icon: GraduationCap },
     ],
@@ -71,8 +74,8 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     items: [
       { name: "Sanctions & PEP", path: "/services/sanctions", icon: ShieldAlert },
-      { name: "Negative News", path: "/services/negative-news", icon: Newspaper },
-      { name: "Fraud Watchlist", path: "/services/fraud-watchlist", icon: AlertTriangle },
+      { name: "Negative News", path: "/services/negative-news", icon: Newspaper, feature: Feature.ADVANCED_SCREENING },
+      { name: "Fraud Watchlist", path: "/services/fraud-watchlist", icon: AlertTriangle, feature: Feature.ADVANCED_SCREENING },
     ],
   },
   {
@@ -86,9 +89,9 @@ const NAV_SECTIONS: NavSection[] = [
     name: "Enterprise Features",
     defaultExpanded: false,
     items: [
-      { name: "Policy Builder", path: "/policies", icon: GitBranch, badge: "NEW" },
-      { name: "Monitoring", path: "/monitoring", icon: Eye, badge: "NEW" },
-      { name: "Reports & Analytics", path: "/reports", icon: FileText, badge: "NEW" },
+      { name: "Policy Builder", path: "/policies", icon: GitBranch, badge: "NEW", feature: Feature.POLICY_BUILDER },
+      { name: "Monitoring", path: "/monitoring", icon: Eye, badge: "NEW", feature: Feature.MONITORING },
+      { name: "Reports & Analytics", path: "/reports", icon: FileText, badge: "NEW", feature: Feature.REPORTING },
     ],
   },
   {
@@ -103,6 +106,7 @@ const NAV_SECTIONS: NavSection[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { hasFeature } = useTenantFeatures();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [expandedSections, setExpandedSections] = React.useState<Set<string>>(
     new Set(NAV_SECTIONS.filter(s => s.defaultExpanded).map(s => s.name))
@@ -201,20 +205,32 @@ export default function Sidebar() {
               {favoriteItems.map((item) => {
                 const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
                 const Icon = item.icon;
+                const disabled = item.feature ? !hasFeature(item.feature) : false;
+                const requiredPlanLabel = item.feature ? PLAN_LABELS[getRequiredPlan(item.feature)] : null;
                 return (
                   <div key={item.path} className="relative group">
-                    <Link
-                      href={item.path}
-                      className={cn(
-                        "flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent",
-                        isActive
-                          ? "bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent-strong)] border-[color:var(--color-accent-border)]"
-                          : "text-text hover:bg-hover hover:text-[color:var(--color-accent-strong)]"
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="truncate flex-1">{item.name}</span>
-                    </Link>
+                    {disabled ? (
+                      <div
+                        className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded border border-transparent text-text-muted opacity-65"
+                        title={`Requires ${requiredPlanLabel} plan`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="truncate flex-1">{item.name}</span>
+                      </div>
+                    ) : (
+                      <Link
+                        href={item.path}
+                        className={cn(
+                          "flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent",
+                          isActive
+                            ? "bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent-strong)] border-[color:var(--color-accent-border)]"
+                            : "text-text hover:bg-hover hover:text-[color:var(--color-accent-strong)]"
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="truncate flex-1">{item.name}</span>
+                      </Link>
+                    )}
                     <button
                       onClick={() => toggleFavorite(item.path)}
                       className="absolute right-1 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -257,26 +273,43 @@ export default function Sidebar() {
                       const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
                       const Icon = item.icon;
                       const isFavorite = favorites.has(item.path);
+                      const disabled = item.feature ? !hasFeature(item.feature) : false;
+                      const requiredPlanLabel = item.feature ? PLAN_LABELS[getRequiredPlan(item.feature)] : null;
 
                       return (
                         <div key={item.path} className="relative group">
-                          <Link
-                            href={item.path}
-                            className={cn(
-                              "flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent",
-                              isActive
-                                ? "bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent-strong)] border-[color:var(--color-accent-border)]"
-                                : "text-text hover:bg-hover hover:text-[color:var(--color-accent-strong)]"
-                            )}
-                          >
-                            <Icon className="h-4 w-4" />
-                            <span className="truncate flex-1">{item.name}</span>
-                            {item.badge && (
-                              <span className="px-1.5 py-0.5 text-[10px] rounded bg-accent text-white">
-                                {item.badge}
-                              </span>
-                            )}
-                          </Link>
+                          {disabled ? (
+                            <div
+                              className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded border border-transparent text-text-muted opacity-65"
+                              title={`Requires ${requiredPlanLabel} plan`}
+                            >
+                              <Icon className="h-4 w-4" />
+                              <span className="truncate flex-1">{item.name}</span>
+                              {item.badge && (
+                                <span className="px-1.5 py-0.5 text-[10px] rounded bg-[color:var(--color-base-200)] text-text-muted">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <Link
+                              href={item.path}
+                              className={cn(
+                                "flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent",
+                                isActive
+                                  ? "bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent-strong)] border-[color:var(--color-accent-border)]"
+                                  : "text-text hover:bg-hover hover:text-[color:var(--color-accent-strong)]"
+                              )}
+                            >
+                              <Icon className="h-4 w-4" />
+                              <span className="truncate flex-1">{item.name}</span>
+                              {item.badge && (
+                                <span className="px-1.5 py-0.5 text-[10px] rounded bg-accent text-white">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </Link>
+                          )}
                           <button
                             onClick={() => toggleFavorite(item.path)}
                             className="absolute right-1 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 transition-opacity"

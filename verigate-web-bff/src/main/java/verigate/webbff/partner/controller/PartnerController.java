@@ -30,6 +30,11 @@ import verigate.webbff.partner.model.PolicyResponse;
 import verigate.webbff.partner.model.ReportListResponse;
 import verigate.webbff.partner.model.ReportRequest;
 import verigate.webbff.partner.model.ReportResponse;
+import verigate.webbff.partner.features.PartnerFeatureAccessService;
+import static verigate.webbff.partner.features.PartnerFeatureCatalog.API_KEYS;
+import static verigate.webbff.partner.features.PartnerFeatureCatalog.DATA_EXPORT;
+import static verigate.webbff.partner.features.PartnerFeatureCatalog.POLICY_BUILDER;
+import static verigate.webbff.partner.features.PartnerFeatureCatalog.REPORTING;
 import verigate.webbff.partner.service.PartnerFeatureService;
 
 @RestController
@@ -40,10 +45,15 @@ public class PartnerController {
 
   private final PartnerFeatureService featureService;
   private final ApiKeyService apiKeyService;
+  private final PartnerFeatureAccessService featureAccessService;
 
-  public PartnerController(PartnerFeatureService featureService, ApiKeyService apiKeyService) {
+  public PartnerController(
+      PartnerFeatureService featureService,
+      ApiKeyService apiKeyService,
+      PartnerFeatureAccessService featureAccessService) {
     this.featureService = featureService;
     this.apiKeyService = apiKeyService;
+    this.featureAccessService = featureAccessService;
   }
 
   private String requirePartnerId() {
@@ -54,12 +64,15 @@ public class PartnerController {
 
   @GetMapping("/policies")
   public PolicyListResponse listPolicies() {
-    return featureService.listPolicies(requirePartnerId());
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
+    return featureService.listPolicies(partnerId);
   }
 
   @PostMapping("/policies")
   public ResponseEntity<PolicyResponse> createPolicy(@Valid @RequestBody PolicyRequest request) {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
     logger.info("Creating policy: partnerId={}, name={}", partnerId, request.name());
     var response = featureService.savePolicy(partnerId, request, null);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -67,8 +80,10 @@ public class PartnerController {
 
   @GetMapping("/policies/{policyId}")
   public PolicyResponse getPolicy(@PathVariable String policyId) {
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
     try {
-      return featureService.getPolicy(requirePartnerId(), policyId);
+      return featureService.getPolicy(partnerId, policyId);
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -79,20 +94,25 @@ public class PartnerController {
       @PathVariable String policyId,
       @Valid @RequestBody PolicyRequest request) {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
     logger.info("Updating policy: partnerId={}, policyId={}", partnerId, policyId);
     return featureService.savePolicy(partnerId, request, policyId);
   }
 
   @DeleteMapping("/policies/{policyId}")
   public ResponseEntity<Void> deletePolicy(@PathVariable String policyId) {
-    featureService.deletePolicy(requirePartnerId(), policyId);
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
+    featureService.deletePolicy(partnerId, policyId);
     return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/policies/{policyId}/publish")
   public PolicyResponse publishPolicy(@PathVariable String policyId) {
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, POLICY_BUILDER);
     try {
-      return featureService.publishPolicy(requirePartnerId(), policyId);
+      return featureService.publishPolicy(partnerId, policyId);
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -102,12 +122,15 @@ public class PartnerController {
 
   @GetMapping("/reports")
   public ReportListResponse listReports() {
-    return featureService.listReports(requirePartnerId());
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, REPORTING);
+    return featureService.listReports(partnerId);
   }
 
   @PostMapping("/reports/generate")
   public ResponseEntity<ReportResponse> generateReport(@Valid @RequestBody ReportRequest request) {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, REPORTING);
     logger.info("Generating report: partnerId={}, type={}", partnerId, request.type());
     var response = featureService.generateReport(partnerId, request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -117,8 +140,10 @@ public class PartnerController {
   public ReportResponse scheduleReport(
       @PathVariable String reportId,
       @Valid @RequestBody ReportRequest.ScheduleConfig schedule) {
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, REPORTING);
     try {
-      return featureService.scheduleReport(requirePartnerId(), reportId, schedule);
+      return featureService.scheduleReport(partnerId, reportId, schedule);
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -126,7 +151,9 @@ public class PartnerController {
 
   @DeleteMapping("/reports/{reportId}")
   public ResponseEntity<Void> deleteReport(@PathVariable String reportId) {
-    featureService.deleteReport(requirePartnerId(), reportId);
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, REPORTING);
+    featureService.deleteReport(partnerId, reportId);
     return ResponseEntity.noContent().build();
   }
 
@@ -139,6 +166,11 @@ public class PartnerController {
 
   @PutMapping("/profile")
   public PartnerProfileResponse updateProfile(@RequestBody PartnerProfileUpdateRequest request) {
+    if (request.billingPlan() != null || request.enabledFeatures() != null) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "Billing plan and feature entitlements are managed by platform administrators");
+    }
     return featureService.updateProfile(requirePartnerId(), request);
   }
 
@@ -147,6 +179,7 @@ public class PartnerController {
   @GetMapping("/api-keys")
   public ApiKeyListResponse listApiKeys() {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, API_KEYS);
     var records = apiKeyService.listApiKeys(partnerId);
     var items = records.stream()
         .map(r -> new ApiKeyListResponse.ApiKeyItem(
@@ -161,6 +194,7 @@ public class PartnerController {
   @PostMapping("/api-keys")
   public ResponseEntity<ApiKeyResponse> generateApiKey() {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, API_KEYS);
     logger.info("Generating API key for partner: {}", partnerId);
     GeneratedApiKey generated = apiKeyService.generateApiKey(partnerId, "partner-portal");
     var record = generated.record();
@@ -176,6 +210,7 @@ public class PartnerController {
   @DeleteMapping("/api-keys/{keyPrefix}")
   public ResponseEntity<Void> revokeApiKey(@PathVariable String keyPrefix) {
     String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, API_KEYS);
     logger.info("Revoking API key: partner={}, prefix={}", partnerId, keyPrefix);
     var records = apiKeyService.listApiKeys(partnerId);
     var match = records.stream()
@@ -204,7 +239,9 @@ public class PartnerController {
 
   @PostMapping("/verifications/export")
   public BulkActionResponse exportVerifications(@Valid @RequestBody BulkActionRequest request) {
-    return featureService.exportVerifications(requirePartnerId(), request.commandIds(), request.format());
+    String partnerId = requirePartnerId();
+    featureAccessService.requireFeature(partnerId, DATA_EXPORT);
+    return featureService.exportVerifications(partnerId, request.commandIds(), request.format());
   }
 
   @PostMapping("/verifications/retry")

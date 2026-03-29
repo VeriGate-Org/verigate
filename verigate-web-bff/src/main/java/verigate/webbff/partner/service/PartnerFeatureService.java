@@ -18,6 +18,8 @@ import verigate.webbff.partner.model.PolicyResponse;
 import verigate.webbff.partner.model.ReportListResponse;
 import verigate.webbff.partner.model.ReportRequest;
 import verigate.webbff.partner.model.ReportResponse;
+import verigate.webbff.partner.features.PartnerFeatureAccessService;
+import verigate.webbff.partner.features.PartnerFeatureCatalog;
 import verigate.webbff.partner.repository.PartnerDataRepository;
 import verigate.webbff.verification.repository.CommandStatusRepository;
 
@@ -29,14 +31,17 @@ public class PartnerFeatureService {
   private final PartnerDataRepository repository;
   private final CommandStatusRepository commandStatusRepository;
   private final ObjectMapper objectMapper;
+  private final PartnerFeatureAccessService featureAccessService;
 
   public PartnerFeatureService(
       PartnerDataRepository repository,
       CommandStatusRepository commandStatusRepository,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper,
+      PartnerFeatureAccessService featureAccessService) {
     this.repository = repository;
     this.commandStatusRepository = commandStatusRepository;
     this.objectMapper = objectMapper;
+    this.featureAccessService = featureAccessService;
   }
 
   // ── Policies ──────────────────────────────────────────────────────
@@ -170,11 +175,15 @@ public class PartnerFeatureService {
 
   public PartnerProfileResponse getProfile(String partnerId) {
     var data = repository.getProfile(partnerId).orElse(Map.of());
+    var entitlements = featureAccessService.getEntitlements(partnerId);
     return new PartnerProfileResponse(
         partnerId,
         (String) data.getOrDefault("name", partnerId),
         (String) data.getOrDefault("contactEmail", ""),
-        (String) data.getOrDefault("billingPlan", "standard"),
+        entitlements.billingPlan(),
+        entitlements.enabledFeatures(),
+        entitlements.resolvedFeatures(),
+        entitlements.quotas(),
         (String) data.getOrDefault("status", "ACTIVE"),
         (String) data.get("createdAt"));
   }
@@ -185,6 +194,19 @@ public class PartnerFeatureService {
     if (request.contactEmail() != null) existing.put("contactEmail", request.contactEmail());
     repository.saveProfile(partnerId, existing);
     logger.info("Updated profile: partnerId={}", partnerId);
+    return getProfile(partnerId);
+  }
+
+  public PartnerProfileResponse updateEntitlements(String partnerId, PartnerProfileUpdateRequest request) {
+    var existing = repository.getProfile(partnerId).orElse(new HashMap<>());
+    if (request.billingPlan() != null) {
+      existing.put("billingPlan", PartnerFeatureCatalog.normalizePlan(request.billingPlan()));
+    }
+    if (request.enabledFeatures() != null) {
+      existing.put("enabledFeatures", PartnerFeatureCatalog.normalizeEnabledFeatures(request.enabledFeatures()));
+    }
+    repository.saveProfile(partnerId, existing);
+    logger.info("Updated entitlements: partnerId={}", partnerId);
     return getProfile(partnerId);
   }
 

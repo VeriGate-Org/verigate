@@ -1,7 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
+import { Feature, type FeatureKey, getRequiredPlan } from "@/lib/tenant-features";
 
-const SERVICES = [
+type ServiceCard = {
+  name: string;
+  description: string;
+  path: string;
+  feature?: FeatureKey;
+};
+
+const SERVICES: ReadonlyArray<ServiceCard> = [
   {
     name: "Home Affairs ID verification",
     description: "Validate South African IDs directly against the DHA registry.",
@@ -16,21 +27,25 @@ const SERVICES = [
     name: "Deeds registry search",
     description: "Surface ownership, bonds, and municipal arrears for properties.",
     path: "/services/property-ownership",
+    feature: Feature.DEEDS_REGISTRY,
   },
   {
     name: "Deeds spatial map",
     description: "Explore cached property records and municipal boundaries in a map-style workspace.",
     path: "/services/deeds-map",
+    feature: Feature.DEEDS_MAP,
   },
   {
     name: "Street / ERF conversion",
     description: "Convert street references to ERF details and back using provider-independent matching.",
     path: "/services/property-conversion",
+    feature: Feature.DEEDS_CONVERSION,
   },
   {
     name: "Property valuation",
     description: "Estimate indicative value from cached transfer history and comparable sales.",
     path: "/services/property-valuation",
+    feature: Feature.DEEDS_VALUATION,
   },
   {
     name: "Bank account validation",
@@ -61,11 +76,13 @@ const SERVICES = [
     name: "Negative news screening",
     description: "Scan media and public records for adverse information.",
     path: "/services/negative-news",
+    feature: Feature.ADVANCED_SCREENING,
   },
   {
     name: "Fraud watchlist screening",
     description: "Check against SAFPS and industry fraud databases.",
     path: "/services/fraud-watchlist",
+    feature: Feature.ADVANCED_SCREENING,
   },
   {
     name: "Document verification",
@@ -97,9 +114,10 @@ const SERVICES = [
     description: "Consolidated screening across global sanctions and watchlist databases.",
     path: "/services/sanctions",
   },
-] as const;
+];
 
 export default function ServicesIndexPage() {
+  const { hasFeature } = useTenantFeatures();
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -114,13 +132,27 @@ export default function ServicesIndexPage() {
               <div className="space-y-1">
                 <h2 className="text-sm font-semibold text-text">{service.name}</h2>
                 <p className="text-xs text-text-muted">{service.description}</p>
+                {service.feature && !hasFeature(service.feature) && (
+                  <p className="text-[11px] text-text-muted">
+                    Requires {PLAN_LABELS[getRequiredPlan(service.feature)]} plan
+                  </p>
+                )}
               </div>
-              <Link
-                href={service.path}
-                className="inline-flex items-center gap-1 rounded border border-primary px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/5"
-              >
-                Open <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              {service.feature && !hasFeature(service.feature) ? (
+                <span
+                  className="inline-flex items-center gap-1 rounded border border-border px-3 py-1.5 text-xs font-medium text-text-muted"
+                  title={`Requires ${PLAN_LABELS[getRequiredPlan(service.feature)]} plan`}
+                >
+                  Locked <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <Link
+                  href={service.path}
+                  className="inline-flex items-center gap-1 rounded border border-primary px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/5"
+                >
+                  Open <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
           </article>
         ))}

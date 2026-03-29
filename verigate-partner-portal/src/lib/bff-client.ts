@@ -728,6 +728,9 @@ export interface BffProfileResponse {
   name: string;
   contactEmail: string;
   billingPlan: string;
+  enabledFeatures: string[];
+  resolvedFeatures: string[];
+  quotas: Record<string, number>;
   status: string;
   createdAt: string | null;
 }
@@ -740,8 +743,29 @@ export async function getProfile(): Promise<BffProfileResponse> {
 export async function updateProfile(payload: {
   name?: string;
   contactEmail?: string;
+  billingPlan?: string;
+  enabledFeatures?: string[];
 }): Promise<BffProfileResponse> {
   const { data } = await bffApi.put<BffProfileResponse>("/api/partner/profile", payload);
+  return data;
+}
+
+export async function getAdminPartnerProfile(partnerId: string): Promise<BffProfileResponse> {
+  const { data } = await bffApi.get<BffProfileResponse>(`/api/admin/partners/${partnerId}/profile`);
+  return data;
+}
+
+export async function updateAdminPartnerEntitlements(
+  partnerId: string,
+  payload: {
+    billingPlan?: string;
+    enabledFeatures?: string[];
+  },
+): Promise<BffProfileResponse> {
+  const { data } = await bffApi.put<BffProfileResponse>(
+    `/api/admin/partners/${partnerId}/entitlements`,
+    payload,
+  );
   return data;
 }
 

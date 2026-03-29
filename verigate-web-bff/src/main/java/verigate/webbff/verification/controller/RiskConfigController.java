@@ -86,7 +86,7 @@ public class RiskConfigController {
 
     // --- Policies ---
 
-    @GetMapping("/policies")
+    @GetMapping("/risk-policies")
     public ResponseEntity<List<Map<String, Object>>> listPolicies() {
         String partnerId = PartnerContextHolder.requirePartnerId();
         logger.info("Listing policies for partner {}", partnerId);
@@ -97,7 +97,7 @@ public class RiskConfigController {
         return ResponseEntity.ok(policies);
     }
 
-    @PostMapping("/policies")
+    @PostMapping("/risk-policies")
     public ResponseEntity<Map<String, Object>> createPolicy(
             @RequestBody Map<String, Object> policy) {
         String partnerId = PartnerContextHolder.requirePartnerId();
@@ -122,7 +122,7 @@ public class RiskConfigController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toPolicyMap(model));
     }
 
-    @GetMapping("/policies/{policyId}")
+    @GetMapping("/risk-policies/{policyId}")
     public ResponseEntity<Map<String, Object>> getPolicy(@PathVariable String policyId) {
         String partnerId = PartnerContextHolder.requirePartnerId();
         logger.info("Fetching policy {} for partner {}", policyId, partnerId);
@@ -135,7 +135,7 @@ public class RiskConfigController {
         return ResponseEntity.ok(toPolicyMap(policy));
     }
 
-    @PutMapping("/policies/{policyId}")
+    @PutMapping("/risk-policies/{policyId}")
     public ResponseEntity<Map<String, Object>> updatePolicy(
             @PathVariable String policyId,
             @RequestBody Map<String, Object> policy) {
@@ -167,7 +167,7 @@ public class RiskConfigController {
         return ResponseEntity.ok(toPolicyMap(existing));
     }
 
-    @PostMapping("/policies/{policyId}/publish")
+    @PostMapping("/risk-policies/{policyId}/publish")
     public ResponseEntity<Map<String, Object>> publishPolicy(@PathVariable String policyId) {
         String partnerId = PartnerContextHolder.requirePartnerId();
         logger.info("Publishing policy {} for partner {}", policyId, partnerId);
@@ -189,7 +189,7 @@ public class RiskConfigController {
         return ResponseEntity.ok(toPolicyMap(existing));
     }
 
-    @DeleteMapping("/policies/{policyId}")
+    @DeleteMapping("/risk-policies/{policyId}")
     public ResponseEntity<Void> deletePolicy(@PathVariable String policyId) {
         String partnerId = PartnerContextHolder.requirePartnerId();
         logger.info("Deleting policy {} for partner {}", policyId, partnerId);

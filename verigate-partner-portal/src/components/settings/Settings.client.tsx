@@ -22,9 +22,12 @@ import {
   type BffDeedsAuditEventResponse,
   type BffDeedsTeamMemberResponse,
 } from "@/lib/bff-client";
+import { FEATURE_LABELS, PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
+import { type FeatureKey } from "@/lib/tenant-features";
 
 const TABS = [
   { id: "profile", label: "Profile" },
+  { id: "plan-features", label: "Entitlements" },
   { id: "api-keys", label: "API Keys" },
   { id: "notifications", label: "Notifications" },
   { id: "deeds-ops", label: "Deeds Ops" },
@@ -75,6 +78,7 @@ export default function Settings() {
       </div>
 
       {activeTab === "profile" && <ProfileTab />}
+      {activeTab === "plan-features" && <PlanFeaturesTab />}
       {activeTab === "api-keys" && <ApiKeysTab />}
       {activeTab === "notifications" && <NotificationsTab />}
       {activeTab === "deeds-ops" && <DeedsOpsTab />}
@@ -143,6 +147,80 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
         className="aws-input w-full max-w-md cursor-default bg-[color:var(--color-base-200)] text-text-muted"
       />
     </label>
+  );
+}
+
+function PlanFeaturesTab() {
+  const { profile } = useTenantFeatures();
+  const enabledOverrides = profile.enabledFeatures ?? [];
+  const resolvedFeatures = profile.resolvedFeatures ?? [];
+
+  return (
+    <div className="space-y-6">
+      <div className="console-card">
+        <div className="console-card-header">
+          <div>
+            <div className="text-sm font-semibold text-text">Tenant entitlements</div>
+            <div className="text-xs text-text-muted">
+              Billing plans and feature overrides are managed by platform administrators and are read-only here.
+            </div>
+          </div>
+        </div>
+        <div className="console-card-body space-y-4">
+          <ReadOnlyField label="Billing plan" value={PLAN_LABELS[profile.billingPlan as keyof typeof PLAN_LABELS] ?? profile.billingPlan ?? "—"} />
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-text">Resolved features</div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {resolvedFeatures.length > 0 ? (
+                resolvedFeatures.map((feature) => (
+                  <div key={feature} className="rounded border border-border bg-background p-3">
+                    <div className="text-sm font-medium text-text">
+                      {FEATURE_LABELS[feature as FeatureKey] ?? feature}
+                    </div>
+                    <div className="text-xs text-text-muted">Enabled for this tenant.</div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded border border-dashed border-border bg-background p-3 text-sm text-text-muted">
+                  No resolved features configured.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-text">Explicit feature overrides</div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {enabledOverrides.length > 0 ? (
+                enabledOverrides.map((feature) => (
+                  <div key={feature} className="rounded border border-border bg-background p-3">
+                    <div className="text-sm font-medium text-text">
+                      {FEATURE_LABELS[feature as FeatureKey] ?? feature}
+                    </div>
+                    <div className="text-xs text-text-muted">Granted by platform-admin override.</div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded border border-dashed border-border bg-background p-3 text-sm text-text-muted">
+                  No explicit overrides configured.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded border border-border bg-[color:var(--color-base-200)] p-4 text-xs text-text-muted">
+            Quotas:
+            {" "}
+            {Object.entries(profile.quotas ?? {}).map(([key, value]) => `${key}: ${value}`).join(" • ")}
+          </div>
+
+          <div className="rounded border border-border bg-background p-4 text-xs text-text-muted">
+            Contact the VeriGate platform team if you need a plan change or a feature override for this tenant.
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
