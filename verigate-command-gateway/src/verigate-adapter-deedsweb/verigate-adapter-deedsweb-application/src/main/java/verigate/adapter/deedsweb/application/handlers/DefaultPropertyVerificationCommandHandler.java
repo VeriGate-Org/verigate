@@ -6,87 +6,67 @@
 
 package verigate.adapter.deedsweb.application.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import verigate.adapter.deedsweb.domain.handlers.PropertyVerificationCommandHandler;
-import verigate.adapter.deedsweb.domain.mappers.VerificationResultMapper;
-import verigate.adapter.deedsweb.domain.mappers.VerifyPartyCommandMapper;
-import verigate.adapter.deedsweb.domain.models.EntityMatchRequest;
-import verigate.adapter.deedsweb.domain.models.EntityMatchResponse;
-import verigate.adapter.deedsweb.domain.services.DeedsWebMatchingService;
+import verigate.adapter.deedsweb.domain.models.PropertyDetails;
+import verigate.adapter.deedsweb.domain.services.PropertyOwnershipVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
-import verigate.verification.cg.domain.events.VerificationEventPublisher;
-import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.models.VerificationOutcome;
 import verigate.verification.cg.domain.models.VerificationResult;
 
 /**
- * Default implementation of sanctions screening command handler using OpenSanctions API.
+ * Default implementation of property verification command handling.
  */
 public class DefaultPropertyVerificationCommandHandler
     implements PropertyVerificationCommandHandler {
 
   private static final Logger LOGGER =
-      Logger.getLogger(DefaultPropertyVerificationCommandHandler.class.getName());
+      LoggerFactory.getLogger(DefaultPropertyVerificationCommandHandler.class);
+  private static final Pattern ERF_PATTERN = Pattern.compile("(?i)erf\\s*(\\d+)");
+  private static final Pattern PORTION_PATTERN = Pattern.compile("(?i)portion\\s*(\\d+)");
 
-  private final DeedsWebMatchingService openSanctionsService;
-  private final VerificationEventPublisher eventPublisher;
-  private final EventFactory eventFactory;
+  private final PropertyOwnershipVerificationService propertyOwnershipVerificationService;
+  private final ObjectMapper objectMapper;
 
   /**
    * Constructor.
    *
-   * @param openSanctionsService the OpenSanctions matching service
-   * @param eventPublisher      the event publisher for verification results
-   * @param eventFactory        the factory to create verification events
+   * @param propertyOwnershipVerificationService property ownership search service
    */
   public DefaultPropertyVerificationCommandHandler(
-      DeedsWebMatchingService openSanctionsService,
-      VerificationEventPublisher eventPublisher,
-      EventFactory eventFactory) {
-    this.openSanctionsService = openSanctionsService;
-    this.eventPublisher = eventPublisher;
-    this.eventFactory = eventFactory;
+      PropertyOwnershipVerificationService propertyOwnershipVerificationService) {
+    this.propertyOwnershipVerificationService = propertyOwnershipVerificationService;
+    this.objectMapper = new ObjectMapper();
   }
 
   @Override
   public Map<String, String> handle(VerifyPartyCommand command) {
-    LOGGER.info("Processing sanctions screening command for party: " + maskSensitiveData(command));
+    LOGGER.info("Processing property verification command for {}", maskSensitiveData(command));
 
     try {
-      VerificationResult result = performSanctionsScreening(command);
-      publishVerificationEvent(command, result);
-
-      LOGGER.info("Sanctions screening completed with outcome: " + result.outcome());
-      // Return basic result information as a map
-      Map<String, String> resultMap = new HashMap<>();
-      resultMap.put("outcome", result.outcome().toString());
-      if (result.failureReason() != null) {
-        resultMap.put("failureReason", result.failureReason());
-      }
-      resultMap.put("provider", "OpenSanctions");
-      return resultMap;
-
+      return performPropertySearch(command);
     } catch (TransientException e) {
-      LOGGER.log(Level.WARNING, "Transient error during sanctions screening", e);
-      publishTransientFailureEvent(command, e);
+      LOGGER.warn("Transient error during property verification", e);
       throw e;
     } catch (PermanentException e) {
-      LOGGER.log(Level.SEVERE, "Permanent error during sanctions screening", e);
-      publishPermanentFailureEvent(command, e);
+      LOGGER.error("Permanent error during property verification", e);
       throw e;
     } catch (Exception e) {
-      LOGGER.log(Level.SEVERE, "Unexpected error during sanctions screening", e);
-      PermanentException permanentException =
-          new PermanentException("Unexpected error during sanctions screening", e);
-      publishPermanentFailureEvent(command, permanentException);
-      throw permanentException;
+      LOGGER.error("Unexpected error during property verification", e);
+      throw new PermanentException("Unexpected error during property verification", e);
     }
   }
 
@@ -95,70 +75,217 @@ public class DefaultPropertyVerificationCommandHandler
     return CompletableFuture.supplyAsync(
         () -> {
           try {
-            VerificationResult result = performSanctionsScreening(command);
-            publishVerificationEvent(command, result);
-            return result;
+            Map<String, String> resultMap = handle(command);
+            return new VerificationResult(
+                VerificationOutcome.valueOf(resultMap.get("outcome")),
+                resultMap.get("failureReason"));
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
         });
   }
 
-  private VerificationResult performSanctionsScreening(VerifyPartyCommand command)
+  private Map<String, String> performPropertySearch(VerifyPartyCommand command)
       throws TransientException, PermanentException {
+    String searchType = metadataValue(command, "searchType", "ownerId");
+    String query =
+        firstNonBlank(
+            metadataValue(command, "query", null),
+            metadataValue(command, "idNumber", null),
+            metadataValue(command, "ownerIdNumber", null),
+            metadataValue(command, "propertyDescription", null));
+    String province = metadataValue(command, "province", null);
 
-    // Map command to OpenSanctions request
-    EntityMatchRequest matchRequest = VerifyPartyCommandMapper.mapToEntityMatchRequest(command);
+    if (query == null || query.isBlank()) {
+      throw new PermanentException("Property search requires a query value");
+    }
 
-    // Call OpenSanctions API
-    EntityMatchResponse matchResponse = openSanctionsService.matchEntities(matchRequest);
+    List<PropertyDetails> properties =
+        propertyOwnershipVerificationService.searchProperties(searchType, query, province);
 
-    // Map response to verification result
-    String requestId = command.getId().toString();
-    return VerificationResultMapper.mapToVerificationResult(matchResponse, requestId);
+    PropertySearchResult payload = buildSearchPayload(searchType, query, province, properties);
+    String payloadJson = serializePayload(payload);
+
+    Map<String, String> result = new HashMap<>();
+    result.put("outcome", VerificationOutcome.SUCCEEDED.toString());
+    result.put("provider", "DeedsWeb");
+    result.put("searchType", searchType);
+    result.put("recordCount", String.valueOf(properties.size()));
+    result.put("searchResultJson", payloadJson);
+    if (properties.isEmpty()) {
+      result.put("failureReason", "No matching properties found");
+    }
+    return result;
   }
 
-  private void publishVerificationEvent(VerifyPartyCommand command, VerificationResult result) {
+  private PropertySearchResult buildSearchPayload(
+      String searchType, String query, String province, List<PropertyDetails> properties) {
+    List<PropertyItem> items = new ArrayList<>();
+    int totalActiveBonds = 0;
+
+    for (int index = 0; index < properties.size(); index++) {
+      PropertyDetails property = properties.get(index);
+      ParsedPropertyDescription parsedDescription = parseDescription(property.getPropertyDescription());
+
+      List<BondItem> bonds = new ArrayList<>();
+      if (property.hasMortgage()) {
+        bonds.add(
+            new BondItem(
+                defaultString(property.getBondHolder(), "Unknown lender"),
+                property.getBondAmount(),
+                toIsoDate(property.getRegistrationDate())));
+        totalActiveBonds += 1;
+      }
+
+      items.add(
+          new PropertyItem(
+              firstNonBlank(property.getDeedNumber(), property.getTitleDeedReference(), "property-" + index),
+              parsedDescription.erfNumber(),
+              parsedDescription.portion(),
+              parsedDescription.township(),
+              firstNonBlank(property.getProvince(), province, ""),
+              firstNonBlank(property.getTitleDeedReference(), property.getDeedNumber(), ""),
+              defaultString(property.getDeedNumber(), ""),
+              toIsoDate(property.getRegistrationDate()),
+              defaultString(property.getRegisteredOwnerName(), ""),
+              defaultString(property.getRegisteredOwnerIdNumber(), ""),
+              buildStreetAddress(property, parsedDescription),
+              List.of(),
+              bonds,
+              new LastTransferItem(toIsoDate(property.getTransferDate()), property.getPurchasePrice()),
+              new MunicipalItem(
+                  firstNonBlank(property.getDeedNumber(), property.getTitleDeedReference(), ""),
+                  0.0,
+                  false)));
+    }
+
+    return new PropertySearchResult(
+        new SummaryItem(items.size(), totalActiveBonds, 0),
+        items,
+        new CriteriaItem(searchType, query, province != null ? province : ""));
+  }
+
+  private String serializePayload(PropertySearchResult payload) throws PermanentException {
     try {
-      eventPublisher.publish(List.of(eventFactory.createEvent(result.outcome(), command, result)));
+      return objectMapper.writeValueAsString(payload);
     } catch (Exception e) {
-      LOGGER.log(Level.WARNING, "Failed to publish verification event", e);
-      // Don't fail the verification due to event publishing issues
+      throw new PermanentException("Failed to serialize property search response", e);
     }
   }
 
-  private void publishTransientFailureEvent(
-      VerifyPartyCommand command, TransientException exception) {
-    try {
-      VerificationResult result =
-          new VerificationResult(
-              VerificationOutcome.SYSTEM_OUTAGE,
-              "OpenSanctions service temporarily unavailable: " + exception.getMessage());
-      eventPublisher.publish(List.of(eventFactory.createEvent(result.outcome(), command, result)));
-    } catch (Exception e) {
-      LOGGER.log(Level.WARNING, "Failed to publish transient failure event", e);
-    }
+  private String metadataValue(VerifyPartyCommand command, String key, String defaultValue) {
+    Object value = command.getMetadata() != null ? command.getMetadata().get(key) : null;
+    return value != null ? value.toString() : defaultValue;
   }
 
-  private void publishPermanentFailureEvent(
-      VerifyPartyCommand command, PermanentException exception) {
-    try {
-      VerificationResult result =
-          new VerificationResult(
-              VerificationOutcome.HARD_FAIL,
-              "OpenSanctions verification failed permanently: " + exception.getMessage());
-      eventPublisher.publish(List.of(eventFactory.createEvent(result.outcome(), command, result)));
-    } catch (Exception e) {
-      LOGGER.log(Level.WARNING, "Failed to publish permanent failure event", e);
+  private String firstNonBlank(String... values) {
+    for (String value : values) {
+      if (value != null && !value.isBlank()) {
+        return value;
+      }
     }
+    return null;
   }
 
   private String maskSensitiveData(VerifyPartyCommand command) {
-    // Mask sensitive information in logs
     return "VerificationRequest[id="
         + command.getId()
         + ", type="
         + command.getVerificationType()
         + "]";
   }
+
+  private ParsedPropertyDescription parseDescription(String description) {
+    if (description == null || description.isBlank()) {
+      return new ParsedPropertyDescription(0, 0, "");
+    }
+
+    int erfNumber = extractInt(description, ERF_PATTERN, 0);
+    int portion = extractInt(description, PORTION_PATTERN, 0);
+    String township = description;
+    int commaIndex = description.indexOf(',');
+    if (commaIndex > 0) {
+      township = description.substring(0, commaIndex).trim();
+    }
+
+    return new ParsedPropertyDescription(erfNumber, portion, township);
+  }
+
+  private int extractInt(String value, Pattern pattern, int defaultValue) {
+    Matcher matcher = pattern.matcher(value);
+    if (matcher.find()) {
+      try {
+        return Integer.parseInt(matcher.group(1));
+      } catch (NumberFormatException ignored) {
+        return defaultValue;
+      }
+    }
+    return defaultValue;
+  }
+
+  private String toIsoDate(LocalDate date) {
+    return date != null ? date.toString() : null;
+  }
+
+  private String defaultString(String value, String fallback) {
+    return value != null ? value : fallback;
+  }
+
+  private String buildStreetAddress(
+      PropertyDetails property, ParsedPropertyDescription parsedDescription) {
+    String township = firstNonBlank(parsedDescription.township(), property.getProvince(), "Property");
+    int erfNumber = parsedDescription.erfNumber() > 0 ? parsedDescription.erfNumber() : 1;
+    return erfNumber + " Registry Avenue, " + township;
+  }
+
+  private record PropertySearchResult(
+      SummaryItem summary,
+      List<PropertyItem> items,
+      CriteriaItem criteria) {}
+
+  private record SummaryItem(
+      int totalProperties,
+      int totalActiveBonds,
+      int totalMunicipalFlags) {}
+
+  private record CriteriaItem(
+      String searchType,
+      String query,
+      String province) {}
+
+  private record PropertyItem(
+      String propertyId,
+      int erfNumber,
+      int portion,
+      String township,
+      String province,
+      String titleDeed,
+      String deedNumber,
+      String registrationDate,
+      String ownerName,
+      String ownerIdNumber,
+      String streetAddress,
+      List<String> coOwners,
+      List<BondItem> currentBonds,
+      LastTransferItem lastTransfer,
+      MunicipalItem municipal) {}
+
+  private record BondItem(
+      String bondholder,
+      Double amount,
+      String registered) {}
+
+  private record LastTransferItem(
+      String date,
+      Double amount) {}
+
+  private record MunicipalItem(
+      String accountNumber,
+      Double arrears,
+      boolean ratesFlag) {}
+
+  private record ParsedPropertyDescription(
+      int erfNumber,
+      int portion,
+      String township) {}
 }

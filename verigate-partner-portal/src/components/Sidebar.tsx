@@ -59,6 +59,9 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: "Company & Directors", path: "/services/company", icon: Building2 },
       { name: "Deeds Registry", path: "/services/property-ownership", icon: Map },
+      { name: "Deeds Map", path: "/services/deeds-map", icon: Map },
+      { name: "Street / ERF Conversion", path: "/services/property-conversion", icon: Search },
+      { name: "Property Valuation", path: "/services/property-valuation", icon: TrendingUp },
       { name: "Employment", path: "/services/employment", icon: Briefcase },
       { name: "Qualification", path: "/services/qualification", icon: GraduationCap },
     ],

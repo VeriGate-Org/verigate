@@ -13,18 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import verigate.adapter.deedsweb.domain.models.EntityMatchResponse;
-import verigate.adapter.deedsweb.domain.services.DeedsWebMatchingService;
+import verigate.adapter.deedsweb.domain.models.PropertyDetails;
+import verigate.adapter.deedsweb.domain.services.PropertyOwnershipVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
-import verigate.verification.cg.domain.events.VerificationEventPublisher;
-import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.models.VerificationResult;
 import verigate.verification.cg.domain.models.VerificationOutcome;
 import verigate.verification.cg.domain.models.VerificationType;
-import verigate.verification.cg.domain.events.VerificationSucceededEvent;
-import verigate.verification.cg.domain.events.VerificationHardFailEvent;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
@@ -37,13 +35,7 @@ import static org.mockito.Mockito.*;
 class DefaultPropertyVerificationCommandHandlerTest {
 
     @Mock
-    private DeedsWebMatchingService mockOpenSanctionsService;
-
-    @Mock
-    private VerificationEventPublisher mockEventPublisher;
-
-    @Mock
-    private EventFactory mockEventFactory;
+    private PropertyOwnershipVerificationService propertyOwnershipVerificationService;
 
     private DefaultPropertyVerificationCommandHandler handler;
     private VerifyPartyCommand testCommand;
@@ -51,94 +43,93 @@ class DefaultPropertyVerificationCommandHandlerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        handler = new DefaultPropertyVerificationCommandHandler(
-            mockOpenSanctionsService, 
-            mockEventPublisher, 
-            mockEventFactory
-        );
+        handler = new DefaultPropertyVerificationCommandHandler(propertyOwnershipVerificationService);
 
         // Create test command instance
         Map<String, Object> testMetadata = new HashMap<>();
-        testMetadata.put("firstName", "John");
-        testMetadata.put("lastName", "Doe");
-        testMetadata.put("dateOfBirth", "1980-01-01");
+        testMetadata.put("searchType", "ownerId");
+        testMetadata.put("query", "8001015009087");
+        testMetadata.put("province", "KwaZulu-Natal");
         
         testCommand = new VerifyPartyCommand(
             UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
             Instant.now(),
             "test-user",
-            VerificationType.SANCTIONS_SCREENING,
+            VerificationType.PROPERTY_OWNERSHIP_VERIFICATION,
             null,
             testMetadata
         );
-        
-        // Mock the event factory to return concrete event instances
-        VerificationSucceededEvent successEvent = new VerificationSucceededEvent(
-            UUID.randomUUID(), Instant.now(), Instant.now(), null, VerificationType.SANCTIONS_SCREENING, null
-        );
-        VerificationHardFailEvent failEvent = new VerificationHardFailEvent(
-            UUID.randomUUID(), Instant.now(), Instant.now(), null, VerificationType.SANCTIONS_SCREENING, null
-        );
-        
-        // Set up different mocks for different outcomes
-        when(mockEventFactory.createEvent(eq(VerificationOutcome.SUCCEEDED), any(), any())).thenReturn(successEvent);
-        when(mockEventFactory.createEvent(eq(VerificationOutcome.HARD_FAIL), any(), any())).thenReturn(failEvent);
-        when(mockEventFactory.createEvent(eq(VerificationOutcome.SYSTEM_OUTAGE), any(), any())).thenReturn(failEvent);
-        when(mockEventFactory.createEvent(eq(VerificationOutcome.SOFT_FAIL), any(), any())).thenReturn(failEvent);
     }
 
     @Test
-    void handle_noMatches_returnsSuccessfulVerification() throws Exception {
+    void handle_searchResults_returnsStructuredPropertyPayload() throws Exception {
         // Arrange
-        EntityMatchResponse mockResponse = new EntityMatchResponse(Map.of(), Map.of(), 5);
-        when(mockOpenSanctionsService.matchEntities(any())).thenReturn(mockResponse);
+        List<PropertyDetails> properties = List.of(
+            new PropertyDetails.Builder()
+                .deedNumber("T12345/2024")
+                .titleDeedReference("T12345/2024")
+                .propertyDescription("Erf 101 Portion 2, Newcastle Central")
+                .province("KwaZulu-Natal")
+                .registrationDivision("Newcastle Central")
+                .registeredOwnerName("Jane Doe")
+                .registeredOwnerIdNumber("8001015009087")
+                .registrationDate(LocalDate.of(2024, 3, 11))
+                .transferDate(LocalDate.of(2024, 3, 11))
+                .purchasePrice(1250000.0)
+                .bondHolder("ABSA")
+                .bondAmount(900000.0)
+                .build()
+        );
+        when(propertyOwnershipVerificationService.searchProperties("ownerId", "8001015009087", "KwaZulu-Natal"))
+            .thenReturn(properties);
 
         // Act
         Map<String, String> result = handler.handle(testCommand);
 
         // Assert
         assertNotNull(result);
-        assertEquals("OpenSanctions", result.get("provider"));
+        assertEquals("DeedsWeb", result.get("provider"));
         assertEquals("SUCCEEDED", result.get("outcome"));
+        assertEquals("1", result.get("recordCount"));
+        assertNotNull(result.get("searchResultJson"));
+        assertTrue(result.get("searchResultJson").contains("\"titleDeed\":\"T12345/2024\""));
+        assertTrue(result.get("searchResultJson").contains("\"ownerName\":\"Jane Doe\""));
 
-        verify(mockOpenSanctionsService).matchEntities(any());
-        verify(mockEventPublisher).publish(any());
-        verify(mockEventFactory).createEvent(eq(VerificationOutcome.SUCCEEDED), eq(testCommand), any());
+        verify(propertyOwnershipVerificationService)
+            .searchProperties("ownerId", "8001015009087", "KwaZulu-Natal");
     }
 
     @Test
     void handle_transientException_throwsAndPublishesEvent() throws Exception {
         // Arrange
         TransientException transientError = new TransientException("Service temporarily unavailable");
-        when(mockOpenSanctionsService.matchEntities(any())).thenThrow(transientError);
+        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+            .thenThrow(transientError);
 
         // Act & Assert
         assertThrows(TransientException.class, () -> handler.handle(testCommand));
-        
-        verify(mockOpenSanctionsService).matchEntities(any());
-        verify(mockEventPublisher).publish(any());
-        verify(mockEventFactory).createEvent(eq(VerificationOutcome.SYSTEM_OUTAGE), eq(testCommand), any());
+
+        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
     }
 
     @Test
     void handle_permanentException_throwsAndPublishesEvent() throws Exception {
         // Arrange
         PermanentException permanentError = new PermanentException("Invalid request data");
-        when(mockOpenSanctionsService.matchEntities(any())).thenThrow(permanentError);
+        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+            .thenThrow(permanentError);
 
         // Act & Assert
         assertThrows(PermanentException.class, () -> handler.handle(testCommand));
-        
-        verify(mockOpenSanctionsService).matchEntities(any());
-        verify(mockEventPublisher).publish(any());
-        verify(mockEventFactory).createEvent(eq(VerificationOutcome.HARD_FAIL), eq(testCommand), any());
+
+        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
     }
 
     @Test
     void handleAsync_validCommand_returnsCompletableFuture() throws Exception {
         // Arrange
-        EntityMatchResponse mockResponse = new EntityMatchResponse(Map.of(), Map.of(), 5);
-        when(mockOpenSanctionsService.matchEntities(any())).thenReturn(mockResponse);
+        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+            .thenReturn(List.of());
 
         // Act
         var futureResult = handler.handleAsync(testCommand);
@@ -149,7 +140,6 @@ class DefaultPropertyVerificationCommandHandlerTest {
         assertNotNull(result);
         assertEquals(VerificationOutcome.SUCCEEDED, result.outcome());
 
-        verify(mockOpenSanctionsService).matchEntities(any());
-        verify(mockEventPublisher).publish(any());
+        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
     }
 }

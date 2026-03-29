@@ -93,9 +93,11 @@ export interface PropertyRecord {
   township: string;
   province: string;
   titleDeed: string;
+  deedNumber?: string;
   registrationDate: string;
   ownerName: string;
   ownerIdNumber: string;
+  streetAddress?: string;
   coOwners: string[];
   currentBonds: BondDetail[];
   lastTransfer: { date: string; amount: number };
@@ -258,9 +260,11 @@ export function generatePropertyOwnershipResponse({ searchType, query, province 
     const portion = rand(1, 50);
     const township = towns[rand(0, towns.length - 1)];
     const titleDeed = `T${rand(10, 99)}/${rand(10000, 99999)}`;
+    const deedNumber = `D${rand(10, 99)}/${rand(10000, 99999)}`;
     const registrationDate = new Date(Date.now() - rand(30, 3000) * 24 * 60 * 60 * 1000).toISOString();
     const ownerName = searchType === "ownerName" ? query : `Owner ${i + 1}`;
     const ownerIdNumber = searchType === "ownerId" ? query : `8${rand(0, 9)}0${rand(0, 9)}${rand(1000000000, 9999999999)}`;
+    const streetAddress = `${rand(10, 999)} ${township} Avenue`;
     const bondsCount = rand(0, 2);
     const currentBonds = Array.from({ length: bondsCount }).map(() => ({
       bondholder: bondholders[rand(0, bondholders.length - 1)],
@@ -277,9 +281,11 @@ export function generatePropertyOwnershipResponse({ searchType, query, province 
       township,
       province,
       titleDeed,
+      deedNumber,
       registrationDate,
       ownerName,
       ownerIdNumber,
+      streetAddress,
       coOwners: rand(0, 3) === 0 ? ["Co Owner One"] : [],
       currentBonds,
       lastTransfer,
@@ -780,4 +786,3 @@ export async function mockFullVerification(request: any, delayMs?: number) {
   await wait(delayMs);
   return generateFullVerificationResponse(request);
 }
-

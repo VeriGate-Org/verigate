@@ -1,42 +1,42 @@
-# OpenSanctions Adapter Environment Variables
+# DeedsWeb Adapter Environment Variables
 
-This document describes the environment variables used by the OpenSanctions adapter for configuring API access and operational parameters.
+This document describes the environment variables used by the DeedsWeb adapter for configuring API access and operational parameters.
 
 ## Required Environment Variables
 
-### OPENSANCTIONS_API_KEY
-- **Description**: API key for accessing the OpenSanctions API
+### DEEDSWEB_API_KEY
+- **Description**: API key, token, or credential secret for accessing the DeedsWeb provider
 - **Required**: Yes
-- **Example**: `your-opensanctions-api-key-here`
-- **Notes**: Obtain from [OpenSanctions](https://www.opensanctions.org/api/)
+- **Example**: `your-deedsweb-api-key-here`
+- **Notes**: Until the real provider contract is wired, this is treated as a generic provider credential.
 
 ## Optional Environment Variables
 
-### OPENSANCTIONS_BASE_URL
-- **Description**: Base URL for the OpenSanctions API
+### DEEDSWEB_BASE_URL
+- **Description**: Base URL for the DeedsWeb endpoint
 - **Required**: No
-- **Default**: `https://api.opensanctions.org`
-- **Example**: `https://api.opensanctions.org`
+- **Default**: `https://deedssoap.deeds.gov.za`
+- **Example**: `https://deedssoap.deeds.gov.za`
 
-### OPENSANCTIONS_CONNECTION_TIMEOUT_MS
+### DEEDSWEB_CONNECTION_TIMEOUT_MS
 - **Description**: HTTP connection timeout in milliseconds
 - **Required**: No
 - **Default**: `30000` (30 seconds)
 - **Example**: `45000`
 
-### OPENSANCTIONS_READ_TIMEOUT_MS
+### DEEDSWEB_READ_TIMEOUT_MS
 - **Description**: HTTP read timeout in milliseconds
 - **Required**: No
 - **Default**: `60000` (60 seconds)
 - **Example**: `90000`
 
-### OPENSANCTIONS_RETRY_ATTEMPTS
+### DEEDSWEB_RETRY_ATTEMPTS
 - **Description**: Number of retry attempts for failed requests
 - **Required**: No
 - **Default**: `3`
 - **Example**: `5`
 
-### OPENSANCTIONS_RETRY_DELAY_MS
+### DEEDSWEB_RETRY_DELAY_MS
 - **Description**: Delay between retry attempts in milliseconds
 - **Required**: No
 - **Default**: `1000` (1 second)
@@ -55,12 +55,12 @@ The adapter uses the following configuration priority (highest to lowest):
 
 ```bash
 # Required
-export OPENSANCTIONS_API_KEY="your-api-key-here"
+export DEEDSWEB_API_KEY="your-api-key-here"
 
 # Optional customizations
-export OPENSANCTIONS_CONNECTION_TIMEOUT_MS="45000"
-export OPENSANCTIONS_READ_TIMEOUT_MS="90000"
-export OPENSANCTIONS_RETRY_ATTEMPTS="5"
+export DEEDSWEB_CONNECTION_TIMEOUT_MS="45000"
+export DEEDSWEB_READ_TIMEOUT_MS="90000"
+export DEEDSWEB_RETRY_ATTEMPTS="5"
 ```
 
 ## Production Recommendations

@@ -17,7 +17,14 @@ export type Permission =
   | "manage_settings"
   | "manage_users"
   | "view_reports"
-  | "create_reports";
+  | "create_reports"
+  | "view_deeds_map"
+  | "manage_deeds_reports"
+  | "manage_deeds_watches"
+  | "manage_deeds_exports"
+  | "manage_deeds_users"
+  | "use_deeds_conversion"
+  | "use_deeds_valuation";
 
 export type Role = "admin" | "operator" | "viewer" | "auditor";
 
@@ -40,6 +47,13 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "manage_users",
     "view_reports",
     "create_reports",
+    "view_deeds_map",
+    "manage_deeds_reports",
+    "manage_deeds_watches",
+    "manage_deeds_exports",
+    "manage_deeds_users",
+    "use_deeds_conversion",
+    "use_deeds_valuation",
   ],
   operator: [
     "view_dashboard",
@@ -51,6 +65,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_adapters",
     "view_audit",
     "view_reports",
+    "view_deeds_map",
+    "manage_deeds_reports",
+    "manage_deeds_watches",
+    "use_deeds_conversion",
+    "use_deeds_valuation",
   ],
   viewer: [
     "view_dashboard",
@@ -60,6 +79,9 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_adapters",
     "view_audit",
     "view_reports",
+    "view_deeds_map",
+    "use_deeds_conversion",
+    "use_deeds_valuation",
   ],
   auditor: [
     "view_dashboard",
@@ -70,6 +92,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_audit",
     "view_reports",
     "create_reports",
+    "view_deeds_map",
   ],
 };
 
@@ -123,6 +146,9 @@ export class PermissionService {
       "/audit": ["view_audit"],
       "/settings": ["view_settings"],
       "/reports": ["view_reports"],
+      "/services/deeds-map": ["view_deeds_map"],
+      "/services/property-conversion": ["use_deeds_conversion"],
+      "/services/property-valuation": ["use_deeds_valuation"],
     };
 
     const requiredPermissions = routePermissions[route];

@@ -12,15 +12,25 @@ import verigate.adapter.deedsweb.domain.models.PropertyDetails;
 import verigate.adapter.deedsweb.domain.models.PropertyOwnershipCheck;
 
 /**
- * Service interface for property ownership verification against DeedsWeb records.
- * Provides capabilities to verify property ownership, retrieve property records,
- * and evaluate ownership from pre-fetched property data.
+ * Service interface for property ownership verification against DeedsWeb records. Provides
+ * capabilities to search property records, verify ownership, and evaluate ownership from
+ * pre-fetched property data.
  */
 public interface PropertyOwnershipVerificationService {
 
   /**
-   * Performs a full property ownership verification for a subject.
-   * Searches DeedsWeb for properties registered to the subject and evaluates ownership.
+   * Performs a provider-agnostic property search for the supplied criteria.
+   *
+   * @param searchType the search mode (ownerName, ownerId, erf/title details)
+   * @param query the user-supplied search query
+   * @param province optional province filter
+   * @return matching property records
+   */
+  List<PropertyDetails> searchProperties(String searchType, String query, String province);
+
+  /**
+   * Performs a full property ownership verification for a subject. Searches DeedsWeb for properties
+   * registered to the subject and evaluates ownership.
    *
    * @param subjectIdNumber the ID number of the person being checked
    * @param subjectName the name of the person being checked
@@ -39,9 +49,8 @@ public interface PropertyOwnershipVerificationService {
   List<PropertyDetails> findPropertiesByOwner(String ownerIdNumber);
 
   /**
-   * Evaluates property ownership from an already-retrieved list of properties.
-   * Useful when property data has been fetched separately and only the
-   * ownership evaluation logic is needed.
+   * Evaluates property ownership from an already-retrieved list of properties. Useful when property
+   * data has been fetched separately and only the ownership evaluation logic is needed.
    *
    * @param subjectIdNumber the ID number of the person being checked
    * @param subjectName the name of the person being checked

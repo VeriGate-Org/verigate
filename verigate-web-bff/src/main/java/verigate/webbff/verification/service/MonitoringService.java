@@ -77,12 +77,13 @@ public class MonitoringService {
       String subjectId, String partnerId, Map<String, Object> updates) {
     MonitoredSubjectDataModel existing = getSubject(subjectId, partnerId);
     String now = Instant.now().toString();
+    String previousStatus = existing.getStatus();
 
     if (updates.containsKey("status")) {
       String newStatus = (String) updates.get("status");
       existing.setStatus(newStatus);
 
-      if ("ACTIVE".equals(newStatus) && "PAUSED".equals(existing.getStatus())) {
+      if ("ACTIVE".equals(newStatus) && "PAUSED".equals(previousStatus)) {
         String nextCheckAt = computeNextCheckAt(now, existing.getMonitoringFrequency());
         existing.setNextCheckAt(nextCheckAt);
         existing.setStatusNextCheck(newStatus + "#" + nextCheckAt);
@@ -102,6 +103,14 @@ public class MonitoringService {
         existing.setNextCheckAt(nextCheckAt);
         existing.setStatusNextCheck(existing.getStatus() + "#" + nextCheckAt);
       }
+    }
+
+    if (updates.containsKey("metadataJson")) {
+      existing.setMetadataJson((String) updates.get("metadataJson"));
+    }
+
+    if (updates.containsKey("subjectName")) {
+      existing.setSubjectName((String) updates.get("subjectName"));
     }
 
     existing.setUpdatedAt(now);

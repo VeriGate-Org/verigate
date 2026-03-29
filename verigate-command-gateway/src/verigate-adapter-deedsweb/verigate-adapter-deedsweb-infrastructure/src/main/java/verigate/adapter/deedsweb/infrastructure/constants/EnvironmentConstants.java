@@ -6,24 +6,44 @@
 
 package verigate.adapter.deedsweb.infrastructure.constants;
 
-/**
- * Environment variable constants for OpenSanctions adapter.
- */
+/** Environment variable and property-key constants for the DeedsWeb adapter. */
 public class EnvironmentConstants {
 
-  // OpenSanctions API configuration
-  public static final String OPENSANCTIONS_API_KEY = "OPENSANCTIONS_API_KEY";
-  public static final String OPENSANCTIONS_BASE_URL = "OPENSANCTIONS_BASE_URL";
+  // Preferred DeedsWeb environment variables
+  public static final String DEEDSWEB_API_KEY = "DEEDSWEB_API_KEY";
+  public static final String DEEDSWEB_BASE_URL = "DEEDSWEB_BASE_URL";
+  public static final String DEEDSWEB_CONNECTION_TIMEOUT_MS = "DEEDSWEB_CONNECTION_TIMEOUT_MS";
+  public static final String DEEDSWEB_READ_TIMEOUT_MS = "DEEDSWEB_READ_TIMEOUT_MS";
+  public static final String DEEDSWEB_RETRY_ATTEMPTS = "DEEDSWEB_RETRY_ATTEMPTS";
+  public static final String DEEDSWEB_RETRY_DELAY_MS = "DEEDSWEB_RETRY_DELAY_MS";
 
-  // HTTP client configuration
-  public static final String OPENSANCTIONS_CONNECTION_TIMEOUT_MS =
-      "OPENSANCTIONS_CONNECTION_TIMEOUT_MS";
-  public static final String OPENSANCTIONS_READ_TIMEOUT_MS = "OPENSANCTIONS_READ_TIMEOUT_MS";
-  public static final String OPENSANCTIONS_RETRY_ATTEMPTS = "OPENSANCTIONS_RETRY_ATTEMPTS";
-  public static final String OPENSANCTIONS_RETRY_DELAY_MS = "OPENSANCTIONS_RETRY_DELAY_MS";
+  // Legacy compatibility environment variables
+  public static final String LEGACY_API_KEY = "OPENSANCTIONS_API_KEY";
+  public static final String LEGACY_BASE_URL = "OPENSANCTIONS_BASE_URL";
+  public static final String LEGACY_CONNECTION_TIMEOUT_MS = "OPENSANCTIONS_CONNECTION_TIMEOUT_MS";
+  public static final String LEGACY_READ_TIMEOUT_MS = "OPENSANCTIONS_READ_TIMEOUT_MS";
+  public static final String LEGACY_RETRY_ATTEMPTS = "OPENSANCTIONS_RETRY_ATTEMPTS";
+  public static final String LEGACY_RETRY_DELAY_MS = "OPENSANCTIONS_RETRY_DELAY_MS";
+
+  // Property keys
+  public static final String PROPERTY_API_KEY = "deedsweb.api.key";
+  public static final String PROPERTY_BASE_URL = "deedsweb.base.url";
+  public static final String PROPERTY_CONNECTION_TIMEOUT_MS = "deedsweb.connection.timeout.ms";
+  public static final String PROPERTY_READ_TIMEOUT_MS = "deedsweb.read.timeout.ms";
+  public static final String PROPERTY_RETRY_ATTEMPTS = "deedsweb.retry.attempts";
+  public static final String PROPERTY_RETRY_DELAY_MS = "deedsweb.retry.delay.ms";
+
+  // Legacy property keys
+  public static final String LEGACY_PROPERTY_API_KEY = "opensanctions.api.key";
+  public static final String LEGACY_PROPERTY_BASE_URL = "opensanctions.base.url";
+  public static final String LEGACY_PROPERTY_CONNECTION_TIMEOUT_MS =
+      "opensanctions.connection.timeout.ms";
+  public static final String LEGACY_PROPERTY_READ_TIMEOUT_MS = "opensanctions.read.timeout.ms";
+  public static final String LEGACY_PROPERTY_RETRY_ATTEMPTS = "opensanctions.retry.attempts";
+  public static final String LEGACY_PROPERTY_RETRY_DELAY_MS = "opensanctions.retry.delay.ms";
 
   // Default values
-  public static final String DEFAULT_BASE_URL = "https://api.opensanctions.org";
+  public static final String DEFAULT_BASE_URL = "https://deedssoap.deeds.gov.za";
   public static final String DEFAULT_CONNECTION_TIMEOUT_MS = "30000";
   public static final String DEFAULT_READ_TIMEOUT_MS = "60000";
   public static final String DEFAULT_RETRY_ATTEMPTS = "3";

@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/**
- * Mock implementation of OpenSanctions matching service for testing.
- */
+/** Mock implementation of the DeedsWeb matching service for testing. */
 public class MockDeedsWebMatchingService implements DeedsWebMatchingService {
 
     private static final Logger LOGGER = Logger.getLogger(MockDeedsWebMatchingService.class.getName());
@@ -132,33 +130,68 @@ public class MockDeedsWebMatchingService implements DeedsWebMatchingService {
     }
 
     private EntityMatchResponse createMockSearchResponse(String dataset, String query, Integer limit) {
-        // Create a simpler mock response for search
-        ScoredEntity mockEntity = new ScoredEntity.Builder()
-            .id("search-result-456")
-            .caption("Mock Search Result")
-            .schema("Person")
-            .properties(Map.of("name", List.of(query)))
+        ScoredEntity primaryEntity = new ScoredEntity.Builder()
+            .id("deed-" + Math.abs(query.hashCode()))
+            .caption(query + " Property")
+            .schema("RealEstate")
+            .properties(Map.of(
+                "deedNumber", List.of("T12345/2024"),
+                "titleDeedReference", List.of("T12345/2024"),
+                "propertyDescription", List.of("Erf 101 Portion 2, Newcastle Central"),
+                "registrationDivision", List.of("Newcastle Central"),
+                "province", List.of("KwaZulu-Natal"),
+                "extent", List.of("850"),
+                "registeredOwnerName", List.of(query.matches(\"\\\\d+\") ? \"Owner 1\" : query),
+                "registeredOwnerIdNumber", List.of(query.matches(\"\\\\d+\") ? query : \"8001015009087\"),
+                "registrationDate", List.of("2024-03-11"),
+                "transferDate", List.of("2024-03-11"),
+                "purchasePrice", List.of(1250000),
+                "bondHolder", List.of("ABSA"),
+                "bondAmount", List.of(900000)
+            ))
             .datasets(List.of(dataset))
-            .score(0.75)
-            .features(Map.of("text_similarity", 0.75))
+            .score(0.97)
+            .features(Map.of("query_match", 0.97))
+            .build();
+
+        ScoredEntity secondaryEntity = new ScoredEntity.Builder()
+            .id("deed-secondary-" + Math.abs(query.hashCode()))
+            .caption(query + " Property 2")
+            .schema("RealEstate")
+            .properties(Map.of(
+                "deedNumber", List.of("T54321/2022"),
+                "titleDeedReference", List.of("T54321/2022"),
+                "propertyDescription", List.of("Erf 202 Portion 0, Newcastle Industrial"),
+                "registrationDivision", List.of("Newcastle Industrial"),
+                "province", List.of("KwaZulu-Natal"),
+                "extent", List.of("1200"),
+                "registeredOwnerName", List.of(query.matches(\"\\\\d+\") ? \"Owner 2\" : query),
+                "registeredOwnerIdNumber", List.of(query.matches(\"\\\\d+\") ? query : \"8001015009087\"),
+                "registrationDate", List.of("2022-08-05"),
+                "transferDate", List.of("2022-08-05"),
+                "purchasePrice", List.of(1750000)
+            ))
+            .datasets(List.of(dataset))
+            .score(0.88)
+            .features(Map.of("query_match", 0.88))
             .build();
 
         EntityExample mockQuery = new EntityExample.Builder()
             .id("search-query")
-            .schema("Person")
-            .properties(Map.of("name", List.of(query)))
+            .schema("RealEstate")
+            .properties(Map.of("query", List.of(query)))
             .build();
 
         EntityMatches mockMatches = new EntityMatches(
             200,
-            List.of(mockEntity),
-            new TotalSpec(1, "eq"),
+            List.of(primaryEntity, secondaryEntity),
+            new TotalSpec(2, "eq"),
             mockQuery
         );
 
         Map<String, EntityMatches> responses = Map.of("search", mockMatches);
         Map<String, FeatureDoc> matcher = Map.of(
-            "text_similarity", new FeatureDoc("Text similarity", 1.0, "https://example.com/docs/text_similarity")
+            "query_match", new FeatureDoc("Query match", 1.0, "https://example.com/docs/query_match")
         );
 
         return new EntityMatchResponse(responses, matcher, limit);

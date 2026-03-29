@@ -134,8 +134,8 @@ class AdminControllerTest {
   void generateApiKeyReturnsCreated() throws Exception {
     LocalDateTime now = LocalDateTime.now();
     ApiKeyRecord record = new ApiKeyRecord(
-        "abc123hash", "p-001", "ACTIVE",
-        "vg_live_", now, null, "admin");
+        "abc123hash", "verification-hash", "salt",
+        "p-001", "ACTIVE", "vg_live_", now, null, "admin");
     when(apiKeyService.generateApiKey("p-001", "admin"))
         .thenReturn(new GeneratedApiKey(
             "vg_live_aabbccdd11223344", record));
@@ -153,10 +153,10 @@ class AdminControllerTest {
   void listApiKeysReturnsKeys() throws Exception {
     LocalDateTime now = LocalDateTime.now();
     when(apiKeyService.listApiKeys("p-001")).thenReturn(List.of(
-        new ApiKeyRecord("hash1", "p-001", "ACTIVE",
-            "vg_live_", now, null, "admin"),
-        new ApiKeyRecord("hash2", "p-001", "REVOKED",
-            "vg_live_", now, null, "admin")));
+        new ApiKeyRecord("hash1", "verification-hash-1", "salt-1",
+            "p-001", "ACTIVE", "vg_live_", now, null, "admin"),
+        new ApiKeyRecord("hash2", "verification-hash-2", "salt-2",
+            "p-001", "REVOKED", "vg_live_", now, null, "admin")));
 
     mockMvc.perform(get("/api/admin/partners/p-001/api-keys"))
         .andExpect(status().isOk())
@@ -170,8 +170,8 @@ class AdminControllerTest {
   void revokeApiKeyReturnsNoContent() throws Exception {
     LocalDateTime now = LocalDateTime.now();
     when(apiKeyService.listApiKeys("p-001")).thenReturn(List.of(
-        new ApiKeyRecord("hash1", "p-001", "ACTIVE",
-            "vg_live_", now, null, "admin")));
+        new ApiKeyRecord("hash1", "verification-hash-1", "salt-1",
+            "p-001", "ACTIVE", "vg_live_", now, null, "admin")));
 
     mockMvc.perform(
             delete("/api/admin/partners/p-001/api-keys/vg_live_"))

@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import verigate.webbff.auth.PartnerContextHolder;
 import verigate.webbff.observability.CorrelationIdFilter;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.verification.model.CommandStatus;
@@ -260,6 +261,8 @@ public class VerificationService {
     Origination origination = new Origination(request.originationType(), request.originationId());
     Map<String, Object> metadata = new HashMap<>(
         Optional.ofNullable(request.metadata()).orElse(Map.of()));
+    String partnerId = PartnerContextHolder.requirePartnerId();
+    metadata.put("partnerId", partnerId);
     String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
     if (correlationId != null) {
       metadata.put("correlationId", correlationId);

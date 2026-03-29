@@ -9,10 +9,7 @@ package verigate.adapter.deedsweb.infrastructure.config;
 import java.util.Properties;
 import verigate.adapter.deedsweb.infrastructure.constants.EnvironmentConstants;
 
-/**
- * Configuration class for OpenSanctions API settings.
- * Provides access to environment variables and default values.
- */
+/** Configuration class for DeedsWeb API settings. */
 public class DeedsWebApiConfiguration {
 
   private final Properties properties;
@@ -21,75 +18,85 @@ public class DeedsWebApiConfiguration {
     this.properties = properties;
   }
 
-  /**
-   * Gets the OpenSanctions API key.
-   */
+  /** Gets the DeedsWeb API key. */
   public String getApiKey() {
-    return getProperty(EnvironmentConstants.OPENSANCTIONS_API_KEY);
+    return getFirstDefined(
+        EnvironmentConstants.DEEDSWEB_API_KEY,
+        EnvironmentConstants.LEGACY_API_KEY,
+        EnvironmentConstants.PROPERTY_API_KEY,
+        EnvironmentConstants.LEGACY_PROPERTY_API_KEY);
   }
 
-  /**
-   * Gets the OpenSanctions API base URL.
-   */
+  /** Gets the DeedsWeb API base URL. */
   public String getBaseUrl() {
-    return getProperty(
-        EnvironmentConstants.OPENSANCTIONS_BASE_URL, EnvironmentConstants.DEFAULT_BASE_URL);
+    return getFirstDefined(
+        EnvironmentConstants.DEFAULT_BASE_URL,
+        EnvironmentConstants.DEEDSWEB_BASE_URL,
+        EnvironmentConstants.LEGACY_BASE_URL,
+        EnvironmentConstants.PROPERTY_BASE_URL,
+        EnvironmentConstants.LEGACY_PROPERTY_BASE_URL);
   }
 
-  /**
-   * Gets the connection timeout in milliseconds.
-   */
+  /** Gets the connection timeout in milliseconds. */
   public int getConnectionTimeoutMs() {
     String timeout =
-        getProperty(
-            EnvironmentConstants.OPENSANCTIONS_CONNECTION_TIMEOUT_MS,
-            EnvironmentConstants.DEFAULT_CONNECTION_TIMEOUT_MS);
+        getFirstDefined(
+            EnvironmentConstants.DEFAULT_CONNECTION_TIMEOUT_MS,
+            EnvironmentConstants.DEEDSWEB_CONNECTION_TIMEOUT_MS,
+            EnvironmentConstants.LEGACY_CONNECTION_TIMEOUT_MS,
+            EnvironmentConstants.PROPERTY_CONNECTION_TIMEOUT_MS,
+            EnvironmentConstants.LEGACY_PROPERTY_CONNECTION_TIMEOUT_MS);
     return Integer.parseInt(timeout);
   }
 
-  /**
-   * Gets the read timeout in milliseconds.
-   */
+  /** Gets the read timeout in milliseconds. */
   public int getReadTimeoutMs() {
     String timeout =
-        getProperty(
-            EnvironmentConstants.OPENSANCTIONS_READ_TIMEOUT_MS,
-            EnvironmentConstants.DEFAULT_READ_TIMEOUT_MS);
+        getFirstDefined(
+            EnvironmentConstants.DEFAULT_READ_TIMEOUT_MS,
+            EnvironmentConstants.DEEDSWEB_READ_TIMEOUT_MS,
+            EnvironmentConstants.LEGACY_READ_TIMEOUT_MS,
+            EnvironmentConstants.PROPERTY_READ_TIMEOUT_MS,
+            EnvironmentConstants.LEGACY_PROPERTY_READ_TIMEOUT_MS);
     return Integer.parseInt(timeout);
   }
 
-  /**
-   * Gets the number of retry attempts.
-   */
+  /** Gets the number of retry attempts. */
   public int getRetryAttempts() {
     String retries =
-        getProperty(
-            EnvironmentConstants.OPENSANCTIONS_RETRY_ATTEMPTS,
-            EnvironmentConstants.DEFAULT_RETRY_ATTEMPTS);
+        getFirstDefined(
+            EnvironmentConstants.DEFAULT_RETRY_ATTEMPTS,
+            EnvironmentConstants.DEEDSWEB_RETRY_ATTEMPTS,
+            EnvironmentConstants.LEGACY_RETRY_ATTEMPTS,
+            EnvironmentConstants.PROPERTY_RETRY_ATTEMPTS,
+            EnvironmentConstants.LEGACY_PROPERTY_RETRY_ATTEMPTS);
     return Integer.parseInt(retries);
   }
 
-  /**
-   * Gets the retry delay in milliseconds.
-   */
+  /** Gets the retry delay in milliseconds. */
   public int getRetryDelayMs() {
     String delay =
-        getProperty(
-            EnvironmentConstants.OPENSANCTIONS_RETRY_DELAY_MS,
-            EnvironmentConstants.DEFAULT_RETRY_DELAY_MS);
+        getFirstDefined(
+            EnvironmentConstants.DEFAULT_RETRY_DELAY_MS,
+            EnvironmentConstants.DEEDSWEB_RETRY_DELAY_MS,
+            EnvironmentConstants.LEGACY_RETRY_DELAY_MS,
+            EnvironmentConstants.PROPERTY_RETRY_DELAY_MS,
+            EnvironmentConstants.LEGACY_PROPERTY_RETRY_DELAY_MS);
     return Integer.parseInt(delay);
   }
 
-  private String getProperty(String key) {
-    String value = System.getenv(key);
-    if (value != null) {
-      return value;
-    }
-    return properties.getProperty(key);
-  }
+  private String getFirstDefined(String... keys) {
+    for (String key : keys) {
+      String value = System.getenv(key);
+      if (value != null && !value.isBlank()) {
+        return value;
+      }
 
-  private String getProperty(String key, String defaultValue) {
-    String value = getProperty(key);
-    return value != null ? value : defaultValue;
+      value = properties.getProperty(key);
+      if (value != null && !value.isBlank()) {
+        return value;
+      }
+    }
+    return null;
   }
 }

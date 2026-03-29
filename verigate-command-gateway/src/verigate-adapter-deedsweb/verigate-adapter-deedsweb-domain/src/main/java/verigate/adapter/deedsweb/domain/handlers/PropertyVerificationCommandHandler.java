@@ -13,14 +13,14 @@ import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationResult;
 
 /**
- * Command handler interface for processing sanctions screening commands
- * using the OpenSanctions API.
+ * Command handler interface for processing property ownership and deeds
+ * registry searches.
  */
 public interface PropertyVerificationCommandHandler
     extends CommandHandler<VerifyPartyCommand, Map<String, String>> {
 
   /**
-   * Handles the sanctions screening command asynchronously for non-blocking verification.
+   * Handles the property verification command asynchronously.
    *
    * @param command the verification command
    * @return CompletableFuture containing the verification result

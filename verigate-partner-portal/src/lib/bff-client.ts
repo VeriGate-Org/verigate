@@ -108,6 +108,19 @@ export interface BffVerificationStatusResponse {
   auxiliaryData?: Record<string, string>;
 }
 
+export function isTerminalVerificationStatus(status: string | undefined): boolean {
+  return (
+    status === "COMPLETED" ||
+    status === "PERMANENT_FAILURE" ||
+    status === "INVARIANT_FAILURE" ||
+    status === "TRANSIENT_ERROR" ||
+    status === "SUCCEEDED" ||
+    status === "HARD_FAIL" ||
+    status === "SOFT_FAIL" ||
+    status === "SYSTEM_OUTAGE"
+  );
+}
+
 export interface BffVerificationListResponse {
   items: Array<{
     commandId: string;
@@ -210,6 +223,502 @@ export async function scheduleReport(
 
 export async function deleteReport(reportId: string): Promise<void> {
   await bffApi.delete(`/api/partner/reports/${reportId}`);
+}
+
+// ── Deeds APIs ──────────────────────────────────────────────────────
+
+export interface BffDeedsAreaReportRequest {
+  province?: string;
+  township?: string;
+  transferDateFrom?: string;
+  transferDateTo?: string;
+  municipalFlagsOnly?: boolean;
+}
+
+export interface BffDeedsAreaBreakdownItem {
+  province: string;
+  township: string;
+  properties: number;
+  owners: number;
+  activeBonds: number;
+  municipalFlags: number;
+  transfers: number;
+}
+
+export interface BffDeedsTransferItem {
+  propertyId: string;
+  titleDeed: string;
+  ownerName: string;
+  province: string;
+  township: string;
+  transferDate: string | null;
+  transferAmount: number | null;
+}
+
+export interface BffDeedsSummary {
+  totalProperties: number;
+  totalOwners: number;
+  totalActiveBonds: number;
+  totalMunicipalFlags: number;
+  totalTransfers: number;
+}
+
+export interface BffDeedsAreaReportResponse {
+  summary: BffDeedsSummary;
+  areas: BffDeedsAreaBreakdownItem[];
+  recentTransfers: BffDeedsTransferItem[];
+  generatedAt: string;
+}
+
+export interface BffDeedsBondSnapshot {
+  bondholder: string;
+  amount: number | null;
+  registered: string | null;
+}
+
+export interface BffDeedsTransferSnapshot {
+  date: string | null;
+  amount: number | null;
+}
+
+export interface BffDeedsMunicipalSnapshot {
+  accountNumber: string;
+  arrears: number | null;
+  ratesFlag: boolean;
+}
+
+export interface BffDeedsPropertySnapshot {
+  propertyId: string;
+  erfNumber: number;
+  portion: number;
+  township: string;
+  province: string;
+  titleDeed: string;
+  deedNumber?: string;
+  registrationDate: string | null;
+  ownerName: string;
+  ownerIdNumber: string;
+  streetAddress?: string;
+  currentBonds: BffDeedsBondSnapshot[];
+  lastTransfer: BffDeedsTransferSnapshot | null;
+  municipal: BffDeedsMunicipalSnapshot | null;
+}
+
+export interface BffDeedsPropertyTimelineItem {
+  observedAt: string;
+  ownerName: string;
+  ownerIdNumber: string;
+  titleDeed: string;
+  transferDate: string | null;
+  transferAmount: number | null;
+  bondCount: number;
+  municipalFlag: boolean;
+}
+
+export interface BffDeedsDocumentDescriptor {
+  type: string;
+  label: string;
+  reference: string;
+  downloadable: boolean;
+  status: string;
+  note: string;
+}
+
+export interface BffDeedsPropertyReportResponse {
+  property: BffDeedsPropertySnapshot;
+  timeline: BffDeedsPropertyTimelineItem[];
+  summary: BffDeedsSummary;
+  documents: BffDeedsDocumentDescriptor[];
+  recommendedWatchAlerts: string[];
+  generatedAt: string;
+}
+
+export interface BffDeedsDocumentManifestResponse {
+  propertyId: string;
+  titleDeed: string;
+  documents: BffDeedsDocumentDescriptor[];
+  providerStatus: string;
+}
+
+export interface BffDeedsWatchResponse {
+  subjectId: string;
+  propertyId: string;
+  subjectName: string;
+  titleDeed: string;
+  monitoringFrequency: string;
+  status: string;
+  alertTypes: string[];
+  createdAt: string;
+}
+
+export interface BffDeedsWatchAlertResponse {
+  alertId: string;
+  subjectId: string;
+  propertyId: string;
+  severity: string;
+  alertType: string;
+  title: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface BffDeedsExportResponse {
+  fileName: string;
+  contentType: string;
+  content: string;
+}
+
+export interface BffDeedsScheduleConfig {
+  frequency: string;
+  time: string;
+  recipients: string[];
+}
+
+export interface BffDeedsSavedReportResponse {
+  id: string;
+  name: string;
+  reportType: string;
+  status: string;
+  filter: BffDeedsAreaReportRequest | null;
+  schedule: BffDeedsScheduleConfig | null;
+  exportFormat: string;
+  currentReport: boolean;
+  autoRefresh: boolean;
+  latestSummary: BffDeedsSummary | null;
+  lastGeneratedAt: string | null;
+  nextRunAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface BffDeedsExportHistoryResponse {
+  id: string;
+  reportId: string | null;
+  reportName: string;
+  format: string;
+  status: string;
+  recordCount: number;
+  generatedAt: string | null;
+  createdAt: string | null;
+}
+
+export interface BffDeedsTeamMemberResponse {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  permissions: string[];
+  status: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface BffDeedsAuditEventResponse {
+  id: string;
+  category: string;
+  action: string;
+  actor: string;
+  targetId: string | null;
+  targetType: string | null;
+  detail: string | null;
+  createdAt: string | null;
+}
+
+export interface BffDeedsCoordinate {
+  lat: number;
+  lng: number;
+}
+
+export interface BffDeedsBoundaryResponse {
+  boundaryId: string;
+  province: string;
+  municipality: string;
+  label: string;
+  polygon: BffDeedsCoordinate[];
+}
+
+export interface BffDeedsMapPropertyResponse {
+  propertyId: string;
+  label: string;
+  province: string;
+  township: string;
+  streetAddress: string;
+  titleDeed: string;
+  centroid: BffDeedsCoordinate;
+  outline: BffDeedsCoordinate[];
+  ownerName: string;
+  municipalFlag: boolean;
+}
+
+export interface BffDeedsMapSearchResponse {
+  boundaries: BffDeedsBoundaryResponse[];
+  properties: BffDeedsMapPropertyResponse[];
+  generatedAt: string;
+}
+
+export interface BffDeedsConversionCandidate {
+  propertyId: string;
+  streetAddress: string;
+  township: string;
+  province: string;
+  erfNumber: number;
+  portion: number;
+  titleDeed: string;
+  confidence: number;
+  reason: string;
+}
+
+export interface BffDeedsConversionResponse {
+  direction: string;
+  normalizedInput: string;
+  candidates: BffDeedsConversionCandidate[];
+  generatedAt: string;
+}
+
+export interface BffDeedsComparableSale {
+  propertyId: string;
+  titleDeed: string;
+  township: string;
+  transferDate: string | null;
+  transferAmount: number | null;
+  similarityScore: number | null;
+}
+
+export interface BffDeedsValuationResponse {
+  propertyId: string;
+  estimatedValue: number;
+  lowerBound: number;
+  upperBound: number;
+  confidenceBand: string;
+  methodology: string;
+  disclaimer: string;
+  comparableSales: BffDeedsComparableSale[];
+  generatedAt: string;
+}
+
+export interface BffDeedsOperationsRefreshResponse {
+  refreshedReports: number;
+  recalculatedWatches: number;
+  nextScheduledRefreshAt: string;
+  generatedAt: string;
+}
+
+export async function generateDeedsAreaReport(
+  payload: BffDeedsAreaReportRequest,
+): Promise<BffDeedsAreaReportResponse> {
+  const { data } = await bffApi.post<BffDeedsAreaReportResponse>("/api/partner/deeds/reports/area", payload);
+  return data;
+}
+
+export async function exportDeedsAreaReport(
+  payload: BffDeedsAreaReportRequest,
+  format: "csv" | "json" = "csv",
+): Promise<BffDeedsExportResponse> {
+  const { data } = await bffApi.post<BffDeedsExportResponse>(
+    `/api/partner/deeds/reports/area/export?format=${format}`,
+    payload,
+  );
+  return data;
+}
+
+export async function listDeedsSavedReports(): Promise<BffDeedsSavedReportResponse[]> {
+  const { data } = await bffApi.get<BffDeedsSavedReportResponse[]>("/api/partner/deeds/reports/saved");
+  return data;
+}
+
+export async function createDeedsSavedReport(payload: {
+  name: string;
+  reportType: string;
+  filter?: BffDeedsAreaReportRequest;
+  schedule?: BffDeedsScheduleConfig;
+  exportFormat?: string;
+  currentReport?: boolean;
+  autoRefresh?: boolean;
+}): Promise<BffDeedsSavedReportResponse> {
+  const { data } = await bffApi.post<BffDeedsSavedReportResponse>(
+    "/api/partner/deeds/reports/saved",
+    payload,
+  );
+  return data;
+}
+
+export async function updateDeedsSavedReport(
+  reportId: string,
+  payload: {
+    name?: string;
+    filter?: BffDeedsAreaReportRequest;
+    schedule?: BffDeedsScheduleConfig;
+    exportFormat?: string;
+    status?: string;
+    currentReport?: boolean;
+    autoRefresh?: boolean;
+  },
+): Promise<BffDeedsSavedReportResponse> {
+  const { data } = await bffApi.patch<BffDeedsSavedReportResponse>(
+    `/api/partner/deeds/reports/saved/${reportId}`,
+    payload,
+  );
+  return data;
+}
+
+export async function refreshDeedsSavedReport(reportId: string): Promise<BffDeedsSavedReportResponse> {
+  const { data } = await bffApi.post<BffDeedsSavedReportResponse>(
+    `/api/partner/deeds/reports/saved/${reportId}/refresh`,
+  );
+  return data;
+}
+
+export async function exportDeedsSavedReport(
+  reportId: string,
+  format: "csv" | "json" = "csv",
+): Promise<BffDeedsExportResponse> {
+  const { data } = await bffApi.post<BffDeedsExportResponse>(
+    `/api/partner/deeds/reports/saved/${reportId}/export?format=${format}`,
+  );
+  return data;
+}
+
+export async function deleteDeedsSavedReport(reportId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/deeds/reports/saved/${reportId}`);
+}
+
+export async function listDeedsExportHistory(): Promise<BffDeedsExportHistoryResponse[]> {
+  const { data } = await bffApi.get<BffDeedsExportHistoryResponse[]>("/api/partner/deeds/exports");
+  return data;
+}
+
+export async function listDeedsTeamMembers(): Promise<BffDeedsTeamMemberResponse[]> {
+  const { data } = await bffApi.get<BffDeedsTeamMemberResponse[]>("/api/partner/deeds/team");
+  return data;
+}
+
+export async function createDeedsTeamMember(payload: {
+  name: string;
+  email: string;
+  role: string;
+  permissions?: string[];
+  status?: string;
+}): Promise<BffDeedsTeamMemberResponse> {
+  const { data } = await bffApi.post<BffDeedsTeamMemberResponse>("/api/partner/deeds/team", payload);
+  return data;
+}
+
+export async function updateDeedsTeamMember(
+  memberId: string,
+  payload: {
+    name?: string;
+    email?: string;
+    role?: string;
+    permissions?: string[];
+    status?: string;
+  },
+): Promise<BffDeedsTeamMemberResponse> {
+  const { data } = await bffApi.patch<BffDeedsTeamMemberResponse>(`/api/partner/deeds/team/${memberId}`, payload);
+  return data;
+}
+
+export async function deleteDeedsTeamMember(memberId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/deeds/team/${memberId}`);
+}
+
+export async function listDeedsAuditEvents(): Promise<BffDeedsAuditEventResponse[]> {
+  const { data } = await bffApi.get<BffDeedsAuditEventResponse[]>("/api/partner/deeds/audit");
+  return data;
+}
+
+export async function searchDeedsMap(payload: {
+  province?: string;
+  township?: string;
+  streetName?: string;
+  query?: string;
+}): Promise<BffDeedsMapSearchResponse> {
+  const { data } = await bffApi.post<BffDeedsMapSearchResponse>("/api/partner/deeds/map/search", payload);
+  return data;
+}
+
+export async function convertDeedsProperty(payload: {
+  province?: string;
+  township?: string;
+  streetName?: string;
+  erfNumber?: string;
+  portion?: string;
+  direction: string;
+}): Promise<BffDeedsConversionResponse> {
+  const { data } = await bffApi.post<BffDeedsConversionResponse>("/api/partner/deeds/conversion", payload);
+  return data;
+}
+
+export async function estimateDeedsValue(payload: {
+  propertyId?: string;
+  province?: string;
+  township?: string;
+  titleDeed?: string;
+  erfNumber?: number;
+  portion?: number;
+}): Promise<BffDeedsValuationResponse> {
+  const { data } = await bffApi.post<BffDeedsValuationResponse>("/api/partner/deeds/valuation", payload);
+  return data;
+}
+
+export async function runDeedsRefreshCycle(): Promise<BffDeedsOperationsRefreshResponse> {
+  const { data } = await bffApi.post<BffDeedsOperationsRefreshResponse>("/api/partner/deeds/operations/refresh");
+  return data;
+}
+
+export async function getDeedsPropertyReport(
+  propertyId: string,
+): Promise<BffDeedsPropertyReportResponse> {
+  const { data } = await bffApi.get<BffDeedsPropertyReportResponse>(
+    `/api/partner/deeds/reports/property/${encodeURIComponent(propertyId)}`,
+  );
+  return data;
+}
+
+export async function getDeedsDocumentManifest(
+  propertyId: string,
+): Promise<BffDeedsDocumentManifestResponse> {
+  const { data } = await bffApi.get<BffDeedsDocumentManifestResponse>(
+    `/api/partner/deeds/documents/manifest?propertyId=${encodeURIComponent(propertyId)}`,
+  );
+  return data;
+}
+
+export async function listDeedsWatches(): Promise<BffDeedsWatchResponse[]> {
+  const { data } = await bffApi.get<BffDeedsWatchResponse[]>("/api/partner/deeds/watches");
+  return data;
+}
+
+export async function createDeedsWatch(payload: {
+  propertyId: string;
+  monitoringFrequency?: string;
+  alertTypes?: string[];
+}): Promise<BffDeedsWatchResponse> {
+  const { data } = await bffApi.post<BffDeedsWatchResponse>("/api/partner/deeds/watches", payload);
+  return data;
+}
+
+export async function updateDeedsWatch(
+  subjectId: string,
+  payload: {
+    status?: string;
+    monitoringFrequency?: string;
+    alertTypes?: string[];
+  },
+): Promise<BffDeedsWatchResponse> {
+  const { data } = await bffApi.patch<BffDeedsWatchResponse>(
+    `/api/partner/deeds/watches/${subjectId}`,
+    payload,
+  );
+  return data;
+}
+
+export async function deleteDeedsWatch(subjectId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/deeds/watches/${subjectId}`);
+}
+
+export async function listDeedsWatchAlerts(): Promise<BffDeedsWatchAlertResponse[]> {
+  const { data } = await bffApi.get<BffDeedsWatchAlertResponse[]>("/api/partner/deeds/watches/alerts");
+  return data;
 }
 
 // ── Profile APIs ────────────────────────────────────────────────────
@@ -344,12 +853,7 @@ export async function pollVerificationStatus(
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const status = await getVerificationStatus(commandId);
 
-    if (
-      status.status === "SUCCEEDED" ||
-      status.status === "HARD_FAIL" ||
-      status.status === "SOFT_FAIL" ||
-      status.status === "SYSTEM_OUTAGE"
-    ) {
+    if (isTerminalVerificationStatus(status.status)) {
       return status;
     }
 

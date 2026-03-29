@@ -5,6 +5,7 @@ import {
   submitVerification,
   getVerificationStatus,
   pollVerificationStatus,
+  isTerminalVerificationStatus,
 } from "@/lib/bff-client";
 import type { BffVerificationSubmission } from "@/lib/bff-client";
 import {
@@ -32,12 +33,7 @@ export function useVerificationStatus(
     enabled: !!commandId && options?.enabled !== false,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      if (
-        status === "SUCCEEDED" ||
-        status === "HARD_FAIL" ||
-        status === "SOFT_FAIL" ||
-        status === "SYSTEM_OUTAGE"
-      ) {
+      if (isTerminalVerificationStatus(status)) {
         return false;
       }
       return 1500;

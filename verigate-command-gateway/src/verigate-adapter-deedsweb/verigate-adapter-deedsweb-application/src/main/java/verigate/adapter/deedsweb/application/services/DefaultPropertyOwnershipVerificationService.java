@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import verigate.adapter.deedsweb.domain.models.EntityMatchResponse;
@@ -49,6 +50,49 @@ public class DefaultPropertyOwnershipVerificationService
   }
 
   @Override
+  public List<PropertyDetails> searchProperties(String searchType, String query, String province) {
+    if (query == null || query.trim().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    String sanitizedQuery = query.trim();
+    LOGGER.debug(
+        "Searching property records: searchType={}, province={}",
+        searchType,
+        province != null ? province : "<any>");
+
+    try {
+      EntityMatchResponse response =
+          deedsWebMatchingService.searchEntities(DEEDS_DATASET, sanitizedQuery, DEFAULT_SEARCH_LIMIT);
+
+      List<PropertyDetails> allProperties = mapSearchResponse(response);
+      if (allProperties.isEmpty()) {
+        return Collections.emptyList();
+      }
+
+      List<PropertyDetails> provinceFiltered = filterByProvince(allProperties, province);
+      if (provinceFiltered.isEmpty()) {
+        provinceFiltered = allProperties;
+      }
+
+      List<PropertyDetails> searchTypeFiltered =
+          applySearchTypeFilter(provinceFiltered, searchType, sanitizedQuery);
+      if (searchTypeFiltered.isEmpty()) {
+        return provinceFiltered;
+      }
+
+      return searchTypeFiltered;
+    } catch (Exception e) {
+      LOGGER.error(
+          "Error searching DeedsWeb for searchType={}, query={}",
+          searchType,
+          sanitizedQuery,
+          e);
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
   public PropertyOwnershipCheck verifyOwnership(
       String subjectIdNumber, String subjectName, String propertyDescription) {
 
@@ -76,41 +120,8 @@ public class DefaultPropertyOwnershipVerificationService
 
   @Override
   public List<PropertyDetails> findPropertiesByOwner(String ownerIdNumber) {
-    LOGGER.debug("Searching DeedsWeb for properties by owner ID: {}",
-        maskIdNumber(ownerIdNumber));
-
-    try {
-      EntityMatchResponse response = deedsWebMatchingService.searchEntities(
-          DEEDS_DATASET, ownerIdNumber, DEFAULT_SEARCH_LIMIT);
-
-      if (response == null || response.getResponses() == null
-          || response.getResponses().isEmpty()) {
-        LOGGER.debug("No property records found for owner ID: {}",
-            maskIdNumber(ownerIdNumber));
-        return Collections.emptyList();
-      }
-
-      List<PropertyDetails> properties = new ArrayList<>();
-      for (Map.Entry<String, EntityMatches> entry : response.getResponses().entrySet()) {
-        EntityMatches matches = entry.getValue();
-        if (matches.getResults() != null) {
-          for (ScoredEntity entity : matches.getResults()) {
-            PropertyDetails details = mapScoredEntityToPropertyDetails(entity);
-            if (details != null) {
-              properties.add(details);
-            }
-          }
-        }
-      }
-
-      LOGGER.debug("Mapped {} property records from DeedsWeb response", properties.size());
-      return properties;
-
-    } catch (Exception e) {
-      LOGGER.error("Error searching DeedsWeb for properties by owner ID: {}",
-          maskIdNumber(ownerIdNumber), e);
-      return Collections.emptyList();
-    }
+    LOGGER.debug("Searching DeedsWeb for properties by owner ID: {}", maskIdNumber(ownerIdNumber));
+    return searchProperties("ownerId", ownerIdNumber, null);
   }
 
   @Override
@@ -183,6 +194,85 @@ public class DefaultPropertyOwnershipVerificationService
     }
 
     return builder.build();
+  }
+
+  private List<PropertyDetails> mapSearchResponse(EntityMatchResponse response) {
+    if (response == null || response.getResponses() == null || response.getResponses().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<PropertyDetails> properties = new ArrayList<>();
+    for (Map.Entry<String, EntityMatches> entry : response.getResponses().entrySet()) {
+      EntityMatches matches = entry.getValue();
+      if (matches.getResults() != null) {
+        for (ScoredEntity entity : matches.getResults()) {
+          PropertyDetails details = mapScoredEntityToPropertyDetails(entity);
+          if (details != null) {
+            properties.add(details);
+          }
+        }
+      }
+    }
+
+    LOGGER.debug("Mapped {} property records from DeedsWeb response", properties.size());
+    return properties;
+  }
+
+  private List<PropertyDetails> filterByProvince(List<PropertyDetails> properties, String province) {
+    if (province == null || province.trim().isEmpty()) {
+      return properties;
+    }
+
+    String normalizedProvince = province.trim().toLowerCase(Locale.ROOT);
+    return properties.stream()
+        .filter(
+            property ->
+                property.getProvince() != null
+                    && property.getProvince().trim().toLowerCase(Locale.ROOT)
+                        .contains(normalizedProvince))
+        .toList();
+  }
+
+  private List<PropertyDetails> applySearchTypeFilter(
+      List<PropertyDetails> properties, String searchType, String query) {
+    if (searchType == null || searchType.isBlank()) {
+      return properties;
+    }
+
+    String normalizedSearchType = searchType.trim().toLowerCase(Locale.ROOT);
+    String normalizedQuery = query.trim().toLowerCase(Locale.ROOT);
+
+    return switch (normalizedSearchType) {
+      case "ownerid" ->
+          properties.stream()
+              .filter(
+                  property ->
+                      property.getRegisteredOwnerIdNumber() != null
+                          && property.getRegisteredOwnerIdNumber()
+                              .trim()
+                              .equalsIgnoreCase(query.trim()))
+              .toList();
+      case "ownername" ->
+          properties.stream()
+              .filter(
+                  property ->
+                      containsIgnoreCase(property.getRegisteredOwnerName(), normalizedQuery)
+                          || containsIgnoreCase(property.getPropertyDescription(), normalizedQuery))
+              .toList();
+      case "erf", "title", "property", "propertydetails" ->
+          properties.stream()
+              .filter(
+                  property ->
+                      containsIgnoreCase(property.getPropertyDescription(), normalizedQuery)
+                          || containsIgnoreCase(property.getTitleDeedReference(), normalizedQuery)
+                          || containsIgnoreCase(property.getDeedNumber(), normalizedQuery))
+              .toList();
+      default -> properties;
+    };
+  }
+
+  private boolean containsIgnoreCase(String value, String normalizedQuery) {
+    return value != null && value.trim().toLowerCase(Locale.ROOT).contains(normalizedQuery);
   }
 
   /**

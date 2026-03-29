@@ -174,7 +174,16 @@ class PartnerControllerTest {
   void listApiKeysReturnsPartnerKeys() throws Exception {
     PartnerContextHolder.setPartnerId(PARTNER_ID);
 
-    var record = new ApiKeyRecord("hash1", PARTNER_ID, "ACTIVE", "vg_abc1", LocalDateTime.now(), null, "admin");
+    var record = new ApiKeyRecord(
+        "hash1",
+        "verification-hash-1",
+        "salt-1",
+        PARTNER_ID,
+        "ACTIVE",
+        "vg_abc1",
+        LocalDateTime.now(),
+        null,
+        "admin");
     when(apiKeyService.listApiKeys(PARTNER_ID))
         .thenReturn(List.of(record));
 
@@ -189,7 +198,16 @@ class PartnerControllerTest {
   void generateApiKeyReturnsCreated() throws Exception {
     PartnerContextHolder.setPartnerId(PARTNER_ID);
 
-    var record = new ApiKeyRecord("hash1", PARTNER_ID, "ACTIVE", "vg_new1", LocalDateTime.now(), null, "partner-portal");
+    var record = new ApiKeyRecord(
+        "hash1",
+        "verification-hash-1",
+        "salt-1",
+        PARTNER_ID,
+        "ACTIVE",
+        "vg_new1",
+        LocalDateTime.now(),
+        null,
+        "partner-portal");
     when(apiKeyService.generateApiKey(PARTNER_ID, "partner-portal"))
         .thenReturn(new GeneratedApiKey("vg_new1234567890", record));
 

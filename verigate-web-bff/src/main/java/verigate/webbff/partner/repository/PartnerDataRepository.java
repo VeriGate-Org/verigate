@@ -137,6 +137,46 @@ public class PartnerDataRepository {
     return getItem(partnerId, "NOTIFICATIONS");
   }
 
+  // ── Custom Partner Entities ───────────────────────────────────────
+
+  public String saveCustomEntity(
+      String partnerId,
+      String entityPrefix,
+      String entityType,
+      String entityId,
+      Map<String, Object> data) {
+    String id = entityId != null ? entityId : UUID.randomUUID().toString();
+    String now = Instant.now().toString();
+    Optional<Map<String, Object>> existing = entityId != null
+        ? getItem(partnerId, entityPrefix + id)
+        : Optional.empty();
+    String createdAt = existing.map(item -> (String) item.get("createdAt")).orElse(now);
+
+    Map<String, AttributeValue> item = new HashMap<>(key(partnerId, entityPrefix + id));
+    item.put("id", AttributeValue.builder().s(id).build());
+    item.put("partnerId", AttributeValue.builder().s(partnerId).build());
+    item.put("entityType", AttributeValue.builder().s(entityType).build());
+    item.put("data", AttributeValue.builder().s(toJson(data)).build());
+    item.put("createdAt", AttributeValue.builder().s(createdAt).build());
+    item.put("updatedAt", AttributeValue.builder().s(now).build());
+
+    putItem(item);
+    return id;
+  }
+
+  public Optional<Map<String, Object>> getCustomEntity(
+      String partnerId, String entityPrefix, String entityId) {
+    return getItem(partnerId, entityPrefix + entityId);
+  }
+
+  public List<Map<String, Object>> listCustomEntities(String partnerId, String entityPrefix) {
+    return queryByPrefix(partnerId, entityPrefix);
+  }
+
+  public void deleteCustomEntity(String partnerId, String entityPrefix, String entityId) {
+    deleteItem(partnerId, entityPrefix + entityId);
+  }
+
   // ── Internal helpers ──────────────────────────────────────────────
 
   private void putItem(Map<String, AttributeValue> item) {

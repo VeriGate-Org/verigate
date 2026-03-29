@@ -18,6 +18,21 @@ const SERVICES = [
     path: "/services/property-ownership",
   },
   {
+    name: "Deeds spatial map",
+    description: "Explore cached property records and municipal boundaries in a map-style workspace.",
+    path: "/services/deeds-map",
+  },
+  {
+    name: "Street / ERF conversion",
+    description: "Convert street references to ERF details and back using provider-independent matching.",
+    path: "/services/property-conversion",
+  },
+  {
+    name: "Property valuation",
+    description: "Estimate indicative value from cached transfer history and comparable sales.",
+    path: "/services/property-valuation",
+  },
+  {
     name: "Bank account validation",
     description: "Confirm account ownership and status via AVS feeds.",
     path: "/services/bank-account",
