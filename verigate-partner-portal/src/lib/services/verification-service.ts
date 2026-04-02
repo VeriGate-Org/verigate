@@ -21,12 +21,14 @@ import {
   mockIncome,
   mockIdentity,
   mockFullVerification,
+  mockHanisIdentity,
   type PersonalDetailsRequest,
   type AvsRequest,
   type SanctionsRequest,
   type CompanyRequest,
   type PropertyOwnershipRequest,
   type PropertyOwnershipResponse,
+  type HanisIdentityRequest,
 } from "@/lib/mock-services";
 
 /**
@@ -123,6 +125,9 @@ async function executeMockVerification(bffType: BffVerificationType, params: Rec
     case "INCOME_VERIFICATION":
       return mockIncome(params);
     case "IDENTITY_VERIFICATION":
+      if (params.useHanis) {
+        return mockHanisIdentity(params as HanisIdentityRequest);
+      }
       return mockIdentity(params);
     case "FULL_VERIFICATION":
       return mockFullVerification(params);

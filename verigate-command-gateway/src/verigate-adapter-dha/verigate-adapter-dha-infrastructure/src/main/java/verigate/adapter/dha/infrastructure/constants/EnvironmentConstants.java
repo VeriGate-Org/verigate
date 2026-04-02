@@ -29,6 +29,14 @@ public class EnvironmentConstants {
   public static final String DHA_ENABLE_RESPONSE_LOGGING = "DHA_ENABLE_RESPONSE_LOGGING";
   public static final String DHA_LOG_LEVEL = "DHA_LOG_LEVEL";
 
+  // HANIS SOAP Integration
+  public static final String HANIS_INTEGRATION_ENABLED = "HANIS_INTEGRATION_ENABLED";
+  public static final String HANIS_SITE_ID = "HANIS_SITE_ID";
+  public static final String HANIS_WORKSTATION_ID = "HANIS_WORKSTATION_ID";
+  public static final String HANIS_PRIMARY_URL = "HANIS_PRIMARY_URL";
+  public static final String HANIS_FAILOVER_URL = "HANIS_FAILOVER_URL";
+  public static final String HANIS_TIMEOUT_SECONDS = "HANIS_TIMEOUT_SECONDS";
+
   // Default values (fallback URLs)
   public static final String DEFAULT_DHA_BASE_URL =
       "https://dha-api-dev.services.gov.za/identity/v1";

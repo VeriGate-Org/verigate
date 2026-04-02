@@ -9,6 +9,7 @@ package verigate.adapter.dha.application.handlers;
 import domain.exceptions.InvariantViolationException;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import verigate.adapter.dha.domain.handlers.VerifyIdentityCommandHandler;
 import verigate.adapter.dha.domain.mappers.IdentityVerificationMapper;
+import verigate.adapter.dha.domain.models.HanisPersonDetails;
 import verigate.adapter.dha.domain.models.IdVerificationStatus;
 import verigate.adapter.dha.domain.models.IdentityVerificationRequest;
 import verigate.adapter.dha.domain.models.IdentityVerificationResponse;
@@ -135,22 +137,22 @@ public class DefaultVerifyIdentityCommandHandler
           "Identity verification completed with outcome: {}",
           verificationResult.outcome());
 
-      return Map.of(
-          "outcome",
-          verificationResult.outcome().toString(),
-          "details",
-          verificationResult.failureReason() != null ? verificationResult.failureReason() : "",
-          "idNumber",
-          maskIdNumber(verificationRequest.idNumber()),
-          "verificationStatus",
-          verificationResponse.status().toString(),
-          "citizenshipStatus",
-          verificationResponse.citizenshipStatus().toString(),
-          "vitalStatus",
-          verificationResponse.vitalStatus().toString(),
-          "matchDetails",
-          verificationResponse.matchDetails() != null ? verificationResponse.matchDetails() : "",
-          "source", "dha");
+      Map<String, String> resultMap = new HashMap<>();
+      resultMap.put("outcome", verificationResult.outcome().toString());
+      resultMap.put("details",
+          verificationResult.failureReason() != null ? verificationResult.failureReason() : "");
+      resultMap.put("idNumber", maskIdNumber(verificationRequest.idNumber()));
+      resultMap.put("verificationStatus", verificationResponse.status().toString());
+      resultMap.put("citizenshipStatus", verificationResponse.citizenshipStatus().toString());
+      resultMap.put("vitalStatus", verificationResponse.vitalStatus().toString());
+      resultMap.put("matchDetails",
+          verificationResponse.matchDetails() != null ? verificationResponse.matchDetails() : "");
+      resultMap.put("source", "dha");
+
+      // Enrich with HANIS-specific fields if available
+      enrichWithHanisDetails(resultMap, identityVerificationService);
+
+      return resultMap;
     } catch (TransientException | PermanentException e) {
       logger.error(
           "Identity verification failed for command {}: {}",
@@ -171,6 +173,44 @@ public class DefaultVerifyIdentityCommandHandler
           e.getMessage(),
           e);
       throw new PermanentException("Unexpected identity verification error", e);
+    }
+  }
+
+  /**
+   * Enriches the result map with HANIS-specific fields if the service implementation
+   * supports it (i.e., when using HanisDhaIdentityVerificationService).
+   */
+  private void enrichWithHanisDetails(
+      Map<String, String> resultMap,
+      DhaIdentityVerificationService service) {
+    try {
+      // Use reflection-free approach: check if service has getLastHanisDetails method
+      if (service.getClass().getSimpleName().equals("HanisDhaIdentityVerificationService")) {
+        var method = service.getClass().getMethod("getLastHanisDetails");
+        Object detailsObj = method.invoke(service);
+        if (detailsObj instanceof HanisPersonDetails details && details.isSuccess()) {
+          resultMap.put("source", "hanis");
+          resultMap.put("hanisName", details.name() != null ? details.name() : "");
+          resultMap.put("hanisSurname", details.surname() != null ? details.surname() : "");
+          resultMap.put("smartCardIssued", String.valueOf(details.smartCardIssued()));
+          resultMap.put("idIssueDate", details.idIssueDate() != null ? details.idIssueDate() : "");
+          resultMap.put("maritalStatus",
+              details.maritalStatus() != null ? details.maritalStatus() : "");
+          resultMap.put("dateOfMarriage",
+              details.dateOfMarriage() != null ? details.dateOfMarriage() : "");
+          resultMap.put("deadIndicator", String.valueOf(details.deadIndicator()));
+          resultMap.put("dateOfDeath",
+              details.dateOfDeath() != null ? details.dateOfDeath() : "");
+          resultMap.put("idnBlocked", String.valueOf(details.idnBlocked()));
+          resultMap.put("onHanis", String.valueOf(details.onHanis()));
+          resultMap.put("onNpr", String.valueOf(details.onNpr()));
+          resultMap.put("birthCountry",
+              details.birthPlaceCountryCode() != null ? details.birthPlaceCountryCode() : "");
+          resultMap.put("photoAvailable", String.valueOf(details.hasPhoto()));
+        }
+      }
+    } catch (Exception e) {
+      logger.debug("Could not enrich with HANIS details: {}", e.getMessage());
     }
   }
 
@@ -255,8 +295,8 @@ public class DefaultVerifyIdentityCommandHandler
    * Extracts the partner ID from command metadata if available.
    */
   private String extractPartnerId(VerifyPartyCommand command) {
-    if (command.getMetaData() != null && command.getMetaData().containsKey("partnerId")) {
-      return String.valueOf(command.getMetaData().get("partnerId"));
+    if (command.getMetadata() != null && command.getMetadata().containsKey("partnerId")) {
+      return String.valueOf(command.getMetadata().get("partnerId"));
     }
     return null;
   }

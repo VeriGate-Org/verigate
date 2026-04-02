@@ -661,7 +661,7 @@ export function generateIncomeResponse({ idNumber, employerName = "", period = "
   };
 }
 
-export type IdentityRequest = { idNumber: string; firstName?: string; lastName?: string };
+export type IdentityRequest = { idNumber: string; firstName?: string; lastName?: string; includePhoto?: boolean };
 export type IdentityResponse = {
   reference: string;
   provider: string;
@@ -687,6 +687,292 @@ export function generateIdentityResponse({ idNumber, firstName = "", lastName = 
     },
     generatedAt: new Date().toISOString(),
   };
+}
+
+// --- HANIS NPR Identity Verification ---
+
+import type {
+  HanisIdentityVerificationResponse,
+  HanisVerificationStatus,
+  HanisVerificationOutcome,
+} from "@/lib/types/identity-verification";
+
+export type HanisIdentityRequest = {
+  idNumber: string;
+  firstName?: string;
+  lastName?: string;
+  includePhoto?: boolean;
+};
+
+// 1x1 transparent PNG as base64 for mock photo
+const MOCK_PHOTO_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+export function generateHanisIdentityResponse({ idNumber, firstName = "", lastName = "", includePhoto = true }: HanisIdentityRequest): HanisIdentityVerificationResponse {
+  if (!idNumber) throw new Error("ID number is required");
+  const seedVal = idNumber.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rnd = seeded(seedVal);
+
+  const birthDate = extractDateOfBirth(idNumber);
+  const gender = extractGender(idNumber);
+  const citizenship = extractCitizenship(idNumber);
+
+  // Scenario routing by last digit
+  const lastDigit = parseInt(idNumber.slice(-2, -1));
+
+  // Deceased scenario
+  if (lastDigit === 9) {
+    return buildHanisResponse(idNumber, "DECEASED", "HARD_FAIL", {
+      name: firstName || "JOHN",
+      surname: lastName || "DOE",
+      citizenshipStatus: "CITIZEN",
+      birthCountry: "ZA",
+      onHanis: true,
+      onNpr: true,
+      smartCardIssued: true,
+      idIssueDate: "2015/01/15",
+      idSequenceNo: "001",
+      idnBlocked: false,
+      maritalStatus: "Married",
+      dateOfMarriage: "2010/03/20",
+      deceased: true,
+      dateOfDeath: "2023/06/15",
+      matchDetails: "Individual is recorded as deceased. Date of death: 2023/06/15.",
+      includePhoto,
+    });
+  }
+
+  // Blocked scenario
+  if (lastDigit === 8) {
+    return buildHanisResponse(idNumber, "BLOCKED", "HARD_FAIL", {
+      name: firstName || "BLOCKED",
+      surname: lastName || "PERSON",
+      citizenshipStatus: "CITIZEN",
+      birthCountry: "ZA",
+      onHanis: true,
+      onNpr: true,
+      smartCardIssued: false,
+      idIssueDate: "",
+      idSequenceNo: "002",
+      idnBlocked: true,
+      maritalStatus: "Single",
+      dateOfMarriage: "",
+      deceased: false,
+      dateOfDeath: "",
+      matchDetails: "ID number is blocked in the population register",
+      includePhoto: false,
+    });
+  }
+
+  // Not found scenario
+  if (lastDigit === 7) {
+    return buildHanisResponse(idNumber, "NOT_FOUND", "SOFT_FAIL", {
+      name: "",
+      surname: "",
+      citizenshipStatus: "UNKNOWN",
+      birthCountry: "",
+      onHanis: false,
+      onNpr: false,
+      smartCardIssued: false,
+      idIssueDate: "",
+      idSequenceNo: "",
+      idnBlocked: false,
+      maritalStatus: "",
+      dateOfMarriage: "",
+      deceased: false,
+      dateOfDeath: "",
+      matchDetails: "ID number not found on NPR",
+      includePhoto: false,
+    });
+  }
+
+  // Default: successful verification
+  const detectedName = gender === "male" ? "THABO" : "NOMSA";
+  return buildHanisResponse(idNumber, "VERIFIED", "SUCCEEDED", {
+    name: firstName || detectedName,
+    surname: lastName || "MOKWENA",
+    citizenshipStatus: citizenship === "SA" ? "CITIZEN" : "PERMANENT_RESIDENT",
+    birthCountry: citizenship === "SA" ? "ZA" : "MZ",
+    onHanis: true,
+    onNpr: true,
+    smartCardIssued: rnd() > 0.3,
+    idIssueDate: birthDate ? `${new Date(birthDate).getFullYear() + 16}/05/10` : "2018/05/10",
+    idSequenceNo: "000",
+    idnBlocked: false,
+    maritalStatus: rnd() > 0.4 ? "Married" : "Single",
+    dateOfMarriage: rnd() > 0.4 ? "2016/09/14" : "",
+    deceased: false,
+    dateOfDeath: "",
+    matchDetails: `Name: ${firstName || detectedName}, Surname: ${lastName || "MOKWENA"}, Smart Card: ${rnd() > 0.3 ? "Yes" : "No"}, On HANIS: Yes, On NPR: Yes, Birth Country: ZA`,
+    includePhoto,
+  });
+}
+
+function buildHanisResponse(
+  idNumber: string,
+  status: HanisVerificationStatus,
+  outcome: HanisVerificationOutcome,
+  data: {
+    name: string; surname: string; citizenshipStatus: string; birthCountry: string;
+    onHanis: boolean; onNpr: boolean; smartCardIssued: boolean; idIssueDate: string;
+    idSequenceNo: string; idnBlocked: boolean; maritalStatus: string; dateOfMarriage: string;
+    deceased: boolean; dateOfDeath: string; matchDetails: string; includePhoto: boolean;
+  },
+): HanisIdentityVerificationResponse {
+  return {
+    reference: `hanis-${Date.now()}`,
+    provider: "DHA/HANIS",
+    status,
+    outcome,
+    citizenDetails: {
+      name: data.name,
+      surname: data.surname,
+      idNumber,
+      citizenshipStatus: data.citizenshipStatus,
+      birthCountry: data.birthCountry,
+      onHanis: data.onHanis,
+      onNpr: data.onNpr,
+    },
+    documentInfo: {
+      smartCardIssued: data.smartCardIssued,
+      idIssueDate: data.idIssueDate,
+      idSequenceNo: data.idSequenceNo,
+      idnBlocked: data.idnBlocked,
+    },
+    maritalInfo: {
+      maritalStatus: data.maritalStatus,
+      dateOfMarriage: data.dateOfMarriage,
+    },
+    vitalStatus: {
+      status: data.deceased ? "DECEASED" : "ALIVE",
+      deceased: data.deceased,
+      dateOfDeath: data.dateOfDeath,
+    },
+    matchDetails: data.matchDetails,
+    photoAvailable: data.includePhoto && status === "VERIFIED",
+    photoBase64: data.includePhoto && status === "VERIFIED" ? MOCK_PHOTO_BASE64 : undefined,
+    source: "mock",
+    transactionId: `TXN-MOCK-${Date.now()}`,
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+export async function mockHanisIdentity(request: HanisIdentityRequest, delayMs?: number) {
+  await wait(delayMs);
+  return generateHanisIdentityResponse(request);
+}
+
+// --- Bulk Identity Verification ---
+
+import type {
+  BulkVerificationJob,
+  BulkVerificationResult,
+  BulkResultsSummary,
+  BillingGroupSelection,
+} from "@/lib/types/bulk-identity-verification";
+
+export type BulkCreateRequest = {
+  idNumbers: string[];
+  billingGroups: BillingGroupSelection;
+};
+
+export type BulkCreateResponse = {
+  job: BulkVerificationJob;
+};
+
+export type BulkResultsResponse = {
+  results: BulkVerificationResult[];
+  summary: BulkResultsSummary;
+};
+
+const MOCK_NAMES = ["THABO", "NOMSA", "SIPHO", "LERATO", "BONGANI", "ZANELE", "TSHEPO", "PALESA"];
+const MOCK_SURNAMES = ["MOKWENA", "NDLOVU", "MTHEMBU", "VAN DER MERWE", "NKOSI", "DLAMINI"];
+
+export function generateBulkVerificationJob(idCount: number): BulkVerificationJob {
+  return {
+    jobId: `bulk-${Date.now()}`,
+    partnerId: "partner-001",
+    status: "COMPLETED",
+    requestId: `REQ-${Math.floor(Math.random() * 999999)}`,
+    billingGroups: "Y,Y,Y,Y,Y,N,N,N,N,N",
+    idCount,
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    uploadedAt: new Date(Date.now() - 3500000).toISOString(),
+    completedAt: new Date(Date.now() - 1800000).toISOString(),
+    errorCode: 0,
+    errorDescription: null,
+  };
+}
+
+export function generateBulkResults(idNumbers: string[]): BulkResultsResponse {
+  const results: BulkVerificationResult[] = idNumbers.map((id, idx) => {
+    const rndSeed = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    const rnd = seeded(rndSeed);
+    const lastDigit = parseInt(id.slice(-2, -1));
+
+    // Simulate different outcomes
+    const isDeceased = lastDigit === 9;
+    const isNotFound = lastDigit === 7;
+    const hasError = lastDigit === 6;
+
+    if (hasError) {
+      return {
+        idNumber: id,
+        names: "", surname: "", gender: "", dateOfBirth: "",
+        birthCountry: "", citizenStatus: "", nationality: "",
+        smartCardIssued: false, idCardIssueDate: "",
+        idBookIssued: false, idBookIssueDate: "", idBlocked: false,
+        maritalStatus: "", maidenName: "", marriageDate: "", divorceDate: "",
+        dateOfDeath: "", deathPlace: "", causeOfDeath: "",
+        errorCode: 800,
+        success: false,
+      };
+    }
+
+    return {
+      idNumber: id,
+      names: MOCK_NAMES[idx % MOCK_NAMES.length],
+      surname: MOCK_SURNAMES[idx % MOCK_SURNAMES.length],
+      gender: rnd() > 0.5 ? "Male" : "Female",
+      dateOfBirth: `19${80 + Math.floor(rnd() * 20)}/0${1 + Math.floor(rnd() * 9)}/1${Math.floor(rnd() * 9)}`,
+      birthCountry: "ZA",
+      citizenStatus: "CITIZEN",
+      nationality: "South African",
+      smartCardIssued: rnd() > 0.3,
+      idCardIssueDate: `20${10 + Math.floor(rnd() * 15)}/05/10`,
+      idBookIssued: rnd() > 0.5,
+      idBookIssueDate: rnd() > 0.5 ? `20${5 + Math.floor(rnd() * 15)}/03/15` : "",
+      idBlocked: false,
+      maritalStatus: rnd() > 0.4 ? "Married" : "Single",
+      maidenName: rnd() > 0.7 ? "MABENA" : "",
+      marriageDate: rnd() > 0.4 ? `20${10 + Math.floor(rnd() * 10)}/09/14` : "",
+      divorceDate: rnd() > 0.9 ? `20${15 + Math.floor(rnd() * 5)}/06/20` : "",
+      dateOfDeath: isDeceased ? `20${20 + Math.floor(rnd() * 5)}/06/15` : "",
+      deathPlace: isDeceased ? "Johannesburg" : "",
+      causeOfDeath: isDeceased ? "Natural causes" : "",
+      errorCode: isNotFound ? 800 : 0,
+      success: !isNotFound && !isDeceased,
+    };
+  });
+
+  const summary: BulkResultsSummary = {
+    total: results.length,
+    verified: results.filter(r => r.success).length,
+    notFound: results.filter(r => r.errorCode === 800).length,
+    deceased: results.filter(r => r.dateOfDeath !== "").length,
+    errors: results.filter(r => r.errorCode !== 0 && r.errorCode !== 800).length,
+  };
+
+  return { results, summary };
+}
+
+export async function mockBulkCreate(request: BulkCreateRequest, delayMs?: number): Promise<BulkCreateResponse> {
+  await wait(delayMs ?? 1500);
+  return { job: generateBulkVerificationJob(request.idNumbers.length) };
+}
+
+export async function mockBulkResults(idNumbers: string[], delayMs?: number): Promise<BulkResultsResponse> {
+  await wait(delayMs ?? 800);
+  return generateBulkResults(idNumbers);
 }
 
 export type FullVerificationRequest = { idNumber: string; firstName?: string; lastName?: string; subTypes?: string[] };

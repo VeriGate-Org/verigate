@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import verigate.webbff.auth.PartnerContextHolder;
+import verigate.webbff.verification.mapper.IdentityVerificationMapper;
+import verigate.webbff.verification.model.IdentityVerificationDetailResponse;
 import verigate.webbff.verification.model.VerificationListResponse;
 import verigate.webbff.verification.model.VerificationRequest;
 import verigate.webbff.verification.model.VerificationResponse;
@@ -31,9 +33,13 @@ public class VerificationController {
   private static final Logger logger = LoggerFactory.getLogger(VerificationController.class);
 
   private final VerificationService verificationService;
+  private final IdentityVerificationMapper identityVerificationMapper;
 
-  public VerificationController(VerificationService verificationService) {
+  public VerificationController(
+      VerificationService verificationService,
+      IdentityVerificationMapper identityVerificationMapper) {
     this.verificationService = verificationService;
+    this.identityVerificationMapper = identityVerificationMapper;
   }
 
   @PostMapping
@@ -87,5 +93,19 @@ public class VerificationController {
         partnerId, status, clampedLimit, exclusiveStartKey);
 
     return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/{commandId}/identity-details")
+  public IdentityVerificationDetailResponse getIdentityDetails(@PathVariable UUID commandId) {
+    logger.debug("Fetching identity verification details: commandId={}", commandId);
+    return verificationService
+        .findVerification(commandId)
+        .map(item -> identityVerificationMapper.mapToDetailResponse(
+            UUID.fromString(item.getCommandId()),
+            item.getAuxiliaryData()))
+        .orElseThrow(() -> {
+          logger.warn("Verification not found for identity details: commandId={}", commandId);
+          return new ResponseStatusException(HttpStatus.NOT_FOUND);
+        });
   }
 }
