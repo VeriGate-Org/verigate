@@ -329,6 +329,11 @@ Resources:
           IDENTITY_VAULT_ENABLED: "false"
           IDENTITY_VAULT_TABLE_NAME: !Sub "${AWS::StackName}-verified-identities"
           IDENTITY_VAULT_FRESHNESS_DAYS: "90"
+          HANIS_INTEGRATION_ENABLED: "false"
+          HANIS_SITE_ID: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/site_id:1}}"
+          HANIS_WORKSTATION_ID: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/workstation_id:1}}"
+          HANIS_PRIMARY_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/primary_url:1}}"
+          HANIS_FAILOVER_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/failover_url:1}}"
       Events:
         VerigateVerifyIdentityQueueCommand:
           Type: SQS

@@ -43,6 +43,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: "Home Affairs ID", path: "/services/personal-details", icon: Shield },
       { name: "Identity Verification", path: "/services/identity", icon: Fingerprint },
+      { name: "Bulk ID Verification", path: "/services/bulk-identity-verification", icon: Fingerprint, badge: "NEW" },
       { name: "Document Verification", path: "/services/document-verification", icon: FileCheck },
     ],
   },

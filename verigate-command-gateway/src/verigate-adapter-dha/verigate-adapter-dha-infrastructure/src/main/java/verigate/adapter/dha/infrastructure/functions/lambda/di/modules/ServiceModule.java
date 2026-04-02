@@ -53,7 +53,14 @@ import verigate.adapter.dha.infrastructure.http.DhaHttpAdapter;
 import verigate.adapter.dha.infrastructure.vault.DynamoDbIdentityVaultAdapter;
 import verigate.adapter.dha.infrastructure.http.DhaIdentityApiAdapter;
 import verigate.adapter.dha.infrastructure.mappers.DhaDtoMapper;
+import verigate.adapter.dha.infrastructure.mappers.HanisResponseMapper;
+import verigate.adapter.dha.infrastructure.config.HanisConfiguration;
 import verigate.adapter.dha.infrastructure.services.DefaultDhaIdentityVerificationService;
+import verigate.adapter.dha.infrastructure.services.DefaultHanisVerificationService;
+import verigate.adapter.dha.infrastructure.services.HanisDhaIdentityVerificationService;
+import verigate.adapter.dha.infrastructure.services.MockHanisVerificationService;
+import verigate.adapter.dha.infrastructure.soap.HanisSoapClient;
+import verigate.adapter.dha.domain.services.HanisVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.factories.VerificationEventFactory;
@@ -89,8 +96,7 @@ public class ServiceModule extends AbstractModule {
     // Routing
     bind(Mapper.class).to(PassthroughMapper.class).in(Singleton.class);
 
-    // DHA Services
-    bind(DhaIdentityVerificationService.class).to(DefaultDhaIdentityVerificationService.class);
+    // DHA Services - binding is handled by provider method (HANIS or REST based on config)
 
     // Factories
     bind(EventFactory.class).to(VerificationEventFactory.class);
@@ -198,6 +204,47 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private HanisConfiguration provideHanisConfiguration(Environment environment) {
+    return new HanisConfiguration(environment);
+  }
+
+  @Provides
+  @Singleton
+  private HanisResponseMapper provideHanisResponseMapper() {
+    return new HanisResponseMapper();
+  }
+
+  @Provides
+  @Singleton
+  private HanisVerificationService provideHanisVerificationService(
+      HanisConfiguration hanisConfig) {
+    if (hanisConfig.isEnabled()) {
+      hanisConfig.validate();
+      HanisSoapClient soapClient = new HanisSoapClient(
+          hanisConfig.getPrimaryUrl(),
+          hanisConfig.getFailoverUrl(),
+          Duration.ofSeconds(hanisConfig.getTimeoutSeconds()));
+      return new DefaultHanisVerificationService(soapClient);
+    }
+    return new MockHanisVerificationService();
+  }
+
+  @Provides
+  @Singleton
+  private DhaIdentityVerificationService provideDhaIdentityVerificationServiceBinding(
+      HanisConfiguration hanisConfig,
+      HanisVerificationService hanisVerificationService,
+      HanisResponseMapper hanisResponseMapper,
+      DefaultDhaIdentityVerificationService restService) {
+    if (hanisConfig.isEnabled()) {
+      return new HanisDhaIdentityVerificationService(
+          hanisVerificationService, hanisResponseMapper, hanisConfig);
+    }
+    return restService;
+  }
+
+  @Provides
+  @Singleton
   private DynamoDbClient provideDynamoDbClient() {
     return DynamoDbClient.builder().build();
   }
@@ -206,9 +253,10 @@ public class ServiceModule extends AbstractModule {
   @Singleton
   private IdentityVaultService provideIdentityVaultService(
       DynamoDbClient dynamoDbClient, Environment environment) {
-    String tableName = environment.getVariable("IDENTITY_VAULT_TABLE_NAME");
-    int freshnessDays = Integer.parseInt(
-        environment.getVariable("IDENTITY_VAULT_FRESHNESS_DAYS", "90"));
+    String tableName = environment.get("IDENTITY_VAULT_TABLE_NAME");
+    String freshnessDaysStr = environment.get("IDENTITY_VAULT_FRESHNESS_DAYS");
+    int freshnessDays = (freshnessDaysStr != null && !freshnessDaysStr.isBlank())
+        ? Integer.parseInt(freshnessDaysStr) : 90;
     return new DynamoDbIdentityVaultAdapter(dynamoDbClient, tableName, freshnessDays);
   }
 
@@ -218,8 +266,9 @@ public class ServiceModule extends AbstractModule {
       DhaIdentityVerificationService identityVerificationService,
       IdentityVaultService identityVaultService,
       Environment environment) {
+    String vaultEnabledStr = environment.get("IDENTITY_VAULT_ENABLED");
     boolean vaultEnabled = Boolean.parseBoolean(
-        environment.getVariable("IDENTITY_VAULT_ENABLED", "false"));
+        vaultEnabledStr != null ? vaultEnabledStr : "false");
     return new DefaultVerifyIdentityCommandHandler(
         identityVerificationService, identityVaultService, vaultEnabled);
   }
