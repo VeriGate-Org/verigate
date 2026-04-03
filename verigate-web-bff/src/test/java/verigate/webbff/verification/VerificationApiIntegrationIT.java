@@ -48,7 +48,10 @@ import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
  * Uses LocalStack for SQS and DynamoDB to test the full REST flow
  * including authentication, SQS dispatch, and DynamoDB queries.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    properties = "spring.cloud.function.web.export.enabled=false"
+)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Testcontainers
