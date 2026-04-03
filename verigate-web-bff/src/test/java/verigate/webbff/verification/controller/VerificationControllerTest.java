@@ -27,6 +27,7 @@ import verigate.webbff.verification.model.VerificationListItem;
 import verigate.webbff.verification.model.VerificationListResponse;
 import verigate.webbff.verification.model.VerificationResponse;
 import verigate.webbff.verification.repository.model.VerificationCommandStoreItem;
+import verigate.webbff.verification.mapper.IdentityVerificationMapper;
 import verigate.webbff.verification.service.VerificationService;
 
 @WebMvcTest(controllers = VerificationController.class)
@@ -38,6 +39,7 @@ class VerificationControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private VerificationService verificationService;
+  @MockBean private IdentityVerificationMapper identityVerificationMapper;
 
   @AfterEach
   void tearDown() {

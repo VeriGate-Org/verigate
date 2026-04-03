@@ -31,6 +31,7 @@ import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
 import verigate.webbff.auth.ApiKeyService.GeneratedApiKey;
+import verigate.webbff.partner.service.PartnerFeatureService;
 
 @WebMvcTest(controllers = AdminController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -41,6 +42,7 @@ class AdminControllerTest {
   @MockBean private ApiKeyService apiKeyService;
   @MockBean private PartnerService partnerService;
   @MockBean private PartnerRepository partnerRepository;
+  @MockBean private PartnerFeatureService partnerFeatureService;
 
   @Test
   void createPartnerReturnsAccepted() throws Exception {

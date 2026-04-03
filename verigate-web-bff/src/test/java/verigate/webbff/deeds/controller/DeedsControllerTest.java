@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 import verigate.webbff.auth.PartnerContextHolder;
 import verigate.webbff.deeds.model.DeedsModels;
 import verigate.webbff.deeds.service.DeedsPortfolioService;
+import verigate.webbff.partner.features.PartnerFeatureAccessService;
 
 @WebMvcTest(controllers = DeedsController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -30,6 +31,7 @@ class DeedsControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private DeedsPortfolioService deedsPortfolioService;
+  @MockBean private PartnerFeatureAccessService featureAccessService;
 
   @AfterEach
   void tearDown() {

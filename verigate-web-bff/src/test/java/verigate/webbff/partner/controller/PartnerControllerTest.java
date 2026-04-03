@@ -35,6 +35,7 @@ import verigate.webbff.partner.model.PolicyListResponse;
 import verigate.webbff.partner.model.PolicyResponse;
 import verigate.webbff.partner.model.ReportListResponse;
 import verigate.webbff.partner.model.ReportResponse;
+import verigate.webbff.partner.features.PartnerFeatureAccessService;
 import verigate.webbff.partner.service.PartnerFeatureService;
 
 @WebMvcTest(controllers = PartnerController.class)
@@ -47,6 +48,7 @@ class PartnerControllerTest {
 
   @MockBean private PartnerFeatureService featureService;
   @MockBean private ApiKeyService apiKeyService;
+  @MockBean private PartnerFeatureAccessService featureAccessService;
 
   @AfterEach
   void tearDown() {
