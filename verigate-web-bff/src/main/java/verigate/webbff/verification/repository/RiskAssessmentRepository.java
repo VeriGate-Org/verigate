@@ -28,7 +28,7 @@ public class RiskAssessmentRepository {
             properties.getTableName(), TableSchema.fromBean(RiskAssessmentItem.class));
   }
 
-  @Cacheable(value = "risk-assessments", key = "#verificationId")
+  @Cacheable(value = "risk-assessments", key = "#verificationId", unless = "#result == null")
   public Optional<RiskAssessmentItem> findByVerificationId(UUID verificationId) {
     RiskAssessmentItem item;
     try {

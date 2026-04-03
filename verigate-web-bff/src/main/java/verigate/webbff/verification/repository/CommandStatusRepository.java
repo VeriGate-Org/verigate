@@ -43,7 +43,7 @@ public class CommandStatusRepository {
             tableName, TableSchema.fromBean(VerificationCommandStoreItem.class));
   }
 
-  @Cacheable(value = "command-status", key = "#commandId")
+  @Cacheable(value = "command-status", key = "#commandId", unless = "#result == null")
   public Optional<VerificationCommandStoreItem> findById(UUID commandId) {
     VerificationCommandStoreItem item;
     try {

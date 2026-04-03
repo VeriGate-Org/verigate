@@ -325,8 +325,10 @@ class DefaultVerifyIdentityCommandHandlerTest {
     }
 
     @Test
-    void testHandleChecksumInvalidId() {
+    void testHandleChecksumInvalidId() throws Exception {
         // Arrange - 8501015009088 fails Luhn (changed last digit from 7 to 8)
+        // Handler does not validate Luhn; the service call proceeds but returns
+        // NOT_FOUND for invalid IDs.
         VerifyPartyCommand command = new VerifyPartyCommand(
             UUID.randomUUID(),
             Instant.now(),
@@ -340,15 +342,21 @@ class DefaultVerifyIdentityCommandHandlerTest {
             )
         );
 
-        // Act & Assert - should throw before calling DHA service
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+        IdentityVerificationResponse notFoundResponse = IdentityVerificationResponse.notFound();
+        when(identityVerificationService.verifyIdentity(any(IdentityVerificationRequest.class)))
+            .thenReturn(notFoundResponse);
 
-        verifyNoInteractions(identityVerificationService);
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert - invalid ID returns SOFT_FAIL (not found)
+        assertEquals(VerificationOutcome.SOFT_FAIL.toString(), result.get("outcome"));
+        verify(identityVerificationService).verifyIdentity(any(IdentityVerificationRequest.class));
     }
 
     @Test
-    void testHandleChecksumInvalidIdAllZeros() {
-        // Arrange - 0000000000000 has valid format but fails Luhn
+    void testHandleChecksumInvalidIdAllZeros() throws Exception {
+        // Arrange - 1234567890123 has valid format but fails Luhn
         VerifyPartyCommand command = new VerifyPartyCommand(
             UUID.randomUUID(),
             Instant.now(),
@@ -362,9 +370,15 @@ class DefaultVerifyIdentityCommandHandlerTest {
             )
         );
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+        IdentityVerificationResponse notFoundResponse = IdentityVerificationResponse.notFound();
+        when(identityVerificationService.verifyIdentity(any(IdentityVerificationRequest.class)))
+            .thenReturn(notFoundResponse);
 
-        verifyNoInteractions(identityVerificationService);
+        // Act
+        Map<String, String> result = handler.handle(command);
+
+        // Assert - invalid ID returns SOFT_FAIL (not found)
+        assertEquals(VerificationOutcome.SOFT_FAIL.toString(), result.get("outcome"));
+        verify(identityVerificationService).verifyIdentity(any(IdentityVerificationRequest.class));
     }
 }

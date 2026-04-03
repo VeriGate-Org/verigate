@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,6 +75,11 @@ class VerificationApiIntegrationIT {
 
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
+    // Set AWS credentials as system properties so the Spring-managed DynamoDbClient
+    // (which uses DefaultCredentialsProvider) can authenticate to LocalStack
+    System.setProperty("aws.accessKeyId", localStack.getAccessKey());
+    System.setProperty("aws.secretAccessKey", localStack.getSecretKey());
+
     registry.add("verigate.aws.region", localStack::getRegion);
     registry.add(
         "verigate.aws.sqs-endpoint",
@@ -110,7 +117,7 @@ class VerificationApiIntegrationIT {
         """
         {
           "verificationType": "IDENTITY_VERIFICATION",
-          "originationType": "ADHOC",
+          "originationType": "CLAIMS",
           "originationId": "%s",
           "requestedBy": "integration-test",
           "metadata": {"firstName": "Jane", "lastName": "Doe", "idNumber": "9001015800085"}
@@ -136,7 +143,7 @@ class VerificationApiIntegrationIT {
         """
         {
           "verificationType": "IDENTITY_VERIFICATION",
-          "originationType": "ADHOC",
+          "originationType": "CLAIMS",
           "originationId": "%s",
           "requestedBy": "test",
           "metadata": {"firstName": "Jane", "lastName": "Doe", "idNumber": "9001015800085"}
@@ -159,7 +166,7 @@ class VerificationApiIntegrationIT {
         """
         {
           "verificationType": "IDENTITY_VERIFICATION",
-          "originationType": "ADHOC",
+          "originationType": "CLAIMS",
           "originationId": "%s",
           "requestedBy": "test",
           "metadata": {"firstName": "Jane", "lastName": "Doe", "idNumber": "9001015800085"}
@@ -303,12 +310,12 @@ class VerificationApiIntegrationIT {
             .tableName(API_KEYS_TABLE)
             .attributeDefinitions(
                 AttributeDefinition.builder()
-                    .attributeName("apiKeyHash")
+                    .attributeName("lookupHash")
                     .attributeType(ScalarAttributeType.S)
                     .build())
             .keySchema(
                 KeySchemaElement.builder()
-                    .attributeName("apiKeyHash")
+                    .attributeName("lookupHash")
                     .keyType(KeyType.HASH)
                     .build())
             .provisionedThroughput(
@@ -342,7 +349,14 @@ class VerificationApiIntegrationIT {
   }
 
   private static void seedApiKey(DynamoDbClient dynamoDb) throws Exception {
-    String apiKeyHash = hashApiKey(TEST_API_KEY);
+    // Compute unsalted lookup hash (matches DynamoDbApiKeyResolver.hashApiKeyForLookup)
+    String lookupHash = hashApiKey(TEST_API_KEY);
+
+    // Generate salt and compute salted verification hash
+    byte[] saltBytes = new byte[16];
+    new SecureRandom().nextBytes(saltBytes);
+    String salt = Base64.getUrlEncoder().withoutPadding().encodeToString(saltBytes);
+    String verificationHash = hashApiKeyWithSalt(TEST_API_KEY, saltBytes);
 
     // Seed API key record
     dynamoDb.putItem(
@@ -350,7 +364,9 @@ class VerificationApiIntegrationIT {
             .tableName(API_KEYS_TABLE)
             .item(
                 Map.of(
-                    "apiKeyHash", AttributeValue.builder().s(apiKeyHash).build(),
+                    "lookupHash", AttributeValue.builder().s(lookupHash).build(),
+                    "salt", AttributeValue.builder().s(salt).build(),
+                    "verificationHash", AttributeValue.builder().s(verificationHash).build(),
                     "partnerId", AttributeValue.builder().s(TEST_PARTNER_ID).build(),
                     "status", AttributeValue.builder().s("ACTIVE").build()))
             .build());
@@ -373,8 +389,22 @@ class VerificationApiIntegrationIT {
   private static String hashApiKey(String apiKey) throws Exception {
     MessageDigest digest = MessageDigest.getInstance("SHA-256");
     byte[] hash = digest.digest(apiKey.getBytes(StandardCharsets.UTF_8));
+    return bytesToHex(hash);
+  }
+
+  private static String hashApiKeyWithSalt(String apiKey, byte[] saltBytes) throws Exception {
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    byte[] apiKeyBytes = apiKey.getBytes(StandardCharsets.UTF_8);
+    byte[] combined = new byte[saltBytes.length + apiKeyBytes.length];
+    System.arraycopy(saltBytes, 0, combined, 0, saltBytes.length);
+    System.arraycopy(apiKeyBytes, 0, combined, saltBytes.length, apiKeyBytes.length);
+    byte[] hash = digest.digest(combined);
+    return bytesToHex(hash);
+  }
+
+  private static String bytesToHex(byte[] bytes) {
     StringBuilder hexString = new StringBuilder();
-    for (byte b : hash) {
+    for (byte b : bytes) {
       String hex = Integer.toHexString(0xff & b);
       if (hex.length() == 1) {
         hexString.append('0');

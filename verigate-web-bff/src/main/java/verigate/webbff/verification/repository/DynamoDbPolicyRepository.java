@@ -42,7 +42,7 @@ public class DynamoDbPolicyRepository {
     }
   }
 
-  @Cacheable(value = "policies", key = "#partnerPolicyId")
+  @Cacheable(value = "policies", key = "#partnerPolicyId", unless = "#result == null")
   public Optional<PolicyDataModel> findById(String partnerPolicyId) {
     try {
       PolicyDataModel item = table.getItem(
