@@ -160,6 +160,7 @@ docker-compose.override.yml
 .terraform.lock.hcl
 terraform.tfvars
 terraform.tfvars.json
+!iac/terraform/environments/**/terraform.tfvars
 
 # SAM
 .aws-sam/
