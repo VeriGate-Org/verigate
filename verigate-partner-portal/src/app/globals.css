@@ -349,7 +349,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-cta);
   border: 1px solid var(--color-cta-hover);
   color: white;
-  border-radius: 9999px; /* Pill-shaped rounded CTA button */
+  border-radius: 4px;
   font-weight: 600;
 }
 
@@ -363,7 +363,7 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   border: 1px solid var(--color-cta);
   color: var(--color-cta);
-  border-radius: 9999px; /* Pill-shaped rounded CTA button */
+  border-radius: 4px;
   font-weight: 500;
 }
 
@@ -377,7 +377,7 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   border: 1px solid var(--color-primary);
   color: var(--color-primary);
-  border-radius: 9999px; /* Pill-shaped rounded outline button */
+  border-radius: 4px;
   font-weight: 500;
 }
 

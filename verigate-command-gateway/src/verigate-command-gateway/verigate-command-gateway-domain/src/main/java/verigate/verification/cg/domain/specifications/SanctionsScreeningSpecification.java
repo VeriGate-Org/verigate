@@ -21,14 +21,15 @@ public class SanctionsScreeningSpecification implements Specification<VerifyPart
       new RequiredFieldSpecification<>("metadata", VerifyPartyCommand::getMetadata);
 
   private static final RequiredFieldSpecification<VerifyPartyCommand> firstNameRequired =
-      new RequiredFieldSpecification<>("metaData.firstName", event -> event.getMetadata());
+      new RequiredFieldSpecification<>(
+          "metaData.firstName", event -> event.getMetadata().get("firstName"));
 
   private static final RequiredFieldSpecification<VerifyPartyCommand> lastNameRequired =
-      new RequiredFieldSpecification<>("metaData.lastName", event -> event.getMetadata());
+      new RequiredFieldSpecification<>(
+          "metaData.lastName", event -> event.getMetadata().get("lastName"));
 
   @Override
   public SpecificationResult isSatisfiedBy(VerifyPartyCommand command) {
-    // TODO: Add more fields to verify
     return metadataRequired
         .conditionalAnd(
             firstNameRequired.and(lastNameRequired),

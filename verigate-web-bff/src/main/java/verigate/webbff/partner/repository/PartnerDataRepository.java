@@ -115,11 +115,43 @@ public class PartnerDataRepository {
     item.put("entityType", AttributeValue.builder().s("PROFILE").build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("updatedAt", AttributeValue.builder().s(Instant.now().toString()).build());
+    // Persist slug as top-level attribute for GSI querying
+    Object slug = data.get("slug");
+    if (slug instanceof String s && !s.isBlank()) {
+      item.put("slug", AttributeValue.builder().s(s).build());
+    }
     putItem(item);
   }
 
   public Optional<Map<String, Object>> getProfile(String partnerId) {
     return getItem(partnerId, "PROFILE");
+  }
+
+  // ── Slug-based lookup (GSI: slug-index) ─────────────────────────
+
+  /**
+   * Find a partner profile by its subdomain slug using the slug-index GSI.
+   * Returns the profile data if found, empty otherwise.
+   */
+  public Optional<Map<String, Object>> findBySlug(String slug) {
+    try {
+      var response = dynamoDbClient.query(QueryRequest.builder()
+          .tableName(tableName)
+          .indexName("slug-index")
+          .keyConditionExpression("slug = :slug")
+          .expressionAttributeValues(Map.of(
+              ":slug", AttributeValue.builder().s(slug).build()))
+          .limit(1)
+          .build());
+
+      if (response.items().isEmpty()) {
+        return Optional.empty();
+      }
+      return Optional.of(parseData(response.items().get(0)));
+    } catch (DynamoDbException e) {
+      logger.error("DynamoDB query by slug failed: {}", e.getMessage());
+      throw new RuntimeException("Service temporarily unavailable", e);
+    }
   }
 
   // ── Notifications ─────────────────────────────────────────────────

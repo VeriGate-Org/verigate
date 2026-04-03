@@ -167,6 +167,22 @@ variable "worldcheck_api_base_url" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# OpenSanctions
+#----------------------------------------------------------------------------------------------------------------
+
+variable "opensanctions_api_key" {
+  description = "OpenSanctions API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "opensanctions_api_url" {
+  description = "OpenSanctions API base URL"
+  type        = string
+  default     = "https://api.opensanctions.org"
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Datadog
 #----------------------------------------------------------------------------------------------------------------
 variable "datadog_monitor_notify_all" {

@@ -13,6 +13,8 @@ import {
   normalizePlan,
   tenantHasFeature,
 } from "@/lib/tenant-features";
+import type { TenantBranding } from "@/lib/types/tenant-branding";
+import { darken, lighten, withOpacity } from "@/lib/utils/color";
 
 interface TenantFeatureContextValue {
   profile: BffProfileResponse;
@@ -20,7 +22,12 @@ interface TenantFeatureContextValue {
   hasFeature: (feature: FeatureKey) => boolean;
   requiredPlan: (feature: FeatureKey) => Plan;
   refreshProfile: () => Promise<void>;
+  branding: TenantBranding | null;
+  isWhiteLabelled: boolean;
+  tenantSlug: string | null;
 }
+
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
 
 const defaultProfile: BffProfileResponse = {
   partnerId: "partner-portal",
@@ -45,12 +52,92 @@ const TenantFeatureContext = React.createContext<TenantFeatureContextValue>({
   hasFeature: () => true,
   requiredPlan: getRequiredPlan,
   refreshProfile: async () => {},
+  branding: null,
+  isWhiteLabelled: false,
+  tenantSlug: null,
 });
+
+/**
+ * Extract the tenant slug from the current hostname.
+ * Returns null if on the root domain (no subdomain).
+ */
+function detectSlug(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const host = window.location.hostname;
+  const root = ROOT_DOMAIN.split(":")[0];
+
+  // localhost support: acme.localhost → "acme"
+  if (root === "localhost" && host.endsWith(".localhost")) {
+    const slug = host.replace(".localhost", "");
+    return slug || null;
+  }
+
+  // Standard: acme.verigate.co.za → "acme"
+  if (host.endsWith("." + root)) {
+    const slug = host.slice(0, -(root.length + 1));
+    return slug && !slug.includes(".") ? slug : null;
+  }
+
+  return null;
+}
+
+/** Inject tenant branding CSS variables on the document root. */
+function applyBrandingCssVars(branding: TenantBranding) {
+  const root = document.documentElement;
+  if (branding.primaryColor) {
+    root.style.setProperty("--color-accent", branding.primaryColor);
+    root.style.setProperty("--color-accent-strong", darken(branding.primaryColor, 15));
+    root.style.setProperty("--color-accent-border", lighten(branding.primaryColor, 10));
+    root.style.setProperty("--color-accent-soft", withOpacity(branding.primaryColor, 0.1));
+  }
+  if (branding.accentColor) {
+    root.style.setProperty("--color-cta", branding.accentColor);
+  }
+}
+
+/** Remove injected branding CSS variables. */
+function clearBrandingCssVars() {
+  const root = document.documentElement;
+  const vars = [
+    "--color-accent",
+    "--color-accent-strong",
+    "--color-accent-border",
+    "--color-accent-soft",
+    "--color-cta",
+  ];
+  vars.forEach((v) => root.style.removeProperty(v));
+}
 
 export function PartnerTenantProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = React.useState<BffProfileResponse>(defaultProfile);
   const [loading, setLoading] = React.useState(true);
+  const [branding, setBranding] = React.useState<TenantBranding | null>(null);
+  const [tenantSlug, setTenantSlug] = React.useState<string | null>(null);
 
+  // ── Subdomain detection + branding fetch ────────────────────────
+  React.useEffect(() => {
+    const slug = detectSlug();
+    setTenantSlug(slug);
+
+    if (!slug) return;
+
+    fetch(`/api/tenant/${slug}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: TenantBranding | null) => {
+        if (data) {
+          setBranding(data);
+          applyBrandingCssVars(data);
+        }
+      })
+      .catch(() => {
+        // Branding fetch failure is non-critical — keep default styling
+      });
+
+    return () => clearBrandingCssVars();
+  }, []);
+
+  // ── Profile fetch (existing logic, unchanged) ──────────────────
   const refreshProfile = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -101,8 +188,11 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
       hasFeature,
       requiredPlan: getRequiredPlan,
       refreshProfile,
+      branding,
+      isWhiteLabelled: !!branding && tenantSlug !== "default",
+      tenantSlug,
     }),
-    [profile, loading, hasFeature, refreshProfile],
+    [profile, loading, hasFeature, refreshProfile, branding, tenantSlug],
   );
 
   return (

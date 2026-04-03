@@ -185,13 +185,26 @@ public class PartnerFeatureService {
         entitlements.resolvedFeatures(),
         entitlements.quotas(),
         (String) data.getOrDefault("status", "ACTIVE"),
-        (String) data.get("createdAt"));
+        (String) data.get("createdAt"),
+        (String) data.get("logo"),
+        (String) data.get("logoDark"),
+        (String) data.get("primaryColor"),
+        (String) data.get("accentColor"),
+        (String) data.get("faviconUrl"),
+        (String) data.get("tagline"));
   }
 
   public PartnerProfileResponse updateProfile(String partnerId, PartnerProfileUpdateRequest request) {
     var existing = repository.getProfile(partnerId).orElse(new HashMap<>());
     if (request.name() != null) existing.put("name", request.name());
     if (request.contactEmail() != null) existing.put("contactEmail", request.contactEmail());
+    // Branding fields
+    if (request.logo() != null) existing.put("logo", request.logo());
+    if (request.logoDark() != null) existing.put("logoDark", request.logoDark());
+    if (request.primaryColor() != null) existing.put("primaryColor", request.primaryColor());
+    if (request.accentColor() != null) existing.put("accentColor", request.accentColor());
+    if (request.faviconUrl() != null) existing.put("faviconUrl", request.faviconUrl());
+    if (request.tagline() != null) existing.put("tagline", request.tagline());
     repository.saveProfile(partnerId, existing);
     logger.info("Updated profile: partnerId={}", partnerId);
     return getProfile(partnerId);
@@ -208,6 +221,29 @@ public class PartnerFeatureService {
     repository.saveProfile(partnerId, existing);
     logger.info("Updated entitlements: partnerId={}", partnerId);
     return getProfile(partnerId);
+  }
+
+  // ── Public Branding (slug-based) ─────────────────────────────────
+
+  /**
+   * Look up a partner by subdomain slug and return branding-only data.
+   * Returns null if no partner matches the slug.
+   */
+  public Map<String, Object> getPublicBranding(String slug) {
+    var data = repository.findBySlug(slug);
+    if (data.isEmpty()) return null;
+
+    var profile = data.get();
+    Map<String, Object> branding = new HashMap<>();
+    branding.put("slug", slug);
+    branding.put("name", profile.getOrDefault("name", slug));
+    branding.put("logo", profile.get("logo"));
+    branding.put("logoDark", profile.get("logoDark"));
+    branding.put("primaryColor", profile.get("primaryColor"));
+    branding.put("accentColor", profile.get("accentColor"));
+    branding.put("faviconUrl", profile.get("faviconUrl"));
+    branding.put("tagline", profile.get("tagline"));
+    return branding;
   }
 
   // ── Notifications ─────────────────────────────────────────────────

@@ -469,6 +469,13 @@ module "income_adapter_queue" {
   max_receive_count = 1
 }
 
+module "opensanctions_adapter_queue" {
+  source = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  queue_name = "adapter-opensanctions"
+  max_receive_count = 1
+}
+
 module "partner_create_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
@@ -956,7 +963,31 @@ resource "aws_ssm_parameter" "worldcheck_api_base_url" {
   name  = "/${var.stack_name}-${var.project_name}/worldcheck/api_base_url"
   type  = "String"
   value = var.worldcheck_api_base_url
-} 
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# OpenSanctions
+#----------------------------------------------------------------------------------------------------------------
+
+module "opensanctions_secrets" {
+  source = "./modules/tf-secrets-manager"
+
+  prefix = "${var.secret_prefix}/opensanctions"
+
+  default_recovery_window_in_days = var.recovery_window_in_days
+  secrets = {
+    "api_key" = {
+      description = "API Key for OpenSanctions"
+      value       = var.opensanctions_api_key
+    }
+  }
+}
+
+resource "aws_ssm_parameter" "opensanctions_api_url" {
+  name  = "/${var.stack_name}-${var.project_name}/opensanctions/api_url"
+  type  = "String"
+  value = var.opensanctions_api_url
+}
 
 #----------------------------------------------------------------------------------------------------------------
 # Lambda Functions

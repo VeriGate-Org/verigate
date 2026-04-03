@@ -1,4 +1,5 @@
 import { luhnCheck, extractDateOfBirth, extractGender, extractCitizenship } from "@/lib/utils/sa-id-validation";
+import type { SanctionsScreeningResponse, ScoredMatchEntity, EntityDetail, AdjacentEntity, ScreeningHistoryItem, EntityType, SanctionsScreeningRequest } from "@/lib/types/sanctions-screening";
 
 const DEFAULT_DELAY_RANGE = { min: 600, max: 1400 };
 
@@ -149,17 +150,8 @@ export type AvsResponse = {
   };
 };
 
-export type SanctionsRequest = {
-  name: string;
-};
-
-export type SanctionsResponse = {
-  correlationId: string;
-  result: {
-    pep: boolean;
-    sanctionsHitCount: number;
-  };
-};
+export type SanctionsRequest = SanctionsScreeningRequest & { name?: string };
+export type SanctionsResponse = SanctionsScreeningResponse;
 
 export function generatePersonalDetailsResponse({
   firstName = "",
@@ -340,25 +332,237 @@ export function generateAvsResponse({ name, surname, accountNumber, bank }: AvsR
   };
 }
 
-export function generateSanctionsResponse({ name }: SanctionsRequest): SanctionsResponse {
-  if (!name) {
+export function generateSanctionsResponse(request: SanctionsRequest): SanctionsResponse {
+  const name = request.name || request.firstName || request.lastName || request.name || "";
+  const fullName = request.firstName && request.lastName
+    ? `${request.firstName} ${request.lastName}`
+    : name;
+
+  if (!fullName) {
     throw new Error("Name is required");
   }
 
-  const correlationId = `adhoc-sanctions-${Date.now()}`;
+  const upper = fullName.trim().toUpperCase();
+  const seedVal = upper.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+  const rnd = seeded(seedVal);
 
-  // Deterministic mock: names with Z produce hits
-  const upper = name.trim().toUpperCase();
-  const sanctionsHitCount = upper.includes("Z") ? 1 : 0;
-  const pep = upper.includes("MINISTER") || upper.includes("MP");
+  const correlationId = `adhoc-sanctions-${Date.now()}`;
+  const datasets = ["us_ofac_sdn", "eu_fsf", "un_sc_sanctions"];
+  const algorithm = request.algorithm || "logic-v1";
+  const threshold = request.threshold ?? 0.5;
+  const dataset = request.dataset || "default";
+
+  // Determine match behavior based on name patterns
+  const isHighRisk = upper.includes("PUTIN") || upper.includes("JONG");
+  const hasSanctionsHit = upper.includes("Z") || isHighRisk;
+  const isPepHit = upper.includes("MINISTER") || upper.includes("MP");
+
+  // Generate 0-5 matches depending on name
+  let matchCount = 0;
+  if (isHighRisk) {
+    matchCount = 3 + Math.floor(rnd() * 3); // 3-5
+  } else if (hasSanctionsHit) {
+    matchCount = 1 + Math.floor(rnd() * 2); // 1-2
+  } else if (isPepHit) {
+    matchCount = 1 + Math.floor(rnd() * 2); // 1-2
+  } else {
+    matchCount = rnd() > 0.7 ? 1 : 0; // mostly 0
+  }
+  matchCount = Math.min(matchCount, 5);
+
+  const scoreBase = isHighRisk ? 0.85 : hasSanctionsHit ? 0.6 : isPepHit ? 0.5 : 0.3;
+
+  const matches: ScoredMatchEntity[] = Array.from({ length: matchCount }).map((_, i) => {
+    const score = Math.min(0.99, Math.max(0.3, scoreBase + (rnd() * 0.15) - i * 0.12));
+    const roundedScore = Math.round(score * 100) / 100;
+    const entityIsPep = isPepHit && i === 0;
+    const entityIsSanctioned = hasSanctionsHit && i < 2;
+
+    const nationalities = ["RU", "ZA", "KP", "IR", "SY", "US", "GB"];
+    const schemas = ["Person", "LegalEntity", "Organization"];
+
+    return {
+      id: `Q${100000 + Math.floor(rnd() * 900000)}`,
+      caption: i === 0 ? upper : `${upper} VARIANT ${i}`,
+      schema: request.entityType === "Company" ? "LegalEntity" : schemas[Math.floor(rnd() * schemas.length)],
+      score: roundedScore,
+      datasets: datasets.slice(0, 1 + Math.floor(rnd() * datasets.length)),
+      properties: {
+        name: [i === 0 ? fullName : `${fullName} (alias ${i})`],
+        birthDate: request.dateOfBirth ? [request.dateOfBirth] : [`19${60 + Math.floor(rnd() * 40)}-0${1 + Math.floor(rnd() * 9)}-${10 + Math.floor(rnd() * 18)}`],
+        nationality: [request.nationality || nationalities[Math.floor(rnd() * nationalities.length)]],
+      },
+      features: {
+        name_match: Math.round((0.7 + rnd() * 0.25) * 100) / 100,
+        birthDate_match: Math.round((0.5 + rnd() * 0.5) * 100) / 100,
+      },
+      isPep: entityIsPep,
+      isSanctioned: entityIsSanctioned,
+      target: i === 0,
+      firstSeen: new Date(Date.now() - Math.floor(365 + rnd() * 3650) * 24 * 60 * 60 * 1000).toISOString(),
+      lastSeen: new Date(Date.now() - Math.floor(rnd() * 30) * 24 * 60 * 60 * 1000).toISOString(),
+      lastChange: new Date(Date.now() - Math.floor(rnd() * 90) * 24 * 60 * 60 * 1000).toISOString(),
+    };
+  });
+
+  // Determine outcome based on highest score
+  const highestScore = matches.length > 0 ? Math.max(...matches.map(m => m.score)) : 0;
+  let outcome: SanctionsScreeningResponse["outcome"];
+  if (isHighRisk && highestScore >= 0.8) {
+    outcome = "HARD_FAIL";
+  } else if (highestScore >= 0.7) {
+    outcome = "SOFT_FAIL";
+  } else {
+    outcome = "SUCCEEDED";
+  }
 
   return {
     correlationId,
-    result: {
-      pep,
-      sanctionsHitCount,
-    },
+    outcome,
+    matches,
+    totalMatches: matches.length,
+    algorithm,
+    screenedAt: new Date().toISOString(),
+    provider: "OpenSanctions",
+    dataset,
+    threshold,
   };
+}
+
+export function generateEntityDetail(entityId: string): EntityDetail {
+  const seedVal = entityId.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+  const rnd = seeded(seedVal);
+
+  const sanctionAuthorities = [
+    { authority: "US Treasury - OFAC", program: "Specially Designated Nationals (SDN)" },
+    { authority: "EU Council", program: "EU Financial Sanctions Facility" },
+    { authority: "UN Security Council", program: "UN Consolidated Sanctions List" },
+  ];
+
+  const sanctionCount = 1 + Math.floor(rnd() * 3); // 1-3
+  const sanctions = sanctionAuthorities.slice(0, sanctionCount).map((sa) => ({
+    authority: sa.authority,
+    program: sa.program,
+    startDate: new Date(Date.now() - Math.floor(365 + rnd() * 3650) * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    endDate: rnd() > 0.7 ? new Date(Date.now() + Math.floor(365 * rnd()) * 24 * 60 * 60 * 1000).toISOString().split("T")[0] : undefined,
+    reason: rnd() > 0.5 ? "Designated for involvement in activities threatening international peace and security" : "Listed pursuant to relevant UN Security Council resolutions",
+    status: rnd() > 0.2 ? "Active" : "Delisted",
+  }));
+
+  const pepRoles = [
+    { role: "Minister of Finance", organization: "Government", country: "ZA" },
+    { role: "Member of Parliament", organization: "National Assembly", country: "ZA" },
+    { role: "Director General", organization: "Department of Trade", country: "ZA" },
+  ];
+  const pepCount = rnd() > 0.5 ? Math.floor(1 + rnd() * 2) : 0; // 0-2
+  const positions = pepRoles.slice(0, pepCount).map((p) => ({
+    role: p.role,
+    organization: p.organization,
+    country: p.country,
+    startDate: new Date(Date.now() - Math.floor(365 + rnd() * 3650) * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    endDate: rnd() > 0.6 ? new Date(Date.now() - Math.floor(rnd() * 365) * 24 * 60 * 60 * 1000).toISOString().split("T")[0] : undefined,
+  }));
+
+  const aliases = [
+    `Alias ${entityId.slice(-3)} Alpha`,
+    `Alias ${entityId.slice(-3)} Beta`,
+    `${entityId.slice(-3)} Gamma Variant`,
+    `A.K.A. ${entityId.slice(-4)}`,
+  ].slice(0, 2 + Math.floor(rnd() * 3));
+
+  const identifierTypes = ["passport", "national_id", "tax_id", "registration_number"];
+  const identifiers = identifierTypes.slice(0, 1 + Math.floor(rnd() * 3)).map((type) => ({
+    type,
+    value: `${type.toUpperCase().slice(0, 2)}-${Math.floor(100000 + rnd() * 900000)}`,
+    country: rnd() > 0.4 ? "ZA" : rnd() > 0.5 ? "RU" : "US",
+  }));
+
+  return {
+    id: entityId,
+    caption: `Entity ${entityId}`,
+    schema: "Person",
+    score: Math.round((0.6 + rnd() * 0.35) * 100) / 100,
+    datasets: ["us_ofac_sdn", "eu_fsf", "un_sc_sanctions"].slice(0, 1 + Math.floor(rnd() * 3)),
+    properties: {
+      name: [`Entity ${entityId}`, ...aliases.slice(0, 2)],
+      birthDate: [`19${60 + Math.floor(rnd() * 40)}-0${1 + Math.floor(rnd() * 9)}-${10 + Math.floor(rnd() * 18)}`],
+      nationality: [rnd() > 0.5 ? "RU" : "ZA"],
+    },
+    features: {
+      name_match: Math.round((0.7 + rnd() * 0.25) * 100) / 100,
+      birthDate_match: Math.round((0.5 + rnd() * 0.5) * 100) / 100,
+    },
+    isPep: pepCount > 0,
+    isSanctioned: sanctions.some((s) => s.status === "Active"),
+    target: true,
+    firstSeen: new Date(Date.now() - Math.floor(365 + rnd() * 3650) * 24 * 60 * 60 * 1000).toISOString(),
+    lastSeen: new Date(Date.now() - Math.floor(rnd() * 30) * 24 * 60 * 60 * 1000).toISOString(),
+    lastChange: new Date(Date.now() - Math.floor(rnd() * 90) * 24 * 60 * 60 * 1000).toISOString(),
+    sanctions,
+    positions,
+    aliases,
+    identifiers,
+    referents: [`ref-${entityId}-001`, `ref-${entityId}-002`],
+  };
+}
+
+export function generateAdjacentEntities(entityId: string): AdjacentEntity[] {
+  const seedVal = entityId.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+  const rnd = seeded(seedVal);
+
+  const relationships = ["associate", "family", "linked_to", "business_partner"];
+  const captions = [
+    "Nikolai Petrov",
+    "Fatima Al-Hassan",
+    "Global Trade Holdings Ltd",
+    "Maria Ivanova",
+    "Red Star Shipping Corp",
+  ];
+  const schemas = ["Person", "LegalEntity", "Person", "Person", "Company"];
+
+  const count = 2 + Math.floor(rnd() * 3); // 2-4
+  return Array.from({ length: Math.min(count, captions.length) }).map((_, i) => ({
+    id: `Q${200000 + Math.floor(rnd() * 800000)}`,
+    caption: captions[i],
+    schema: schemas[i],
+    relationship: relationships[i % relationships.length],
+    datasets: ["us_ofac_sdn", "eu_fsf", "un_sc_sanctions"].slice(0, 1 + Math.floor(rnd() * 3)),
+  }));
+}
+
+export function generateScreeningHistory(): ScreeningHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const subjectNames = [
+    "John Smith", "Vladimir Kuznetsov", "Zanele Dlamini", "Minister Patel",
+    "Ahmed Al-Rashid", "Thabo Mokwena", "Olga Petrova", "Chen Wei",
+    "MP Nkosi", "Global Trade Corp", "Red Diamond Shipping", "Fatima Osman",
+    "Bongani Zulu", "Sipho Ndlovu", "Lerato van Wyk",
+  ];
+
+  const entityTypes: EntityType[] = ["Person", "Person", "Person", "Person", "Person", "Person", "Person", "Person", "Person", "Company", "Vessel", "Person", "Person", "Person", "Person"];
+  const outcomes = ["SUCCEEDED", "HARD_FAIL", "SOFT_FAIL", "SUCCEEDED", "SUCCEEDED", "SUCCEEDED", "SOFT_FAIL", "SUCCEEDED", "SOFT_FAIL", "SUCCEEDED", "HARD_FAIL", "SUCCEEDED", "SOFT_FAIL", "SUCCEEDED", "SUCCEEDED"];
+  const dispositions: (ScreeningHistoryItem["disposition"] | undefined)[] = [
+    undefined, "CONFIRMED_MATCH", "PENDING_REVIEW", undefined, undefined,
+    undefined, "FALSE_POSITIVE", undefined, "ESCALATED", undefined,
+    "CONFIRMED_MATCH", undefined, "PENDING_REVIEW", undefined, undefined,
+  ];
+
+  const count = 10 + Math.floor(rnd() * 6); // 10-15
+  return Array.from({ length: Math.min(count, subjectNames.length) }).map((_, i) => {
+    const matchCount = outcomes[i] === "SUCCEEDED" ? (rnd() > 0.7 ? 1 : 0) : 1 + Math.floor(rnd() * 4);
+    return {
+      screeningId: `scr-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+      subjectName: subjectNames[i],
+      entityType: entityTypes[i],
+      outcome: outcomes[i],
+      matchCount,
+      screenedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+      disposition: dispositions[i],
+      provider: "OpenSanctions",
+    };
+  });
 }
 
 export async function mockPersonalDetails(request: PersonalDetailsRequest, delayMs?: number) {
@@ -1072,3 +1276,35 @@ export async function mockFullVerification(request: any, delayMs?: number) {
   await wait(delayMs);
   return generateFullVerificationResponse(request);
 }
+
+/* ===== TENANT BRANDING MOCK DATA ===== */
+
+import type { TenantBranding } from "@/lib/types/tenant-branding";
+
+export const MOCK_TENANT_BRANDING: Record<string, TenantBranding> = {
+  acme: {
+    slug: "acme",
+    name: "Acme Corp",
+    logo: "/tenants/acme/logo.svg",
+    logoDark: "/tenants/acme/logo-dark.svg",
+    primaryColor: "#1a5276",
+    accentColor: "#e67e22",
+    tagline: "Trust, verified.",
+  },
+  fsca: {
+    slug: "fsca",
+    name: "FSCA",
+    logo: "/tenants/fsca/logo.png",
+    logoDark: "/tenants/fsca/logo-dark.png",
+    faviconUrl: "/tenants/fsca/favicon.png",
+    primaryColor: "#4562A1",
+    accentColor: "#2D3E6E",
+    tagline: "Financial Sector Conduct Authority",
+  },
+  default: {
+    slug: "default",
+    name: "VeriGate",
+    primaryColor: "#0972d3",
+    accentColor: "#ec7211",
+  },
+};

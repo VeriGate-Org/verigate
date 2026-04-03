@@ -91,6 +91,51 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
    * @return true if service is available
    * @throws TransientException for connectivity issues
    */
+  /**
+   * Retrieves a specific entity by its ID.
+   *
+   * @param entityId the entity identifier
+   * @return the scored entity
+   * @throws TransientException for temporary failures
+   * @throws PermanentException for permanent failures
+   */
+  public verigate.adapter.opensanctions.domain.models.ScoredEntity getEntity(String entityId)
+      throws TransientException, PermanentException {
+
+    LOGGER.info("Retrieving entity: " + entityId);
+
+    verigate.adapter.opensanctions.infrastructure.http.dto.ScoredEntityDto dto =
+        get("/entities/" + entityId,
+            verigate.adapter.opensanctions.infrastructure.http.dto.ScoredEntityDto.class);
+
+    return OpenSanctionsDtoMapper.mapToDomain(dto);
+  }
+
+  /**
+   * Retrieves adjacent (related) entities for a given entity.
+   *
+   * @param entityId the entity identifier
+   * @return the match response containing related entities
+   * @throws TransientException for temporary failures
+   * @throws PermanentException for permanent failures
+   */
+  public EntityMatchResponse getAdjacentEntities(String entityId)
+      throws TransientException, PermanentException {
+
+    LOGGER.info("Retrieving adjacent entities for: " + entityId);
+
+    EntityMatchResponseDto responseDto =
+        get("/entities/" + entityId + "/adjacent", EntityMatchResponseDto.class);
+
+    return OpenSanctionsDtoMapper.mapToDomain(responseDto);
+  }
+
+  /**
+   * Checks if the OpenSanctions service is healthy.
+   *
+   * @return true if service is available
+   * @throws TransientException for connectivity issues
+   */
   public boolean checkServiceHealth() throws TransientException {
     try {
       LOGGER.fine("Checking OpenSanctions service health");

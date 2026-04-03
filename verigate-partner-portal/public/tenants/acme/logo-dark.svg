@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
+  <!-- Shield icon -->
+  <g transform="translate(4, 4)">
+    <path d="M28 4C20.4 4 16 6.2 16 6.2V20.6C16 29.8 21.2 37.2 28 40.8C34.8 37.2 40 29.8 40 20.6V6.2C40 6.2 35.6 4 28 4Z" fill="#e67e22"/>
+    <path d="M22 22L26 26L34 18" stroke="#1f2933" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="60" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="32" font-weight="700" fill="#f3f4f6" letter-spacing="-0.5">ACME</text>
+  <text x="166" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="32" font-weight="300" fill="#e67e22" letter-spacing="-0.5">Corp</text>
+</svg>

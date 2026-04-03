@@ -59,17 +59,33 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
     LOGGER.info("Processing sanctions screening command for party: " + maskSensitiveData(command));
 
     try {
-      VerificationResult result = performSanctionsScreening(command);
+      // Map command to OpenSanctions request
+      EntityMatchRequest matchRequest = VerifyPartyCommandMapper.mapToEntityMatchRequest(command);
+
+      // Call OpenSanctions API
+      EntityMatchResponse matchResponse = openSanctionsService.matchEntities(matchRequest);
+
+      // Map response to verification result
+      String requestId = command.getId().toString();
+      VerificationResult result =
+          VerificationResultMapper.mapToVerificationResult(matchResponse, requestId);
       publishVerificationEvent(command, result);
 
       LOGGER.info("Sanctions screening completed with outcome: " + result.outcome());
-      // Return basic result information as a map
+
+      // Build result map with outcome and match details
       Map<String, String> resultMap = new HashMap<>();
       resultMap.put("outcome", result.outcome().toString());
       if (result.failureReason() != null) {
         resultMap.put("failureReason", result.failureReason());
       }
       resultMap.put("provider", "OpenSanctions");
+
+      // Merge detailed match information
+      Map<String, String> matchDetails =
+          VerificationResultMapper.createResultDetails(matchResponse);
+      resultMap.putAll(matchDetails);
+
       return resultMap;
 
     } catch (TransientException e) {
@@ -94,27 +110,19 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
     return CompletableFuture.supplyAsync(
         () -> {
           try {
-            VerificationResult result = performSanctionsScreening(command);
+            EntityMatchRequest matchRequest =
+                VerifyPartyCommandMapper.mapToEntityMatchRequest(command);
+            EntityMatchResponse matchResponse =
+                openSanctionsService.matchEntities(matchRequest);
+            String requestId = command.getId().toString();
+            VerificationResult result =
+                VerificationResultMapper.mapToVerificationResult(matchResponse, requestId);
             publishVerificationEvent(command, result);
             return result;
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
         });
-  }
-
-  private VerificationResult performSanctionsScreening(VerifyPartyCommand command)
-      throws TransientException, PermanentException {
-
-    // Map command to OpenSanctions request
-    EntityMatchRequest matchRequest = VerifyPartyCommandMapper.mapToEntityMatchRequest(command);
-
-    // Call OpenSanctions API
-    EntityMatchResponse matchResponse = openSanctionsService.matchEntities(matchRequest);
-
-    // Map response to verification result
-    String requestId = command.getId().toString();
-    return VerificationResultMapper.mapToVerificationResult(matchResponse, requestId);
   }
 
   private void publishVerificationEvent(VerifyPartyCommand command, VerificationResult result) {

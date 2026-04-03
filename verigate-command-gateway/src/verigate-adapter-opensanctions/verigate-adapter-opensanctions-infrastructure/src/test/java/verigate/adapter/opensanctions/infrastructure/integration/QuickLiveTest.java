@@ -6,6 +6,8 @@
 
 package verigate.adapter.opensanctions.infrastructure.integration;
 
+import crosscutting.config.Config;
+import crosscutting.environment.Environment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
