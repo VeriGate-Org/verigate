@@ -26,20 +26,8 @@ variable "project_name" {
 }
 
 variable "environment_shortname" {
-  description = "Short name for the environment (e.g., dev, sbx, ppe, prd)"
+  description = "Short name for the environment (dev, prod)"
   type        = string
-}
-
-variable "stack_version" {
-  description = "Version of the stack"
-  type        = string
-  default     = ""
-}
-
-variable "developer_stack_name" {
-  description = "Developer name for sandbox environments"
-  type        = string
-  default     = ""
 }
 
 #----------------------------------------------------------------------------------------------------------------
@@ -164,6 +152,22 @@ variable "worldcheck_default_group_id" {
 variable "worldcheck_api_base_url" {
   description = "World Check One API base URL"
   type        = string
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# OpenSanctions
+#----------------------------------------------------------------------------------------------------------------
+
+variable "opensanctions_api_key" {
+  description = "OpenSanctions API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "opensanctions_api_url" {
+  description = "OpenSanctions API base URL"
+  type        = string
+  default     = "https://api.opensanctions.org"
 }
 
 #----------------------------------------------------------------------------------------------------------------

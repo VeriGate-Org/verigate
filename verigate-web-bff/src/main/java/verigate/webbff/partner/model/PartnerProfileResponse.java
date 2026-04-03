@@ -12,4 +12,11 @@ public record PartnerProfileResponse(
     List<String> resolvedFeatures,
     Map<String, Integer> quotas,
     String status,
-    String createdAt) {}
+    String createdAt,
+    // Branding (whitelabelling)
+    String logo,
+    String logoDark,
+    String primaryColor,
+    String accentColor,
+    String faviconUrl,
+    String tagline) {}

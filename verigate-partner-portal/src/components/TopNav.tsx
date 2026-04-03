@@ -7,23 +7,34 @@ import { Menu, Bell, HelpCircle, Search, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Navigation/Breadcrumb";
 import { useAuth, useUser } from "@/lib/auth";
+import { useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
 import * as React from "react";
 
 const ENV_LABEL = process.env.NEXT_PUBLIC_ENV || "Sandbox";
 const LOGO_SRC = process.env.NEXT_PUBLIC_LOGO || "/verigate-logo.svg";
 
-function LogoMark({ src, isDark }: { src: string; isDark: boolean }) {
+function DefaultShield({ isDark }: { isDark: boolean }) {
+  const shieldColor = isDark ? "#f37353" : "#E23D36";
+  const strokeColor = isDark ? "#1f2933" : "#FFFFFF";
+  return (
+    <span className="flex h-8 w-8 items-center justify-center" aria-hidden>
+      <svg width="32" height="32" viewBox="0 0 28 28" role="img" aria-label="VeriGate logo" shapeRendering="geometricPrecision">
+        <path fill={shieldColor} d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z" />
+        <path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke={strokeColor} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
+function LogoMark({ src, isDark, brandingLogo, brandingLogoDark }: { src: string; isDark: boolean; brandingLogo?: string; brandingLogoDark?: string }) {
+  // Prefer tenant branding logo
+  const customLogo = isDark && brandingLogoDark ? brandingLogoDark : brandingLogo;
+  if (customLogo) {
+    return <Image src={customLogo} alt="Logo" className="h-8 w-auto" width={128} height={32} priority />;
+  }
+
   if (src === "/verigate-logo.svg") {
-    const shieldColor = isDark ? "#f37353" : "#E23D36";
-    const strokeColor = isDark ? "#1f2933" : "#FFFFFF";
-    return (
-      <span className="flex h-8 w-8 items-center justify-center" aria-hidden>
-        <svg width="32" height="32" viewBox="0 0 28 28" role="img" aria-label="VeriGate logo" shapeRendering="geometricPrecision">
-          <path fill={shieldColor} d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z" />
-          <path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke={strokeColor} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </span>
-    );
+    return <DefaultShield isDark={isDark} />;
   }
 
   return <Image src={src} alt="VeriGate" className="h-8 w-auto" width={128} height={128} priority />;
@@ -119,6 +130,8 @@ export default function TopNav() {
   const isDark = theme === "dark";
   const { signOut } = useAuth();
   const user = useUser();
+  const { branding, isWhiteLabelled } = useTenantFeatures();
+  const brandName = isWhiteLabelled && branding?.name ? branding.name : "VeriGate";
   
   const toggleSidebar = () => {
     if (typeof document !== "undefined") {
@@ -150,8 +163,16 @@ export default function TopNav() {
             <Menu className="h-4 w-4 text-text" />
           </button>
 
-          <Link href="/dashboard" className="flex items-center" aria-label="VeriGate home">
-            <LogoMark src={LOGO_SRC} isDark={isDark} />
+          <Link href="/dashboard" className="flex items-center gap-2" aria-label={`${brandName} home`}>
+            <LogoMark
+              src={LOGO_SRC}
+              isDark={isDark}
+              brandingLogo={branding?.logo}
+              brandingLogoDark={branding?.logoDark}
+            />
+            {isWhiteLabelled && !branding?.logo && (
+              <span className="hidden sm:inline text-sm font-semibold text-text">{brandName}</span>
+            )}
           </Link>
 
           {/* Breadcrumb Navigation */}

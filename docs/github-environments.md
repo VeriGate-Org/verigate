@@ -8,10 +8,8 @@ Create the following environments in the GitHub repository settings:
 
 | Environment | AWS Account | Account ID |
 |-------------|-------------|------------|
-| `verigate-sandbox` | SBX | 420747712978 |
-| `verigate-development` | DEV | 601301273631 |
-| `verigate-preproduction` | PPE | 021914681791 |
-| `verigate-production` | PRD | 726412862551 |
+| `verigate-dev` | VeriGate | 379992419891 |
+| `verigate-prod` | VeriGate | 379992419891 |
 
 ## Environment Secrets (per environment)
 
@@ -63,11 +61,11 @@ These secrets are set at the repository level (not per-environment):
 
 Each environment must have the following variables:
 
-| Variable | SBX | DEV | PPE | PRD |
-|----------|-----|-----|-----|-----|
-| `AWS_REGION` | `eu-west-1` | `eu-west-1` | `eu-west-1` | `eu-west-1` |
-| `STACK_NAME` | `verigate-verification-cg-sbx` | `verigate-verification-cg-dev` | `verigate-verification-cg-ppe` | `verigate-verification-cg` |
-| `ENVIRONMENT_SHORTNAME` | `sbx` | `dev` | `ppe` | `prd` |
+| Variable | DEV | PROD |
+|----------|-----|------|
+| `AWS_REGION` | `eu-west-1` | `eu-west-1` |
+| `STACK_NAME` | `verigate-verification-cg-dev` | `verigate-verification-cg` |
+| `ENVIRONMENT_SHORTNAME` | `dev` | `prod` |
 
 ## Secrets to Remove
 
@@ -83,7 +81,7 @@ The following secrets from the old repository are no longer needed and should NO
 
 ## Setup Order
 
-1. Run `iac/bootstrap/tf-state-buckets/` per AWS account to create S3 state buckets
-2. Run `iac/bootstrap/github-oidc/` per AWS account to create OIDC provider and deploy role
-3. Create GitHub environments with secrets and variables as documented above
-4. Push to `main` branch to trigger the first deployment pipeline
+1. Run `iac/bootstrap/github-oidc/` in the AWS account (379992419891) to create OIDC provider and deploy roles
+2. Create GitHub environments with secrets and variables as documented above
+3. Push to `main` branch to trigger dev deployment
+4. Create a `v*` tag to trigger prod deployment

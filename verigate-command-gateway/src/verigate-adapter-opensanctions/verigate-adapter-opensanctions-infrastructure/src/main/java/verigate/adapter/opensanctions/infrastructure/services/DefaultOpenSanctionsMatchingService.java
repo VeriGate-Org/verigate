@@ -8,10 +8,14 @@ package verigate.adapter.opensanctions.infrastructure.services;
 
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import verigate.adapter.opensanctions.domain.models.EntityMatchRequest;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
+import verigate.adapter.opensanctions.domain.models.ScoredEntity;
 import verigate.adapter.opensanctions.domain.services.OpenSanctionsMatchingService;
 import verigate.adapter.opensanctions.infrastructure.http.OpenSanctionsApiAdapter;
 
@@ -78,6 +82,48 @@ public class DefaultOpenSanctionsMatchingService implements OpenSanctionsMatchin
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, "Unexpected error during text search", e);
       throw new PermanentException("Unexpected error during text search", e);
+    }
+  }
+
+  @Override
+  public ScoredEntity getEntity(String entityId) throws TransientException, PermanentException {
+    LOGGER.info("Retrieving entity: " + entityId);
+
+    try {
+      if (entityId == null || entityId.trim().isEmpty()) {
+        throw new PermanentException("Entity ID cannot be null or empty");
+      }
+      return apiAdapter.getEntity(entityId);
+    } catch (TransientException | PermanentException e) {
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Unexpected error retrieving entity", e);
+      throw new PermanentException("Unexpected error retrieving entity", e);
+    }
+  }
+
+  @Override
+  public List<ScoredEntity> getAdjacentEntities(String entityId)
+      throws TransientException, PermanentException {
+    LOGGER.info("Retrieving adjacent entities for: " + entityId);
+
+    try {
+      if (entityId == null || entityId.trim().isEmpty()) {
+        throw new PermanentException("Entity ID cannot be null or empty");
+      }
+      EntityMatchResponse response = apiAdapter.getAdjacentEntities(entityId);
+      if (response.getResponses() == null || response.getResponses().isEmpty()) {
+        return Collections.emptyList();
+      }
+      return response.getResponses().values().stream()
+          .filter(em -> em.getResults() != null)
+          .flatMap(em -> em.getResults().stream())
+          .collect(Collectors.toList());
+    } catch (TransientException | PermanentException e) {
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Unexpected error retrieving adjacent entities", e);
+      throw new PermanentException("Unexpected error retrieving adjacent entities", e);
     }
   }
 

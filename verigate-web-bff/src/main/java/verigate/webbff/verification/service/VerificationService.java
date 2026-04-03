@@ -51,8 +51,8 @@ public class VerificationService {
   private static final Map<VerificationType, String> VERIFICATION_TYPE_QUEUE_MAP = Map.ofEntries(
       Map.entry(VerificationType.IDENTITY_VERIFICATION, "adapter-dha"),
       Map.entry(VerificationType.COMPANY_VERIFICATION, "adapter-cipc"),
-      Map.entry(VerificationType.SANCTIONS_SCREENING, "adapter-worldcheck"),
-      Map.entry(VerificationType.WATCHLIST_SCREENING, "adapter-worldcheck"),
+      Map.entry(VerificationType.SANCTIONS_SCREENING, "adapter-opensanctions"),
+      Map.entry(VerificationType.WATCHLIST_SCREENING, "adapter-opensanctions"),
       Map.entry(VerificationType.VERIFICATION_OF_PERSONAL_DETAILS, "adapter-qlink"),
       Map.entry(VerificationType.VERIFICATION_OF_BANK_DETAILS, "adapter-qlink"),
       Map.entry(VerificationType.BANK_ACCOUNT_VERIFICATION, "adapter-qlink"),

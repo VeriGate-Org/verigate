@@ -15,7 +15,7 @@
   </springProfile>
 
   <!-- JSON structured logging for deployed environments -->
-  <springProfile name="cloud,ecs,production,ppe,dev,sbx">
+  <springProfile name="cloud,ecs,prod,dev">
     <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
       <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         <includeMdcKeyName>correlationId</includeMdcKeyName>

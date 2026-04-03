@@ -59,7 +59,7 @@ public class OpenSanctionsHttpAdapter {
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .header(API_KEY_HEADER, "Bearer " + config.getApiKey())
+            .header(API_KEY_HEADER, "ApiKey " + config.getApiKey())
             .timeout(Duration.ofMillis(config.getReadTimeoutMs()))
             .GET()
             .build();
@@ -79,7 +79,7 @@ public class OpenSanctionsHttpAdapter {
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .header(API_KEY_HEADER, "Bearer " + config.getApiKey())
+            .header(API_KEY_HEADER, "ApiKey " + config.getApiKey())
             .header(CONTENT_TYPE_HEADER, APPLICATION_JSON)
             .timeout(Duration.ofMillis(config.getReadTimeoutMs()))
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
@@ -110,7 +110,7 @@ public class OpenSanctionsHttpAdapter {
                   + (config.getRetryAttempts() + 1)
                   + ")");
           try {
-            Thread.sleep(config.getRetryDelayMs());
+            Thread.sleep(Math.min(config.getRetryDelayMs() * (long) Math.pow(2, attempt), 30000));
           } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             throw new TransientException("Request interrupted", ie);

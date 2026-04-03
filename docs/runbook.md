@@ -13,10 +13,8 @@ VeriGate is a serverless verification platform deployed on AWS, consisting of:
 
 | Environment | Stack Name | Account | Deploy Trigger |
 |-------------|-----------|---------|----------------|
-| Sandbox | verigate-verification-cg-sbx | aws-verigate-sbx | Push to main |
-| Development | verigate-verification-cg-dev | aws-verigate-dev | After sandbox |
-| Preproduction | verigate-verification-cg-ppe | aws-verigate-ppe | Push to verigate-release |
-| Production | verigate-verification-cg | aws-verigate-prd | After preproduction |
+| Dev | verigate-verification-cg-dev | 379992419891 | Push to main |
+| Prod | verigate-verification-cg | 379992419891 | Push v* tag |
 
 ## Common Operational Tasks
 

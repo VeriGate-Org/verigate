@@ -64,6 +64,49 @@ public class MockOpenSanctionsMatchingService implements OpenSanctionsMatchingSe
     }
 
     @Override
+    public ScoredEntity getEntity(String entityId) throws TransientException, PermanentException {
+        LOGGER.info("Mock: Getting entity: " + entityId);
+
+        if (simulateTransientFailure) {
+            throw new TransientException("Mock transient failure");
+        }
+        if (simulatePermanentFailure) {
+            throw new PermanentException("Mock permanent failure");
+        }
+
+        return new ScoredEntity.Builder()
+            .id(entityId)
+            .caption("Mock Entity " + entityId)
+            .schema("Person")
+            .properties(Map.of("name", List.of("Mock Entity")))
+            .datasets(List.of("us_ofac_sdn"))
+            .score(0.85)
+            .build();
+    }
+
+    @Override
+    public java.util.List<ScoredEntity> getAdjacentEntities(String entityId)
+            throws TransientException, PermanentException {
+        LOGGER.info("Mock: Getting adjacent entities for: " + entityId);
+
+        if (simulateTransientFailure) {
+            throw new TransientException("Mock transient failure");
+        }
+        if (simulatePermanentFailure) {
+            throw new PermanentException("Mock permanent failure");
+        }
+
+        return List.of(
+            new ScoredEntity.Builder()
+                .id("adjacent-" + entityId)
+                .caption("Related Entity")
+                .schema("LegalEntity")
+                .datasets(List.of("us_ofac_sdn"))
+                .build()
+        );
+    }
+
+    @Override
     public boolean isServiceHealthy() throws TransientException {
         LOGGER.fine("Mock: Checking service health");
 

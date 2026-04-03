@@ -9,7 +9,7 @@ Parameters:
     Description: "The latest version tag for the application"
   EnvironmentShortname:
     Type: String
-    Description: "Environment shortname (sbx, dev, ppe, prod)"
+    Description: "Environment shortname (dev, prod)"
 
 Globals:
   Function:

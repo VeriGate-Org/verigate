@@ -121,6 +121,8 @@ public class VerifyPartyCommandMapper {
       return DomainConstants.ORGANIZATION_SCHEMA;
     } else if ("COMPANY".equalsIgnoreCase(entityTypeHint)) {
       return DomainConstants.COMPANY_SCHEMA;
+    } else if ("VESSEL".equalsIgnoreCase(entityTypeHint)) {
+      return DomainConstants.VESSEL_SCHEMA;
     } else {
       return DomainConstants.PERSON_SCHEMA; // Default to Person
     }

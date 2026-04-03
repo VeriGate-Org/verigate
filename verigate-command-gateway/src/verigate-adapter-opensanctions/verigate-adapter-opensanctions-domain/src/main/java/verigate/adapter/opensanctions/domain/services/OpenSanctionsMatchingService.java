@@ -8,8 +8,10 @@ package verigate.adapter.opensanctions.domain.services;
 
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.List;
 import verigate.adapter.opensanctions.domain.models.EntityMatchRequest;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
+import verigate.adapter.opensanctions.domain.models.ScoredEntity;
 
 /**
  * Service interface for OpenSanctions entity matching operations.
@@ -39,6 +41,27 @@ public interface OpenSanctionsMatchingService {
    * @throws PermanentException for permanent failures
    */
   EntityMatchResponse searchEntities(String dataset, String query, Integer limit)
+      throws TransientException, PermanentException;
+
+  /**
+   * Retrieves a specific entity by its ID.
+   *
+   * @param entityId the entity identifier
+   * @return the scored entity details
+   * @throws TransientException for temporary failures
+   * @throws PermanentException for permanent failures
+   */
+  ScoredEntity getEntity(String entityId) throws TransientException, PermanentException;
+
+  /**
+   * Retrieves adjacent (related) entities for a given entity.
+   *
+   * @param entityId the entity identifier
+   * @return list of related scored entities
+   * @throws TransientException for temporary failures
+   * @throws PermanentException for permanent failures
+   */
+  List<ScoredEntity> getAdjacentEntities(String entityId)
       throws TransientException, PermanentException;
 
   /**

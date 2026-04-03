@@ -16,12 +16,16 @@ public class DomainConstants {
   public static final int DEFAULT_LIMIT = 10;
   public static final double DEFAULT_THRESHOLD = 0.7;
   public static final double DEFAULT_CUTOFF = 0.5;
-  public static final String DEFAULT_ALGORITHM = "logic-v1";
+  public static final String DEFAULT_ALGORITHM = "logic-v2";
 
   // Timeout and retry settings
   public static final int DEFAULT_TIMEOUT_SECONDS = 30;
   public static final int DEFAULT_RETRY_ATTEMPTS = 3;
   public static final int DEFAULT_RETRY_DELAY_MS = 1000;
+
+  // Rate limiting defaults
+  public static final int DEFAULT_RATE_LIMIT_RPS = 10;
+  public static final int DEFAULT_RATE_LIMIT_BURST = 20;
 
   // Match score thresholds for verification outcomes
   public static final double HIGH_MATCH_THRESHOLD = 0.9;
@@ -32,6 +36,7 @@ public class DomainConstants {
   public static final String PERSON_SCHEMA = "Person";
   public static final String COMPANY_SCHEMA = "Company";
   public static final String ORGANIZATION_SCHEMA = "Organization";
+  public static final String VESSEL_SCHEMA = "Vessel";
 
   // Common topics for sanctions screening
   public static final String SANCTIONS_TOPIC = "sanction";

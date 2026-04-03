@@ -6,6 +6,8 @@
 
 package verigate.adapter.opensanctions.infrastructure.integration;
 
+import crosscutting.config.Config;
+import crosscutting.environment.Environment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -53,14 +55,36 @@ public class QuickLiveTest {
 
       System.out.println("✅ API key configured");
 
-      // Create service
-      Properties configProperties = new Properties();
-      configProperties.setProperty("opensanctions.api.key", apiKey);
-      configProperties.setProperty("opensanctions.base.url", "https://api.opensanctions.org");
-      configProperties.setProperty("opensanctions.connection.timeout.ms", "30000");
-      configProperties.setProperty("opensanctions.read.timeout.ms", "30000");
+      // Create service using Environment/Config adapters
+      final String finalApiKey = apiKey;
+      Environment env = new Environment() {
+        @Override
+        public String get(String key) {
+          if ("OPENSANCTIONS_API_KEY".equals(key)) return finalApiKey;
+          return null;
+        }
+        @Override
+        public String get(String key, String defaultValue) {
+          String val = get(key);
+          return val != null ? val : defaultValue;
+        }
+      };
+      Config cfg = new Config() {
+        @Override
+        public String get(String key) {
+          return switch (key) {
+            case "opensanctions.api.base-url" -> "https://api.opensanctions.org";
+            default -> null;
+          };
+        }
+        @Override
+        public String get(String key, String defaultValue) {
+          String val = get(key);
+          return val != null ? val : defaultValue;
+        }
+      };
 
-      OpenSanctionsApiConfiguration config = new OpenSanctionsApiConfiguration(configProperties);
+      OpenSanctionsApiConfiguration config = new OpenSanctionsApiConfiguration(env, cfg);
 
       // Create API adapter
       OpenSanctionsApiAdapter apiAdapter = new OpenSanctionsApiAdapter(config);

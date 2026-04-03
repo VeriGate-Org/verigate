@@ -17,7 +17,7 @@ Parameters:
     Description: "The latest version tag for the application"
   EnvironmentShortname:
     Type: String
-    Description: "Environment shortname (sbx, dev, ppe, prod)"
+    Description: "Environment shortname (dev, prod)"
   VerigateDomainName:
     Type: String
     Description: "The Verigate system domain name"
@@ -28,23 +28,12 @@ Parameters:
     Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
 
 Conditions:
-  IsSbxCondition:
-    Fn::Equals:
-      - !Ref EnvironmentShortname
-      - "sbx"
   IsDevCondition:
     Fn::Equals:
       - !Ref EnvironmentShortname
       - "dev"
-  IsPpeCondition:
-    Fn::Equals:
-      - !Ref EnvironmentShortname
-      - "ppe"
   DatadogIntegrationDisabledCondition:
-    Fn::Or:
-      - Condition: IsSbxCondition
-      - Condition: IsDevCondition
-      - Condition: IsPpeCondition
+    Condition: IsDevCondition
 
 Globals:
   Function:
@@ -453,6 +442,33 @@ Resources:
           Properties:
             ScheduleExpression: "rate(5 minutes)"
             Name: !Sub "${AWS::StackName}-screen-negative-news-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  ScreenSanctionsLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-screen-sanctions"
+      Handler: verigate.adapter.opensanctions.infrastructure.functions.lambda.handlers.ScreenSanctionsLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-opensanctions/verigate-adapter-opensanctions-infrastructure
+      Environment:
+        Variables:
+          SCREEN_SANCTIONS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-opensanctions-imq"
+          SCREEN_SANCTIONS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-opensanctions-dlq"
+          OPENSANCTIONS_BASE_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/opensanctions/api_url}}"
+      Events:
+        VerigateScreenSanctionsQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-opensanctions/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-screen-sanctions-kw"
             RetryPolicy:
               MaximumEventAgeInSeconds: 60
               MaximumRetryAttempts: 0

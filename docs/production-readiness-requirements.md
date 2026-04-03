@@ -518,9 +518,7 @@ The partner portal (`verigate-partner-portal/`) has comprehensive mock services 
 
 3. **Environment-Specific Configs for Deployment**
    - Create environment config files or document deployment variables for:
-     - SBX: Points to sandbox web-bff URL
      - DEV: Points to dev web-bff URL
-     - PPE: Points to ppe web-bff URL
      - PROD: Points to prod web-bff URL
 
 ### Acceptance Criteria

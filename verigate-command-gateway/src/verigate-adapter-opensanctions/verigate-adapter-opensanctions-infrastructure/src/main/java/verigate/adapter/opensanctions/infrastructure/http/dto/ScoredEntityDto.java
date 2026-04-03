@@ -6,6 +6,7 @@
 
 package verigate.adapter.opensanctions.infrastructure.http.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 /**
  * DTO for OpenSanctions scored entity.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScoredEntityDto {
 
   @JsonProperty("id")

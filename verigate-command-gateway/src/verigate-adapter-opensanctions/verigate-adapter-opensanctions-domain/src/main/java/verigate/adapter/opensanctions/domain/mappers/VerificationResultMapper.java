@@ -6,7 +6,9 @@
 
 package verigate.adapter.opensanctions.domain.mappers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import verigate.adapter.opensanctions.domain.constants.DomainConstants;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
@@ -29,77 +31,18 @@ public class VerificationResultMapper {
   public static VerificationResult mapToVerificationResult(
       EntityMatchResponse response, String requestId) {
 
-    // Analyze the response to determine verification outcome
     VerificationOutcome outcome = determineOutcome(response);
 
     return new VerificationResult(outcome, createFailureReason(response, outcome));
   }
 
-  private static VerificationOutcome determineOutcome(EntityMatchResponse response) {
-    if (response.getResponses() == null || response.getResponses().isEmpty()) {
-      return VerificationOutcome.SUCCEEDED; // No matches found - clean result
-    }
-
-    // Check each query result
-    for (var entityMatches : response.getResponses().values()) {
-      if (entityMatches.getResults() != null && !entityMatches.getResults().isEmpty()) {
-
-        // Find highest scoring match
-        double highestScore =
-            entityMatches.getResults().stream()
-                .mapToDouble(entity -> entity.getScore() != null ? entity.getScore() : 0.0)
-                .max()
-                .orElse(0.0);
-
-        // Determine outcome based on match score thresholds
-        if (highestScore >= DomainConstants.HIGH_MATCH_THRESHOLD) {
-          return VerificationOutcome.HARD_FAIL; // High confidence match - likely sanctioned
-        } else if (highestScore >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
-          return VerificationOutcome.SOFT_FAIL; // Medium confidence - requires review
-        }
-      }
-    }
-
-    return VerificationOutcome.SUCCEEDED; // No significant matches found
-  }
-
-  private static String createFailureReason(
-      EntityMatchResponse response, VerificationOutcome outcome) {
-    if (outcome == VerificationOutcome.SUCCEEDED) {
-      return null; // No failure reason for successful outcomes
-    }
-
-    // Create detailed failure reason for failed outcomes
-    StringBuilder reason = new StringBuilder();
-    reason.append("OpenSanctions match found: ");
-
-    if (response.getResponses() != null) {
-      for (var entityMatches : response.getResponses().values()) {
-        if (entityMatches.getResults() != null && !entityMatches.getResults().isEmpty()) {
-          var highestMatch =
-              entityMatches.getResults().stream()
-                  .max(
-                      (a, b) ->
-                          Double.compare(
-                              a.getScore() != null ? a.getScore() : 0.0,
-                              b.getScore() != null ? b.getScore() : 0.0));
-
-          if (highestMatch.isPresent()) {
-            var match = highestMatch.get();
-            reason.append(
-                String.format(
-                    "'%s' (Score: %.2f, Datasets: %s)",
-                    match.getCaption(), match.getScore(), String.join(",", match.getDatasets())));
-            break; // Only show the highest match in the reason
-          }
-        }
-      }
-    }
-
-    return reason.toString();
-  }
-
-  private static Map<String, String> createResultDetails(EntityMatchResponse response) {
+  /**
+   * Creates detailed result information from the match response.
+   *
+   * @param response the OpenSanctions API response
+   * @return map of result details
+   */
+  public static Map<String, String> createResultDetails(EntityMatchResponse response) {
     Map<String, String> details = new HashMap<>();
 
     details.put("provider", "OpenSanctions");
@@ -113,11 +56,70 @@ public class VerificationResultMapper {
 
       details.put("total_matches", String.valueOf(totalMatches));
 
-      // Include details of high-scoring matches
       addHighScoreMatchDetails(response, details);
     }
 
     return details;
+  }
+
+  private static VerificationOutcome determineOutcome(EntityMatchResponse response) {
+    if (response.getResponses() == null || response.getResponses().isEmpty()) {
+      return VerificationOutcome.SUCCEEDED;
+    }
+
+    for (var entityMatches : response.getResponses().values()) {
+      if (entityMatches.getResults() != null && !entityMatches.getResults().isEmpty()) {
+
+        double highestScore =
+            entityMatches.getResults().stream()
+                .mapToDouble(entity -> entity.getScore() != null ? entity.getScore() : 0.0)
+                .max()
+                .orElse(0.0);
+
+        if (highestScore >= DomainConstants.HIGH_MATCH_THRESHOLD) {
+          return VerificationOutcome.HARD_FAIL;
+        } else if (highestScore >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
+          return VerificationOutcome.SOFT_FAIL;
+        }
+      }
+    }
+
+    return VerificationOutcome.SUCCEEDED;
+  }
+
+  private static String createFailureReason(
+      EntityMatchResponse response, VerificationOutcome outcome) {
+    if (outcome == VerificationOutcome.SUCCEEDED) {
+      return null;
+    }
+
+    List<String> matchDescriptions = new ArrayList<>();
+
+    if (response.getResponses() != null) {
+      for (var entityMatches : response.getResponses().values()) {
+        if (entityMatches.getResults() != null) {
+          for (ScoredEntity entity : entityMatches.getResults()) {
+            if (entity.getScore() != null
+                && entity.getScore() >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
+              String matchType = classifyMatchType(entity);
+              matchDescriptions.add(
+                  String.format(
+                      "%s: '%s' (Score: %.2f, Datasets: %s)",
+                      matchType,
+                      entity.getCaption(),
+                      entity.getScore(),
+                      String.join(",", entity.getDatasets())));
+            }
+          }
+        }
+      }
+    }
+
+    if (matchDescriptions.isEmpty()) {
+      return "OpenSanctions match found";
+    }
+
+    return "OpenSanctions match found: " + String.join("; ", matchDescriptions);
   }
 
   private static void addHighScoreMatchDetails(
@@ -134,6 +136,7 @@ public class VerificationResultMapper {
             details.put(prefix + "caption", entity.getCaption());
             details.put(prefix + "score", String.valueOf(entity.getScore()));
             details.put(prefix + "datasets", String.join(",", entity.getDatasets()));
+            details.put(prefix + "type", classifyMatchType(entity));
 
             if (entity.getTarget() != null) {
               details.put(prefix + "target", String.valueOf(entity.getTarget()));
@@ -146,5 +149,19 @@ public class VerificationResultMapper {
     }
 
     details.put("significant_matches_count", String.valueOf(matchIndex));
+  }
+
+  /**
+   * Classifies an entity match as PEP or Sanctions based on its datasets.
+   */
+  private static String classifyMatchType(ScoredEntity entity) {
+    if (entity.getDatasets() != null) {
+      for (String dataset : entity.getDatasets()) {
+        if (dataset.toLowerCase().contains("pep")) {
+          return "PEP";
+        }
+      }
+    }
+    return "SANCTIONS";
   }
 }

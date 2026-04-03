@@ -22,6 +22,10 @@ public class EnvironmentConstants {
   public static final String OPENSANCTIONS_RETRY_ATTEMPTS = "OPENSANCTIONS_RETRY_ATTEMPTS";
   public static final String OPENSANCTIONS_RETRY_DELAY_MS = "OPENSANCTIONS_RETRY_DELAY_MS";
 
+  // Rate limiting
+  public static final String OPENSANCTIONS_RATE_LIMIT_RPS = "OPENSANCTIONS_RATE_LIMIT_RPS";
+  public static final String OPENSANCTIONS_RATE_LIMIT_BURST = "OPENSANCTIONS_RATE_LIMIT_BURST";
+
   // Default values
   public static final String DEFAULT_BASE_URL = "https://api.opensanctions.org";
   public static final String DEFAULT_CONNECTION_TIMEOUT_MS = "30000";

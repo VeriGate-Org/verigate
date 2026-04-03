@@ -2,9 +2,9 @@ variable "default_tags" {
   description = "Default tags to apply to all resources"
   type        = map(string)
   default = {
-    accountName         = "aws-verigate-sbx"
+    accountName         = "aws-verigate"
     applicationName     = "verigate"
-    environment         = "sbx"
+    environment         = "dev"
     businessCluster     = "verigate"
     businessEntity      = "sds"
     applicationName     = "verigate"

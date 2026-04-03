@@ -733,6 +733,13 @@ export interface BffProfileResponse {
   quotas: Record<string, number>;
   status: string;
   createdAt: string | null;
+  // Branding (whitelabelling)
+  logo?: string | null;
+  logoDark?: string | null;
+  primaryColor?: string | null;
+  accentColor?: string | null;
+  faviconUrl?: string | null;
+  tagline?: string | null;
 }
 
 export async function getProfile(): Promise<BffProfileResponse> {
@@ -745,6 +752,12 @@ export async function updateProfile(payload: {
   contactEmail?: string;
   billingPlan?: string;
   enabledFeatures?: string[];
+  logo?: string;
+  logoDark?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  faviconUrl?: string;
+  tagline?: string;
 }): Promise<BffProfileResponse> {
   const { data } = await bffApi.put<BffProfileResponse>("/api/partner/profile", payload);
   return data;
@@ -1195,4 +1208,87 @@ export async function listMonitoringAlerts(params?: {
 export async function acknowledgeAlert(alertId: string): Promise<MonitoringAlert> {
   const { data } = await bffApi.post<MonitoringAlert>(`/monitoring/alerts/${alertId}/acknowledge`);
   return data;
+}
+
+// --- Sanctions Screening ---
+
+export interface SanctionsEntityResponse {
+  id: string;
+  caption: string;
+  schema: string;
+  score: number;
+  datasets: string[];
+  properties: Record<string, string[]>;
+  features: Record<string, number>;
+  target?: boolean;
+  firstSeen?: string;
+  lastSeen?: string;
+  lastChange?: string;
+  referents?: string[];
+}
+
+export interface SanctionsAdjacentResponse {
+  entities: SanctionsEntityResponse[];
+}
+
+export interface SanctionsDispositionRequest {
+  entityId: string;
+  screeningId: string;
+  action: "CONFIRMED_MATCH" | "FALSE_POSITIVE" | "ESCALATED" | "PENDING_REVIEW";
+  reason: string;
+  reviewedBy?: string;
+}
+
+export interface SanctionsDispositionResponse {
+  dispositionId: string;
+  entityId: string;
+  action: string;
+  createdAt: string;
+}
+
+export async function getSanctionsEntity(entityId: string): Promise<SanctionsEntityResponse> {
+  const { data } = await bffApi.get<SanctionsEntityResponse>(`/sanctions/entities/${entityId}`);
+  return data;
+}
+
+export async function getAdjacentEntities(entityId: string): Promise<SanctionsEntityResponse[]> {
+  const { data } = await bffApi.get<SanctionsAdjacentResponse>(`/sanctions/entities/${entityId}/adjacent`);
+  return data.entities;
+}
+
+export async function submitDisposition(
+  disposition: SanctionsDispositionRequest
+): Promise<SanctionsDispositionResponse> {
+  const { data } = await bffApi.post<SanctionsDispositionResponse>("/sanctions/dispositions", disposition);
+  return data;
+}
+
+export async function getScreeningHistory(params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<{ items: Array<{
+  screeningId: string;
+  subjectName: string;
+  entityType: string;
+  outcome: string;
+  matchCount: number;
+  screenedAt: string;
+  disposition?: string;
+  provider: string;
+}>; total: number }> {
+  const queryParams = new URLSearchParams();
+  if (params?.limit) queryParams.set("limit", String(params.limit));
+  if (params?.offset) queryParams.set("offset", String(params.offset));
+  const query = queryParams.toString();
+  const { data } = await bffApi.get(`/sanctions/history${query ? `?${query}` : ""}`);
+  return data as { items: Array<{
+    screeningId: string;
+    subjectName: string;
+    entityType: string;
+    outcome: string;
+    matchCount: number;
+    screenedAt: string;
+    disposition?: string;
+    provider: string;
+  }>; total: number };
 }
