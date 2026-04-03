@@ -79,7 +79,7 @@ resource "aws_cognito_user_pool_client" "partner_client" {
 }
 
 resource "aws_cognito_user_pool_domain" "partner_domain" {
-  domain       = "${local.complete_stack_name}-auth"
+  domain       = "${local.complete_stack_name}-${data.aws_caller_identity.current.account_id}-auth"
   user_pool_id = aws_cognito_user_pool.partner_pool.id
 }
 
