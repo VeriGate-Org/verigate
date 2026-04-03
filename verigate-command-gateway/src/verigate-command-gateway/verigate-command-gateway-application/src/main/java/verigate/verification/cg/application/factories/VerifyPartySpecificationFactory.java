@@ -41,7 +41,8 @@ public class VerifyPartySpecificationFactory implements SpecificationFactory<Ver
       case CREDIT_CHECK -> new CreditCheckSpecification();
       case TAX_COMPLIANCE_VERIFICATION -> new TaxComplianceVerificationSpecification();
       case PROPERTY_OWNERSHIP_VERIFICATION, EMPLOYMENT_VERIFICATION, DOCUMENT_VERIFICATION,
-          QUALIFICATION_VERIFICATION, INCOME_VERIFICATION, FULL_VERIFICATION ->
+          QUALIFICATION_VERIFICATION, INCOME_VERIFICATION, FULL_VERIFICATION,
+          BIOMETRIC_VERIFICATION, LIVENESS_CHECK ->
           new MetadataRequiredSpecification();
     };
   }

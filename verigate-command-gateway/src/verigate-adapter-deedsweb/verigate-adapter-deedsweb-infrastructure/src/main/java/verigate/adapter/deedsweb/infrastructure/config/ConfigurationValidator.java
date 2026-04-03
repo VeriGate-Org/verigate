@@ -12,14 +12,14 @@ import java.util.logging.Logger;
 import verigate.adapter.deedsweb.infrastructure.constants.EnvironmentConstants;
 
 /**
- * Validates OpenSanctions API configuration.
+ * Validates DeedsWeb API configuration.
  */
 public class ConfigurationValidator {
 
   private static final Logger LOGGER = Logger.getLogger(ConfigurationValidator.class.getName());
 
   /**
-   * Validates the OpenSanctions API configuration.
+   * Validates the DeedsWeb API configuration.
    *
    * @param config the configuration to validate
    * @throws IllegalStateException if configuration is invalid
@@ -29,65 +29,65 @@ public class ConfigurationValidator {
 
     // Check required configurations
     if (isBlank(config.getApiKey())) {
-      missingConfigurations.add(EnvironmentConstants.OPENSANCTIONS_API_KEY);
+      missingConfigurations.add(EnvironmentConstants.DEEDSWEB_API_KEY);
     }
 
     if (isBlank(config.getBaseUrl())) {
-      missingConfigurations.add(EnvironmentConstants.OPENSANCTIONS_BASE_URL);
+      missingConfigurations.add(EnvironmentConstants.DEEDSWEB_BASE_URL);
     }
 
     // Validate timeout values
     try {
       if (config.getConnectionTimeoutMs() <= 0) {
         missingConfigurations.add(
-            EnvironmentConstants.OPENSANCTIONS_CONNECTION_TIMEOUT_MS + " (must be positive)");
+            EnvironmentConstants.DEEDSWEB_CONNECTION_TIMEOUT_MS + " (must be positive)");
       }
     } catch (NumberFormatException e) {
       missingConfigurations.add(
-          EnvironmentConstants.OPENSANCTIONS_CONNECTION_TIMEOUT_MS + " (must be numeric)");
+          EnvironmentConstants.DEEDSWEB_CONNECTION_TIMEOUT_MS + " (must be numeric)");
     }
 
     try {
       if (config.getReadTimeoutMs() <= 0) {
         missingConfigurations.add(
-            EnvironmentConstants.OPENSANCTIONS_READ_TIMEOUT_MS + " (must be positive)");
+            EnvironmentConstants.DEEDSWEB_READ_TIMEOUT_MS + " (must be positive)");
       }
     } catch (NumberFormatException e) {
       missingConfigurations.add(
-          EnvironmentConstants.OPENSANCTIONS_READ_TIMEOUT_MS + " (must be numeric)");
+          EnvironmentConstants.DEEDSWEB_READ_TIMEOUT_MS + " (must be numeric)");
     }
 
     // Validate retry configuration
     try {
       if (config.getRetryAttempts() < 0) {
         missingConfigurations.add(
-            EnvironmentConstants.OPENSANCTIONS_RETRY_ATTEMPTS + " (must be non-negative)");
+            EnvironmentConstants.DEEDSWEB_RETRY_ATTEMPTS + " (must be non-negative)");
       }
     } catch (NumberFormatException e) {
       missingConfigurations.add(
-          EnvironmentConstants.OPENSANCTIONS_RETRY_ATTEMPTS + " (must be numeric)");
+          EnvironmentConstants.DEEDSWEB_RETRY_ATTEMPTS + " (must be numeric)");
     }
 
     try {
       if (config.getRetryDelayMs() < 0) {
         missingConfigurations.add(
-            EnvironmentConstants.OPENSANCTIONS_RETRY_DELAY_MS + " (must be non-negative)");
+            EnvironmentConstants.DEEDSWEB_RETRY_DELAY_MS + " (must be non-negative)");
       }
     } catch (NumberFormatException e) {
       missingConfigurations.add(
-          EnvironmentConstants.OPENSANCTIONS_RETRY_DELAY_MS + " (must be numeric)");
+          EnvironmentConstants.DEEDSWEB_RETRY_DELAY_MS + " (must be numeric)");
     }
 
     // Report validation errors
     if (!missingConfigurations.isEmpty()) {
       String errorMessage =
-          "OpenSanctions API configuration validation failed. Missing or invalid: "
+          "DeedsWeb API configuration validation failed. Missing or invalid: "
               + String.join(", ", missingConfigurations);
       LOGGER.severe(errorMessage);
       throw new IllegalStateException(errorMessage);
     }
 
-    LOGGER.info("OpenSanctions API configuration validation passed");
+    LOGGER.info("DeedsWeb API configuration validation passed");
   }
 
   private static boolean isBlank(String value) {
