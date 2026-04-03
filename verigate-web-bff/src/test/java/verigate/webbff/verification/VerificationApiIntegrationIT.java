@@ -13,8 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.function.serverless.web.ServerlessAutoConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -48,10 +50,8 @@ import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
  * Uses LocalStack for SQS and DynamoDB to test the full REST flow
  * including authentication, SQS dispatch, and DynamoDB queries.
  */
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-    properties = "spring.cloud.function.web.export.enabled=false"
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@EnableAutoConfiguration(exclude = ServerlessAutoConfiguration.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Testcontainers
