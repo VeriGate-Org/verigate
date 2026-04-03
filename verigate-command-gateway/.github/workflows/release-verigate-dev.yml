@@ -27,12 +27,12 @@ jobs:
     permissions:
       contents: read
       packages: read
+      checks: write
     secrets: inherit
 
   dev-deploy:
     needs: [install, integration-test]
     uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-dev-deploy
     with:
       java-version: "21"
       environment: dev
