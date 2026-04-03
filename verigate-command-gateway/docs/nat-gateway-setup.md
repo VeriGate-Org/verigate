@@ -1,19 +1,6 @@
 # NAT Gateway Setup Playbook
 
-This document captures the current sandbox (`sbx`) network egress configuration and provides a repeatable process for creating the same single-NAT design in other VeriGate environments (`dev`, `ppe`, `prod`).
-
-## Sandbox Reference State (`sbx`)
-
-| Item | Value |
-| --- | --- |
-| Region | `af-south-1` |
-| VPC | `vpc-077e3c6d4f171bd8f` |
-| NAT gateway | `nat-0d50fbc822aae3169` (tagged `Name=vg-sbx-nat`, `Application=VeriGate`, `Environment=sbx`) |
-| Elastic IP | `16.28.8.25` (`eipalloc-0eb2bcd0a74dee9a8`, tagged `Name=vg-sbx-nat-eip`) |
-| Public subnet hosting NAT | `subnet-04fcbfa138b0ad8cc` |
-| Private route table | `rtb-04b9634e66608f24c` (`Name=vg-sbx-private-rtb`) |
-| Private subnets routed via NAT | `subnet-05eae024ee14aa3ae` (`af-south-1b`), `subnet-0da53b482e4ca18e2` (`af-south-1c`) |
-| Main/public route table | `rtb-0cbc9df1e2ea510bc` (default route → `igw-02bd019cbd5bd2f8a`) |
+This document provides a repeatable process for creating a single-NAT design in VeriGate environments (`dev`, `prod`).
 
 ## Automation Script
 
@@ -31,12 +18,12 @@ The script currently lives in the `aws-setup-docs` repository at `single-nat-set
 set -euo pipefail
 : "${REGION:=af-south-1}"
 : "${VPC_ID:=vpc-077e3c6d4f171bd8f}"
-: "${ENVIRONMENT:=sbx}"
+: "${ENVIRONMENT:=dev}"
 : "${PREFERRED_AZ:=}"
 # ... (rest of script unchanged)
 ```
 
-> **Heads-up:** For non-sandbox environments override the default `REGION`, `VPC_ID`, and `ENVIRONMENT` via environment variables so you do not edit the script directly.
+> **Heads-up:** Override the default `REGION`, `VPC_ID`, and `ENVIRONMENT` via environment variables so you do not edit the script directly.
 
 ## Rollout Procedure (per environment)
 
@@ -50,7 +37,7 @@ set -euo pipefail
    ```bash
    export REGION=<region>
    export VPC_ID=<vpc-id>
-   export ENVIRONMENT=<env-code>   # dev|ppe|prod
+   export ENVIRONMENT=<env-code>   # dev|prod
    export PREFERRED_AZ=<az-optional>
    ```
 
@@ -91,15 +78,14 @@ set -euo pipefail
    - Deploy a short-lived Lambda (or EC2) into one of the private subnets and call `https://checkip.amazonaws.com`. The response must match the Elastic IP returned by the script. (See historical commands in the repo history for a ready-to-use Lambda example.)
 
 8. **Document the results**
-   - Record the NAT ID, Elastic IP, route table ID, and subnet associations for the environment. Maintaining a table similar to the sandbox reference helps operations and audits.
+   - Record the NAT ID, Elastic IP, route table ID, and subnet associations for the environment. Maintaining a table helps operations and audits.
 
 ## Environment Matrix
 
 | Environment | Example variables | Notes |
 | --- | --- | --- |
-| dev | `REGION=af-south-1`, `VPC_ID=<dev-vpc-id>`, `ENVIRONMENT=dev` | Reuse script and follow rollout steps. |
-| ppe | `REGION=af-south-1`, `VPC_ID=<ppe-vpc-id>`, `ENVIRONMENT=ppe` | Ensure partner access rules are updated with the new Elastic IP. |
-| prod | `REGION=af-south-1`, `VPC_ID=<prod-vpc-id>`, `ENVIRONMENT=prod` | Consider multi-AZ resilience (one NAT per AZ) if production traffic requires it. |
+| dev | `REGION=eu-west-1`, `VPC_ID=<dev-vpc-id>`, `ENVIRONMENT=dev` | Reuse script and follow rollout steps. |
+| prod | `REGION=eu-west-1`, `VPC_ID=<prod-vpc-id>`, `ENVIRONMENT=prod` | Consider multi-AZ resilience (one NAT per AZ) if production traffic requires it. |
 
 ## Operational Notes
 

@@ -1,75 +1,23 @@
 name: Release | Web BFF Production
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - "verigate-release"
-      - "verigate-release-hotfix"
-    paths:
-      - "verigate-web-bff/**"
+    tags:
+      - "v*"
+
+concurrency:
+  group: web-bff-prod
+  cancel-in-progress: false
 
 env:
   SERVICE_NAME: verigate-web-bff
 
 jobs:
-  deploy-preproduction:
+  deploy-prod:
     runs-on: ubuntu-latest
-    environment: verigate-preproduction
-    concurrency: web-bff-preproduction
-    permissions:
-      id-token: write
-      contents: read
-      packages: read
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup SAM
-        uses: aws-actions/setup-sam@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: "21"
-          distribution: "corretto"
-          server-id: github
-          server-username: ${{ github.actor }}
-          server-password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Retrieve Maven cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-      - name: SAM build
-        run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-web-bff/iac/sam/template.yaml
-
-      - name: SAM deploy
-        run: |
-          GIT_HEAD_SHA=$(git rev-parse --short HEAD)
-          sam deploy -t .aws-sam/build/template.yaml \
-            --stack-name=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --resolve-s3 \
-            --region=${{ vars.AWS_REGION }} \
-            --s3-prefix=${{ env.SERVICE_NAME }}-${{ vars.ENVIRONMENT_SHORTNAME }} \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --on-failure DELETE \
-            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-            --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${{ vars.ENVIRONMENT_SHORTNAME }}"
-
-  deploy-production:
-    needs: [deploy-preproduction]
-    runs-on: ubuntu-latest
-    environment: verigate-production
-    concurrency: web-bff-production
+    environment: verigate-prod
+    concurrency: web-bff-prod-deploy
     permissions:
       id-token: write
       contents: read

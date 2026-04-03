@@ -17,7 +17,7 @@ Parameters:
     Description: "The latest version tag for the application"
   EnvironmentShortname:
     Type: String
-    Description: "Environment shortname (sbx, dev, ppe, prod)"
+    Description: "Environment shortname (dev, prod)"
   VerigateDomainName:
     Type: String
     Description: "The Verigate system domain name"
@@ -28,23 +28,12 @@ Parameters:
     Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
 
 Conditions:
-  IsSbxCondition:
-    Fn::Equals:
-      - !Ref EnvironmentShortname
-      - "sbx"
   IsDevCondition:
     Fn::Equals:
       - !Ref EnvironmentShortname
       - "dev"
-  IsPpeCondition:
-    Fn::Equals:
-      - !Ref EnvironmentShortname
-      - "ppe"
   DatadogIntegrationDisabledCondition:
-    Fn::Or:
-      - Condition: IsSbxCondition
-      - Condition: IsDevCondition
-      - Condition: IsPpeCondition
+    Condition: IsDevCondition
 
 Globals:
   Function:

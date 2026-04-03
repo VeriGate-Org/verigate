@@ -32,7 +32,7 @@ variable "github_repo" {
 }
 
 variable "environment_shortname" {
-  description = "Short environment name (sbx, dev, ppe, prd)"
+  description = "Short environment name (dev, prod)"
   type        = string
 }
 
@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       values = [
         "repo:${var.github_org}/${var.github_repo}:environment:verigate-*",
         "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main",
-        "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/verigate-release*",
+        "repo:${var.github_org}/${var.github_repo}:ref:refs/tags/v*",
       ]
     }
   }

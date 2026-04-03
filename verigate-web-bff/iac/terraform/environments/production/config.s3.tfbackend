@@ -1,4 +1,0 @@
-bucket         = "verigate-prd-726412862551-tf-state"
-key            = "verigate-web-bff/production/terraform.tfstate"
-use_lockfile  = true
-region         = "eu-west-1"

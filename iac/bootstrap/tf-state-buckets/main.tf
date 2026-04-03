@@ -19,15 +19,10 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
-variable "environment_shortname" {
-  description = "Short environment name (sbx, dev, ppe, prd)"
-  type        = string
-}
-
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "verigate-${var.environment_shortname}-${data.aws_caller_identity.current.account_id}-tf-state"
+  bucket = "verigate-${data.aws_caller_identity.current.account_id}-tf-state"
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {

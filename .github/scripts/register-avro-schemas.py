@@ -22,7 +22,7 @@ def parse_args() -> Namespace:
     parser.add_argument('-r', '--region', help='AWS region (optional)')
     parser.add_argument('-s', '--stack-name', required=True, help='Name of stack')
     parser.add_argument('-c', '--config-file', required=True, help='Configuration file')
-    parser.add_argument('-e', '--environment-shortname', required=True, help='Environment shortname (e.g., sbx, dev, prd)')
+    parser.add_argument('-e', '--environment-shortname', required=True, help='Environment shortname (e.g., dev, prod)')
     return parser.parse_args()
 
 def register_avro_schema(

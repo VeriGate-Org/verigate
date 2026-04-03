@@ -13,7 +13,7 @@ const SKIP_HOSTS = [".amplifyapp.com", ".cloudfront.net", ".vercel.app"];
  *   acme.localhost:3000         → "acme"
  *   verigate.co.za              → null
  *   localhost:3000              → null
- *   acme.sbx.verigate.co.za    → "acme"
+ *   acme.dev.verigate.co.za     → "acme"
  */
 function extractSlug(hostname: string): string | null {
   // Strip port for comparison

@@ -2,8 +2,8 @@ locals {
   bucket_name = "${var.stack_name}-partner-portal-${var.environment_shortname}"
 
   # Subdomain pattern: PROD uses root domain, non-PROD uses env subdomain
-  # PROD: *.verigate.co.za   Non-PROD: *.sbx.verigate.co.za
-  portal_domain = var.environment_shortname == "prd" ? var.root_domain : "${var.environment_shortname}.${var.root_domain}"
+  # PROD: *.verigate.co.za   Non-PROD: *.dev.verigate.co.za
+  portal_domain = var.environment_shortname == "prod" ? var.root_domain : "${var.environment_shortname}.${var.root_domain}"
   wildcard_domain = "*.${local.portal_domain}"
 }
 

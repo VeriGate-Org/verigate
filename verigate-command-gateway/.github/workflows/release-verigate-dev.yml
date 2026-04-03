@@ -5,6 +5,10 @@ on:
     branches:
       - "main"
 
+concurrency:
+  group: verigate-dev
+  cancel-in-progress: true
+
 jobs:
   install:
     uses: ./.github/workflows/_install.yml
@@ -25,14 +29,14 @@ jobs:
       packages: read
     secrets: inherit
 
-  sandbox-deploy:
+  dev-deploy:
     needs: [install, integration-test]
     uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-sandbox
+    concurrency: verigate-dev-deploy
     with:
       java-version: "21"
-      environment: sandbox
-      github-environment: verigate-sandbox
+      environment: dev
+      github-environment: verigate-dev
       application-name: verigate
     permissions:
       id-token: write
@@ -40,38 +44,12 @@ jobs:
       packages: write
     secrets: inherit
 
-  sandbox-smoke-test:
-    needs: [sandbox-deploy]
+  dev-smoke-test:
+    needs: [dev-deploy]
     uses: ./.github/workflows/_smoke-test.yml
     with:
-      environment: sandbox
-      github-environment: verigate-sandbox
-    permissions:
-      id-token: write
-      contents: read
-    secrets: inherit
-
-  development-deploy:
-    needs: [sandbox-smoke-test]
-    uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-development
-    with:
-      java-version: "21"
-      environment: development
-      github-environment: verigate-development
-      application-name: verigate
-    permissions:
-      id-token: write
-      contents: read
-      packages: write
-    secrets: inherit
-
-  development-smoke-test:
-    needs: [development-deploy]
-    uses: ./.github/workflows/_smoke-test.yml
-    with:
-      environment: development
-      github-environment: verigate-development
+      environment: dev
+      github-environment: verigate-dev
     permissions:
       id-token: write
       contents: read

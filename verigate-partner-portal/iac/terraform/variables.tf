@@ -5,7 +5,7 @@ variable "aws_region" {
 }
 
 variable "environment_shortname" {
-  description = "Short name for the environment (sbx, dev, ppe, prd)"
+  description = "Short name for the environment (dev, prod)"
   type        = string
 }
 

@@ -1,4 +1,0 @@
-bucket         = "verigate-dev-601301273631-tf-state"
-key            = "verigate-partner-portal/development/terraform.tfstate"
-use_lockfile  = true
-region         = "eu-west-1"

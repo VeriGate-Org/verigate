@@ -1,10 +1,14 @@
 name: Release | VeriGate Production
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - "verigate-release"
-      - "verigate-release-hotfix"
+    tags:
+      - "v*"
+
+concurrency:
+  group: verigate-prod
+  cancel-in-progress: false
 
 jobs:
   install:
@@ -16,14 +20,14 @@ jobs:
       packages: read
     secrets: inherit
 
-  preproduction-deploy:
+  prod-deploy:
     needs: [install]
     uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-preproduction
+    concurrency: verigate-prod-deploy
     with:
       java-version: "21"
-      environment: preproduction
-      github-environment: verigate-preproduction
+      environment: prod
+      github-environment: verigate-prod
       application-name: verigate
     permissions:
       id-token: write
@@ -31,38 +35,12 @@ jobs:
       packages: write
     secrets: inherit
 
-  preproduction-smoke-test:
-    needs: [preproduction-deploy]
+  prod-smoke-test:
+    needs: [prod-deploy]
     uses: ./.github/workflows/_smoke-test.yml
     with:
-      environment: preproduction
-      github-environment: verigate-preproduction
-    permissions:
-      id-token: write
-      contents: read
-    secrets: inherit
-
-  production-deploy:
-    needs: [preproduction-smoke-test]
-    uses: ./.github/workflows/_release.verigate.yml
-    concurrency: verigate-production
-    with:
-      java-version: "21"
-      environment: production
-      github-environment: verigate-production
-      application-name: verigate
-    permissions:
-      id-token: write
-      contents: read
-      packages: write
-    secrets: inherit
-
-  production-smoke-test:
-    needs: [production-deploy]
-    uses: ./.github/workflows/_smoke-test.yml
-    with:
-      environment: production
-      github-environment: verigate-production
+      environment: prod
+      github-environment: verigate-prod
     permissions:
       id-token: write
       contents: read

@@ -26,20 +26,8 @@ variable "project_name" {
 }
 
 variable "environment_shortname" {
-  description = "Short name for the environment (e.g., dev, sbx, ppe, prd)"
+  description = "Short name for the environment (dev, prod)"
   type        = string
-}
-
-variable "stack_version" {
-  description = "Version of the stack"
-  type        = string
-  default     = ""
-}
-
-variable "developer_stack_name" {
-  description = "Developer name for sandbox environments"
-  type        = string
-  default     = ""
 }
 
 #----------------------------------------------------------------------------------------------------------------

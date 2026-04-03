@@ -9,7 +9,7 @@ These parameters are passed to the SAM template during deployment:
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `ApplicationVersion` | The latest version tag for the application | (required) |
-| `EnvironmentShortname` | Environment shortname (sbx, dev, ppe, prod) | (required) |
+| `EnvironmentShortname` | Environment shortname (dev, prod) | (required) |
 | `VerigateDomainName` | The Verigate system domain name | `{{resolve:ssm:/verigate/api-gateway/domain-name:1}}` |
 | `KinesisStreamArn` | The kinesis stream ARN for events | `{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}` |
 
@@ -24,12 +24,12 @@ These environment variables are set for all Lambda functions via the SAM Globals
 | `DD_ENV` | Datadog environment tag | `sds-${EnvironmentShortname}` |
 | `DD_SERVICE` | Datadog service name | `verigate` |
 | `DD_VERSION` | Application version | `${ApplicationVersion}` |
-| `DD_SERVERLESS_APPSEC_ENABLED` | Enable Datadog AppSec | `false` (sbx/dev/ppe), `true` (prod) |
-| `DD_SERVERLESS_LOGS_ENABLED` | Enable Datadog log forwarding | `false` (sbx/dev/ppe), `true` (prod) |
-| `DD_TRACE_ENABLED` | Enable Datadog tracing | `false` (sbx/dev/ppe), `true` (prod) |
+| `DD_SERVERLESS_APPSEC_ENABLED` | Enable Datadog AppSec | `false` (dev), `true` (prod) |
+| `DD_SERVERLESS_LOGS_ENABLED` | Enable Datadog log forwarding | `false` (dev), `true` (prod) |
+| `DD_TRACE_ENABLED` | Enable Datadog tracing | `false` (dev), `true` (prod) |
 | `DD_TAGS` | Datadog custom tags | `stack_parent:${AWS::StackName}` |
-| `DD_FLUSH_TO_LOG` | Flush Datadog metrics to logs | `false` (sbx/dev/ppe), `true` (prod) |
-| `DD_ENHANCED_METRICS` | Enable enhanced metrics | `false` (sbx/dev/ppe), `true` (prod) |
+| `DD_FLUSH_TO_LOG` | Flush Datadog metrics to logs | `false` (dev), `true` (prod) |
+| `DD_ENHANCED_METRICS` | Enable enhanced metrics | `false` (dev), `true` (prod) |
 
 ### DynamoDB Configuration
 
@@ -287,7 +287,5 @@ During SAM deployment, these environment-specific values are typically configure
 
 | Environment | EnvironmentShortname | StackName |
 |-------------|---------------------|-----------|
-| Sandbox | `sbx` | `verigate-verification-cg-sbx` |
-| Development | `dev` | `verigate-verification-cg-dev` |
-| Pre-production | `ppe` | `verigate-verification-cg-ppe` |
-| Production | `prod` | `verigate-verification-cg` |
+| Dev | `dev` | `verigate-verification-cg-dev` |
+| Prod | `prod` | `verigate-verification-cg` |

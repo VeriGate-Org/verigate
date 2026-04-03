@@ -9,6 +9,8 @@ package verigate.adapter.opensanctions.infrastructure.integration;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import crosscutting.config.Config;
+import crosscutting.environment.Environment;
 import domain.exceptions.PermanentException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,9 +91,7 @@ class OpenSanctionsLiveIntegrationTest {
     LOGGER.info("✅ Configuration validated - API key present");
 
     // Initialize service with test configuration
-    Properties configProperties = new Properties();
-    configProperties.putAll(testConfig);
-    OpenSanctionsApiConfiguration config = new OpenSanctionsApiConfiguration(configProperties);
+    OpenSanctionsApiConfiguration config = createConfigFromProperties(testConfig);
 
     // Create API adapter
     OpenSanctionsApiAdapter apiAdapter = new OpenSanctionsApiAdapter(config);
@@ -353,10 +353,9 @@ class OpenSanctionsLiveIntegrationTest {
     // Create service with invalid API key
     Properties badConfigProperties = new Properties();
     badConfigProperties.putAll(testConfig);
-    badConfigProperties.setProperty("opensanctions.api.key", "invalid-api-key-12345");
+    badConfigProperties.setProperty("OPENSANCTIONS_API_KEY", "invalid-api-key-12345");
 
-    OpenSanctionsApiConfiguration badConfig =
-        new OpenSanctionsApiConfiguration(badConfigProperties);
+    OpenSanctionsApiConfiguration badConfig = createConfigFromProperties(badConfigProperties);
 
     OpenSanctionsApiAdapter badApiAdapter = new OpenSanctionsApiAdapter(badConfig);
     DefaultOpenSanctionsMatchingService badService =
@@ -457,5 +456,33 @@ class OpenSanctionsLiveIntegrationTest {
         String.format("API should respond within %d ms, but took %d ms", timeoutMs, responseTime));
 
     LOGGER.info("✅ Performance test passed - API responded in {} ms", responseTime);
+  }
+
+  /**
+   * Creates an OpenSanctionsApiConfiguration from a Properties object by wrapping it
+   * in Environment and Config adapters.
+   */
+  private static OpenSanctionsApiConfiguration createConfigFromProperties(Properties props) {
+    Environment env = new Environment() {
+      @Override
+      public String get(String key) {
+        return props.getProperty(key);
+      }
+      @Override
+      public String get(String key, String defaultValue) {
+        return props.getProperty(key, defaultValue);
+      }
+    };
+    Config cfg = new Config() {
+      @Override
+      public String get(String key) {
+        return props.getProperty(key);
+      }
+      @Override
+      public String get(String key, String defaultValue) {
+        return props.getProperty(key, defaultValue);
+      }
+    };
+    return new OpenSanctionsApiConfiguration(env, cfg);
   }
 }

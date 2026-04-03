@@ -3,9 +3,12 @@ name: Release | VeriGate Production
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "verigate-release"
-      - "verigate-release-hotfix"
+    tags:
+      - "v*"
+
+concurrency:
+  group: verigate-prod
+  cancel-in-progress: false
 
 jobs:
   install:
@@ -17,26 +20,26 @@ jobs:
       packages: read
     secrets: inherit
 
-  preproduction-terraform:
+  prod-terraform:
     needs: [install]
     uses: ./.github/workflows/_release-terraform.yml
-    concurrency: verigate-preproduction-terraform
+    concurrency: verigate-prod-terraform
     with:
-      environment: preproduction
-      github-environment: verigate-preproduction
+      environment: prod
+      github-environment: verigate-prod
       application-name: verigate
     permissions:
       id-token: write
       contents: read
     secrets: inherit
 
-  preproduction-sam:
-    needs: [preproduction-terraform]
+  prod-sam:
+    needs: [prod-terraform]
     uses: ./.github/workflows/_release-sam.yml
-    concurrency: verigate-preproduction-sam
+    concurrency: verigate-prod-sam
     with:
-      environment: preproduction
-      github-environment: verigate-preproduction
+      environment: prod
+      github-environment: verigate-prod
       application-name: verigate
       java-version: "21"
     permissions:
@@ -45,51 +48,12 @@ jobs:
       packages: read
     secrets: inherit
 
-  preproduction-smoke-test:
-    needs: [preproduction-sam]
+  prod-smoke-test:
+    needs: [prod-sam]
     uses: ./.github/workflows/_smoke-test.yml
     with:
-      environment: preproduction
-      github-environment: verigate-preproduction
-    permissions:
-      id-token: write
-      contents: read
-    secrets: inherit
-
-  production-terraform:
-    needs: [preproduction-smoke-test]
-    uses: ./.github/workflows/_release-terraform.yml
-    concurrency: verigate-production-terraform
-    with:
-      environment: production
-      github-environment: verigate-production
-      application-name: verigate
-    permissions:
-      id-token: write
-      contents: read
-    secrets: inherit
-
-  production-sam:
-    needs: [production-terraform]
-    uses: ./.github/workflows/_release-sam.yml
-    concurrency: verigate-production-sam
-    with:
-      environment: production
-      github-environment: verigate-production
-      application-name: verigate
-      java-version: "21"
-    permissions:
-      id-token: write
-      contents: read
-      packages: read
-    secrets: inherit
-
-  production-smoke-test:
-    needs: [production-sam]
-    uses: ./.github/workflows/_smoke-test.yml
-    with:
-      environment: production
-      github-environment: verigate-production
+      environment: prod
+      github-environment: verigate-prod
     permissions:
       id-token: write
       contents: read

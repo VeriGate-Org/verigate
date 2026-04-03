@@ -15,20 +15,14 @@ class Environment(Enum):
     """
     Supported target environments.
     """
-    SBX = 1
-    DEV = 2
-    PPE = 3
-    PRD = 4
+    DEV = 1
+    PROD = 2
 
     @staticmethod
     def from_string(str_env: str):
         match str_env.lower():
-            case "sbx" | "sandbox":
-                return Environment.SBX
             case "dev" | "development":
                 return Environment.DEV
-            case "ppe" | "preproduction" | "pre-production":
-                return Environment.PPE
-            case "prd" | "production":
-                return Environment.PRD
-        raise Exception("Unsupported environment: [%s]" % str_env) 
+            case "prod" | "production":
+                return Environment.PROD
+        raise Exception("Unsupported environment: [%s]" % str_env)
