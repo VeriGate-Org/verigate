@@ -54,3 +54,4 @@ jobs:
           TF_VAR_worldcheck_api_secret: ${{ secrets.WORLDCHECK_API_SECRET }}
           TF_VAR_worldcheck_user_id: ${{ secrets.WORLDCHECK_USER_ID }}
           TF_VAR_worldcheck_default_group_id: ${{ secrets.WORLDCHECK_DEFAULT_GROUP_ID }}
+          TF_VAR_opensanctions_api_key: ${{ secrets.OPENSANCTIONS_API_KEY }}
