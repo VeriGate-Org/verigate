@@ -19,6 +19,7 @@ import crosscutting.config.Config;
 import crosscutting.config.PropertiesFileConfig;
 import crosscutting.environment.Environment;
 import crosscutting.environment.EnvironmentConfig;
+import crosscutting.metrics.Meter;
 import crosscutting.resiliency.DefaultRetry;
 import infrastructure.commands.commandstore.AggregateCommandStoreDao;
 import infrastructure.featureflags.FeatureFlags;
@@ -94,6 +95,9 @@ public class TestServiceModule extends AbstractModule {
     // Feature Flags - use mock implementation for tests
     bind(FeatureFlags.class).toInstance(new MockFeatureFlags());
 
+    // Metrics
+    bind(Meter.class).toInstance(new NoOpMeter());
+
     // Routing
     bind(VerificationCommandRouter.class).to(DefaultCommandRouter.class).in(Singleton.class);
     bind(QueueDispatcherFactory.class).to(DefaultQueueDispatcherFactory.class).in(Singleton.class);
@@ -166,5 +170,13 @@ public class TestServiceModule extends AbstractModule {
     public boolean isFeatureEnabled(String featureName, boolean defaultValue) {
       return defaultValue;
     }
+  }
+
+  private static class NoOpMeter implements Meter {
+    @Override
+    public void incrementCounter(String metricName, String... tags) {}
+
+    @Override
+    public void gauge(String metricName, double measure, String... tags) {}
   }
 }
