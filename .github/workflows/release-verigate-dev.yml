@@ -39,7 +39,6 @@ jobs:
   dev-terraform:
     needs: [install, integration-test]
     uses: ./.github/workflows/_release-terraform.yml
-    concurrency: verigate-dev-terraform
     with:
       environment: dev
       github-environment: verigate-dev
@@ -52,7 +51,6 @@ jobs:
   dev-sam:
     needs: [dev-terraform]
     uses: ./.github/workflows/_release-sam.yml
-    concurrency: verigate-dev-sam
     with:
       environment: dev
       github-environment: verigate-dev

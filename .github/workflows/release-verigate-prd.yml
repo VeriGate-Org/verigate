@@ -23,7 +23,6 @@ jobs:
   prod-terraform:
     needs: [install]
     uses: ./.github/workflows/_release-terraform.yml
-    concurrency: verigate-prod-terraform
     with:
       environment: prod
       github-environment: verigate-prod
@@ -36,7 +35,6 @@ jobs:
   prod-sam:
     needs: [prod-terraform]
     uses: ./.github/workflows/_release-sam.yml
-    concurrency: verigate-prod-sam
     with:
       environment: prod
       github-environment: verigate-prod
