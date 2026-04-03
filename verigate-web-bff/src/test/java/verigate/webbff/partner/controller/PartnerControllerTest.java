@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,7 +146,9 @@ class PartnerControllerTest {
     PartnerContextHolder.setPartnerId(PARTNER_ID);
 
     when(featureService.getProfile(PARTNER_ID))
-        .thenReturn(new PartnerProfileResponse(PARTNER_ID, "Acme Corp", "admin@acme.co", "enterprise", "ACTIVE", "2025-01-01T00:00:00Z"));
+        .thenReturn(new PartnerProfileResponse(PARTNER_ID, "Acme Corp", "admin@acme.co", "enterprise",
+            List.of(), List.of(), Map.of(), "ACTIVE", "2025-01-01T00:00:00Z",
+            null, null, null, null, null, null));
 
     mockMvc.perform(get("/api/partner/profile"))
         .andExpect(status().isOk())
@@ -159,7 +162,9 @@ class PartnerControllerTest {
     PartnerContextHolder.setPartnerId(PARTNER_ID);
 
     when(featureService.updateProfile(eq(PARTNER_ID), any()))
-        .thenReturn(new PartnerProfileResponse(PARTNER_ID, "Updated Corp", "new@acme.co", "enterprise", "ACTIVE", null));
+        .thenReturn(new PartnerProfileResponse(PARTNER_ID, "Updated Corp", "new@acme.co", "enterprise",
+            List.of(), List.of(), Map.of(), "ACTIVE", null,
+            null, null, null, null, null, null));
 
     mockMvc.perform(put("/api/partner/profile")
             .contentType(MediaType.APPLICATION_JSON)

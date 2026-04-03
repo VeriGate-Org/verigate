@@ -134,20 +134,20 @@ public class MockDeedsWebMatchingService implements DeedsWebMatchingService {
             .id("deed-" + Math.abs(query.hashCode()))
             .caption(query + " Property")
             .schema("RealEstate")
-            .properties(Map.of(
-                "deedNumber", List.of("T12345/2024"),
-                "titleDeedReference", List.of("T12345/2024"),
-                "propertyDescription", List.of("Erf 101 Portion 2, Newcastle Central"),
-                "registrationDivision", List.of("Newcastle Central"),
-                "province", List.of("KwaZulu-Natal"),
-                "extent", List.of("850"),
-                "registeredOwnerName", List.of(query.matches(\"\\\\d+\") ? \"Owner 1\" : query),
-                "registeredOwnerIdNumber", List.of(query.matches(\"\\\\d+\") ? query : \"8001015009087\"),
-                "registrationDate", List.of("2024-03-11"),
-                "transferDate", List.of("2024-03-11"),
-                "purchasePrice", List.of(1250000),
-                "bondHolder", List.of("ABSA"),
-                "bondAmount", List.of(900000)
+            .properties(Map.ofEntries(
+                Map.entry("deedNumber", List.of("T12345/2024")),
+                Map.entry("titleDeedReference", List.of("T12345/2024")),
+                Map.entry("propertyDescription", List.of("Erf 101 Portion 2, Newcastle Central")),
+                Map.entry("registrationDivision", List.of("Newcastle Central")),
+                Map.entry("province", List.of("KwaZulu-Natal")),
+                Map.entry("extent", List.of("850")),
+                Map.entry("registeredOwnerName", List.of(query.matches("\\d+") ? "Owner 1" : query)),
+                Map.entry("registeredOwnerIdNumber", List.of(query.matches("\\d+") ? query : "8001015009087")),
+                Map.entry("registrationDate", List.of("2024-03-11")),
+                Map.entry("transferDate", List.of("2024-03-11")),
+                Map.entry("purchasePrice", List.of(1250000)),
+                Map.entry("bondHolder", List.of("ABSA")),
+                Map.entry("bondAmount", List.of(900000))
             ))
             .datasets(List.of(dataset))
             .score(0.97)
@@ -158,18 +158,18 @@ public class MockDeedsWebMatchingService implements DeedsWebMatchingService {
             .id("deed-secondary-" + Math.abs(query.hashCode()))
             .caption(query + " Property 2")
             .schema("RealEstate")
-            .properties(Map.of(
-                "deedNumber", List.of("T54321/2022"),
-                "titleDeedReference", List.of("T54321/2022"),
-                "propertyDescription", List.of("Erf 202 Portion 0, Newcastle Industrial"),
-                "registrationDivision", List.of("Newcastle Industrial"),
-                "province", List.of("KwaZulu-Natal"),
-                "extent", List.of("1200"),
-                "registeredOwnerName", List.of(query.matches(\"\\\\d+\") ? \"Owner 2\" : query),
-                "registeredOwnerIdNumber", List.of(query.matches(\"\\\\d+\") ? query : \"8001015009087\"),
-                "registrationDate", List.of("2022-08-05"),
-                "transferDate", List.of("2022-08-05"),
-                "purchasePrice", List.of(1750000)
+            .properties(Map.ofEntries(
+                Map.entry("deedNumber", List.of("T54321/2022")),
+                Map.entry("titleDeedReference", List.of("T54321/2022")),
+                Map.entry("propertyDescription", List.of("Erf 202 Portion 0, Newcastle Industrial")),
+                Map.entry("registrationDivision", List.of("Newcastle Industrial")),
+                Map.entry("province", List.of("KwaZulu-Natal")),
+                Map.entry("extent", List.of("1200")),
+                Map.entry("registeredOwnerName", List.of(query.matches("\\d+") ? "Owner 2" : query)),
+                Map.entry("registeredOwnerIdNumber", List.of(query.matches("\\d+") ? query : "8001015009087")),
+                Map.entry("registrationDate", List.of("2022-08-05")),
+                Map.entry("transferDate", List.of("2022-08-05")),
+                Map.entry("purchasePrice", List.of(1750000))
             ))
             .datasets(List.of(dataset))
             .score(0.88)
