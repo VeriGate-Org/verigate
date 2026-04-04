@@ -24,6 +24,8 @@ logging:
     org.springframework.security: WARN
 
 verigate:
+  cors:
+    allowed-origins: ${VERIGATE_CORS_ALLOWED_ORIGINS:https://*.verigate.co.za,http://localhost:3000}
   aws:
     region: ${AWS_REGION:eu-west-1}
     sqs-endpoint: ${AWS_SQS_ENDPOINT:}

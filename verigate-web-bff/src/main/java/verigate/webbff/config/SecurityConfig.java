@@ -53,7 +53,7 @@ public class SecurityConfig {
   private final CognitoJwtConfig cognitoJwtConfig;
   private final RateLimitConfig rateLimitConfig;
 
-  @Value("${verigate.cors.allowed-origins:http://localhost:3000}")
+  @Value("${verigate.cors.allowed-origins:https://*.verigate.co.za,http://localhost:3000}")
   private String allowedOrigins;
 
   public SecurityConfig(
@@ -97,7 +97,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+    configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-API-Key", "X-Request-ID", "X-Correlation-ID", "Accept"));
     configuration.setExposedHeaders(List.of("X-API-Key", "X-Correlation-ID"));

@@ -53,26 +53,6 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: $default
-      CorsConfiguration:
-        AllowOrigins:
-          - "https://*.verigate.co.za"
-          - "http://localhost:3000"
-        AllowMethods:
-          - GET
-          - POST
-          - PUT
-          - DELETE
-          - OPTIONS
-        AllowHeaders:
-          - Content-Type
-          - Authorization
-          - X-API-Key
-          - X-Request-ID
-          - Accept
-        ExposeHeaders:
-          - X-API-Key
-        MaxAge: 3600
-        AllowCredentials: true
 
   WebBffFunction:
     Type: AWS::Serverless::Function
@@ -93,6 +73,7 @@ Resources:
           VERIGATE_API_KEYS_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/api-keys/name}}"
           VERIGATE_PARTNER_CREATE_QUEUE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-create/name}}"
           VERIGATE_PARTNER_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/partner/name}}"
+          VERIGATE_CORS_ALLOWED_ORIGINS: "https://*.verigate.co.za,http://localhost:3000"
       Events:
         ApiProxy:
           Type: HttpApi
