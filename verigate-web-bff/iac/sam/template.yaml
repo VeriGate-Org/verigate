@@ -10,6 +10,19 @@ Parameters:
   EnvironmentShortname:
     Type: String
     Description: "Environment shortname (dev, prod)"
+  ApiDomainName:
+    Type: String
+    Default: ""
+    Description: "Custom domain name for API Gateway (leave empty to skip mapping)"
+  EnableCustomDomain:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
+Conditions:
+  HasCustomDomain: !Equals [!Ref EnableCustomDomain, "true"]
 
 Globals:
   Function:
@@ -93,6 +106,14 @@ Resources:
             ApiId: !Ref WebBffApi
             Path: /
             Method: ANY
+
+  WebBffApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: HasCustomDomain
+    Properties:
+      ApiId: !Ref WebBffApi
+      DomainName: !Ref ApiDomainName
+      Stage: $default
 
   WebBffFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
