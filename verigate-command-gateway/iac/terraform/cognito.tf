@@ -100,13 +100,13 @@ resource "aws_cognito_user_group" "partner_group" {
 #----------------------------------------------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "cognito_user_pool_id" {
-  name  = "/${var.stack_name}-${var.project_name}/cognito/user-pool-id"
+  name  = "/${local.ssm_prefix}/cognito/user-pool-id"
   type  = "String"
   value = aws_cognito_user_pool.partner_pool.id
 }
 
 resource "aws_ssm_parameter" "cognito_client_id" {
-  name  = "/${var.stack_name}-${var.project_name}/cognito/client-id"
+  name  = "/${local.ssm_prefix}/cognito/client-id"
   type  = "String"
   value = aws_cognito_user_pool_client.partner_client.id
 }

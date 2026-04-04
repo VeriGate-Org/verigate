@@ -17,4 +17,6 @@ locals {
   }
 
   default_tags = merge(var.default_tags, local.environment_specific_tags)
+
+  ssm_prefix = var.stack_name
 }

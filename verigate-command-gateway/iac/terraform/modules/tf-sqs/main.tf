@@ -19,7 +19,7 @@ resource "aws_sqs_queue" "imq" {
 }
 
 resource "aws_ssm_parameter" "queue_arn" {
-  name      = "/${var.complete_stack_name}/queues/${var.queue_name}/arn"
+  name      = "/${var.ssm_prefix}/queues/${var.queue_name}/arn"
   type      = "String"
   value     = aws_sqs_queue.this.arn
   overwrite = true

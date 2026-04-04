@@ -19,6 +19,11 @@ variable "complete_stack_name" {
   type        = string
 }
 
+variable "ssm_prefix" {
+  description = "Prefix for SSM parameter paths (aligned with SAM stack name)"
+  type        = string
+}
+
 variable "assume_role_policy" {
   description = "JSON string for the assume role policy document"
   type        = string

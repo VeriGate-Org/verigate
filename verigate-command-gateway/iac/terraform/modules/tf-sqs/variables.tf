@@ -8,6 +8,11 @@ variable "queue_name" {
   type        = string
 }
 
+variable "ssm_prefix" {
+  description = "Prefix for SSM parameter paths (aligned with SAM stack name)"
+  type        = string
+}
+
 variable "max_receive_count" {
   description = "Maximum number of receives before sending to DLQ"
   type        = number

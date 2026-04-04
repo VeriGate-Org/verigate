@@ -292,7 +292,7 @@ module "verified_identities_dynamodb" {
 }
 
 resource "aws_ssm_parameter" "verified_identities_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/verified-identities/name"
+  name  = "/${local.ssm_prefix}/dynamodb/verified-identities/name"
   type  = "String"
   value = "${local.complete_stack_name}-verified-identities"
 }
@@ -326,7 +326,7 @@ module "documents_s3" {
 }
 
 resource "aws_ssm_parameter" "documents_bucket_name" {
-  name  = "/${var.stack_name}-${var.project_name}/s3/documents/name"
+  name  = "/${local.ssm_prefix}/s3/documents/name"
   type  = "String"
   value = module.documents_s3.bucket_name
 }
@@ -342,6 +342,7 @@ module "lambda_iam" {
   policy_name         = "${local.complete_stack_name}-lambda-policy"
   policy_description  = "Policy for ${local.complete_stack_name} Lambda functions"
   complete_stack_name = local.complete_stack_name
+  ssm_prefix          = local.ssm_prefix
 
   assume_role_policy = file("./policies/lambda_assume_role_verification.json")
 
@@ -355,13 +356,12 @@ module "lambda_iam" {
 
 }
 
-# In PROD, local.complete_stack_name omits the env suffix (i.e. "verigate-verification-cg"
-# not "verigate-verification-cg-prod"). The tf-iam module creates the SSM parameter at
-# /application/iam-role/verigate-verification-cg/arn, but the SAM template expects
-# /application/iam-role/verigate-verification-cg-prod/arn. This alias bridges the gap.
+# In PROD, the tf-iam module creates the SSM parameter at
+# /application/iam-role/verigate/arn, but the SAM template resolves
+# /application/iam-role/verigate-prod/arn. This alias bridges the gap.
 resource "aws_ssm_parameter" "lambda_role_arn_prod_alias" {
   count     = var.environment_shortname == "prod" ? 1 : 0
-  name      = "/application/iam-role/${var.stack_name}-${var.project_name}-${var.environment_shortname}/arn"
+  name      = "/application/iam-role/${local.ssm_prefix}-${var.environment_shortname}/arn"
   type      = "String"
   value     = module.lambda_iam.role_arn
   overwrite = true
@@ -374,12 +374,14 @@ resource "aws_ssm_parameter" "lambda_role_arn_prod_alias" {
 module "verify_party_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "verify-party"
   max_receive_count = 1
 }
 module "qlink_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-qlink"
   max_receive_count = 1
 }
@@ -387,6 +389,7 @@ module "qlink_adapter_queue" {
 module "worldcheck_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-worldcheck"
   max_receive_count = 1
 }
@@ -395,6 +398,7 @@ module "worldcheck_adapter_queue" {
 module "dha_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-dha"
   max_receive_count = 1
 }
@@ -402,6 +406,7 @@ module "dha_adapter_queue" {
 module "cipc_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-cipc"
   max_receive_count = 1
 }
@@ -409,6 +414,7 @@ module "cipc_adapter_queue" {
 module "deedsweb_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-deedsweb"
   max_receive_count = 1
 }
@@ -416,6 +422,7 @@ module "deedsweb_adapter_queue" {
 module "employment_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-employment"
   max_receive_count = 1
 }
@@ -423,6 +430,7 @@ module "employment_adapter_queue" {
 module "negativenews_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-negativenews"
   max_receive_count = 1
 }
@@ -430,6 +438,7 @@ module "negativenews_adapter_queue" {
 module "fraudwatchlist_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-fraudwatchlist"
   max_receive_count = 1
 }
@@ -437,6 +446,7 @@ module "fraudwatchlist_adapter_queue" {
 module "document_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-document"
   max_receive_count = 1
 }
@@ -444,6 +454,7 @@ module "document_adapter_queue" {
 module "saqa_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-saqa"
   max_receive_count = 1
 }
@@ -451,6 +462,7 @@ module "saqa_adapter_queue" {
 module "creditbureau_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-creditbureau"
   max_receive_count = 1
 }
@@ -458,6 +470,7 @@ module "creditbureau_adapter_queue" {
 module "sars_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-sars"
   max_receive_count = 1
 }
@@ -465,6 +478,7 @@ module "sars_adapter_queue" {
 module "income_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-income"
   max_receive_count = 1
 }
@@ -472,6 +486,7 @@ module "income_adapter_queue" {
 module "opensanctions_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-opensanctions"
   max_receive_count = 1
 }
@@ -479,6 +494,7 @@ module "opensanctions_adapter_queue" {
 module "partner_create_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "partner-create"
   max_receive_count = 1
 }
@@ -486,12 +502,13 @@ module "partner_create_queue" {
 module "partner_config_update_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   queue_name = "partner-config-update"
   max_receive_count = 1
 }
 
 resource "aws_ssm_parameter" "api_keys_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/api-keys-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/api-keys-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-api-keys-table"
 }
@@ -501,31 +518,31 @@ resource "aws_ssm_parameter" "api_keys_table_name" {
 #----------------------------------------------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "partner_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/partner-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/partner-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-partner-table"
 }
 
 resource "aws_ssm_parameter" "partner_configuration_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/partner-configuration-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/partner-configuration-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-partner-configuration-table"
 }
 
 resource "aws_ssm_parameter" "usage_records_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/usage-records-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/usage-records-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-usage-records-table"
 }
 
 resource "aws_ssm_parameter" "usage_summaries_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/usage-summaries-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/usage-summaries-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-usage-summaries-table"
 }
 
 resource "aws_ssm_parameter" "billing_plans_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/billing-plans-table/name"
+  name  = "/${local.ssm_prefix}/dynamodb/billing-plans-table/name"
   type  = "String"
   value = "${local.complete_stack_name}-billing-plans-table"
 }
@@ -674,25 +691,25 @@ module "policies_dynamodb" {
 #----------------------------------------------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "risk_scoring_config_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/risk-scoring-config/name"
+  name  = "/${local.ssm_prefix}/dynamodb/risk-scoring-config/name"
   type  = "String"
   value = "${local.complete_stack_name}-risk-scoring-config"
 }
 
 resource "aws_ssm_parameter" "risk_assessments_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/risk-assessments/name"
+  name  = "/${local.ssm_prefix}/dynamodb/risk-assessments/name"
   type  = "String"
   value = "${local.complete_stack_name}-risk-assessments"
 }
 
 resource "aws_ssm_parameter" "verification_workflows_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/verification-workflows/name"
+  name  = "/${local.ssm_prefix}/dynamodb/verification-workflows/name"
   type  = "String"
   value = "${local.complete_stack_name}-verification-workflows"
 }
 
 resource "aws_ssm_parameter" "policies_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/policies/name"
+  name  = "/${local.ssm_prefix}/dynamodb/policies/name"
   type  = "String"
   value = "${local.complete_stack_name}-policies"
 }
@@ -739,7 +756,7 @@ module "cases_dynamodb" {
 }
 
 resource "aws_ssm_parameter" "cases_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/cases/name"
+  name  = "/${local.ssm_prefix}/dynamodb/cases/name"
   type  = "String"
   value = "${local.complete_stack_name}-cases"
 }
@@ -827,13 +844,13 @@ module "monitoring_alerts_dynamodb" {
 #----------------------------------------------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "monitored_subjects_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/monitored-subjects/name"
+  name  = "/${local.ssm_prefix}/dynamodb/monitored-subjects/name"
   type  = "String"
   value = "${local.complete_stack_name}-monitored-subjects"
 }
 
 resource "aws_ssm_parameter" "monitoring_alerts_table_name" {
-  name  = "/${var.stack_name}-${var.project_name}/dynamodb/monitoring-alerts/name"
+  name  = "/${local.ssm_prefix}/dynamodb/monitoring-alerts/name"
   type  = "String"
   value = "${local.complete_stack_name}-monitoring-alerts"
 }
@@ -844,8 +861,9 @@ resource "aws_ssm_parameter" "monitoring_alerts_table_name" {
 
 module "verification_stream" {
   source = "./modules/tf-events"
-  
+
   complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
   event_bus_name = "event-bus"
   event_stream_name = "event-stream"
 }
@@ -879,7 +897,7 @@ module "qlink_secrets" {
 }
 
 resource "aws_ssm_parameter" "qlink_api_url" {
-  name  = "/${var.stack_name}-${var.project_name}/qlink/api_url"
+  name  = "/${local.ssm_prefix}/qlink/api_url"
   type  = "String"
   value = var.qlink_api_url
 } 
@@ -918,13 +936,13 @@ module "worldcheck_secrets" {
   }
 }
 resource "aws_ssm_parameter" "worldcheck_authentication_url" {
-  name  = "/${var.stack_name}-${var.project_name}/worldcheck/authentication_url"
+  name  = "/${local.ssm_prefix}/worldcheck/authentication_url"
   type  = "String"
   value = var.worldcheck_authentication_url
 } 
 
 resource "aws_ssm_parameter" "worldcheck_qt_api_url" {
-  name  = "/${var.stack_name}-${var.project_name}/worldcheck/qt_api_url"
+  name  = "/${local.ssm_prefix}/worldcheck/qt_api_url"
   type  = "String"
   value = var.worldcheck_qt_api_url
 } 
@@ -960,7 +978,7 @@ module "worldcheck_one_secrets" {
 }
 
 resource "aws_ssm_parameter" "worldcheck_api_base_url" {
-  name  = "/${var.stack_name}-${var.project_name}/worldcheck/api_base_url"
+  name  = "/${local.ssm_prefix}/worldcheck/api_base_url"
   type  = "String"
   value = var.worldcheck_api_base_url
 }
@@ -984,7 +1002,7 @@ module "opensanctions_secrets" {
 }
 
 resource "aws_ssm_parameter" "opensanctions_api_url" {
-  name  = "/${var.stack_name}-${var.project_name}/opensanctions/api_url"
+  name  = "/${local.ssm_prefix}/opensanctions/api_url"
   type  = "String"
   value = var.opensanctions_api_url
 }

@@ -13,14 +13,14 @@ resource "aws_kinesis_stream" "this" {
 }
 
 resource "aws_ssm_parameter" "stream_arn" {
-  name  = "/${var.complete_stack_name}/events/kinesis/stream-arn"
+  name  = "/${var.ssm_prefix}/events/kinesis/stream-arn"
   type      = "String"
   value     = aws_kinesis_stream.this.arn
   overwrite = true
 }
 
 resource "aws_ssm_parameter" "stream_name" {
-  name      = "/${var.complete_stack_name}/events/kinesis/stream-name"
+  name      = "/${var.ssm_prefix}/events/kinesis/stream-name"
   type      = "String"
   value     = aws_kinesis_stream.this.name
   overwrite = true

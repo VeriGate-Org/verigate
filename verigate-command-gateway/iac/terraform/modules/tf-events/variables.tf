@@ -3,6 +3,11 @@ variable "complete_stack_name" {
   type        = string
 }
 
+variable "ssm_prefix" {
+  description = "Prefix for SSM parameter paths (aligned with SAM stack name)"
+  type        = string
+}
+
 variable "event_bus_name" {
   description = "Name of the EventBridge event bus"
   type        = string

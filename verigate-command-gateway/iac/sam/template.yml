@@ -25,7 +25,7 @@ Parameters:
   KinesisStreamArn:
     Type: String
     Description: "The kinesis stream arn"
-    Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
+    Default: "{{resolve:ssm:/verigate/events/kinesis/stream-arn:1}}"
 
 Conditions:
   IsDevCondition:
@@ -251,7 +251,7 @@ Resources:
   VerifyPartyLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-party-router"
       Handler: verigate.verification.cg.infrastructure.functions.lambda.handlers.VerifyPartyCommandLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-command-gateway/verigate-command-gateway-infrastructure
@@ -277,7 +277,7 @@ Resources:
   VerifyBankAccountDetailsLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-bank-account-details"
       Handler: verigate.adapter.qlink.infrastructure.functions.lambda.handlers.VerifyBankAccountDetailsLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-qlink/verigate-adapter-qlink-infrastructure
@@ -285,7 +285,7 @@ Resources:
         Variables:
           VERIFY_BANK_ACCOUNT_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-qlink-imq"
           VERIFY_BANK_ACCOUNT_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-qlink-dlq"
-          QLINK_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/qlink/api_url}}"
+          QLINK_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/qlink/api_url}}"
       Events:
         VerigateVerifyBankAccountDetailsQueueCommand:
           Type: SQS
@@ -306,7 +306,7 @@ Resources:
   VerifyIdentityLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-identity"
       Handler: verigate.adapter.dha.infrastructure.functions.lambda.handlers.VerifyIdentityLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-dha/verigate-adapter-dha-infrastructure
@@ -314,15 +314,15 @@ Resources:
         Variables:
           VERIFY_IDENTITY_IMQ_NAME: !Sub "${AWS::StackName}-adapter-dha-imq"
           VERIFY_IDENTITY_DLQ_NAME: !Sub "${AWS::StackName}-adapter-dha-dlq"
-          DHA_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/dha/api_url}}"
+          DHA_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/dha/api_url}}"
           IDENTITY_VAULT_ENABLED: "false"
           IDENTITY_VAULT_TABLE_NAME: !Sub "${AWS::StackName}-verified-identities"
           IDENTITY_VAULT_FRESHNESS_DAYS: "90"
           HANIS_INTEGRATION_ENABLED: "false"
-          HANIS_SITE_ID: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/site_id:1}}"
-          HANIS_WORKSTATION_ID: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/workstation_id:1}}"
-          HANIS_PRIMARY_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/primary_url:1}}"
-          HANIS_FAILOVER_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/hanis/failover_url:1}}"
+          HANIS_SITE_ID: !Sub "{{resolve:ssm:/${AWS::StackName}/hanis/site_id:1}}"
+          HANIS_WORKSTATION_ID: !Sub "{{resolve:ssm:/${AWS::StackName}/hanis/workstation_id:1}}"
+          HANIS_PRIMARY_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/hanis/primary_url:1}}"
+          HANIS_FAILOVER_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/hanis/failover_url:1}}"
       Events:
         VerigateVerifyIdentityQueueCommand:
           Type: SQS
@@ -341,7 +341,7 @@ Resources:
   VerifyCompanyDetailsLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-company-details"
       Handler: verigate.adapter.cipc.infrastructure.functions.lambda.handlers.VerifyCompanyDetailsLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-cipc/verigate-adapter-cipc-infrastructure
@@ -349,7 +349,7 @@ Resources:
         Variables:
           VERIFY_COMPANY_DETAILS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-cipc-imq"
           VERIFY_COMPANY_DETAILS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-cipc-dlq"
-          CIPC_API_KEY: !Sub "{{resolve:ssm:/verigate-verification-cg/cipc/api_key}}"
+          CIPC_API_KEY: !Sub "{{resolve:ssm:/${AWS::StackName}/cipc/api_key}}"
       Events:
         VerigateVerifyCompanyDetailsQueueCommand:
           Type: SQS
@@ -368,7 +368,7 @@ Resources:
   VerifyPropertyOwnershipLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-property-ownership"
       Handler: verigate.adapter.deedsweb.infrastructure.functions.lambda.handlers.VerifyPropertyOwnershipLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure
@@ -376,7 +376,7 @@ Resources:
         Variables:
           VERIFY_PROPERTY_OWNERSHIP_IMQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-imq"
           VERIFY_PROPERTY_OWNERSHIP_DLQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-dlq"
-          DEEDSWEB_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/deedsweb/api_url}}"
+          DEEDSWEB_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/deedsweb/api_url}}"
       Events:
         VerigateVerifyPropertyOwnershipQueueCommand:
           Type: SQS
@@ -395,7 +395,7 @@ Resources:
   VerifyEmploymentLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-employment"
       Handler: verigate.adapter.employment.infrastructure.functions.lambda.handlers.VerifyEmploymentLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-employment/verigate-adapter-employment-infrastructure
@@ -403,7 +403,7 @@ Resources:
         Variables:
           VERIFY_EMPLOYMENT_IMQ_NAME: !Sub "${AWS::StackName}-adapter-employment-imq"
           VERIFY_EMPLOYMENT_DLQ_NAME: !Sub "${AWS::StackName}-adapter-employment-dlq"
-          EMPLOYMENT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/employment/api_url}}"
+          EMPLOYMENT_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/employment/api_url}}"
       Events:
         VerigateVerifyEmploymentQueueCommand:
           Type: SQS
@@ -422,7 +422,7 @@ Resources:
   ScreenNegativeNewsLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-screen-negative-news"
       Handler: verigate.adapter.negativenews.infrastructure.functions.lambda.handlers.ScreenNegativeNewsLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-negativenews/verigate-adapter-negativenews-infrastructure
@@ -430,7 +430,7 @@ Resources:
         Variables:
           SCREEN_NEGATIVE_NEWS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-imq"
           SCREEN_NEGATIVE_NEWS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-dlq"
-          NEGATIVENEWS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/negativenews/api_url}}"
+          NEGATIVENEWS_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/negativenews/api_url}}"
       Events:
         VerigateScreenNegativeNewsQueueCommand:
           Type: SQS
@@ -449,7 +449,7 @@ Resources:
   ScreenSanctionsLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-screen-sanctions"
       Handler: verigate.adapter.opensanctions.infrastructure.functions.lambda.handlers.ScreenSanctionsLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-opensanctions/verigate-adapter-opensanctions-infrastructure
@@ -457,7 +457,7 @@ Resources:
         Variables:
           SCREEN_SANCTIONS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-opensanctions-imq"
           SCREEN_SANCTIONS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-opensanctions-dlq"
-          OPENSANCTIONS_BASE_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/opensanctions/api_url}}"
+          OPENSANCTIONS_BASE_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/opensanctions/api_url}}"
       Events:
         VerigateScreenSanctionsQueueCommand:
           Type: SQS
@@ -476,7 +476,7 @@ Resources:
   ScreenFraudWatchlistLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-screen-fraud-watchlist"
       Handler: verigate.adapter.fraudwatchlist.infrastructure.functions.lambda.handlers.ScreenFraudWatchlistLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-fraudwatchlist/verigate-adapter-fraudwatchlist-infrastructure
@@ -484,7 +484,7 @@ Resources:
         Variables:
           SCREEN_FRAUD_WATCHLIST_IMQ_NAME: !Sub "${AWS::StackName}-adapter-fraudwatchlist-imq"
           SCREEN_FRAUD_WATCHLIST_DLQ_NAME: !Sub "${AWS::StackName}-adapter-fraudwatchlist-dlq"
-          FRAUDWATCHLIST_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/fraudwatchlist/api_url}}"
+          FRAUDWATCHLIST_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/fraudwatchlist/api_url}}"
       Events:
         VerigateScreenFraudWatchlistQueueCommand:
           Type: SQS
@@ -503,7 +503,7 @@ Resources:
   VerifyDocumentLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-document"
       MemorySize: 3008
       Handler: verigate.adapter.document.infrastructure.functions.lambda.handlers.VerifyDocumentLambdaHandler::handleRequest
@@ -512,7 +512,7 @@ Resources:
         Variables:
           VERIFY_DOCUMENT_IMQ_NAME: !Sub "${AWS::StackName}-adapter-document-imq"
           VERIFY_DOCUMENT_DLQ_NAME: !Sub "${AWS::StackName}-adapter-document-dlq"
-          DOCUMENT_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/document/api_url}}"
+          DOCUMENT_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/document/api_url}}"
           DOCUMENT_S3_BUCKET: !Sub "${AWS::StackName}-documents"
       Events:
         VerigateVerifyDocumentQueueCommand:
@@ -532,7 +532,7 @@ Resources:
   VerifyQualificationLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-qualification"
       Handler: verigate.adapter.saqa.infrastructure.functions.lambda.handlers.VerifyQualificationLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-saqa/verigate-adapter-saqa-infrastructure
@@ -540,7 +540,7 @@ Resources:
         Variables:
           VERIFY_QUALIFICATION_IMQ_NAME: !Sub "${AWS::StackName}-adapter-saqa-imq"
           VERIFY_QUALIFICATION_DLQ_NAME: !Sub "${AWS::StackName}-adapter-saqa-dlq"
-          SAQA_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/saqa/api_url}}"
+          SAQA_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/saqa/api_url}}"
       Events:
         VerigateVerifyQualificationQueueCommand:
           Type: SQS
@@ -559,7 +559,7 @@ Resources:
   PerformCreditCheckLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-perform-credit-check"
       Handler: verigate.adapter.creditbureau.infrastructure.functions.lambda.handlers.PerformCreditCheckLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-creditbureau/verigate-adapter-creditbureau-infrastructure
@@ -567,7 +567,7 @@ Resources:
         Variables:
           PERFORM_CREDIT_CHECK_IMQ_NAME: !Sub "${AWS::StackName}-adapter-creditbureau-imq"
           PERFORM_CREDIT_CHECK_DLQ_NAME: !Sub "${AWS::StackName}-adapter-creditbureau-dlq"
-          CREDITBUREAU_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/creditbureau/api_url}}"
+          CREDITBUREAU_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/creditbureau/api_url}}"
       Events:
         VerigatePerformCreditCheckQueueCommand:
           Type: SQS
@@ -586,7 +586,7 @@ Resources:
   VerifyTaxComplianceLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-tax-compliance"
       Handler: verigate.adapter.sars.infrastructure.functions.lambda.handlers.VerifyTaxComplianceLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-sars/verigate-adapter-sars-infrastructure
@@ -594,7 +594,7 @@ Resources:
         Variables:
           VERIFY_TAX_COMPLIANCE_IMQ_NAME: !Sub "${AWS::StackName}-adapter-sars-imq"
           VERIFY_TAX_COMPLIANCE_DLQ_NAME: !Sub "${AWS::StackName}-adapter-sars-dlq"
-          SARS_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/sars/api_url}}"
+          SARS_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/sars/api_url}}"
       Events:
         VerigateVerifyTaxComplianceQueueCommand:
           Type: SQS
@@ -613,7 +613,7 @@ Resources:
   VerifyIncomeLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-verify-income"
       Handler: verigate.adapter.income.infrastructure.functions.lambda.handlers.VerifyIncomeLambdaHandler::handleRequest
       CodeUri: ../../src/verigate-adapter-income/verigate-adapter-income-infrastructure
@@ -621,7 +621,7 @@ Resources:
         Variables:
           VERIFY_INCOME_IMQ_NAME: !Sub "${AWS::StackName}-adapter-income-imq"
           VERIFY_INCOME_DLQ_NAME: !Sub "${AWS::StackName}-adapter-income-dlq"
-          INCOME_API_URL: !Sub "{{resolve:ssm:/verigate-verification-cg/income/api_url}}"
+          INCOME_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/income/api_url}}"
       Events:
         VerigateVerifyIncomeQueueCommand:
           Type: SQS
@@ -641,7 +641,7 @@ Resources:
   CreatePartnerLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-create-partner"
       Handler: verigate.partner.infrastructure.functions.lambda.handlers.CreatePartnerLambdaHandler::handleRequest
       CodeUri: ../../../verigate-partner/src/verigate-partner/verigate-partner-infrastructure
@@ -669,7 +669,7 @@ Resources:
   UpdatePartnerConfigLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-update-partner-config"
       Handler: verigate.partner.infrastructure.functions.lambda.handlers.UpdatePartnerConfigLambdaHandler::handleRequest
       CodeUri: ../../../verigate-partner/src/verigate-partner/verigate-partner-infrastructure
@@ -698,7 +698,7 @@ Resources:
   UsageEventConsumerLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-usage-event-consumer"
       Handler: verigate.billing.infrastructure.functions.lambda.handlers.UsageEventConsumerLambdaHandler::handleRequest
       CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
@@ -718,7 +718,7 @@ Resources:
   UsageAggregatorLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-usage-aggregator"
       Handler: verigate.billing.infrastructure.functions.lambda.handlers.UsageAggregatorLambdaHandler::handleRequest
       CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
@@ -741,7 +741,7 @@ Resources:
   RiskEngineEventConsumerLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-risk-event-consumer"
       Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.RiskEngineEventConsumerLambdaHandler::handleRequest
       CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
@@ -761,7 +761,7 @@ Resources:
   WorkflowTimeoutLambdaHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !Sub "{{resolve:ssm:/application/iam-role/verigate-verification-cg-${EnvironmentShortname}/arn}}"
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
       FunctionName: !Sub "${AWS::StackName}-workflow-timeout"
       Handler: verigate.riskengine.infrastructure.functions.lambda.handlers.WorkflowTimeoutLambdaHandler::handleRequest
       CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
