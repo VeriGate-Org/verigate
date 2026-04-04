@@ -9,6 +9,10 @@ on:
       github-environment:
         required: true
         type: string
+      resource-prefix:
+        description: "Prefix for infrastructure resources (SQS, DynamoDB). Defaults to STACK_NAME if not set."
+        required: false
+        type: string
 
 jobs:
   smoke-test:
@@ -66,13 +70,13 @@ jobs:
 
       - name: Verify SQS queues exist
         run: |
-          STACK_NAME="${{ vars.STACK_NAME }}"
+          RESOURCE_PREFIX="${{ inputs.resource-prefix || vars.STACK_NAME }}"
           QUEUES=(
-            "${STACK_NAME}-verify-party"
-            "${STACK_NAME}-adapter-qlink"
-            "${STACK_NAME}-adapter-cipc"
-            "${STACK_NAME}-adapter-dha"
-            "${STACK_NAME}-adapter-deedsweb"
+            "${RESOURCE_PREFIX}-verify-party"
+            "${RESOURCE_PREFIX}-adapter-qlink"
+            "${RESOURCE_PREFIX}-adapter-cipc"
+            "${RESOURCE_PREFIX}-adapter-dha"
+            "${RESOURCE_PREFIX}-adapter-deedsweb"
           )
 
           for Q in "${QUEUES[@]}"; do
@@ -87,11 +91,11 @@ jobs:
 
       - name: Verify DynamoDB tables are active
         run: |
-          STACK_NAME="${{ vars.STACK_NAME }}"
+          RESOURCE_PREFIX="${{ inputs.resource-prefix || vars.STACK_NAME }}"
           TABLES=(
-            "${STACK_NAME}-command-store-table"
-            "${STACK_NAME}-partner-table"
-            "${STACK_NAME}-partner-configuration-table"
+            "${RESOURCE_PREFIX}-command-store-table"
+            "${RESOURCE_PREFIX}-partner-table"
+            "${RESOURCE_PREFIX}-partner-configuration-table"
           )
 
           for T in "${TABLES[@]}"; do

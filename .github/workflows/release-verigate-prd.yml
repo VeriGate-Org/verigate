@@ -52,6 +52,7 @@ jobs:
     with:
       environment: prod
       github-environment: verigate-prod
+      resource-prefix: verigate-verification-cg
     permissions:
       id-token: write
       contents: read

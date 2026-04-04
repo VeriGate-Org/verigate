@@ -69,6 +69,7 @@ jobs:
     with:
       environment: dev
       github-environment: verigate-dev
+      resource-prefix: verigate-verification-cg-dev
     permissions:
       id-token: write
       contents: read
