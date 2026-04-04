@@ -7,7 +7,7 @@ variable "environment_name" {
 
 # AWS
 variable "aws_region" {
-  default = "eu-west-1"
+  default = "af-south-1"
   type    = string
 }
 

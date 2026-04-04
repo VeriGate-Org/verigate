@@ -66,4 +66,4 @@ jobs:
             --no-fail-on-empty-changeset \
             --on-failure DELETE \
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-            --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${{ vars.ENVIRONMENT_SHORTNAME }}"
+            --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${{ vars.ENVIRONMENT_SHORTNAME }} ParameterKey=EnableCustomDomain,ParameterValue=${{ vars.ENABLE_CUSTOM_DOMAIN || 'false' }} ParameterKey=ApiDomainName,ParameterValue=${{ vars.API_DOMAIN_NAME || '' }}"

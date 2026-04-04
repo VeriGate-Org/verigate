@@ -85,7 +85,7 @@ jobs:
           GIT_HEAD_SHA=$(git rev-parse --short HEAD)
           echo "Git commit used for app version: ${GIT_HEAD_SHA}"
           sam deploy -t .aws-sam/build/template.yaml --stack-name=${STACK_NAME} --resolve-s3 \
-          --region=eu-west-1 --s3-prefix=${STACK_NAME} --no-confirm-changeset --no-fail-on-empty-changeset --on-failure DELETE \
+          --region=${AWS_REGION} --s3-prefix=${STACK_NAME} --no-confirm-changeset --no-fail-on-empty-changeset --on-failure DELETE \
           --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
           --parameter-overrides "ParameterKey=ApplicationVersion,ParameterValue=${GIT_HEAD_SHA} ParameterKey=EnvironmentShortname,ParameterValue=${ENVIRONMENT_SHORTNAME}"
         env:

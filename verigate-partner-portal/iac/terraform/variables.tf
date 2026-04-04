@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "eu-west-1"
+  default     = "af-south-1"
 }
 
 variable "environment_shortname" {
@@ -37,4 +37,10 @@ variable "enable_wildcard_subdomain" {
   description = "Enable wildcard subdomain support for whitelabelling"
   type        = bool
   default     = false
+}
+
+variable "acm_certificate_arn" {
+  description = "Pre-validated ACM certificate ARN (us-east-1). Skips cert creation when set."
+  type        = string
+  default     = ""
 }

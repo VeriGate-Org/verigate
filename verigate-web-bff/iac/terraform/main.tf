@@ -78,40 +78,6 @@ resource "aws_ssm_parameter" "lambda_role_arn" {
   name  = "/application/iam-role/${local.name_prefix}/arn"
   type  = "String"
   value = aws_iam_role.lambda.arn
-# Task Definition
-resource "aws_ecs_task_definition" "this" {
-  family                   = local.name_prefix
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = var.cpu
-  memory                   = var.memory
-  execution_role_arn       = aws_iam_role.task_execution.arn
-  task_role_arn            = aws_iam_role.task.arn
-
-  container_definitions = jsonencode([{
-    name  = "web-bff"
-    image = "${aws_ecr_repository.this.repository_url}:latest"
-
-    portMappings = [{
-      containerPort = var.container_port
-      protocol      = "tcp"
-    }]
-
-    environment = [
-      { name = "SPRING_PROFILES_ACTIVE", value = var.environment_shortname },
-      { name = "SERVER_PORT", value = tostring(var.container_port) },
-      { name = "VERIGATE_COGNITO_ENABLED", value = var.cognito_enabled }
-    ]
-
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-group"         = aws_cloudwatch_log_group.this.name
-        "awslogs-region"        = var.aws_region
-        "awslogs-stream-prefix" = "ecs"
-      }
-    }
-  }])
 }
 
 # CloudWatch Log Group for Lambda

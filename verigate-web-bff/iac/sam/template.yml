@@ -11,6 +11,19 @@ Parameters:
   ApplicationVersion:
     Type: String
     Default: "unknown"
+  ApiDomainName:
+    Type: String
+    Default: ""
+    Description: "Custom domain name for API Gateway (leave empty to skip mapping)"
+  EnableCustomDomain:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
+Conditions:
+  HasCustomDomain: !Equals [!Ref EnableCustomDomain, "true"]
 
 Globals:
   Function:
@@ -86,6 +99,14 @@ Resources:
           - OPTIONS
         AllowHeaders:
           - "*"
+
+  WebBffApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: HasCustomDomain
+    Properties:
+      ApiId: !Ref WebBffHttpApi
+      DomainName: !Ref ApiDomainName
+      Stage: $default
 
 Outputs:
   WebBffApiUrl:

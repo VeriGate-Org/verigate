@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "eu-west-1"
+  default     = "af-south-1"
 }
 
 variable "environment_shortname" {
@@ -43,4 +43,22 @@ variable "cognito_enabled" {
   description = "Enable Cognito authentication"
   type        = string
   default     = "false"
+}
+
+variable "enable_custom_domain" {
+  description = "Enable custom domain for API Gateway"
+  type        = bool
+  default     = false
+}
+
+variable "api_domain" {
+  description = "Custom domain name for API Gateway (e.g. api.dev.verigate.co.za)"
+  type        = string
+  default     = ""
+}
+
+variable "acm_certificate_arn" {
+  description = "Pre-validated ACM certificate ARN for the API domain (must be in the deploy region)"
+  type        = string
+  default     = ""
 }

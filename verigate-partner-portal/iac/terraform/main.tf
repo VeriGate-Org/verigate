@@ -3,8 +3,13 @@ locals {
 
   # Subdomain pattern: PROD uses root domain, non-PROD uses env subdomain
   # PROD: *.verigate.co.za   Non-PROD: *.dev.verigate.co.za
-  portal_domain = var.environment_shortname == "prod" ? var.root_domain : "${var.environment_shortname}.${var.root_domain}"
+  portal_domain   = var.environment_shortname == "prod" ? var.root_domain : "${var.environment_shortname}.${var.root_domain}"
   wildcard_domain = "*.${local.portal_domain}"
+
+  # Use external cert if provided, otherwise use terraform-managed cert
+  create_cert        = var.acm_certificate_arn == "" && var.enable_wildcard_subdomain
+  effective_cert_arn = var.acm_certificate_arn != "" ? var.acm_certificate_arn : (var.enable_wildcard_subdomain ? aws_acm_certificate.wildcard[0].arn : null)
+  has_custom_domain  = var.enable_wildcard_subdomain || var.acm_certificate_arn != ""
 }
 
 # ── S3 Bucket for static site ──────────────────────────────────────
@@ -41,7 +46,7 @@ resource "aws_cloudfront_origin_access_control" "website" {
 # ── ACM Certificate (wildcard, us-east-1 for CloudFront) ──────────
 
 resource "aws_acm_certificate" "wildcard" {
-  count    = var.enable_wildcard_subdomain ? 1 : 0
+  count    = local.create_cert ? 1 : 0
   provider = aws.us_east_1
 
   domain_name               = local.portal_domain
@@ -54,7 +59,7 @@ resource "aws_acm_certificate" "wildcard" {
 }
 
 resource "aws_route53_record" "cert_validation" {
-  for_each = var.enable_wildcard_subdomain && var.hosted_zone_id != "" ? {
+  for_each = local.create_cert && var.hosted_zone_id != "" ? {
     for dvo in aws_acm_certificate.wildcard[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
@@ -72,7 +77,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "wildcard" {
-  count    = var.enable_wildcard_subdomain && var.hosted_zone_id != "" ? 1 : 0
+  count    = local.create_cert && var.hosted_zone_id != "" ? 1 : 0
   provider = aws.us_east_1
 
   certificate_arn         = aws_acm_certificate.wildcard[0].arn
@@ -87,7 +92,7 @@ resource "aws_cloudfront_distribution" "website" {
   price_class         = "PriceClass_100"
 
   # Wildcard subdomain aliases
-  aliases = var.enable_wildcard_subdomain ? [local.portal_domain, local.wildcard_domain] : []
+  aliases = local.has_custom_domain ? [local.portal_domain, local.wildcard_domain] : []
 
   origin {
     domain_name              = aws_s3_bucket.website.bucket_regional_domain_name
@@ -104,7 +109,7 @@ resource "aws_cloudfront_distribution" "website" {
 
     forwarded_values {
       query_string = false
-      headers      = var.enable_wildcard_subdomain ? ["Host"] : []
+      headers      = local.has_custom_domain ? ["Host"] : []
       cookies {
         forward = "none"
       }
@@ -135,17 +140,17 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = var.enable_wildcard_subdomain ? false : true
-    acm_certificate_arn            = var.enable_wildcard_subdomain ? aws_acm_certificate.wildcard[0].arn : null
-    ssl_support_method             = var.enable_wildcard_subdomain ? "sni-only" : null
-    minimum_protocol_version       = var.enable_wildcard_subdomain ? "TLSv1.2_2021" : null
+    cloudfront_default_certificate = local.has_custom_domain ? false : true
+    acm_certificate_arn            = local.effective_cert_arn
+    ssl_support_method             = local.has_custom_domain ? "sni-only" : null
+    minimum_protocol_version       = local.has_custom_domain ? "TLSv1.2_2021" : null
   }
 }
 
 # ── Route 53 DNS Records ──────────────────────────────────────────
 
 resource "aws_route53_record" "portal" {
-  count   = var.enable_wildcard_subdomain && var.hosted_zone_id != "" ? 1 : 0
+  count   = local.has_custom_domain && var.hosted_zone_id != "" ? 1 : 0
   zone_id = var.hosted_zone_id
   name    = local.portal_domain
   type    = "A"
@@ -158,7 +163,7 @@ resource "aws_route53_record" "portal" {
 }
 
 resource "aws_route53_record" "wildcard" {
-  count   = var.enable_wildcard_subdomain && var.hosted_zone_id != "" ? 1 : 0
+  count   = local.has_custom_domain && var.hosted_zone_id != "" ? 1 : 0
   zone_id = var.hosted_zone_id
   name    = local.wildcard_domain
   type    = "A"
