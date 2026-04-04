@@ -171,6 +171,109 @@ variable "opensanctions_api_url" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# DHA
+#----------------------------------------------------------------------------------------------------------------
+
+variable "dha_api_url" {
+  description = "DHA API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "hanis_site_id" {
+  description = "HANIS site ID"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "hanis_workstation_id" {
+  description = "HANIS workstation ID"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "hanis_primary_url" {
+  description = "HANIS primary URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "hanis_failover_url" {
+  description = "HANIS failover URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# CIPC
+#----------------------------------------------------------------------------------------------------------------
+
+variable "cipc_api_key" {
+  description = "CIPC API key"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Adapter API URLs
+#----------------------------------------------------------------------------------------------------------------
+
+variable "deedsweb_api_url" {
+  description = "Deedsweb API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "employment_api_url" {
+  description = "Employment verification API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "negativenews_api_url" {
+  description = "Negative news screening API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "fraudwatchlist_api_url" {
+  description = "Fraud watchlist screening API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "document_api_url" {
+  description = "Document verification API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "saqa_api_url" {
+  description = "SAQA qualification verification API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "creditbureau_api_url" {
+  description = "Credit bureau API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "sars_api_url" {
+  description = "SARS tax compliance API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "income_api_url" {
+  description = "Income verification API URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Datadog
 #----------------------------------------------------------------------------------------------------------------
 variable "datadog_monitor_notify_all" {

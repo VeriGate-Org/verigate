@@ -342,7 +342,7 @@ module "lambda_iam" {
   policy_name         = "${local.complete_stack_name}-lambda-policy"
   policy_description  = "Policy for ${local.complete_stack_name} Lambda functions"
   complete_stack_name = local.complete_stack_name
-  ssm_prefix          = local.ssm_prefix
+  ssm_prefix          = "${local.ssm_prefix}-${var.environment_shortname}"
 
   assume_role_policy = file("./policies/lambda_assume_role_verification.json")
 
@@ -354,17 +354,6 @@ module "lambda_iam" {
     account_id = data.aws_caller_identity.current.account_id
   }
 
-}
-
-# In PROD, the tf-iam module creates the SSM parameter at
-# /application/iam-role/verigate/arn, but the SAM template resolves
-# /application/iam-role/verigate-prod/arn. This alias bridges the gap.
-resource "aws_ssm_parameter" "lambda_role_arn_prod_alias" {
-  count     = var.environment_shortname == "prod" ? 1 : 0
-  name      = "/application/iam-role/${local.ssm_prefix}-${var.environment_shortname}/arn"
-  type      = "String"
-  value     = module.lambda_iam.role_arn
-  overwrite = true
 }
 
 #----------------------------------------------------------------------------------------------------------------
@@ -1005,6 +994,108 @@ resource "aws_ssm_parameter" "opensanctions_api_url" {
   name  = "/${local.ssm_prefix}/opensanctions/api_url"
   type  = "String"
   value = var.opensanctions_api_url
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# DHA / HANIS
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "dha_api_url" {
+  name  = "/${local.ssm_prefix}/dha/api_url"
+  type  = "String"
+  value = var.dha_api_url
+}
+
+resource "aws_ssm_parameter" "hanis_site_id" {
+  name  = "/${local.ssm_prefix}/hanis/site_id"
+  type  = "String"
+  value = var.hanis_site_id
+}
+
+resource "aws_ssm_parameter" "hanis_workstation_id" {
+  name  = "/${local.ssm_prefix}/hanis/workstation_id"
+  type  = "String"
+  value = var.hanis_workstation_id
+}
+
+resource "aws_ssm_parameter" "hanis_primary_url" {
+  name  = "/${local.ssm_prefix}/hanis/primary_url"
+  type  = "String"
+  value = var.hanis_primary_url
+}
+
+resource "aws_ssm_parameter" "hanis_failover_url" {
+  name  = "/${local.ssm_prefix}/hanis/failover_url"
+  type  = "String"
+  value = var.hanis_failover_url
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# CIPC
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "cipc_api_key" {
+  name  = "/${local.ssm_prefix}/cipc/api_key"
+  type  = "String"
+  value = var.cipc_api_key
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Adapter API URLs
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "deedsweb_api_url" {
+  name  = "/${local.ssm_prefix}/deedsweb/api_url"
+  type  = "String"
+  value = var.deedsweb_api_url
+}
+
+resource "aws_ssm_parameter" "employment_api_url" {
+  name  = "/${local.ssm_prefix}/employment/api_url"
+  type  = "String"
+  value = var.employment_api_url
+}
+
+resource "aws_ssm_parameter" "negativenews_api_url" {
+  name  = "/${local.ssm_prefix}/negativenews/api_url"
+  type  = "String"
+  value = var.negativenews_api_url
+}
+
+resource "aws_ssm_parameter" "fraudwatchlist_api_url" {
+  name  = "/${local.ssm_prefix}/fraudwatchlist/api_url"
+  type  = "String"
+  value = var.fraudwatchlist_api_url
+}
+
+resource "aws_ssm_parameter" "document_api_url" {
+  name  = "/${local.ssm_prefix}/document/api_url"
+  type  = "String"
+  value = var.document_api_url
+}
+
+resource "aws_ssm_parameter" "saqa_api_url" {
+  name  = "/${local.ssm_prefix}/saqa/api_url"
+  type  = "String"
+  value = var.saqa_api_url
+}
+
+resource "aws_ssm_parameter" "creditbureau_api_url" {
+  name  = "/${local.ssm_prefix}/creditbureau/api_url"
+  type  = "String"
+  value = var.creditbureau_api_url
+}
+
+resource "aws_ssm_parameter" "sars_api_url" {
+  name  = "/${local.ssm_prefix}/sars/api_url"
+  type  = "String"
+  value = var.sars_api_url
+}
+
+resource "aws_ssm_parameter" "income_api_url" {
+  name  = "/${local.ssm_prefix}/income/api_url"
+  type  = "String"
+  value = var.income_api_url
 }
 
 #----------------------------------------------------------------------------------------------------------------
