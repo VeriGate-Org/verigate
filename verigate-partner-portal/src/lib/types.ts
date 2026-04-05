@@ -47,6 +47,10 @@ export interface Verification {
   startedAt: string;
   completedAt?: string;
   durationMs?: number;
+  aiRiskAnalysis?: {
+    reasoning: string;
+    confidenceAdjustment?: number;
+  };
 }
 
 export interface VerificationEvent {

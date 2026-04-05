@@ -102,7 +102,7 @@ export default function AiChatSidebar() {
           }
         }
       }
-    } catch (error) {
+    } catch {
       setMessages((prev) => {
         const updated = [...prev];
         const lastMsg = updated[updated.length - 1];
