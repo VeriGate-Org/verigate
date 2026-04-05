@@ -1,10 +1,9 @@
 import VerificationDetail from "./VerificationDetail.client";
 
-interface Props {
-  params: Promise<{ correlationId: string }>;
+export async function generateStaticParams() {
+  return [{ correlationId: "_" }];
 }
 
-export default async function VerificationDetailPage({ params }: Props) {
-  const { correlationId } = await params;
-  return <VerificationDetail correlationId={correlationId} />;
+export default function VerificationDetailPage() {
+  return <VerificationDetail />;
 }

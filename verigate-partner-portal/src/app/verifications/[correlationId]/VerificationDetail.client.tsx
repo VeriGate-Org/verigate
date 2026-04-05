@@ -1,16 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { ArrowLeft, Clock, CheckCircle2, XCircle, AlertTriangle, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { useVerificationDetail } from "@/lib/hooks/useVerification";
 import type { VerificationStatus, VerificationEvent } from "@/lib/types";
 
-interface Props {
-  correlationId: string;
-}
-
-export default function VerificationDetail({ correlationId }: Props) {
+export default function VerificationDetail() {
+  const { correlationId } = useParams<{ correlationId: string }>();
   const { data, isLoading, error, refetch } = useVerificationDetail(correlationId);
 
   if (isLoading) {

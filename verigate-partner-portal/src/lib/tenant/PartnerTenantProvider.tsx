@@ -15,6 +15,7 @@ import {
 } from "@/lib/tenant-features";
 import type { TenantBranding } from "@/lib/types/tenant-branding";
 import { darken, lighten, withOpacity } from "@/lib/utils/color";
+import { config } from "@/lib/config";
 
 interface TenantFeatureContextValue {
   profile: BffProfileResponse;
@@ -122,7 +123,11 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
 
     if (!slug) return;
 
-    fetch(`/api/tenant/${slug}`)
+    const bffUrl = config.bffBaseUrl;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (config.bffApiKey) headers["X-API-Key"] = config.bffApiKey;
+
+    fetch(`${bffUrl}/api/public/tenant/${slug}`, { headers })
       .then((res) => (res.ok ? res.json() : null))
       .then((data: TenantBranding | null) => {
         if (data) {
