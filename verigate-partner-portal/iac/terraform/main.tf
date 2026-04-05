@@ -109,7 +109,7 @@ resource "aws_cloudfront_distribution" "website" {
 
     forwarded_values {
       query_string = false
-      headers      = local.has_custom_domain ? ["Host"] : []
+      headers      = []
       cookies {
         forward = "none"
       }
