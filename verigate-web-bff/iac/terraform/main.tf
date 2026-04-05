@@ -68,6 +68,14 @@ resource "aws_iam_role_policy" "lambda" {
           "cognito-idp:*"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/us.anthropic.claude-sonnet-4-5-*"
       }
     ]
   })

@@ -24,6 +24,9 @@
         <module>src/verigate-adapter-creditbureau</module>
         <module>src/verigate-adapter-sars</module>
         <module>src/verigate-adapter-income</module>
+        <module>src/verigate-ai-common</module>
+        <module>src/verigate-ai-risk-signal</module>
+        <module>src/verigate-fraud-detector</module>
     </modules>
 
     <properties>

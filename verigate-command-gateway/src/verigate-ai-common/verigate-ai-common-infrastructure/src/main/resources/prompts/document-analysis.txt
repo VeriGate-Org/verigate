@@ -1,0 +1,30 @@
+Analyze this identity document image. Extract all visible text fields and assess document authenticity.
+
+Expected document holder: ${expectedName}
+Expected ID number: ${expectedIdNumber}
+Document type: ${documentType}
+
+Tasks:
+1. EXTRACT all visible text fields (name, ID number, date of birth, address, document number, expiry date, issue date, nationality)
+2. ASSESS document authenticity by examining: font consistency, layout alignment, visual quality, presence of security features
+3. CROSS-VALIDATE extracted fields against expected values
+
+Respond in JSON only, no other text:
+{
+  "extractedFields": {
+    "fullName": "extracted name or null",
+    "idNumber": "extracted ID number or null",
+    "dateOfBirth": "extracted DOB or null",
+    "address": "extracted address or null",
+    "documentNumber": "extracted document number or null",
+    "expiryDate": "extracted expiry date or null",
+    "issueDate": "extracted issue date or null",
+    "nationality": "extracted nationality or null"
+  },
+  "crossValidation": {
+    "fullName": "MATCH" | "MISMATCH" | "NOT_FOUND",
+    "idNumber": "MATCH" | "MISMATCH" | "NOT_FOUND"
+  },
+  "authenticityScore": 0.0-1.0,
+  "anomalies": ["description of any detected issue"]
+}

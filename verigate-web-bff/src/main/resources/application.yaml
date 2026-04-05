@@ -61,6 +61,9 @@ verigate:
   monitoring:
     subjects-table-name: ${VERIGATE_MONITORING_SUBJECTS_TABLE:monitored-subjects}
     alerts-table-name: ${VERIGATE_MONITORING_ALERTS_TABLE:monitoring-alerts}
+  ai:
+    risk-enhancement:
+      table-name: ${VERIGATE_AI_RISK_ENHANCEMENT_TABLE:ai-risk-enhancements}
   risk:
     assessment:
       table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}

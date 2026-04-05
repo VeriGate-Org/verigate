@@ -40,11 +40,16 @@ import infrastructure.secrets.AwsSecretManager;
 import infrastructure.secrets.SecretManager;
 import java.time.Duration;
 import java.util.Set;
+import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.glue.GlueClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.adapter.negativenews.application.handlers.DefaultScreenNegativeNewsCommandHandler;
+import verigate.adapter.negativenews.infrastructure.services.AiSentimentClassifier;
+import verigate.ai.common.domain.services.AiService;
+import verigate.ai.common.infrastructure.bedrock.BedrockAiService;
+import verigate.ai.common.infrastructure.bedrock.BedrockClientFactory;
 import verigate.adapter.negativenews.domain.services.NegativeNewsScreeningService;
 import verigate.adapter.negativenews.infrastructure.config.NegativeNewsApiConfiguration;
 import verigate.adapter.negativenews.infrastructure.http.NegativeNewsApiAdapter;
@@ -182,8 +187,29 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
-  private NegativeNewsDtoMapper provideNegativeNewsDtoMapper() {
-    return new NegativeNewsDtoMapper();
+  private BedrockRuntimeClient provideBedrockRuntimeClient() {
+    String region = System.getenv("BEDROCK_REGION");
+    return BedrockClientFactory.create(region != null ? region : "us-east-1");
+  }
+
+  @Provides
+  @Singleton
+  private AiService provideAiService(BedrockRuntimeClient bedrockClient) {
+    String modelId = System.getenv("BEDROCK_MODEL_ID");
+    return new BedrockAiService(bedrockClient, modelId);
+  }
+
+  @Provides
+  @Singleton
+  private AiSentimentClassifier provideAiSentimentClassifier(AiService aiService) {
+    return new AiSentimentClassifier(aiService);
+  }
+
+  @Provides
+  @Singleton
+  private NegativeNewsDtoMapper provideNegativeNewsDtoMapper(
+      AiSentimentClassifier aiSentimentClassifier) {
+    return new NegativeNewsDtoMapper(aiSentimentClassifier);
   }
 
   @Provides

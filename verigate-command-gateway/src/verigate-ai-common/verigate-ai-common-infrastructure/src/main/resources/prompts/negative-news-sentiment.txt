@@ -1,0 +1,24 @@
+Analyze this news article for adverse sentiment about the subject "${subjectName}".
+
+Title: ${title}
+Description: ${description}
+
+Respond in JSON only, no other text:
+{
+  "sentiment": "HIGHLY_NEGATIVE" | "NEGATIVE" | "NEUTRAL" | "POSITIVE",
+  "relevanceScore": 0.0-1.0,
+  "reasoning": "one sentence explanation",
+  "subjectRole": "PERPETRATOR" | "VICTIM" | "BYSTANDER" | "UNRELATED"
+}
+
+Classification rules:
+- HIGHLY_NEGATIVE: subject is accused/convicted of serious crimes (fraud, corruption, terrorism, money laundering)
+- NEGATIVE: subject is involved in lawsuits, investigations, regulatory actions, scandals
+- NEUTRAL: subject mentioned but not in adverse context, or article is about prevention/positive context
+- POSITIVE: subject mentioned in positive/philanthropic context
+
+Subject role rules:
+- PERPETRATOR: subject is the alleged or confirmed wrongdoer
+- VICTIM: subject is the victim of wrongdoing
+- BYSTANDER: subject is mentioned incidentally
+- UNRELATED: article is not about this specific person/entity

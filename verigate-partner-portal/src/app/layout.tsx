@@ -5,6 +5,7 @@ import QueryProvider from "@/components/QueryProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AppShell from "@/components/AppShell";
+import AiChatSidebar from "@/components/ai/AiChatSidebar.client";
 
 export const metadata: Metadata = {
   title: "VeriGate Partner Portal",
@@ -33,6 +34,7 @@ export default function RootLayout({
             <ToastProvider>
               <ErrorBoundary>
                 <AppShell>{children}</AppShell>
+                <AiChatSidebar />
               </ErrorBoundary>
             </ToastProvider>
           </QueryProvider>

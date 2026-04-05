@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import { ArrowLeft, MessageSquare, Clock } from "lucide-react";
+import CaseSummaryCard from "@/components/ai/CaseSummaryCard.client";
 
 const STATUS_STYLES: Record<string, string> = {
   OPEN: "bg-blue-500/10 text-blue-600 border-blue-500/20",
@@ -101,6 +102,9 @@ export default function CaseDetail() {
               </div>
             </div>
           </div>
+
+          {/* AI Analysis */}
+          <CaseSummaryCard caseId={params.caseId} />
 
           {/* Risk Card */}
           <div className="console-card">

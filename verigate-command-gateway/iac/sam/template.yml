@@ -432,6 +432,8 @@ Resources:
           SCREEN_NEGATIVE_NEWS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-dlq"
           NEGATIVENEWS_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/negativenews/api_url}}"
           NEGATIVENEWS_API_KEY: !Sub "{{resolve:ssm:/${AWS::StackName}/negativenews/api_key}}"
+          BEDROCK_MODEL_ID: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+          BEDROCK_REGION: "us-east-1"
       Events:
         VerigateScreenNegativeNewsQueueCommand:
           Type: SQS
@@ -515,6 +517,8 @@ Resources:
           VERIFY_DOCUMENT_DLQ_NAME: !Sub "${AWS::StackName}-adapter-document-dlq"
           DOCUMENT_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/document/api_url}}"
           DOCUMENT_S3_BUCKET: !Sub "${AWS::StackName}-documents"
+          BEDROCK_MODEL_ID: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+          BEDROCK_REGION: "us-east-1"
       Events:
         VerigateVerifyDocumentQueueCommand:
           Type: SQS
@@ -780,3 +784,49 @@ Resources:
             RetryPolicy:
               MaximumEventAgeInSeconds: 300
               MaximumRetryAttempts: 1
+
+  ## AI Risk Signal Lambda
+  AiRiskSignalHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-ai-risk-signal"
+      Handler: verigate.ai.risksignal.infrastructure.functions.lambda.handlers.AiRiskSignalLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-ai-risk-signal/verigate-ai-risk-signal-infrastructure
+      Environment:
+        Variables:
+          BEDROCK_MODEL_ID: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+          BEDROCK_REGION: "us-east-1"
+          AI_RISK_ENHANCEMENTS_TABLE_NAME: !Sub "${AWS::StackName}-ai-risk-enhancements"
+          RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
+          VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
+      Events:
+        KinesisAiRiskEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100
+
+  ## Fraud Pattern Detector Lambda
+  FraudPatternDetectorHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-fraud-pattern-detector"
+      Handler: verigate.fraud.detector.infrastructure.functions.lambda.handlers.FraudPatternDetectorLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-fraud-detector/verigate-fraud-detector-infrastructure
+      Environment:
+        Variables:
+          BEDROCK_MODEL_ID: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+          BEDROCK_REGION: "us-east-1"
+          FRAUD_VELOCITY_TABLE_NAME: !Sub "${AWS::StackName}-fraud-velocity"
+          FRAUD_PATTERNS_TABLE_NAME: !Sub "${AWS::StackName}-fraud-patterns"
+          MONITORING_ALERTS_TABLE_NAME: !Sub "${AWS::StackName}-monitoring-alerts"
+      Events:
+        KinesisFraudEvent:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100

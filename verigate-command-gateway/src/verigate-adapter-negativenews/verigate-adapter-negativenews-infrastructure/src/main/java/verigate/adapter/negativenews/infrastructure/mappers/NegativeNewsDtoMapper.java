@@ -22,10 +22,12 @@ import verigate.adapter.negativenews.domain.models.ScreeningOutcome;
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchRequestDto;
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchResponseDto;
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchResponseDto.NewsApiArticleDto;
+import verigate.adapter.negativenews.infrastructure.services.AiSentimentClassifier;
+import verigate.adapter.negativenews.infrastructure.services.AiSentimentClassifier.SentimentResult;
 
 /**
- * Mapper for converting between NewsAPI DTOs and domain models. Performs keyword-based sentiment
- * classification on raw articles from NewsAPI.
+ * Mapper for converting between NewsAPI DTOs and domain models. Uses AI-powered sentiment
+ * classification with fallback to keyword-based classification on failure.
  */
 public class NegativeNewsDtoMapper {
 
@@ -38,6 +40,10 @@ public class NegativeNewsDtoMapper {
   private static final String STANDARD_ADVERSE_TERMS =
       "fraud OR scandal OR lawsuit OR corruption OR criminal OR sanctions";
 
+  private final AiSentimentClassifier aiSentimentClassifier;
+
+  private String currentSubjectName;
+
   // Date formatters for parsing NewsAPI dates and generating query dates
   private static final DateTimeFormatter[] DATE_FORMATTERS = {
       DateTimeFormatter.ofPattern("yyyy-MM-dd"),
@@ -48,6 +54,14 @@ public class NegativeNewsDtoMapper {
       DateTimeFormatter.ISO_OFFSET_DATE_TIME,
       DateTimeFormatter.ISO_INSTANT
   };
+
+  public NegativeNewsDtoMapper(AiSentimentClassifier aiSentimentClassifier) {
+    this.aiSentimentClassifier = aiSentimentClassifier;
+  }
+
+  public NegativeNewsDtoMapper() {
+    this.aiSentimentClassifier = null;
+  }
 
   /**
    * Maps a domain screening request to a NewsAPI request DTO.
@@ -60,6 +74,7 @@ public class NegativeNewsDtoMapper {
       return null;
     }
 
+    this.currentSubjectName = request.subjectName();
     String query = buildSearchQuery(request);
     String from = LocalDate.now()
         .minusMonths(request.dateRangeMonths())
@@ -150,6 +165,7 @@ public class NegativeNewsDtoMapper {
 
     return articleDtos.stream()
         .map(this::mapToNewsArticle)
+        .filter(article -> article != null)
         .collect(Collectors.toList());
   }
 
@@ -158,9 +174,39 @@ public class NegativeNewsDtoMapper {
       return null;
     }
 
-    String combinedText = buildCombinedText(dto);
-    ArticleSentiment sentiment = classifySentiment(combinedText);
-    double relevanceScore = computeRelevanceScore(sentiment);
+    ArticleSentiment sentiment;
+    double relevanceScore;
+
+    // Try AI classification first, fall back to keyword-based
+    if (aiSentimentClassifier != null) {
+      try {
+        SentimentResult aiResult = aiSentimentClassifier.classify(
+            dto.title(), dto.description(), currentSubjectName);
+
+        // Filter out articles where subject is unrelated
+        if ("UNRELATED".equals(aiResult.subjectRole())) {
+          logger.debug("AI classified article as UNRELATED, filtering: {}", dto.title());
+          return null;
+        }
+
+        sentiment = aiResult.sentiment();
+        relevanceScore = aiResult.relevanceScore();
+        logger.debug("AI sentiment for '{}': {} (score={}, role={})",
+            dto.title(), sentiment, relevanceScore, aiResult.subjectRole());
+
+      } catch (Exception e) {
+        logger.warn("AI classification failed for '{}', using keyword fallback: {}",
+            dto.title(), e.getMessage());
+        String combinedText = buildCombinedText(dto);
+        sentiment = classifySentiment(combinedText);
+        relevanceScore = computeRelevanceScore(sentiment);
+      }
+    } else {
+      String combinedText = buildCombinedText(dto);
+      sentiment = classifySentiment(combinedText);
+      relevanceScore = computeRelevanceScore(sentiment);
+    }
+
     String sourceName = dto.source() != null ? dto.source().name() : null;
     String snippet = dto.description() != null ? dto.description() : dto.content();
 

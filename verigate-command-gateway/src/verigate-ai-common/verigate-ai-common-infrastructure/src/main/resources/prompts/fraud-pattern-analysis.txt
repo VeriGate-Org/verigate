@@ -1,0 +1,22 @@
+Analyze the following verification submission pattern for potential fraud.
+
+Identifier (hashed): ${identifierHash}
+Submissions in last 24 hours: ${submissionCount}
+Unique partners: ${uniquePartnerCount}
+Submission details:
+${submissionsJson}
+
+Respond in JSON only, no other text:
+{
+  "patternType": "VELOCITY_ATTACK" | "MULTI_PARTNER_ABUSE" | "SYNTHETIC_IDENTITY" | "IDENTITY_THEFT" | "NORMAL",
+  "severity": "HIGH" | "MEDIUM" | "LOW",
+  "description": "human-readable description of the detected pattern",
+  "recommendedAction": "BLOCK" | "FLAG_FOR_REVIEW" | "MONITOR" | "NONE"
+}
+
+Detection guidelines:
+- VELOCITY_ATTACK: Same identifier submitted many times in a short window, often with automated patterns
+- MULTI_PARTNER_ABUSE: Same identifier used across multiple unrelated partners simultaneously
+- SYNTHETIC_IDENTITY: Conflicting personal details across submissions for the same identifier
+- IDENTITY_THEFT: Legitimate identifier being used with different personal details than expected
+- NORMAL: Legitimate re-verification or expected multi-partner usage

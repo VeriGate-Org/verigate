@@ -43,6 +43,7 @@ import java.util.Set;
 import software.amazon.awssdk.services.glue.GlueClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.adapter.document.application.handlers.DefaultVerifyDocumentCommandHandler;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
@@ -50,7 +51,10 @@ import verigate.adapter.document.infrastructure.config.DocumentApiConfiguration;
 import verigate.adapter.document.infrastructure.http.DocumentApiAdapter;
 import verigate.adapter.document.infrastructure.http.DocumentHttpAdapter;
 import verigate.adapter.document.infrastructure.mappers.DocumentDtoMapper;
+import verigate.adapter.document.infrastructure.services.AiDocumentAnalyzer;
 import verigate.adapter.document.infrastructure.services.DefaultDocumentVerificationService;
+import verigate.ai.common.infrastructure.bedrock.BedrockClientFactory;
+import verigate.ai.common.infrastructure.bedrock.BedrockVisionService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.factories.VerificationEventFactory;
@@ -188,9 +192,30 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private BedrockRuntimeClient provideBedrockRuntimeClient() {
+    String region = System.getenv("BEDROCK_REGION");
+    return BedrockClientFactory.create(region != null ? region : "us-east-1");
+  }
+
+  @Provides
+  @Singleton
+  private BedrockVisionService provideBedrockVisionService(BedrockRuntimeClient bedrockClient) {
+    String modelId = System.getenv("BEDROCK_MODEL_ID");
+    return new BedrockVisionService(bedrockClient, modelId);
+  }
+
+  @Provides
+  @Singleton
+  private AiDocumentAnalyzer provideAiDocumentAnalyzer(BedrockVisionService visionService) {
+    return new AiDocumentAnalyzer(visionService);
+  }
+
+  @Provides
+  @Singleton
   private DefaultDocumentVerificationService provideDocumentVerificationService(
-      DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper) {
-    return new DefaultDocumentVerificationService(apiAdapter, dtoMapper);
+      DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
+      AiDocumentAnalyzer aiDocumentAnalyzer) {
+    return new DefaultDocumentVerificationService(apiAdapter, dtoMapper, aiDocumentAnalyzer);
   }
 
   @Provides

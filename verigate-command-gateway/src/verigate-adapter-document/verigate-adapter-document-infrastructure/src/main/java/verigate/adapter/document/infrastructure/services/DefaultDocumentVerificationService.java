@@ -29,11 +29,19 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
 
   private final DocumentApiAdapter apiAdapter;
   private final DocumentDtoMapper dtoMapper;
+  private final AiDocumentAnalyzer aiDocumentAnalyzer;
+
+  public DefaultDocumentVerificationService(
+      DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
+      AiDocumentAnalyzer aiDocumentAnalyzer) {
+    this.apiAdapter = apiAdapter;
+    this.dtoMapper = dtoMapper;
+    this.aiDocumentAnalyzer = aiDocumentAnalyzer;
+  }
 
   public DefaultDocumentVerificationService(
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper) {
-    this.apiAdapter = apiAdapter;
-    this.dtoMapper = dtoMapper;
+    this(apiAdapter, dtoMapper, null);
   }
 
   @Override
@@ -74,6 +82,41 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
           e.getMessage(),
           e);
       return DocumentVerificationResponse.error("Unexpected error: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Performs AI-powered document analysis on raw image bytes. This is separate from the main
+   * verification flow because image bytes must be fetched from S3 by the caller.
+   *
+   * @param imageBytes the raw image bytes
+   * @param mediaType the image media type (e.g., "image/jpeg")
+   * @param request the original verification request for cross-validation
+   * @return the AI analysis result, or null if analyzer is not available
+   */
+  public AiDocumentAnalyzer.DocumentAnalysisResult analyzeWithAi(
+      byte[] imageBytes, String mediaType, DocumentVerificationRequest request) {
+    if (aiDocumentAnalyzer == null) {
+      return null;
+    }
+
+    try {
+      AiDocumentAnalyzer.DocumentAnalysisResult aiResult =
+          aiDocumentAnalyzer.analyze(
+              imageBytes,
+              mediaType != null ? mediaType : "image/jpeg",
+              request.subjectName(),
+              request.subjectIdNumber(),
+              request.documentType().name());
+
+      logger.info("AI document analysis: authenticityScore={}, anomalies={}",
+          aiResult.authenticityScore(), aiResult.anomalies().size());
+
+      return aiResult;
+
+    } catch (Exception e) {
+      logger.warn("AI document analysis failed (non-blocking): {}", e.getMessage());
+      return null;
     }
   }
 }
