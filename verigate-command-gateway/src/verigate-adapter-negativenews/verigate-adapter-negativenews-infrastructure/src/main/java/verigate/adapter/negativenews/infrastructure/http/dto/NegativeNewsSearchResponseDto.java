@@ -7,34 +7,41 @@
 package verigate.adapter.negativenews.infrastructure.http.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * DTO for Negative News search API response.
+ * DTO for NewsAPI search response.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record NegativeNewsSearchResponseDto(
-    @JsonProperty("outcome") String outcome,
-    @JsonProperty("articles") List<NegativeNewsArticleDto> articles,
-    @JsonProperty("total_articles_found") int totalArticlesFound,
-    @JsonProperty("adverse_articles_count") int adverseArticlesCount,
-    @JsonProperty("highest_severity_score") double highestSeverityScore,
-    @JsonProperty("screening_summary") String screeningSummary
+    String status,
+    int totalResults,
+    List<NewsApiArticleDto> articles
 ) {
 
   /**
-   * DTO for an individual news article in the response.
+   * DTO for an individual news article from the NewsAPI response.
    */
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record NegativeNewsArticleDto(
-      @JsonProperty("title") String title,
-      @JsonProperty("source") String source,
-      @JsonProperty("published_date") String publishedDate,
-      @JsonProperty("url") String url,
-      @JsonProperty("snippet") String snippet,
-      @JsonProperty("sentiment") String sentiment,
-      @JsonProperty("relevance_score") double relevanceScore
+  public record NewsApiArticleDto(
+      NewsApiSourceDto source,
+      String author,
+      String title,
+      String description,
+      String url,
+      String urlToImage,
+      String publishedAt,
+      String content
+  ) {
+  }
+
+  /**
+   * DTO for the source of a news article.
+   */
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record NewsApiSourceDto(
+      String id,
+      String name
   ) {
   }
 }

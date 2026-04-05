@@ -169,16 +169,15 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
-  private NegativeNewsHttpAdapter provideNegativeNewsHttpAdapter(
-      Environment environment, ObjectMapper objectMapper) {
-    return new NegativeNewsHttpAdapter(environment, objectMapper);
+  private NegativeNewsHttpAdapter provideNegativeNewsHttpAdapter(ObjectMapper objectMapper) {
+    return new NegativeNewsHttpAdapter(objectMapper);
   }
 
   @Provides
   @Singleton
   private NegativeNewsApiAdapter provideNegativeNewsApiAdapter(
-      NegativeNewsHttpAdapter httpAdapter) {
-    return new NegativeNewsApiAdapter(httpAdapter);
+      NegativeNewsHttpAdapter httpAdapter, Environment environment) {
+    return new NegativeNewsApiAdapter(httpAdapter, environment);
   }
 
   @Provides

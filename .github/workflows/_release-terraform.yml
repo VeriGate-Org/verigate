@@ -55,3 +55,4 @@ jobs:
           TF_VAR_worldcheck_user_id: ${{ secrets.WORLDCHECK_USER_ID }}
           TF_VAR_worldcheck_default_group_id: ${{ secrets.WORLDCHECK_DEFAULT_GROUP_ID }}
           TF_VAR_opensanctions_api_key: ${{ secrets.OPENSANCTIONS_API_KEY }}
+          TF_VAR_negativenews_api_key: ${{ secrets.NEWSAPI_API_KEY }}

@@ -6,9 +6,7 @@
 
 package verigate.adapter.negativenews.infrastructure.http;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import crosscutting.environment.Environment;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import java.io.IOException;
@@ -19,10 +17,9 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import verigate.adapter.negativenews.infrastructure.constants.EnvironmentConstants;
 
 /**
- * Base HTTP adapter that encapsulates common logic for calling the Negative News API.
+ * Base HTTP adapter that encapsulates common logic for calling the NewsAPI.
  */
 public class NegativeNewsHttpAdapter {
 
@@ -30,52 +27,43 @@ public class NegativeNewsHttpAdapter {
   private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 
   private final HttpClient httpClient;
-  private final Environment environment;
   private final ObjectMapper objectMapper;
 
   /**
    * Creates a new HTTP adapter instance.
    */
-  public NegativeNewsHttpAdapter(Environment environment, ObjectMapper objectMapper) {
-    this.environment = environment;
+  public NegativeNewsHttpAdapter(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
     this.httpClient = HttpClient.newBuilder().connectTimeout(DEFAULT_TIMEOUT).build();
   }
 
   /**
-   * Executes a POST request and deserialises the response into the provided class.
+   * Executes a GET request to the given URL and deserialises the response into the provided class.
+   *
+   * @param url          the full URL including query parameters
+   * @param responseType the class to deserialise the response into
+   * @return the deserialised response
    */
-  public <T, R> R post(String endpoint, T requestBody, Class<R> responseType)
-      throws TransientException, PermanentException {
-    return executePost(
-        endpoint,
-        requestBody,
-        body -> objectMapper.readValue(body, responseType));
-  }
-
-  /**
-   * Executes a POST request and deserialises the response using a {@link TypeReference}.
-   */
-  public <T, R> R post(String endpoint, T requestBody, TypeReference<R> typeReference)
-      throws TransientException, PermanentException {
-    return executePost(
-        endpoint,
-        requestBody,
-        body -> objectMapper.readValue(body, typeReference));
-  }
-
-  private <T, R> R executePost(String endpoint, T body, ResponseParser<R> parser)
+  public <R> R get(String url, Class<R> responseType)
       throws TransientException, PermanentException {
     try {
-      String responseBody = send(endpoint, body);
-      R result = parser.parse(responseBody);
-      logger.debug("Negative News POST {} succeeded", endpoint);
+      HttpRequest request = HttpRequest.newBuilder()
+          .uri(URI.create(url))
+          .timeout(DEFAULT_TIMEOUT)
+          .header("Content-Type", "application/json")
+          .header("User-Agent", "VeriGate/1.0")
+          .GET()
+          .build();
+
+      HttpResponse<String> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+      String responseBody = evaluateResponse(url, response);
+
+      R result = objectMapper.readValue(responseBody, responseType);
+      logger.debug("Negative News GET {} succeeded", url);
       return result;
     } catch (IOException e) {
-      logger.error(
-          "Failed to parse Negative News response for endpoint {}: {}",
-          endpoint,
-          e.getMessage(),
+      logger.error("Failed to parse Negative News response for URL {}: {}", url, e.getMessage(),
           e);
       throw new PermanentException("Failed to parse Negative News API response", e);
     } catch (InterruptedException e) {
@@ -86,35 +74,14 @@ public class NegativeNewsHttpAdapter {
     }
   }
 
-  private <T> String send(String endpoint, T requestBody)
-      throws IOException, InterruptedException, TransientException, PermanentException {
-    String payload = objectMapper.writeValueAsString(requestBody);
-    HttpRequest request = buildHttpRequest(endpoint, payload);
-    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-    return evaluateResponse(endpoint, response);
-  }
-
-  private HttpRequest buildHttpRequest(String endpoint, String body) {
-    String apiKey = requireValue(EnvironmentConstants.NEGATIVENEWS_API_KEY, "NEGATIVENEWS_API_KEY");
-    String apiUrl = requireValue(EnvironmentConstants.NEGATIVENEWS_API_URL, "NEGATIVENEWS_API_URL");
-
-    return HttpRequest.newBuilder()
-        .uri(URI.create(apiUrl + endpoint))
-        .timeout(DEFAULT_TIMEOUT)
-        .header("Content-Type", "application/json")
-        .header("Authorization", "Bearer " + apiKey)
-        .POST(HttpRequest.BodyPublishers.ofString(body))
-        .build();
-  }
-
-  private String evaluateResponse(String endpoint, HttpResponse<String> response)
+  private String evaluateResponse(String url, HttpResponse<String> response)
       throws TransientException, PermanentException {
     int statusCode = response.statusCode();
     String responseBody = response.body();
 
     logger.debug(
         "Negative News response for {} - status: {}, body length: {}",
-        endpoint,
+        url,
         statusCode,
         responseBody != null ? responseBody.length() : 0);
 
@@ -165,18 +132,5 @@ public class NegativeNewsHttpAdapter {
   private TransientException transientError(String message, int statusCode, String body) {
     logger.warn("{} - status: {}, body: {}", message, statusCode, body);
     return new TransientException(message);
-  }
-
-  private String requireValue(String envKey, String name) {
-    String value = environment.get(envKey);
-    if (value == null || value.trim().isEmpty()) {
-      throw new IllegalStateException(name + " environment variable is required");
-    }
-    return value.trim();
-  }
-
-  @FunctionalInterface
-  private interface ResponseParser<R> {
-    R parse(String body) throws IOException, TransientException, PermanentException;
   }
 }

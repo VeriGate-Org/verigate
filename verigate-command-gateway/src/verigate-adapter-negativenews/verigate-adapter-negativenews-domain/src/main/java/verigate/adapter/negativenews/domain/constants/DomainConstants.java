@@ -6,6 +6,8 @@
 
 package verigate.adapter.negativenews.domain.constants;
 
+import java.util.Set;
+
 /**
  * Constants for the Negative News Screening adapter domain.
  */
@@ -15,7 +17,20 @@ public class DomainConstants {
   public static final String NEGATIVE_NEWS_PROVIDER = "NEGATIVE_NEWS_PROVIDER";
 
   // API endpoints
-  public static final String ENDPOINT_SEARCH_NEWS = "/search/news";
+  public static final String ENDPOINT_SEARCH_NEWS = "/v2/everything";
+
+  // Adverse keyword sets for keyword-based sentiment classification
+  public static final Set<String> HIGHLY_NEGATIVE_KEYWORDS = Set.of(
+      "fraud", "corruption", "money laundering", "embezzlement", "bribery",
+      "criminal", "arrested", "convicted", "indicted", "sentenced",
+      "terror", "sanction", "blacklist", "wanted", "fugitive");
+
+  public static final Set<String> NEGATIVE_KEYWORDS = Set.of(
+      "lawsuit", "investigation", "alleged", "accused", "scandal",
+      "controversy", "misconduct", "violation", "penalty", "fine",
+      "suspended", "dismissed", "fired", "resigned under pressure",
+      "regulatory action", "compliance failure", "debt", "default",
+      "bankruptcy", "insolvency", "liquidation");
 
   // Default date range in months for screening lookback period
   public static final int DEFAULT_DATE_RANGE_MONTHS = 24;

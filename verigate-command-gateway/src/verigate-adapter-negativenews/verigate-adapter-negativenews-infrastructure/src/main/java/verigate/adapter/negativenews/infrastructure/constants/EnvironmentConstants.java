@@ -40,7 +40,7 @@ public class EnvironmentConstants {
 
   // Default values (fallback URLs)
   public static final String DEFAULT_NEGATIVENEWS_API_URL =
-      "https://negativenews-api.verigate.io/v1";
+      "https://newsapi.org";
 
   private EnvironmentConstants() {
   }

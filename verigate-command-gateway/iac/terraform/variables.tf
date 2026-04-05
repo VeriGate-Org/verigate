@@ -234,6 +234,13 @@ variable "employment_api_url" {
 variable "negativenews_api_url" {
   description = "Negative news screening API URL"
   type        = string
+  default     = "https://newsapi.org"
+}
+
+variable "negativenews_api_key" {
+  description = "NewsAPI API key for negative news screening"
+  type        = string
+  sensitive   = true
   default     = "NOT_CONFIGURED"
 }
 

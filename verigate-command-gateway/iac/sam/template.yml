@@ -431,6 +431,7 @@ Resources:
           SCREEN_NEGATIVE_NEWS_IMQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-imq"
           SCREEN_NEGATIVE_NEWS_DLQ_NAME: !Sub "${AWS::StackName}-adapter-negativenews-dlq"
           NEGATIVENEWS_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/negativenews/api_url}}"
+          NEGATIVENEWS_API_KEY: !Sub "{{resolve:ssm:/${AWS::StackName}/negativenews/api_key}}"
       Events:
         VerigateScreenNegativeNewsQueueCommand:
           Type: SQS
