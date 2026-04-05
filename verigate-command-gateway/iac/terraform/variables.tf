@@ -301,6 +301,22 @@ variable "datadog_monitor_notify_alert" {
   default     = ""
 }
 
+#----------------------------------------------------------------------------------------------------------------
+# Bedrock AI
+#----------------------------------------------------------------------------------------------------------------
+
+variable "bedrock_model_id" {
+  description = "AWS Bedrock model ID for AI features"
+  type        = string
+  default     = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+}
+
+variable "bedrock_region" {
+  description = "AWS region for Bedrock API calls"
+  type        = string
+  default     = "us-east-1"
+}
+
 
 
 

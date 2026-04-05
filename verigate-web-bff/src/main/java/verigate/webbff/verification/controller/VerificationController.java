@@ -1,7 +1,10 @@
 package verigate.webbff.verification.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -24,6 +27,8 @@ import verigate.webbff.verification.model.VerificationListResponse;
 import verigate.webbff.verification.model.VerificationRequest;
 import verigate.webbff.verification.model.VerificationResponse;
 import verigate.webbff.verification.model.VerificationStatusResponse;
+import verigate.webbff.verification.repository.AiRiskEnhancementRepository;
+import verigate.webbff.verification.repository.model.AiRiskEnhancementItem;
 import verigate.webbff.verification.service.VerificationService;
 
 @RestController
@@ -34,12 +39,18 @@ public class VerificationController {
 
   private final VerificationService verificationService;
   private final IdentityVerificationMapper identityVerificationMapper;
+  private final AiRiskEnhancementRepository aiRiskEnhancementRepository;
+  private final ObjectMapper objectMapper;
 
   public VerificationController(
       VerificationService verificationService,
-      IdentityVerificationMapper identityVerificationMapper) {
+      IdentityVerificationMapper identityVerificationMapper,
+      AiRiskEnhancementRepository aiRiskEnhancementRepository,
+      ObjectMapper objectMapper) {
     this.verificationService = verificationService;
     this.identityVerificationMapper = identityVerificationMapper;
+    this.aiRiskEnhancementRepository = aiRiskEnhancementRepository;
+    this.objectMapper = objectMapper;
   }
 
   @PostMapping
@@ -57,17 +68,68 @@ public class VerificationController {
     logger.debug("Fetching verification status: commandId={}", commandId);
     return verificationService
         .findVerification(commandId)
-        .map(
-            item ->
-                new VerificationStatusResponse(
-                    UUID.fromString(item.getCommandId()),
-                    item.getStatus(),
-                    item.getErrorDetails(),
-                    item.getAuxiliaryData()))
+        .map(item -> {
+          VerificationStatusResponse.AiRiskAnalysis aiAnalysis = fetchAiRiskAnalysis(
+              item.getAuxiliaryData());
+
+          return new VerificationStatusResponse(
+              UUID.fromString(item.getCommandId()),
+              item.getStatus(),
+              item.getErrorDetails(),
+              item.getAuxiliaryData(),
+              null, null, null, null, null,
+              aiAnalysis);
+        })
         .orElseThrow(() -> {
           logger.warn("Verification not found: commandId={}", commandId);
           return new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+  }
+
+  private VerificationStatusResponse.AiRiskAnalysis fetchAiRiskAnalysis(
+      Map<String, String> auxiliaryData) {
+    if (auxiliaryData == null) {
+      return null;
+    }
+
+    String workflowId = auxiliaryData.get("workflowId");
+    if (workflowId == null || workflowId.isBlank()) {
+      return null;
+    }
+
+    try {
+      return aiRiskEnhancementRepository.findByWorkflowId(workflowId)
+          .map(this::mapAiRiskEnhancement)
+          .orElse(null);
+    } catch (Exception e) {
+      logger.warn("Failed to fetch AI risk enhancement for workflowId {}: {}",
+          workflowId, e.getMessage());
+      return null;
+    }
+  }
+
+  private VerificationStatusResponse.AiRiskAnalysis mapAiRiskEnhancement(
+      AiRiskEnhancementItem item) {
+    List<String> correlations = parseJsonList(item.getCorrelationsJson());
+    List<String> anomalies = parseJsonList(item.getAnomaliesJson());
+
+    return new VerificationStatusResponse.AiRiskAnalysis(
+        item.getConfidenceAdjustment(),
+        item.getReasoning(),
+        correlations,
+        anomalies);
+  }
+
+  private List<String> parseJsonList(String json) {
+    if (json == null || json.isBlank()) {
+      return List.of();
+    }
+    try {
+      return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+    } catch (Exception e) {
+      logger.warn("Failed to parse JSON list: {}", e.getMessage());
+      return List.of();
+    }
   }
 
   @GetMapping

@@ -1,0 +1,23 @@
+Analyze the following verification results for a single subject and provide a risk assessment.
+
+Subject: ${subjectName}
+Verification Results:
+${adapterScoresJson}
+
+Current Composite Score: ${compositeScore}
+Current Risk Tier: ${riskTier}
+
+Provide your analysis in JSON only, no other text:
+{
+  "confidenceAdjustment": -10 to +10,
+  "reasoning": "2-3 sentence narrative explaining the overall risk picture",
+  "correlations": ["description of cross-adapter pattern found"],
+  "anomalies": ["description of unusual finding"]
+}
+
+Analysis guidelines:
+- Look for correlations across adapter results (e.g., negative news + sanctions hit = higher confidence)
+- Identify contradictions (e.g., clean identity check but adverse news = needs investigation)
+- Consider the completeness of verification data
+- A positive adjustment means higher risk, negative means lower risk
+- Keep adjustments small (-5 to +5) unless there is strong cross-adapter evidence

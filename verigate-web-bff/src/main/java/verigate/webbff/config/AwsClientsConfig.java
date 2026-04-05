@@ -19,6 +19,7 @@ import verigate.webbff.config.properties.DocumentProperties;
 import verigate.webbff.config.properties.PolicyProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.config.properties.RiskAssessmentProperties;
+import verigate.webbff.config.properties.AiRiskEnhancementProperties;
 import verigate.webbff.config.properties.MonitoringProperties;
 import verigate.webbff.config.properties.RiskScoringConfigProperties;
 
@@ -32,7 +33,8 @@ import verigate.webbff.config.properties.RiskScoringConfigProperties;
     PolicyProperties.class,
     RiskScoringConfigProperties.class,
     DocumentProperties.class,
-    MonitoringProperties.class
+    MonitoringProperties.class,
+    AiRiskEnhancementProperties.class
 })
 public class AwsClientsConfig {
 

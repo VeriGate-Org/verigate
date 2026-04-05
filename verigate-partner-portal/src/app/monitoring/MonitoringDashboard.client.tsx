@@ -14,7 +14,7 @@ import type { MonitoringFrequency } from "@/lib/bff-client";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
-import { Users, Bell, Plus, X } from "lucide-react";
+import { Users, Bell, Plus, X, Lightbulb } from "lucide-react";
 
 type Tab = "subjects" | "alerts";
 
@@ -57,6 +57,37 @@ export default function MonitoringDashboard() {
   const updateMutation = useUpdateMonitoredSubject();
   const deleteMutation = useDeleteMonitoredSubject();
   const acknowledgeMutation = useAcknowledgeAlert();
+  const [expandedExplanation, setExpandedExplanation] = React.useState<string | null>(null);
+  const [explanations, setExplanations] = React.useState<Record<string, string>>({});
+  const [loadingExplanation, setLoadingExplanation] = React.useState<string | null>(null);
+
+  const handleExplainAlert = async (alertId: string) => {
+    if (expandedExplanation === alertId) {
+      setExpandedExplanation(null);
+      return;
+    }
+    if (explanations[alertId]) {
+      setExpandedExplanation(alertId);
+      return;
+    }
+    setLoadingExplanation(alertId);
+    setExpandedExplanation(alertId);
+    try {
+      const res = await fetch(`/api/partner/ai/monitoring/alerts/${alertId}/explain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setExplanations((prev) => ({ ...prev, [alertId]: data.explanation }));
+      }
+    } catch {
+      setExplanations((prev) => ({ ...prev, [alertId]: "Unable to generate explanation." }));
+    } finally {
+      setLoadingExplanation(null);
+    }
+  };
 
   const handleAddSubject = () => {
     if (!newSubjectName.trim() || !newSubjectIdentifier.trim()) return;
@@ -366,7 +397,16 @@ export default function MonitoringDashboard() {
                           <span>{new Date(alert.createdAt).toLocaleString()}</span>
                         </div>
                       </div>
-                      <div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleExplainAlert(alert.alertId)}
+                          disabled={loadingExplanation === alert.alertId}
+                        >
+                          <Lightbulb className="h-3.5 w-3.5 mr-1" />
+                          {expandedExplanation === alert.alertId ? "Hide" : "Explain"}
+                        </Button>
                         {alert.acknowledged ? (
                           <span className="text-xs text-text-muted">
                             Acknowledged by {alert.acknowledgedBy}
@@ -383,6 +423,18 @@ export default function MonitoringDashboard() {
                         )}
                       </div>
                     </div>
+                    {expandedExplanation === alert.alertId && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        {loadingExplanation === alert.alertId ? (
+                          <Skeleton className="h-10 w-full" />
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <Lightbulb className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+                            <p className="text-xs text-text">{explanations[alert.alertId]}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

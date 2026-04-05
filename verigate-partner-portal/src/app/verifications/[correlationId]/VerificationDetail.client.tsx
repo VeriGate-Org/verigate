@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, CheckCircle2, XCircle, AlertTriangle, Activity } from
 import { Badge } from "@/components/ui/Badge";
 import { useVerificationDetail } from "@/lib/hooks/useVerification";
 import type { VerificationStatus, VerificationEvent } from "@/lib/types";
+import VerificationExplainer from "@/components/ai/VerificationExplainer.client";
 
 export default function VerificationDetail() {
   const { correlationId } = useParams<{ correlationId: string }>();
@@ -169,6 +170,27 @@ export default function VerificationDetail() {
           </div>
         </div>
       </div>
+
+      {/* AI Explanation */}
+      <VerificationExplainer commandId={correlationId} />
+
+      {/* AI Risk Analysis */}
+      {v.aiRiskAnalysis && (
+        <div className="console-card">
+          <div className="console-card-header">
+            <h2 className="text-sm font-semibold text-text">AI Risk Analysis</h2>
+          </div>
+          <div className="console-card-body space-y-2">
+            <p className="text-sm text-text">{v.aiRiskAnalysis.reasoning}</p>
+            {v.aiRiskAnalysis.confidenceAdjustment != null && (
+              <div className="text-xs text-text-muted">
+                Confidence adjustment: {v.aiRiskAnalysis.confidenceAdjustment > 0 ? "+" : ""}
+                {v.aiRiskAnalysis.confidenceAdjustment}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Event timeline */}
       <div className="console-card">

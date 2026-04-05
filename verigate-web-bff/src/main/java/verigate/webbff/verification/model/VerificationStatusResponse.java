@@ -13,7 +13,8 @@ public record VerificationStatusResponse(
     String riskTier,
     String riskDecision,
     String decisionReason,
-    List<CheckScore> individualScores) {
+    List<CheckScore> individualScores,
+    AiRiskAnalysis aiRiskAnalysis) {
 
     /**
      * Constructor for single-check (no risk) responses — backwards compatible.
@@ -22,7 +23,7 @@ public record VerificationStatusResponse(
                                        List<String> errorDetails,
                                        Map<String, String> auxiliaryData) {
         this(commandId, status, errorDetails, auxiliaryData,
-            null, null, null, null, null);
+            null, null, null, null, null, null);
     }
 
     public record CheckScore(
@@ -30,4 +31,10 @@ public record VerificationStatusResponse(
         String outcome,
         int confidenceScore,
         Map<String, String> signals) {}
+
+    public record AiRiskAnalysis(
+        int confidenceAdjustment,
+        String reasoning,
+        List<String> correlations,
+        List<String> anomalies) {}
 }

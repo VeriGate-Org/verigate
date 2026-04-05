@@ -7,11 +7,17 @@
 package verigate.adapter.negativenews.infrastructure.mappers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import verigate.adapter.negativenews.domain.models.ArticleSentiment;
 import verigate.adapter.negativenews.domain.models.NegativeNewsScreeningRequest;
 import verigate.adapter.negativenews.domain.models.NegativeNewsScreeningResponse;
@@ -20,10 +26,16 @@ import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchR
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchResponseDto;
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchResponseDto.NewsApiArticleDto;
 import verigate.adapter.negativenews.infrastructure.http.dto.NegativeNewsSearchResponseDto.NewsApiSourceDto;
+import verigate.adapter.negativenews.infrastructure.services.AiSentimentClassifier;
+import verigate.adapter.negativenews.infrastructure.services.AiSentimentClassifier.SentimentResult;
 
+@ExtendWith(MockitoExtension.class)
 class NegativeNewsDtoMapperTest {
 
   private NegativeNewsDtoMapper mapper;
+
+  @Mock
+  private AiSentimentClassifier aiSentimentClassifier;
 
   @BeforeEach
   void setUp() {
@@ -276,5 +288,96 @@ class NegativeNewsDtoMapperTest {
     NegativeNewsScreeningResponse response = mapper.mapToScreeningResponse(responseDto);
 
     assertEquals("This is the full content", response.articles().get(0).snippet());
+  }
+
+  @Nested
+  class AiClassificationTests {
+
+    @BeforeEach
+    void setUp() {
+      mapper = new NegativeNewsDtoMapper(aiSentimentClassifier);
+    }
+
+    @Test
+    void shouldUseAiClassificationWhenAvailable() {
+      when(aiSentimentClassifier.classify(anyString(), anyString(), anyString()))
+          .thenReturn(new SentimentResult(
+              ArticleSentiment.HIGHLY_NEGATIVE, 0.98, "Subject accused of fraud", "PERPETRATOR"));
+
+      NegativeNewsScreeningRequest request = NegativeNewsScreeningRequest.builder()
+          .subjectName("John Doe")
+          .dateRangeMonths(12)
+          .build();
+      mapper.mapToRequestDto(request);
+
+      NewsApiArticleDto article = new NewsApiArticleDto(
+          new NewsApiSourceDto("bbc", "BBC News"), "Reporter",
+          "CEO arrested for financial crimes", "Major fraud case uncovered.",
+          "https://example.com/article", null, "2024-01-15T10:30:00Z", null);
+
+      NegativeNewsSearchResponseDto responseDto = new NegativeNewsSearchResponseDto(
+          "ok", 1, List.of(article));
+
+      NegativeNewsScreeningResponse response = mapper.mapToScreeningResponse(responseDto);
+
+      assertEquals(ScreeningOutcome.ADVERSE_FOUND, response.outcome());
+      assertEquals(1, response.adverseArticlesCount());
+      assertEquals(0.98, response.highestSeverityScore(), 0.01);
+      assertEquals(ArticleSentiment.HIGHLY_NEGATIVE, response.articles().get(0).sentiment());
+    }
+
+    @Test
+    void shouldFilterUnrelatedArticlesFromAiClassification() {
+      when(aiSentimentClassifier.classify(anyString(), anyString(), anyString()))
+          .thenReturn(new SentimentResult(
+              ArticleSentiment.NEUTRAL, 0.1, "Subject not related", "UNRELATED"));
+
+      NegativeNewsScreeningRequest request = NegativeNewsScreeningRequest.builder()
+          .subjectName("John Doe")
+          .dateRangeMonths(12)
+          .build();
+      mapper.mapToRequestDto(request);
+
+      NewsApiArticleDto article = new NewsApiArticleDto(
+          new NewsApiSourceDto("bbc", "BBC News"), "Reporter",
+          "Different John Doe wins award", "Local charity event.",
+          "https://example.com/article", null, "2024-01-15T10:30:00Z", null);
+
+      NegativeNewsSearchResponseDto responseDto = new NegativeNewsSearchResponseDto(
+          "ok", 1, List.of(article));
+
+      NegativeNewsScreeningResponse response = mapper.mapToScreeningResponse(responseDto);
+
+      assertEquals(ScreeningOutcome.CLEAR, response.outcome());
+      assertEquals(0, response.articles().size());
+    }
+
+    @Test
+    void shouldFallbackToKeywordsWhenAiClassificationFails() {
+      when(aiSentimentClassifier.classify(anyString(), anyString(), anyString()))
+          .thenThrow(new RuntimeException("Bedrock unavailable"));
+
+      NegativeNewsScreeningRequest request = NegativeNewsScreeningRequest.builder()
+          .subjectName("John Doe")
+          .dateRangeMonths(12)
+          .build();
+      mapper.mapToRequestDto(request);
+
+      NewsApiArticleDto article = new NewsApiArticleDto(
+          new NewsApiSourceDto("bbc", "BBC News"), "Reporter",
+          "CEO arrested for fraud and corruption charges",
+          "Major fraud scandal uncovered in banking sector.",
+          "https://example.com/article", null, "2024-01-15T10:30:00Z", null);
+
+      NegativeNewsSearchResponseDto responseDto = new NegativeNewsSearchResponseDto(
+          "ok", 1, List.of(article));
+
+      NegativeNewsScreeningResponse response = mapper.mapToScreeningResponse(responseDto);
+
+      assertEquals(ScreeningOutcome.ADVERSE_FOUND, response.outcome());
+      assertEquals(1, response.adverseArticlesCount());
+      // Should use keyword-based classification as fallback
+      assertEquals(ArticleSentiment.HIGHLY_NEGATIVE, response.articles().get(0).sentiment());
+    }
   }
 }

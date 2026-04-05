@@ -357,6 +357,155 @@ module "lambda_iam" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# Bedrock AI IAM Policy
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_iam_policy" "bedrock_invoke" {
+  name = "${local.complete_stack_name}-bedrock-invoke"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"]
+      Resource = "arn:aws:bedrock:${var.bedrock_region}::foundation-model/us.anthropic.claude-sonnet-4-5-*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_bedrock" {
+  role       = module.lambda_iam.role_name
+  policy_arn = aws_iam_policy.bedrock_invoke.arn
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# AI DynamoDB Tables
+#----------------------------------------------------------------------------------------------------------------
+
+module "ai_risk_enhancements_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "ai-risk-enhancements"
+  hash_key            = {
+                             name = "workflowId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "workflowId"
+      type = "S"
+    }
+  ]
+
+  ttl_attribute        = "ttl"
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "ai_risk_enhancements_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/ai-risk-enhancements/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-ai-risk-enhancements"
+}
+
+module "fraud_velocity_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "fraud-velocity"
+  hash_key            = {
+                             name = "identifierHash"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "windowKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "identifierHash"
+      type = "S"
+    },
+    {
+      name = "windowKey"
+      type = "S"
+    }
+  ]
+
+  ttl_attribute        = "ttl"
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "fraud_velocity_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/fraud-velocity/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-fraud-velocity"
+}
+
+module "fraud_patterns_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "fraud-patterns"
+  hash_key            = {
+                             name = "patternId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "patternId"
+      type = "S"
+    }
+  ]
+
+  ttl_attribute        = "ttl"
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "fraud_patterns_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/fraud-patterns/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-fraud-patterns"
+}
+
+module "ai_chat_history_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  table_name          = "ai-chat-history"
+  hash_key            = {
+                             name = "conversationId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "messageTimestamp"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "conversationId"
+      type = "S"
+    },
+    {
+      name = "messageTimestamp"
+      type = "S"
+    }
+  ]
+
+  ttl_attribute        = "ttl"
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "ai_chat_history_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/ai-chat-history/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-ai-chat-history"
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # SQS Queues
 #----------------------------------------------------------------------------------------------------------------
 
