@@ -1214,7 +1214,7 @@ resource "aws_ssm_parameter" "negativenews_api_url" {
 resource "aws_ssm_parameter" "negativenews_api_key" {
   name  = "/${local.ssm_prefix}/negativenews/api_key"
   type  = "String"
-  value = var.negativenews_api_key
+  value = length(var.negativenews_api_key) > 0 ? var.negativenews_api_key : "NOT_CONFIGURED"
 }
 
 resource "aws_ssm_parameter" "fraudwatchlist_api_url" {
