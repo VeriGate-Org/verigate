@@ -100,6 +100,11 @@ const SERVICES: ReadonlyArray<ServiceCard> = [
     path: "/services/tax-compliance",
   },
   {
+    name: "VAT vendor search",
+    description: "Search the SARS VAT vendor register to verify vendor registration status.",
+    path: "/services/vat-vendor-search",
+  },
+  {
     name: "Income verification",
     description: "Validate declared income against payroll and banking records.",
     path: "/services/income",
