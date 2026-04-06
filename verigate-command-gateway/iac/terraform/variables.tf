@@ -274,6 +274,26 @@ variable "sars_api_url" {
   default     = "NOT_CONFIGURED"
 }
 
+variable "sars_vat_endpoint_url" {
+  description = "SARS VAT Vendor Search SOAP endpoint URL"
+  type        = string
+  default     = "https://secure.sarsefiling.co.za/VATVendorSearch/application/VendorService.asmx"
+}
+
+variable "sars_efiling_login_name" {
+  description = "SARS eFiling login name for VAT vendor search"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
+variable "sars_efiling_password" {
+  description = "SARS eFiling password for VAT vendor search"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
 variable "income_api_url" {
   description = "Income verification API URL"
   type        = string

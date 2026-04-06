@@ -613,6 +613,14 @@ module "sars_adapter_queue" {
   max_receive_count = 1
 }
 
+module "sars_vat_adapter_queue" {
+  source              = "./modules/tf-sqs"
+  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  ssm_prefix          = local.ssm_prefix
+  queue_name          = "adapter-sars-vat"
+  max_receive_count   = 1
+}
+
 module "income_adapter_queue" {
   source = "./modules/tf-sqs"
   complete_stack_name = "${var.stack_name}-${var.project_name}"
@@ -1245,6 +1253,37 @@ resource "aws_ssm_parameter" "sars_api_url" {
   name  = "/${local.ssm_prefix}/sars/api_url"
   type  = "String"
   value = var.sars_api_url
+}
+
+resource "aws_ssm_parameter" "sars_vat_endpoint_url" {
+  name  = "/${local.ssm_prefix}/sars/vat_endpoint_url"
+  type  = "String"
+  value = var.sars_vat_endpoint_url
+}
+
+resource "aws_ssm_parameter" "sars_efiling_secret_name" {
+  name  = "/${local.ssm_prefix}/sars/efiling_secret_name"
+  type  = "String"
+  value = "${var.secret_prefix}/sars-efiling"
+}
+
+module "sars_efiling_secrets" {
+  source = "./modules/tf-secrets-manager"
+
+  prefix = "${var.secret_prefix}/sars-efiling"
+
+  default_recovery_window_in_days = var.recovery_window_in_days
+
+  secrets = {
+    "login_name" = {
+      description = "SARS eFiling login name"
+      value       = var.sars_efiling_login_name
+    },
+    "password" = {
+      description = "SARS eFiling password"
+      value       = var.sars_efiling_password
+    }
+  }
 }
 
 resource "aws_ssm_parameter" "income_api_url" {
