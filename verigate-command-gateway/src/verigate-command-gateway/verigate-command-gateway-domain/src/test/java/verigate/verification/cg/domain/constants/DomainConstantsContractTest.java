@@ -39,7 +39,8 @@ class DomainConstantsContractTest {
       VerificationType.CREDIT_CHECK,
       VerificationType.TAX_COMPLIANCE_VERIFICATION,
       VerificationType.INCOME_VERIFICATION,
-      VerificationType.WATCHLIST_SCREENING
+      VerificationType.WATCHLIST_SCREENING,
+      VerificationType.VAT_VENDOR_VERIFICATION
   );
 
   @Test
@@ -74,7 +75,8 @@ class DomainConstantsContractTest {
       "CREDIT_CHECK",
       "TAX_COMPLIANCE_VERIFICATION",
       "INCOME_VERIFICATION",
-      "WATCHLIST_SCREENING"
+      "WATCHLIST_SCREENING",
+      "VAT_VENDOR_VERIFICATION"
   })
   void eachVerificationTypeRoutesToUniqueQueueEnvironmentVariable(
       VerificationType verificationType) {

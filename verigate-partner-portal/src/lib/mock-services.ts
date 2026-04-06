@@ -1179,6 +1179,54 @@ export async function mockBulkResults(idNumbers: string[], delayMs?: number): Pr
   return generateBulkResults(idNumbers);
 }
 
+export type VatVendorSearchRequest = { vatNumber: string; vendorDescription?: string };
+export type VatVendorSearchResponse = {
+  reference: string;
+  provider: string;
+  subject: { vatNumber: string };
+  vendor: {
+    status: string;
+    vendorName: string;
+    tradingName: string;
+    registrationDate: string;
+    activityCode: string;
+    physicalAddress: string;
+  };
+  generatedAt: string;
+};
+
+export function generateVatVendorSearchResponse({ vatNumber }: VatVendorSearchRequest): VatVendorSearchResponse {
+  if (!vatNumber) throw new Error("VAT number is required");
+  const seedVal = vatNumber.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rnd = seeded(seedVal);
+  const isActive = rnd() > 0.2;
+  const names = ["Acme Trading (Pty) Ltd", "Blue Sky Investments", "Delta Manufacturing CC", "Echo Services (Pty) Ltd", "Foxtrot Solutions"];
+  const tradingNames = ["Acme Trading", "Blue Sky", "Delta Mfg", "Echo Services", "Foxtrot"];
+  const activityCodes = ["47110", "64200", "25110", "82110", "62020"];
+  const addresses = [
+    "123 Commissioner St, Johannesburg, GP",
+    "45 Long Street, Cape Town, WC",
+    "789 Church St, Pretoria, GP",
+    "22 Florida Rd, Durban, KZN",
+    "56 Bird St, Stellenbosch, WC",
+  ];
+  const idx = Math.floor(rnd() * names.length);
+  return {
+    reference: `vat-${Date.now()}`,
+    provider: "SARS",
+    subject: { vatNumber },
+    vendor: {
+      status: isActive ? "Active" : rnd() > 0.5 ? "Inactive" : "Deregistered",
+      vendorName: names[idx],
+      tradingName: tradingNames[idx],
+      registrationDate: new Date(Date.now() - Math.floor(365 + rnd() * 7000) * 24 * 60 * 60 * 1000).toISOString(),
+      activityCode: activityCodes[idx],
+      physicalAddress: addresses[idx],
+    },
+    generatedAt: new Date().toISOString(),
+  };
+}
+
 export type FullVerificationRequest = { idNumber: string; firstName?: string; lastName?: string; subTypes?: string[] };
 export type FullVerificationResponse = {
   reference: string;
@@ -1269,6 +1317,12 @@ export async function mockIncome(request: any, delayMs?: number) {
 export async function mockIdentity(request: any, delayMs?: number) {
   await wait(delayMs);
   return generateIdentityResponse(request);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function mockVatVendorSearch(request: any, delayMs?: number) {
+  await wait(delayMs);
+  return generateVatVendorSearchResponse(request);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -3,6 +3,7 @@ import {
   Shield, CreditCard, ShieldAlert, Building2, Map, Briefcase,
   Newspaper, AlertTriangle, FileCheck, GraduationCap, TrendingUp,
   Receipt, DollarSign, Fingerprint, CheckSquare, Eye, ScanFace, Camera,
+  Search,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -167,6 +168,16 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     icon: Eye,
     route: "/services/sanctions",
     category: "screening",
+  },
+  VAT_VENDOR: {
+    portalType: "VAT_VENDOR",
+    bffType: "VAT_VENDOR_VERIFICATION",
+    label: "VAT Vendor Search",
+    shortLabel: "VAT Vendor",
+    provider: "SARS",
+    icon: Search,
+    route: "/services/vat-vendor-search",
+    category: "financial",
   },
   FULL_VERIFICATION: {
     portalType: "FULL_VERIFICATION",

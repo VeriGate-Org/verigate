@@ -33,6 +33,7 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
               "verify-qualification",
               "perform-credit-check",
               "verify-tax-compliance",
+              "verify-vat-vendor",
               "verify-income"
             ] : ["AWS/Lambda", "Invocations", "FunctionName", "${local.complete_stack_name}-${fn}", { stat = "Sum" }]
           ]
@@ -65,6 +66,7 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
               "verify-qualification",
               "perform-credit-check",
               "verify-tax-compliance",
+              "verify-vat-vendor",
               "verify-income"
             ] : ["AWS/Lambda", "Errors", "FunctionName", "${local.complete_stack_name}-${fn}", { stat = "Sum", color = "#d62728" }]
           ]
@@ -97,6 +99,7 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
               "verify-qualification",
               "perform-credit-check",
               "verify-tax-compliance",
+              "verify-vat-vendor",
               "verify-income"
             ] : ["AWS/Lambda", "Duration", "FunctionName", "${local.complete_stack_name}-${fn}", { stat = "p99" }]
           ]
@@ -129,6 +132,7 @@ resource "aws_cloudwatch_dashboard" "verification_dashboard" {
               "adapter-saqa",
               "adapter-creditbureau",
               "adapter-sars",
+              "adapter-sars-vat",
               "adapter-income"
             ] : ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "${local.complete_stack_name}-${q}", { stat = "Average" }]
           ]

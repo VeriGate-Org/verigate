@@ -37,6 +37,14 @@ public class EnvironmentConstants {
   public static final String DEFAULT_SARS_API_URL =
       "https://sars-efiling-api-dev.verigate.co.za/api/v1";
 
+  // VAT Vendor Search - SOAP endpoint
+  public static final String SARS_VAT_ENDPOINT_URL = "SARS_VAT_ENDPOINT_URL";
+  public static final String SARS_EFILING_SECRET_NAME = "SARS_EFILING_SECRET_NAME";
+  public static final String VERIFY_VAT_VENDOR_IMQ_NAME = "VERIFY_VAT_VENDOR_IMQ_NAME";
+  public static final String VERIFY_VAT_VENDOR_DLQ_NAME = "VERIFY_VAT_VENDOR_DLQ_NAME";
+  public static final String DEFAULT_SARS_VAT_ENDPOINT_URL =
+      "https://secure.sarsefiling.co.za/VATVendorSearch/application/VendorService.asmx";
+
   private EnvironmentConstants() {
   }
 }

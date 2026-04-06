@@ -21,6 +21,7 @@ import {
   mockIncome,
   mockIdentity,
   mockFullVerification,
+  mockVatVendorSearch,
   mockHanisIdentity,
   type PersonalDetailsRequest,
   type AvsRequest,
@@ -122,6 +123,8 @@ async function executeMockVerification(bffType: BffVerificationType, params: Rec
       return mockCreditCheck(params);
     case "TAX_COMPLIANCE_VERIFICATION":
       return mockTaxCompliance(params);
+    case "VAT_VENDOR_VERIFICATION":
+      return mockVatVendorSearch(params);
     case "INCOME_VERIFICATION":
       return mockIncome(params);
     case "IDENTITY_VERIFICATION":

@@ -66,4 +66,23 @@ public class DomainConstants {
   public static final String RESULT_KEY_CLEARANCE_TYPE = "clearanceType";
   public static final String RESULT_KEY_CERTIFICATE_VALID = "certificateValid";
   public static final String RESULT_KEY_REASON = "reason";
+
+  // VAT Vendor Search - Metadata keys
+  public static final String METADATA_KEY_VAT_NUMBER = "vatNumber";
+  public static final String METADATA_KEY_VAT_NUMBER_ALT = "vat_number";
+  public static final String METADATA_KEY_VENDOR_DESCRIPTION = "vendorDescription";
+  public static final String METADATA_KEY_VENDOR_DESCRIPTION_ALT = "vendor_description";
+
+  // VAT Vendor Search - Result map keys
+  public static final String RESULT_KEY_VAT_VENDOR_STATUS = "vatVendorStatus";
+  public static final String RESULT_KEY_VAT_NUMBER = "vatNumber";
+  public static final String RESULT_KEY_VENDOR_NAME = "vendorName";
+  public static final String RESULT_KEY_TRADING_NAME = "tradingName";
+  public static final String RESULT_KEY_REGISTRATION_DATE = "registrationDate";
+  public static final String RESULT_KEY_ACTIVITY_CODE = "activityCode";
+  public static final String RESULT_KEY_PHYSICAL_ADDRESS = "physicalAddress";
+
+  // VAT Vendor Search - SOAP constants
+  public static final String SARS_VAT_SOAP_NAMESPACE = "http://www.sars.gov.za";
+  public static final String SARS_VAT_SOAP_ACTION = "http://www.sars.gov.za/Search";
 }

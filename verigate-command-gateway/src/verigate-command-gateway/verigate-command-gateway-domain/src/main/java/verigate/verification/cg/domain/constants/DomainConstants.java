@@ -34,7 +34,9 @@ public class DomainConstants {
           Map.entry(VerificationType.QUALIFICATION_VERIFICATION, "SAQA_ADAPTER_QUEUE_NAME"),
           Map.entry(VerificationType.CREDIT_CHECK, "CREDITBUREAU_ADAPTER_QUEUE_NAME"),
           Map.entry(VerificationType.TAX_COMPLIANCE_VERIFICATION, "SARS_ADAPTER_QUEUE_NAME"),
-          Map.entry(VerificationType.INCOME_VERIFICATION, "INCOME_ADAPTER_QUEUE_NAME"));
+          Map.entry(VerificationType.INCOME_VERIFICATION, "INCOME_ADAPTER_QUEUE_NAME"),
+          Map.entry(
+              VerificationType.VAT_VENDOR_VERIFICATION, "SARS_VAT_ADAPTER_QUEUE_NAME"));
 
   public static final String VERIFICATION_SUCCEEDED_EVENT = "verificationSucceededEvent";
   public static final String VERIFICATION_HARD_FAIL_EVENT = "verificationHardFailEvent";

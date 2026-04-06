@@ -86,6 +86,7 @@ Globals:
         SAQA_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-saqa
         CREDITBUREAU_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-creditbureau
         SARS_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-sars
+        SARS_VAT_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-sars-vat
         INCOME_ADAPTER_QUEUE_NAME: !Sub ${AWS::StackName}-adapter-income
     VpcConfig:
       SecurityGroupIds:
@@ -611,6 +612,34 @@ Resources:
           Properties:
             ScheduleExpression: "rate(5 minutes)"
             Name: !Sub "${AWS::StackName}-verify-tax-compliance-kw"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 60
+              MaximumRetryAttempts: 0
+
+  VerifyVatVendorLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-verify-vat-vendor"
+      Handler: verigate.adapter.sars.infrastructure.functions.lambda.handlers.VerifyVatVendorLambdaHandler::handleRequest
+      CodeUri: ../../src/verigate-adapter-sars/verigate-adapter-sars-infrastructure
+      Environment:
+        Variables:
+          VERIFY_VAT_VENDOR_IMQ_NAME: !Sub "${AWS::StackName}-adapter-sars-vat-imq"
+          VERIFY_VAT_VENDOR_DLQ_NAME: !Sub "${AWS::StackName}-adapter-sars-vat-dlq"
+          SARS_VAT_ENDPOINT_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/sars/vat_endpoint_url}}"
+          SARS_EFILING_SECRET_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/sars/efiling_secret_name}}"
+      Events:
+        VerigateVerifyVatVendorQueueCommand:
+          Type: SQS
+          Properties:
+            Queue: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/adapter-sars-vat/arn}}"
+            BatchSize: 10
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+            Name: !Sub "${AWS::StackName}-verify-vat-vendor-kw"
             RetryPolicy:
               MaximumEventAgeInSeconds: 60
               MaximumRetryAttempts: 0

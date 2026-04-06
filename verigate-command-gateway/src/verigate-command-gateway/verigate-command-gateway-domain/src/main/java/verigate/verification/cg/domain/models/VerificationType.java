@@ -31,6 +31,9 @@ public enum VerificationType {
   TAX_COMPLIANCE_VERIFICATION,
   INCOME_VERIFICATION,
 
+  // SARS VAT Vendor Search
+  VAT_VENDOR_VERIFICATION,
+
   // Composite
   FULL_VERIFICATION,
 
