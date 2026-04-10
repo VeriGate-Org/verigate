@@ -1,0 +1,308 @@
+{
+    "key": "group_vg_fraud",
+    "title": "Fraud Prevention Fields",
+    "fields": [
+        {
+            "key": "field_vg_fraud_subtitle",
+            "label": "Subtitle",
+            "name": "subtitle",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_fraud_badge_text",
+            "label": "Badge Text",
+            "name": "badge_text",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_fraud_icon",
+            "label": "Icon",
+            "name": "icon",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Lucide icon name",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "shield-check": "Shield Check",
+                "user-check": "User Check",
+                "file-text": "File Text",
+                "credit-card": "Credit Card",
+                "building": "Building",
+                "search": "Search",
+                "fingerprint": "Fingerprint",
+                "lock": "Lock",
+                "globe": "Globe",
+                "zap": "Zap",
+                "users": "Users",
+                "target": "Target",
+                "activity": "Activity",
+                "mail": "Mail",
+                "phone": "Phone",
+                "map-pin": "Map Pin",
+                "clock": "Clock",
+                "check-circle": "Check Circle",
+                "alert-triangle": "Alert Triangle",
+                "bar-chart": "Bar Chart",
+                "eye": "Eye",
+                "key": "Key",
+                "database": "Database",
+                "server": "Server",
+                "award": "Award",
+                "briefcase": "Briefcase",
+                "heart": "Heart",
+                "layers": "Layers",
+                "trending-up": "Trending Up",
+                "circle-check": "Circle Check"
+            },
+            "default_value": "shield-check",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 1,
+            "ajax": 0
+        },
+        {
+            "key": "field_vg_fraud_description",
+            "label": "Description",
+            "name": "description",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": "",
+            "placeholder": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_vg_fraud_threat_indicators",
+            "label": "Threat Indicators",
+            "name": "threat_indicators",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Indicator",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_fraud_ti_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_fraud_threat_indicators"
+                },
+                {
+                    "key": "field_vg_fraud_ti_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "rows": "",
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_fraud_threat_indicators"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_fraud_detection_methods",
+            "label": "Detection Methods",
+            "name": "detection_methods",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Method",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_fraud_dm_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_fraud_detection_methods"
+                },
+                {
+                    "key": "field_vg_fraud_dm_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "rows": "",
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_fraud_detection_methods"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_fraud_integration_info",
+            "label": "Integration Information",
+            "name": "integration_info",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "tabs": "all",
+            "toolbar": "full",
+            "media_upload": 1,
+            "delay": 0
+        },
+        {
+            "key": "field_vg_fraud_related_prevention",
+            "label": "Related Prevention Types",
+            "name": "related_prevention",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "fraud"
+            ],
+            "taxonomy": "",
+            "filters": [
+                "search"
+            ],
+            "return_format": "object",
+            "min": "",
+            "max": 6,
+            "elements": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "fraud"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1712534400
+}

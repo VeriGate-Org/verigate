@@ -1,11 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { statistics } from "@/data/social-proof";
-import { Users, Globe, CheckCircle2, Target, Zap, Activity } from "lucide-react";
+import { Users, Globe, CircleCheck, Target, Zap, Activity } from "lucide-react";
 
 const iconMap = {
   users: Users,
   globe: Globe,
-  check: CheckCircle2,
+  check: CircleCheck,
   target: Target,
   zap: Zap,
   activity: Activity,
@@ -14,7 +14,7 @@ const iconMap = {
 // Individual stat counter component
 function AnimatedStat({ stat, index, isVisible }: { stat: typeof statistics[0], index: number, isVisible: boolean }) {
   const [count, setCount] = useState(0);
-  const Icon = iconMap[stat.icon as keyof typeof iconMap] || CheckCircle2;
+  const Icon = iconMap[stat.icon as keyof typeof iconMap] || CircleCheck;
 
   useEffect(() => {
     if (!isVisible) return;
@@ -66,11 +66,11 @@ function AnimatedStat({ stat, index, isVisible }: { stat: typeof statistics[0], 
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `all 0.6s ease-out ${index * 0.1}s`, // Stagger effect
+        transition: `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`,
       }}
     >
       {/* Icon */}
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-300">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-200">
         <Icon className="w-8 h-8 text-accent" />
       </div>
 

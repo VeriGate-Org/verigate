@@ -1,0 +1,114 @@
+{
+    "key": "group_vg_stat",
+    "title": "Statistic Fields",
+    "fields": [
+        {
+            "key": "field_vg_stat_value",
+            "label": "Value",
+            "name": "value",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "The numeric value to display. Include formatting like commas, +, % as needed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_stat_label",
+            "label": "Label",
+            "name": "label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_stat_icon",
+            "label": "Icon",
+            "name": "icon",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "shield-check": "Shield Check",
+                "user-check": "User Check",
+                "file-text": "File Text",
+                "credit-card": "Credit Card",
+                "building": "Building",
+                "search": "Search",
+                "fingerprint": "Fingerprint",
+                "lock": "Lock",
+                "globe": "Globe",
+                "zap": "Zap",
+                "users": "Users",
+                "target": "Target",
+                "activity": "Activity",
+                "mail": "Mail",
+                "phone": "Phone",
+                "map-pin": "Map Pin",
+                "clock": "Clock",
+                "check-circle": "Check Circle",
+                "alert-triangle": "Alert Triangle",
+                "bar-chart": "Bar Chart",
+                "eye": "Eye",
+                "key": "Key",
+                "database": "Database",
+                "server": "Server",
+                "award": "Award",
+                "briefcase": "Briefcase",
+                "heart": "Heart",
+                "layers": "Layers",
+                "trending-up": "Trending Up",
+                "circle-check": "Circle Check"
+            },
+            "default_value": "circle-check",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 1,
+            "ajax": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "stat"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1712534400
+}

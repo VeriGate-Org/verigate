@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISO 27001 Certification Research -- Arthmatic DevWorks (VeriGate)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1A2E4B;
+    --cyan: #00B3D9;
+    --red: #E23D36;
+    --off-white: #F8FAFC;
+    --light-gray: #F1F5F9;
+    --border-gray: #E2E8F0;
+    --body-text: #334155;
+    --muted: #64748B;
+    --dark-bg: #0F1A2E;
+    --white: #FFFFFF;
+    --green: #059669;
+    --amber: #D97706;
+    --gold: #F59E0B;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--off-white);
+    color: var(--body-text);
+    line-height: 1.7;
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  /* Red accent bar at top */
+  body::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--red);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  .page-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* HEADER */
+  .doc-header {
+    background: var(--dark-bg);
+    color: var(--white);
+    padding: 56px 48px 48px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cyan), var(--red));
+  }
+
+  .doc-header::after {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(0, 179, 217, 0.06);
+  }
+
+  .doc-header .brand {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+  }
+
+  .doc-header h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .doc-header .subtitle {
+    font-size: 17px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 28px;
+  }
+
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .doc-meta-item {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .doc-meta-item strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+  }
+
+  .doc-header .confidential-badge {
+    display: inline-block;
+    background: rgba(226, 61, 54, 0.15);
+    border: 1px solid rgba(226, 61, 54, 0.4);
+    color: #F87171;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+
+  /* TABLE OF CONTENTS */
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 36px 40px;
+    margin-bottom: 48px;
+  }
+
+  .toc-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-gray);
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 40px;
+  }
+
+  .toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    color: var(--body-text);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 0;
+    transition: color 0.15s;
+  }
+
+  .toc a:hover { color: var(--cyan); }
+
+  .toc a .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cyan);
+    min-width: 24px;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 14px;
+    margin-top: 28px;
+    line-height: 1.3;
+  }
+
+  h4 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  p {
+    margin-bottom: 14px;
+  }
+
+  strong { font-weight: 600; }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* CARDS */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .card-icon.cyan { background: rgba(0,179,217,0.1); color: var(--cyan); }
+  .card-icon.navy { background: rgba(26,46,75,0.1); color: var(--navy); }
+  .card-icon.red { background: rgba(226,61,54,0.1); color: var(--red); }
+  .card-icon.green { background: rgba(5,150,105,0.1); color: var(--green); }
+  .card-icon.amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+
+  /* TABLES */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-gray);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    background: var(--light-gray);
+    color: var(--navy);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--border-gray);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-gray);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(241,245,249,0.5); }
+
+  /* Total / highlight rows */
+  tbody tr.row-total td {
+    background: rgba(0,179,217,0.06);
+    font-weight: 700;
+    color: var(--navy);
+    border-top: 2px solid var(--cyan);
+  }
+
+  /* SUMMARY BOXES */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .summary-box {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .summary-box .label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .summary-box .value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+
+  .summary-box .detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .summary-box.highlight {
+    border-color: var(--cyan);
+    background: linear-gradient(135deg, rgba(0,179,217,0.04), rgba(0,179,217,0.01));
+  }
+
+  .summary-box.highlight .value { color: var(--cyan); }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 36px;
+    margin: 24px 0 32px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--border-gray);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 24px;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 2px var(--cyan);
+    z-index: 1;
+  }
+
+  .timeline-item.phase-marker::before {
+    width: 14px;
+    height: 14px;
+    left: -27px;
+    top: 4px;
+    background: var(--navy);
+    box-shadow: 0 0 0 3px rgba(26,46,75,0.2);
+  }
+
+  .timeline-item .tl-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+  }
+
+  .timeline-item .tl-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 500;
+    margin-left: 8px;
+  }
+
+  .timeline-item .tl-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .timeline-item .tl-bar {
+    margin-top: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--cyan), rgba(0,179,217,0.3));
+  }
+
+  /* PHASE BARS */
+  .phase-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 24px 0;
+  }
+
+  .phase-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .phase-bar .pb-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    min-width: 200px;
+    text-align: right;
+  }
+
+  .phase-bar .pb-track {
+    flex: 1;
+    height: 24px;
+    background: var(--light-gray);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phase-bar .pb-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+  }
+
+  .phase-bar .pb-fill.p1 { background: var(--navy); }
+  .phase-bar .pb-fill.p2 { background: var(--cyan); }
+  .phase-bar .pb-fill.p3 { background: var(--red); }
+  .phase-bar .pb-fill.p4 { background: var(--green); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    border-left: 4px solid;
+  }
+
+  .callout.info {
+    background: rgba(0,179,217,0.06);
+    border-left-color: var(--cyan);
+  }
+
+  .callout.warn {
+    background: rgba(217,119,6,0.06);
+    border-left-color: var(--amber);
+  }
+
+  .callout.success {
+    background: rgba(5,150,105,0.06);
+    border-left-color: var(--green);
+  }
+
+  .callout.alert {
+    background: rgba(226,61,54,0.06);
+    border-left-color: var(--red);
+  }
+
+  .callout .callout-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .callout.info .callout-title { color: var(--cyan); }
+  .callout.warn .callout-title { color: var(--amber); }
+  .callout.success .callout-title { color: var(--green); }
+  .callout.alert .callout-title { color: var(--red); }
+
+  .callout p { margin-bottom: 8px; font-size: 14px; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* BULLET LISTS */
+  ul, ol {
+    margin-bottom: 14px;
+    padding-left: 24px;
+  }
+
+  li { margin-bottom: 6px; }
+
+  /* POPIA OVERLAP MATRIX */
+  .overlap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    background: var(--border-gray);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .overlap-cell {
+    padding: 14px 16px;
+    font-size: 13px;
+    background: var(--white);
+  }
+
+  .overlap-cell.header {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .overlap-cell .overlap-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+
+  .overlap-tag.full { background: rgba(5,150,105,0.1); color: var(--green); }
+  .overlap-tag.partial { background: rgba(217,119,6,0.1); color: var(--amber); }
+  .overlap-tag.none { background: rgba(226,61,54,0.1); color: var(--red); }
+
+  /* SUBSIDY HIGHLIGHT */
+  .subsidy-highlight {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #142240 100%);
+    border-radius: 12px;
+    padding: 40px;
+    color: var(--white);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .subsidy-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 30px solid rgba(245,158,11,0.08);
+  }
+
+  .subsidy-highlight h3 {
+    color: var(--gold);
+    margin-top: 0;
+  }
+
+  .subsidy-highlight .big-amount {
+    font-family: 'Manrope', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+    margin: 12px 0 8px;
+  }
+
+  .subsidy-highlight .big-label {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 24px;
+  }
+
+  .subsidy-highlight p { color: rgba(255,255,255,0.8); font-size: 14px; }
+  .subsidy-highlight strong { color: var(--white); }
+  .subsidy-highlight a { color: var(--gold); }
+
+  /* TIP CARDS */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .tip-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 20px 24px;
+    position: relative;
+    transition: box-shadow 0.15s;
+  }
+
+  .tip-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .tip-card .tip-num {
+    font-family: 'Manrope', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: rgba(0,179,217,0.15);
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    line-height: 1;
+  }
+
+  .tip-card .tip-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .tip-card .tip-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* PITFALLS TABLE */
+  .pitfall-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr;
+    gap: 1px;
+    background: var(--border-gray);
+    margin-bottom: 1px;
+  }
+
+  .pitfall-row:first-child { border-radius: 8px 8px 0 0; overflow: hidden; }
+  .pitfall-row:last-child { border-radius: 0 0 8px 8px; overflow: hidden; }
+
+  .pitfall-row > div {
+    padding: 14px 16px;
+    background: var(--white);
+    font-size: 13px;
+  }
+
+  .pitfall-row.header > div {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pitfall-name {
+    font-weight: 600;
+    color: var(--red);
+  }
+
+  /* RECOMMENDED APPROACH */
+  .recommended-section {
+    background: linear-gradient(135deg, rgba(0,179,217,0.04), rgba(0,179,217,0.01));
+    border: 2px solid var(--cyan);
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 32px;
+  }
+
+  .recommended-section h2 { color: var(--navy); }
+
+  .recommended-badge {
+    display: inline-block;
+    background: var(--cyan);
+    color: var(--white);
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  /* CHECKLIST */
+  .checklist {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 24px;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-gray);
+    font-size: 14px;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist .check-box {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 2px solid var(--border-gray);
+    border-radius: 4px;
+    margin-top: 1px;
+  }
+
+  .checklist .step-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cyan);
+    background: rgba(0,179,217,0.08);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+
+  /* SOURCES */
+  .sources-section {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 36px 40px;
+  }
+
+  .sources-section h3 {
+    margin-top: 24px;
+  }
+  .sources-section h3:first-of-type {
+    margin-top: 0;
+  }
+
+  .source-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+  }
+
+  .source-list li {
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(226,232,240,0.5);
+  }
+
+  .source-list li:last-child { border-bottom: none; }
+
+  .source-list a {
+    color: var(--cyan);
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  .source-list a:hover { text-decoration: underline; }
+
+  /* FOOTER */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-gray);
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* HORIZONTAL RULE */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border-gray);
+    margin: 48px 0;
+  }
+
+  /* COST VISUAL */
+  .cost-bar-chart {
+    margin: 24px 0;
+  }
+
+  .cost-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .cost-bar-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    min-width: 180px;
+    text-align: right;
+  }
+
+  .cost-bar-track {
+    flex: 1;
+    height: 28px;
+    background: var(--light-gray);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cost-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--cyan), rgba(0,179,217,0.6));
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+
+  .cost-bar-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    min-width: 140px;
+  }
+
+  /* RECOMMENDATION ROW ICONS */
+  .rec-icon {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: rgba(0,179,217,0.1);
+    color: var(--cyan);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    body::before { display: none; }
+    body { font-size: 12px; background: white; }
+    .page-wrapper { max-width: 100%; padding: 20px; }
+    .doc-header {
+      background: var(--navy) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      break-after: avoid;
+    }
+    .subsidy-highlight {
+      background: var(--dark-bg) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .card, .toc, .sources-section, .recommended-section {
+      break-inside: avoid;
+      box-shadow: none;
+    }
+    table { break-inside: avoid; font-size: 11px; }
+    thead th {
+      background: var(--light-gray) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .summary-grid { break-inside: avoid; }
+    a { color: var(--navy); }
+    a[href]::after { content: none; }
+    h2, h3 { break-after: avoid; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .toc-grid { grid-template-columns: 1fr; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .page-wrapper { padding: 20px 16px 60px; }
+    .doc-header { padding: 36px 24px 32px; }
+    .doc-header h1 { font-size: 24px; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .overlap-grid { grid-template-columns: 1fr; }
+    .phase-bar .pb-label { min-width: 120px; font-size: 11px; }
+    .recommended-section { padding: 24px; }
+    .subsidy-highlight { padding: 28px; }
+    .subsidy-highlight .big-amount { font-size: 36px; }
+    table { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="brand" style="display: flex; align-items: center; gap: 10px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="160" height="40" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+    <h1>ISO 27001 Certification Research</h1>
+    <div class="subtitle">Real-Time Risk Intelligence Platform &mdash; Information Security Management</div>
+    <div class="doc-meta">
+      <div class="doc-meta-item"><strong>Prepared:</strong> 7 April 2026</div>
+      <div class="doc-meta-item"><strong>Company:</strong> Arthmatic DevWorks (Pty) Ltd</div>
+      <div class="doc-meta-item"><strong>Product:</strong> VeriGate</div>
+      <div class="doc-meta-item"><strong>Employees:</strong> &lt; 20</div>
+      <div class="doc-meta-item"><strong>Location:</strong> Cape Town, Western Cape, South Africa</div>
+    </div>
+    <div class="confidential-badge">Internal Research Document</div>
+  </header>
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc" id="toc">
+    <div class="toc-title">Table of Contents</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span> Executive Summary</a>
+      <a href="#s8"><span class="toc-num">08</span> Provider Comparison</a>
+      <a href="#s2"><span class="toc-num">02</span> Why ISO 27001 for VeriGate</a>
+      <a href="#s9"><span class="toc-num">09</span> POPIA &amp; ISO 27001 Overlap</a>
+      <a href="#s3"><span class="toc-num">03</span> Process Overview</a>
+      <a href="#s10"><span class="toc-num">10</span> Government Subsidies</a>
+      <a href="#s4"><span class="toc-num">04</span> Certification Bodies (SA)</a>
+      <a href="#s11"><span class="toc-num">11</span> Tips for Small Tech Companies</a>
+      <a href="#s5"><span class="toc-num">05</span> Consulting Providers</a>
+      <a href="#s12"><span class="toc-num">12</span> Recommended Approach</a>
+      <a href="#s6"><span class="toc-num">06</span> Cost Breakdown</a>
+      <a href="#s13"><span class="toc-num">13</span> Next Steps</a>
+      <a href="#s7"><span class="toc-num">07</span> Timeline</a>
+      <a href="#s14"><span class="toc-num">14</span> Sources</a>
+    </div>
+  </nav>
+
+  <!-- SECTION 1: EXECUTIVE SUMMARY -->
+  <section class="section" id="s1">
+    <div class="section-label">Section 01</div>
+    <h2>Executive Summary</h2>
+
+    <p>VeriGate is a real-time risk intelligence platform handling highly sensitive personal and government data &mdash; DHA identity checks, CIPC company verification, credit bureau lookups, SARS tax data, and AI-powered risk scoring. ISO/IEC 27001:2022 certification is essential for:</p>
+
+    <ul>
+      <li><strong>Market access:</strong> Enterprise and government clients increasingly require ISO 27001 as a procurement prerequisite.</li>
+      <li><strong>Regulatory alignment:</strong> Supports POPIA compliance obligations.</li>
+      <li><strong>Trust signal:</strong> Demonstrates to data providers (DHA, SARS, credit bureaus) that Arthmatic DevWorks has a mature information security posture.</li>
+      <li><strong>Competitive differentiation:</strong> Few small SA fintech/regtech platforms hold ISO 27001.</li>
+    </ul>
+
+    <div class="summary-grid">
+      <div class="summary-box highlight">
+        <div class="label">First-Year Cost</div>
+        <div class="value">R280K &ndash; R550K</div>
+        <div class="detail">~$15,000 &ndash; $30,000 USD</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Annual Maintenance</div>
+        <div class="value">R80K &ndash; R150K</div>
+        <div class="detail">From Year 2 onwards</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Timeline</div>
+        <div class="value">4 &ndash; 8 months</div>
+        <div class="detail">Decision to certificate</div>
+      </div>
+      <div class="summary-box highlight">
+        <div class="label">Lean Estimate</div>
+        <div class="value">R286,000</div>
+        <div class="detail">Recommended budget</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 2: WHY ISO 27001 -->
+  <section class="section" id="s2">
+    <div class="section-label">Section 02</div>
+    <h2>Why ISO 27001 for VeriGate</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:200px;">Factor</th>
+            <th>Relevance to VeriGate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Sensitive data handling</strong></td><td>DHA identity numbers, CIPC company data, credit bureau records, SARS tax information, directorship and shareholding records used for conflict of interest detection</td></tr>
+          <tr><td><strong>Government data sources</strong></td><td>DHA and SARS integrations require demonstrable security controls</td></tr>
+          <tr><td><strong>Regulatory environment</strong></td><td>POPIA requires "appropriate, reasonable technical and organisational measures" &mdash; ISO 27001 is the gold standard for proving this</td></tr>
+          <tr><td><strong>Enterprise sales</strong></td><td>Banks, insurers, and corporates expect ISO 27001 from data-handling vendors</td></tr>
+          <tr><td><strong>API security</strong></td><td>VeriGate exposes APIs that handle PII at scale &mdash; needs formal ISMS</td></tr>
+          <tr><td><strong>Insurance</strong></td><td>Cyber liability insurance premiums are often reduced with ISO 27001</td></tr>
+          <tr><td><strong>Conflict of interest detection</strong></td><td>VeriGate cross-references CIPC directorships, shareholding percentages, property ownership, and PEP databases to detect undisclosed relationships &mdash; this involves processing highly sensitive corporate governance and beneficial ownership data that demands rigorous security controls</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 3: PROCESS OVERVIEW -->
+  <section class="section" id="s3">
+    <div class="section-label">Section 03</div>
+    <h2>Process Overview &mdash; Decision to Certification</h2>
+
+    <!-- Phase 1 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon navy">1</div>
+        <div>
+          <h3 style="margin:0;">Phase 1: Preparation</h3>
+          <span style="font-size:13px;color:var(--muted);">Months 1&ndash;2</span>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th style="width:60px;">Step</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td><strong>Management commitment</strong> &mdash; Secure executive buy-in, appoint an ISMS lead (can be CTO or senior engineer), allocate budget</td></tr>
+            <tr><td><strong>2</strong></td><td><strong>Define ISMS scope</strong> &mdash; For VeriGate: the verification gateway platform, its APIs, infrastructure, data processing, and supporting business processes. Keep scope tight</td></tr>
+            <tr><td><strong>3</strong></td><td><strong>Gap analysis</strong> &mdash; Assess current security posture against ISO 27001:2022 Annex A controls (93 controls across 4 categories: Organisational, People, Physical, Technological)</td></tr>
+            <tr><td><strong>4</strong></td><td><strong>Risk assessment</strong> &mdash; Identify information assets, threats, vulnerabilities. Create risk register. Define risk treatment plan</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">2</div>
+        <div>
+          <h3 style="margin:0;">Phase 2: Implementation</h3>
+          <span style="font-size:13px;color:var(--muted);">Months 2&ndash;5</span>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th style="width:60px;">Step</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>5</strong></td><td><strong>Develop ISMS documentation</strong> &mdash; Information Security Policy, Risk Assessment Methodology, Statement of Applicability (SoA), risk treatment plan, procedures for access control, incident management, business continuity, etc.</td></tr>
+            <tr><td><strong>6</strong></td><td><strong>Implement controls</strong> &mdash; Technical controls (encryption, access management, logging, vulnerability scanning), organisational controls (policies, training, vendor management), physical controls (office security)</td></tr>
+            <tr><td><strong>7</strong></td><td><strong>Staff awareness training</strong> &mdash; All employees must understand the ISMS, their roles, and security procedures</td></tr>
+            <tr><td><strong>8</strong></td><td><strong>Internal audit</strong> &mdash; Conduct a full internal audit against the standard. Identify non-conformities and address them</td></tr>
+            <tr><td><strong>9</strong></td><td><strong>Management review</strong> &mdash; Formal management review of the ISMS &mdash; required by the standard</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon red">3</div>
+        <div>
+          <h3 style="margin:0;">Phase 3: Certification Audit</h3>
+          <span style="font-size:13px;color:var(--muted);">Months 5&ndash;7</span>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th style="width:60px;">Step</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>10</strong></td><td><strong>Stage 1 audit (Document review)</strong> &mdash; Certification body reviews ISMS documentation, scope, risk assessment, SoA. Typically 1&ndash;2 days on-site or remote. Identifies any major gaps before Stage 2</td></tr>
+            <tr><td><strong>11</strong></td><td><strong>Address Stage 1 findings</strong> &mdash; Fix any issues identified. Typically 2&ndash;4 weeks between stages</td></tr>
+            <tr><td><strong>12</strong></td><td><strong>Stage 2 audit (Implementation audit)</strong> &mdash; On-site assessment of whether the ISMS is actually implemented and operating. Auditors interview staff, review evidence, test controls. Typically 2&ndash;4 days for a small company</td></tr>
+            <tr><td><strong>13</strong></td><td><strong>Certificate issuance</strong> &mdash; If no major non-conformities, certificate is issued. Minor non-conformities must have corrective action plans</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">4</div>
+        <div>
+          <h3 style="margin:0;">Phase 4: Maintenance</h3>
+          <span style="font-size:13px;color:var(--muted);">Ongoing</span>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th style="width:60px;">Step</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>14</strong></td><td><strong>Surveillance audit &mdash; Year 1</strong> &mdash; Annual audit by the certification body (typically 1&ndash;2 days). Checks continued compliance</td></tr>
+            <tr><td><strong>15</strong></td><td><strong>Surveillance audit &mdash; Year 2</strong> &mdash; Second annual check</td></tr>
+            <tr><td><strong>16</strong></td><td><strong>Recertification audit &mdash; Year 3</strong> &mdash; Full recertification audit at end of 3-year cycle</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 4: CERTIFICATION BODIES -->
+  <section class="section" id="s4">
+    <div class="section-label">Section 04</div>
+    <h2>Accredited Certification Bodies in South Africa</h2>
+
+    <p>These are the organisations that actually <strong>issue</strong> the ISO 27001 certificate. They must be accredited by a national accreditation body (SANAS in South Africa, or an international equivalent under the IAF MLA).</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Certification Body</th>
+            <th>Accreditation</th>
+            <th>SA Presence</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>BSI</strong><br><a href="https://www.bsigroup.com/en-ZA/" target="_blank">bsigroup.com/en-ZA</a></td>
+            <td>UKAS (UK), recognised by SANAS</td>
+            <td>Johannesburg office, services nationally</td>
+            <td>Gold standard, premium pricing. 300+ auditors. Strong international signal</td>
+          </tr>
+          <tr>
+            <td><strong>SGS South Africa</strong><br><a href="https://www.sgs.com/en-za" target="_blank">sgs.com/en-za</a></td>
+            <td>SANAS accredited</td>
+            <td>Head office Woodmead, JHB. National coverage</td>
+            <td>Global leader in TIC. Tel: +27 11 800 1000</td>
+          </tr>
+          <tr>
+            <td><strong>Bureau Veritas SA</strong><br><a href="https://www.bureauveritas.co.za/" target="_blank">bureauveritas.co.za</a></td>
+            <td>SANAS accredited</td>
+            <td>National offices</td>
+            <td>125+ years in Africa. Strong reputation</td>
+          </tr>
+          <tr>
+            <td><strong>DQS South Africa</strong><br><a href="https://www.dqsglobal.com/en-za/" target="_blank">dqsglobal.com/en-za</a></td>
+            <td>DAkkS (Germany) &amp; SANAS dual</td>
+            <td>South Africa office</td>
+            <td>Specialist in management system certification. Offers Lead Implementer training</td>
+          </tr>
+          <tr>
+            <td><strong>SACAS</strong><br><a href="https://www.sacas.co.za/" target="_blank">sacas.co.za</a></td>
+            <td>SANAS accredited</td>
+            <td>Vanderbijlpark, Gauteng</td>
+            <td>South African-owned. More affordable. Tel: +27 16 931 2001</td>
+          </tr>
+          <tr>
+            <td><strong>SABS</strong><br><a href="https://www.sabs.co.za/" target="_blank">sabs.co.za</a></td>
+            <td>SANAS (national standards body)</td>
+            <td>Pretoria, national coverage</td>
+            <td>National standards body. ISO 27001 capability but less common</td>
+          </tr>
+          <tr>
+            <td><strong>TUV Rheinland</strong><br><a href="https://www.tuv.com/" target="_blank">tuv.com</a></td>
+            <td>DAkkS, recognised internationally</td>
+            <td>Johannesburg</td>
+            <td>German certification body with global reach</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-title">Recommendation for VeriGate</div>
+      <p>BSI or SGS would carry the most international recognition, which matters when dealing with financial institutions and government agencies. SACAS or DQS are more cost-effective options while still being SANAS accredited.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 5: CONSULTING PROVIDERS -->
+  <section class="section" id="s5">
+    <div class="section-label">Section 05</div>
+    <h2>Consulting / Implementation Providers</h2>
+
+    <p>These are consultants who help you <strong>prepare</strong> for certification (gap analysis, implementation, documentation, training, internal audit). They do NOT issue the certificate &mdash; that must come from an accredited certification body.</p>
+
+    <h3>Cape Town Based</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Location</th>
+            <th>Services</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>WWISE</strong><br><a href="https://wwise.co.za/" target="_blank">wwise.co.za</a></td>
+            <td>Century City, Cape Town</td>
+            <td>Gap analysis, implementation, training, internal audit, maintenance</td>
+            <td>Established SA firm. ECSA recognised. Strong local presence. Also offers e-learning. Tel: 021 525 9159</td>
+          </tr>
+          <tr>
+            <td><strong>Imbertech</strong><br><a href="https://imbertech.co.za/services/compliance" target="_blank">imbertech.co.za</a></td>
+            <td>Cape Town</td>
+            <td>Gap analysis, implementation, certification support, POPIA + ISO 27001 combined, ongoing monitoring</td>
+            <td>Specifically offers combined POPIA + ISO 27001 compliance packages. Good fit for VeriGate's dual requirement</td>
+          </tr>
+          <tr>
+            <td><strong>TopCertifier</strong><br><a href="https://www.iso-certification.co.za/" target="_blank">iso-certification.co.za</a></td>
+            <td>Cape Town, JHB, Nelspruit</td>
+            <td>Consulting, assessment, gap analysis (free initial), third-party audit coordination, training</td>
+            <td>Claims to offer free gap analysis. Comprehensive service offering</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>National (Servicing Cape Town)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Location</th>
+            <th>Services</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IMSM</strong><br><a href="https://www.imsm.com/south-africa/" target="_blank">imsm.com/south-africa</a></td>
+            <td>National (global firm)</td>
+            <td>Fixed-fee implementation consulting, documentation, IMSMLoop client portal, ongoing support</td>
+            <td>150+ experts worldwide, 15,000+ clients. Transparent fixed fees</td>
+          </tr>
+          <tr>
+            <td><strong>Hosi Technologies</strong><br><a href="https://hosi.co.za/" target="_blank">hosi.co.za</a></td>
+            <td>Johannesburg (national)</td>
+            <td>ISO 27001 + POPIA consulting, DIY packages, internal audits, managed services</td>
+            <td>ISO 27001 certified themselves. Offers combined ISO + POPIA track</td>
+          </tr>
+          <tr>
+            <td><strong>Cyber Security Institute</strong><br><a href="https://cybersecurityinstitute.co.za/" target="_blank">cybersecurityinstitute.co.za</a></td>
+            <td>South Africa</td>
+            <td>ISO 27001 implementation, POPIA compliance, cyber risk governance, training, internal audit</td>
+            <td>Specialises in cyber security + compliance. Good for tech companies</td>
+          </tr>
+          <tr>
+            <td><strong>CertValue</strong><br><a href="https://certvalue.com/iso-27001-certification-in-south-africa/" target="_blank">certvalue.com</a></td>
+            <td>National (international)</td>
+            <td>Training, audit, documentation, certification, gap analysis, implementation</td>
+            <td>International consultancy with SA presence</td>
+          </tr>
+          <tr>
+            <td><strong>VerosCert</strong><br><a href="https://veroscert.com/southafrica/iso-27001-certification-southafrica.html" target="_blank">veroscert.com</a></td>
+            <td>National (international)</td>
+            <td>Implementation, certification support, bundled packages</td>
+            <td>Offers startup discounts and bundled pricing</td>
+          </tr>
+          <tr>
+            <td><strong>Factocert</strong><br><a href="https://factocert.com/south-africa/iso-27001-certification-in-south-africa/" target="_blank">factocert.com</a></td>
+            <td>National (international)</td>
+            <td>ISMS roadmap, documentation, training, certification assistance</td>
+            <td>International consultancy</td>
+          </tr>
+          <tr>
+            <td><strong>NRKC</strong><br><a href="https://www.nrkc.co.za/" target="_blank">nrkc.co.za</a></td>
+            <td>Pretoria</td>
+            <td>ISO implementation, training, maintenance</td>
+            <td>100% Black Women Owned. BBBEE Level 1. Good for transformation scorecards</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 6: COST BREAKDOWN -->
+  <section class="section" id="s6">
+    <div class="section-label">Section 06</div>
+    <h2>Cost Breakdown</h2>
+
+    <p>All estimates below are for a <strong>small tech company with &lt; 20 employees</strong> and a focused ISMS scope (the VeriGate platform and supporting processes).</p>
+
+    <h3>6.1 Detailed Cost Estimates</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Cost Component</th>
+            <th>ZAR Estimate</th>
+            <th>USD Estimate</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Gap Analysis</strong></td>
+            <td>R55,000 &ndash; R110,000</td>
+            <td>$3,000 &ndash; $6,000</td>
+            <td>External consultant assesses current state vs ISO 27001:2022 requirements</td>
+          </tr>
+          <tr>
+            <td><strong>Implementation Consulting</strong></td>
+            <td>R90,000 &ndash; R185,000</td>
+            <td>$5,000 &ndash; $10,000</td>
+            <td>Help building documentation, policies, risk register, SoA</td>
+          </tr>
+          <tr>
+            <td><strong>Staff Training</strong></td>
+            <td>R18,500 &ndash; R55,000</td>
+            <td>$1,000 &ndash; $3,000</td>
+            <td>Security awareness for all staff + Lead Implementer course</td>
+          </tr>
+          <tr>
+            <td><strong>Internal Audit</strong></td>
+            <td>R37,000 &ndash; R75,000</td>
+            <td>$2,000 &ndash; $4,000</td>
+            <td>Pre-certification internal audit</td>
+          </tr>
+          <tr>
+            <td><strong>Technology / Tools</strong></td>
+            <td>R18,500 &ndash; R55,000</td>
+            <td>$1,000 &ndash; $3,000</td>
+            <td>GRC platform, vulnerability scanning, SIEM, documentation management</td>
+          </tr>
+          <tr>
+            <td><strong>Certification Audit</strong></td>
+            <td>R90,000 &ndash; R185,000</td>
+            <td>$5,000 &ndash; $10,000</td>
+            <td>Stage 1 + Stage 2. Small company = 3&ndash;6 audit days</td>
+          </tr>
+          <tr class="row-total">
+            <td><strong>TOTAL FIRST YEAR</strong></td>
+            <td><strong>R310,000 &ndash; R665,000</strong></td>
+            <td><strong>$17,000 &ndash; $36,000</strong></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Visual cost bars -->
+    <h4>Visual Cost Summary (Upper Range)</h4>
+    <div class="cost-bar-chart">
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Gap Analysis</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:16.5%;">R110K</div></div>
+        <div class="cost-bar-amount">R55K &ndash; R110K</div>
+      </div>
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Implementation</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:27.8%;">R185K</div></div>
+        <div class="cost-bar-amount">R90K &ndash; R185K</div>
+      </div>
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Staff Training</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:8.3%;">R55K</div></div>
+        <div class="cost-bar-amount">R18.5K &ndash; R55K</div>
+      </div>
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Internal Audit</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:11.3%;">R75K</div></div>
+        <div class="cost-bar-amount">R37K &ndash; R75K</div>
+      </div>
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Tech / Tools</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:8.3%;">R55K</div></div>
+        <div class="cost-bar-amount">R18.5K &ndash; R55K</div>
+      </div>
+      <div class="cost-bar-item">
+        <div class="cost-bar-label">Certification Audit</div>
+        <div class="cost-bar-track"><div class="cost-bar-fill" style="width:27.8%;">R185K</div></div>
+        <div class="cost-bar-amount">R90K &ndash; R185K</div>
+      </div>
+    </div>
+
+    <h3>6.2 Realistic VeriGate Estimate (Lean Approach)</h3>
+    <p>Given Arthmatic DevWorks' tech capability (can handle much of the implementation internally):</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Cost Component</th>
+            <th>ZAR Estimate</th>
+            <th>Approach</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Gap Analysis</strong></td><td>R40,000 &ndash; R60,000</td><td>External consultant, 2&ndash;3 days</td></tr>
+          <tr><td><strong>Implementation (DIY + Templates)</strong></td><td>R30,000 &ndash; R50,000</td><td>In-house using ISO 27001 toolkit/templates, minimal external help</td></tr>
+          <tr><td><strong>Training</strong></td><td>R25,000 &ndash; R40,000</td><td>Lead Implementer course for 1 person + awareness training for team</td></tr>
+          <tr><td><strong>Internal Audit</strong></td><td>R25,000 &ndash; R40,000</td><td>Outsource to consultant (cannot be done by same person who implemented)</td></tr>
+          <tr><td><strong>Certification Audit</strong></td><td>R90,000 &ndash; R130,000</td><td>SACAS or DQS (more affordable than BSI/SGS)</td></tr>
+          <tr class="row-total"><td><strong>TOTAL (Lean)</strong></td><td><strong>R210,000 &ndash; R320,000</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.3 Annual Maintenance Costs (Year 2 onwards)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Cost Component</th><th>ZAR Estimate</th><th>USD Estimate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Surveillance Audit (annual)</strong></td><td>R50,000 &ndash; R90,000</td><td>$2,700 &ndash; $5,000</td></tr>
+          <tr><td><strong>Internal Audit (annual)</strong></td><td>R20,000 &ndash; R40,000</td><td>$1,100 &ndash; $2,200</td></tr>
+          <tr><td><strong>Ongoing improvements / training</strong></td><td>R15,000 &ndash; R30,000</td><td>$800 &ndash; $1,600</td></tr>
+          <tr class="row-total"><td><strong>Annual Maintenance Total</strong></td><td><strong>R85,000 &ndash; R160,000</strong></td><td><strong>$4,600 &ndash; $8,800</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.4 Recertification (Every 3 Years)</h3>
+    <div class="summary-grid" style="max-width:300px;">
+      <div class="summary-box">
+        <div class="label">Recertification Audit</div>
+        <div class="value">R75K &ndash; R150K</div>
+        <div class="detail">Full audit at end of 3-year cycle</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 7: TIMELINE -->
+  <section class="section" id="s7">
+    <div class="section-label">Section 07</div>
+    <h2>Timeline</h2>
+
+    <h3>Realistic Timeline for Arthmatic DevWorks (&lt; 20 employees)</h3>
+
+    <!-- Phase duration bars -->
+    <div style="margin-bottom:12px;">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Each bar represents the proportion of total duration (~34 weeks / 8 months).</p>
+    </div>
+
+    <div class="phase-bars">
+      <div class="phase-bar">
+        <div class="pb-label">Scope &amp; Commitment</div>
+        <div class="pb-track"><div class="pb-fill p1" style="width:6%;">Wk 2</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Gap Analysis</div>
+        <div class="pb-track"><div class="pb-fill p1" style="width:9%;">Wk 5</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Risk Assessment</div>
+        <div class="pb-track"><div class="pb-fill p1" style="width:9%;">Wk 8</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Documentation</div>
+        <div class="pb-track"><div class="pb-fill p2" style="width:18%;">Wk 14</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Control Implementation</div>
+        <div class="pb-track"><div class="pb-fill p2" style="width:12%;">Wk 16</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Staff Training</div>
+        <div class="pb-track"><div class="pb-fill p2" style="width:6%;">Wk 17</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">ISMS Operation</div>
+        <div class="pb-track"><div class="pb-fill p2" style="width:18%;">Wk 23</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Internal Audit &amp; Review</div>
+        <div class="pb-track"><div class="pb-fill p3" style="width:9%;">Wk 25</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Stage 1 + Remediation</div>
+        <div class="pb-track"><div class="pb-fill p3" style="width:12%;">Wk 29</div></div>
+      </div>
+      <div class="phase-bar">
+        <div class="pb-label">Stage 2 + Certificate</div>
+        <div class="pb-track"><div class="pb-fill p4" style="width:15%;">Wk 34</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin:16px 0 32px;font-size:12px;">
+      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--navy);vertical-align:middle;margin-right:4px;"></span> Phase 1: Preparation</span>
+      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--cyan);vertical-align:middle;margin-right:4px;"></span> Phase 2: Implementation</span>
+      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--red);vertical-align:middle;margin-right:4px;"></span> Phase 3: Audit</span>
+      <span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--green);vertical-align:middle;margin-right:4px;"></span> Phase 4: Certification</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Phase</th><th>Duration</th><th>Cumulative</th></tr></thead>
+        <tbody>
+          <tr><td>Management commitment + scope definition</td><td>1&ndash;2 weeks</td><td>Week 2</td></tr>
+          <tr><td>Gap analysis</td><td>2&ndash;3 weeks</td><td>Week 5</td></tr>
+          <tr><td>Risk assessment + treatment plan</td><td>2&ndash;3 weeks</td><td>Week 8</td></tr>
+          <tr><td>Documentation and policy development</td><td>4&ndash;6 weeks</td><td>Week 14</td></tr>
+          <tr><td>Control implementation</td><td>2&ndash;4 weeks (overlaps documentation)</td><td>Week 16</td></tr>
+          <tr><td>Staff training</td><td>1&ndash;2 weeks</td><td>Week 17</td></tr>
+          <tr><td>ISMS operation (evidence collection)</td><td>4&ndash;6 weeks (minimum)</td><td>Week 23</td></tr>
+          <tr><td>Internal audit</td><td>1&ndash;2 weeks</td><td>Week 24</td></tr>
+          <tr><td>Management review</td><td>1 week</td><td>Week 25</td></tr>
+          <tr><td>Stage 1 audit</td><td>1&ndash;2 days</td><td>Week 26</td></tr>
+          <tr><td>Address Stage 1 findings</td><td>2&ndash;4 weeks</td><td>Week 29</td></tr>
+          <tr><td>Stage 2 audit</td><td>2&ndash;4 days</td><td>Week 30</td></tr>
+          <tr class="row-total"><td>Certificate issuance</td><td>2&ndash;4 weeks</td><td><strong>Week 34 (~8 months)</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Accelerated Timeline</h3>
+    <p>If Arthmatic DevWorks already has documented security practices, the timeline can compress to <strong>4&ndash;5 months</strong>:</p>
+
+    <div class="summary-grid">
+      <div class="summary-box">
+        <div class="label">Gap + Risk</div>
+        <div class="value">3 wks</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Docs + Implementation</div>
+        <div class="value">6 wks</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">ISMS Operation</div>
+        <div class="value">4 wks</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Audit + Review</div>
+        <div class="value">2 wks</div>
+      </div>
+      <div class="summary-box highlight">
+        <div class="label">Certification Audit</div>
+        <div class="value">3 wks</div>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="callout-title">Accelerated Total: ~18 weeks (4.5 months)</div>
+      <p>Requires dedicated resource and good existing security practices already in place.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 8: PROVIDER COMPARISON -->
+  <section class="section" id="s8">
+    <div class="section-label">Section 08</div>
+    <h2>Provider Comparison Table</h2>
+
+    <h3>Consulting Providers</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Cape Town Office</th>
+            <th>POPIA + ISO 27001</th>
+            <th>Est. Cost (Consulting)</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>WWISE</strong></td>
+            <td>Yes (physical office)</td>
+            <td>Not explicitly stated</td>
+            <td>R100K &ndash; R200K</td>
+            <td>Local presence, established reputation, e-learning</td>
+          </tr>
+          <tr>
+            <td><strong>Imbertech</strong></td>
+            <td>Yes</td>
+            <td style="color:var(--green);font-weight:600;">Yes (explicitly offered)</td>
+            <td>R80K &ndash; R180K</td>
+            <td>Combined POPIA + ISO 27001. End-to-end including monitoring</td>
+          </tr>
+          <tr>
+            <td><strong>IMSM</strong></td>
+            <td>Services CPT</td>
+            <td>Not stated</td>
+            <td>R120K &ndash; R250K</td>
+            <td>Fixed-fee transparency, global methodology, client portal</td>
+          </tr>
+          <tr>
+            <td><strong>Hosi Technologies</strong></td>
+            <td>No (national service)</td>
+            <td style="color:var(--green);font-weight:600;">Yes (explicitly offered)</td>
+            <td>R80K &ndash; R180K</td>
+            <td>DIY packages. Already ISO 27001 certified. Tech-focused</td>
+          </tr>
+          <tr>
+            <td><strong>CSI</strong></td>
+            <td>No</td>
+            <td style="color:var(--green);font-weight:600;">Yes</td>
+            <td>R70K &ndash; R150K</td>
+            <td>Cyber security specialists. Good for tech companies</td>
+          </tr>
+          <tr>
+            <td><strong>VerosCert</strong></td>
+            <td>No</td>
+            <td>Bundled packages</td>
+            <td>R60K &ndash; R150K</td>
+            <td>Startup discounts, bundled multi-standard packages</td>
+          </tr>
+          <tr>
+            <td><strong>TopCertifier</strong></td>
+            <td>Yes</td>
+            <td>Not stated</td>
+            <td>R60K &ndash; R120K</td>
+            <td>Free initial gap analysis. Budget-friendly</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Certification Bodies (Audit Costs Only)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Certification Body</th>
+            <th>SANAS Accredited</th>
+            <th>Est. Audit Cost</th>
+            <th>Brand Recognition</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>BSI</strong></td>
+            <td>Yes (via UKAS/IAF)</td>
+            <td>R130K &ndash; R185K</td>
+            <td>Very High</td>
+            <td>Maximum credibility with enterprise &amp; government</td>
+          </tr>
+          <tr>
+            <td><strong>SGS</strong></td>
+            <td>Yes</td>
+            <td>R110K &ndash; R165K</td>
+            <td>Very High</td>
+            <td>Global recognition, strong TIC reputation</td>
+          </tr>
+          <tr>
+            <td><strong>Bureau Veritas</strong></td>
+            <td>Yes</td>
+            <td>R100K &ndash; R155K</td>
+            <td>Very High</td>
+            <td>Long Africa history, strong brand</td>
+          </tr>
+          <tr>
+            <td><strong>DQS</strong></td>
+            <td>Yes (dual DAkkS/SANAS)</td>
+            <td>R90K &ndash; R140K</td>
+            <td>High</td>
+            <td>Management system specialists, good value</td>
+          </tr>
+          <tr>
+            <td><strong>SACAS</strong></td>
+            <td>Yes</td>
+            <td>R70K &ndash; R120K</td>
+            <td>Moderate (SA-focused)</td>
+            <td>Most affordable SANAS-accredited option</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-title">Note</div>
+      <p>All cost estimates in the comparison tables are indicative and based on market research. Actual costs vary significantly based on scope, complexity, and negotiation. Always obtain multiple formal quotes.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 9: POPIA OVERLAP -->
+  <section class="section" id="s9">
+    <div class="section-label">Section 09</div>
+    <h2>POPIA and ISO 27001 Overlap</h2>
+
+    <p>VeriGate will need both ISO 27001 compliance AND POPIA compliance. The good news is there is significant overlap &mdash; implementing one significantly supports the other.</p>
+
+    <h3>Where They Overlap</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>ISO 27001 Clause/Control</th>
+            <th>POPIA Section</th>
+            <th>Overlap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Information security policies</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.5.1</code> Policies for information security</td>
+            <td>Section 19 &mdash; Security safeguards</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Risk assessment</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">Clause 6.1.2</code> Information security risk assessment</td>
+            <td>Section 19(1) &mdash; Appropriate measures</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Access control</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.8</code> Technological controls</td>
+            <td>Section 19(1)(a) &mdash; Prevent unauthorised access</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Encryption</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.8.24</code> Use of cryptography</td>
+            <td>Section 19(1)(a) &mdash; Prevent loss/damage</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Incident management</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.5.24-5.28</code> Incident management</td>
+            <td>Section 22 &mdash; Notification of compromise</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Third-party management</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.5.19-5.23</code> Supplier relationships</td>
+            <td>Section 20&ndash;21 &mdash; Operator obligations</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Training and awareness</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.6.3</code> Security awareness</td>
+            <td>Section 8 &mdash; Information officer responsibilities</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Data classification</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">A.5.12-5.13</code> Information classification</td>
+            <td>Section 14 &mdash; Personal information categories</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Records and documentation</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">Clause 7.5</code> Documented information</td>
+            <td>Section 14, 17 &mdash; Records of processing</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+          <tr>
+            <td><strong>Continuous improvement</strong></td>
+            <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--light-gray);padding:2px 6px;border-radius:3px;">Clause 10</code> Improvement</td>
+            <td>Section 8 &mdash; Compliance monitoring</td>
+            <td><span class="overlap-tag full">Full overlap</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Where POPIA Goes Beyond ISO 27001</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>POPIA Requirement</th>
+            <th>ISO 27001 Coverage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lawful basis for processing (Section 9&ndash;12)</td>
+            <td><span class="overlap-tag none">Not covered</span> &mdash; POPIA-specific</td>
+          </tr>
+          <tr>
+            <td>Data subject rights (access, correction, deletion) (Section 23&ndash;25)</td>
+            <td><span class="overlap-tag partial">Partially covered</span> via A.5.34 (privacy)</td>
+          </tr>
+          <tr>
+            <td>Purpose limitation (Section 13)</td>
+            <td><span class="overlap-tag none">Not covered</span></td>
+          </tr>
+          <tr>
+            <td>Information Officer registration with CIPC (Section 55)</td>
+            <td><span class="overlap-tag none">Not covered</span> &mdash; POPIA-specific</td>
+          </tr>
+          <tr>
+            <td>Cross-border transfer restrictions (Section 72)</td>
+            <td><span class="overlap-tag none">Not covered</span></td>
+          </tr>
+          <tr>
+            <td>Direct marketing consent (Section 69)</td>
+            <td><span class="overlap-tag none">Not covered</span></td>
+          </tr>
+          <tr>
+            <td>Special personal information (Section 26&ndash;33)</td>
+            <td><span class="overlap-tag partial">Partially covered</span> via data classification</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Recommended Strategy</h3>
+    <div class="callout info">
+      <div class="callout-title">Layered Approach</div>
+      <ol>
+        <li><strong>Implement ISO 27001 first</strong> &mdash; it provides the security management framework.</li>
+        <li><strong>Layer POPIA-specific requirements on top</strong> &mdash; data subject rights, purpose limitation, lawful processing bases, Information Officer appointment.</li>
+        <li><strong>Use the ISO 27001 risk assessment</strong> to identify POPIA risks as part of the same exercise.</li>
+        <li><strong>Leverage ISO 27001 Annex A control A.5.34</strong> (Privacy and protection of PII) as the bridge between the two frameworks.</li>
+        <li><strong>Estimated additional effort for POPIA</strong> after ISO 27001: 2&ndash;4 weeks of focused work to address the gaps listed above.</li>
+      </ol>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 10: GOVERNMENT SUBSIDIES -->
+  <section class="section" id="s10">
+    <div class="section-label">Section 10</div>
+    <h2>Government Subsidies and Support</h2>
+
+    <div class="subsidy-highlight">
+      <h3>SEDA Technology Programme (STP) &mdash; Quality &amp; Standards</h3>
+      <div class="big-amount">R600,000</div>
+      <div class="big-label">Non-repayable grant &mdash; maximum per project</div>
+      <p>The Quality and Standards Unit <strong>explicitly supports ISO certification</strong>. There is precedent of funding ISO 9001, ISO 13485 certification for small businesses. This could cover the <strong>bulk of ISO 27001 certification costs</strong> for Arthmatic DevWorks.</p>
+      <p style="margin-top:16px;">As of 1 October 2024, SEDA merged with sefa and CBDA to form the <strong>Small Enterprise Development and Finance Agency (SEDFA)</strong>. Existing programmes continue.</p>
+    </div>
+
+    <h3>10.1 SEDA / SEDFA Programmes</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Programme</th><th>Relevance</th><th>Max Grant</th><th>Details</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>STP &mdash; Quality &amp; Standards</strong></td>
+            <td style="color:var(--green);font-weight:600;">Directly relevant</td>
+            <td style="font-weight:700;">R600,000</td>
+            <td>Non-repayable grant. Explicitly supports ISO certification</td>
+          </tr>
+          <tr>
+            <td><strong>Black Business Supplier Development Programme (BBSDP)</strong></td>
+            <td>Relevant</td>
+            <td>R100,000</td>
+            <td>Can fund quality certifications and process improvements</td>
+          </tr>
+          <tr>
+            <td><strong>Free needs assessment</strong></td>
+            <td>Relevant</td>
+            <td>Free</td>
+            <td>Visit any SEDA/SEDFA branch for a free business assessment</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>How to Apply for STP Quality &amp; Standards</h3>
+    <div class="card">
+      <ol>
+        <li>Create an eThuse account at <a href="https://ethuse.co.za" target="_blank">ethuse.co.za</a></li>
+        <li>Visit nearest SEDA/SEDFA branch for a free needs assessment</li>
+        <li>Prepare: business plan, CIPC registration, SARS tax clearance, quotations from ISO consultants</li>
+        <li>Submit application (online or in-person)</li>
+        <li>Processing: approximately 6&ndash;8 weeks</li>
+        <li>Approval and disbursement within 30 days</li>
+      </ol>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-gray);">
+        <h4 style="margin-top:0;">Eligibility Baseline</h4>
+        <ul>
+          <li>South African-owned and operated</li>
+          <li>Registered with CIPC</li>
+          <li>Tax compliant with SARS (valid tax clearance)</li>
+          <li>Annual turnover below R50 million</li>
+        </ul>
+      </div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-gray);font-size:13px;color:var(--muted);">
+        <strong>Contact:</strong> SEDFA info@sedfa.org.za | Call centre: 0860 103 703 | <a href="https://www.sedfa.org.za/" target="_blank">sedfa.org.za</a>
+      </div>
+    </div>
+
+    <h3>10.2 dtic (Department of Trade, Industry and Competition)</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Programme</th><th>Relevance</th><th>Details</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Support Programme for Industrial Innovation (SPII)</strong></td>
+            <td>Partially relevant</td>
+            <td>Funds development of innovative products/processes. Could potentially cover VeriGate platform development but not directly ISO certification</td>
+          </tr>
+          <tr>
+            <td><strong>THRIP</strong></td>
+            <td>Low relevance</td>
+            <td>Primarily for R&amp;D collaboration with universities</td>
+          </tr>
+          <tr>
+            <td><strong>Sector Specific Assistance Scheme (SSAS)</strong></td>
+            <td>Low relevance</td>
+            <td>Primarily for export market access</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);">
+      <strong>Website:</strong> <a href="https://www.thedtic.gov.za/incentives/" target="_blank">thedtic.gov.za/incentives</a> |
+      <strong>Incentives guide:</strong> <a href="https://www.thedtic.gov.za/wp-content/uploads/the-dtic-incentive-schemes-guide-2026.pdf" target="_blank">PDF download</a>
+    </p>
+
+    <h3>10.3 Practical Subsidy Strategy</h3>
+
+    <div class="callout success">
+      <div class="callout-title">Action Plan for SEDA STP Grant</div>
+      <ol>
+        <li>Visit the nearest SEDA/SEDFA office in Cape Town immediately.</li>
+        <li>Request a needs assessment specifically mentioning ISO 27001 certification.</li>
+        <li>Get formal quotations from 2&ndash;3 ISO 27001 consultants (needed for the application).</li>
+        <li>Apply for the STP Quality &amp; Standards grant.</li>
+        <li>Proceed with certification while the application is being processed (if cash flow allows) &mdash; the grant can reimburse costs.</li>
+      </ol>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-title">Important Caveat</div>
+      <p>Grant availability and approval are not guaranteed. Budget for full self-funding but pursue the grant in parallel.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 11: TIPS -->
+  <section class="section" id="s11">
+    <div class="section-label">Section 11</div>
+    <h2>Tips for Small Tech Companies</h2>
+
+    <h3>How to Make It Faster</h3>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-num">01</div>
+        <div class="tip-title">Define the narrowest possible scope</div>
+        <div class="tip-text">Scope to "the VeriGate verification gateway platform, its cloud infrastructure, APIs, data processing, and directly supporting business processes." Do NOT include the entire company if not all functions handle sensitive data.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">02</div>
+        <div class="tip-title">Assign a dedicated ISMS lead</div>
+        <div class="tip-text">Two committed people can drive a startup through certification. The CTO or a senior engineer is ideal &mdash; no need for a dedicated CISO.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">03</div>
+        <div class="tip-title">Use a toolkit / template approach</div>
+        <div class="tip-text">Do not start from scratch. Purchase an ISO 27001 implementation toolkit (R5,000 &ndash; R15,000). These include policy templates, risk assessment spreadsheets, SoA templates, and procedure documents.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">04</div>
+        <div class="tip-title">Leverage existing practices</div>
+        <div class="tip-text">If Arthmatic DevWorks already has documented coding standards, access controls, incident response procedures, or security reviews &mdash; these count. Map them to ISO 27001 controls.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">05</div>
+        <div class="tip-title">Start collecting evidence early</div>
+        <div class="tip-text">Auditors want evidence that the ISMS has been operating for a period (minimum ~4&ndash;8 weeks). Start logging security events, access reviews, and vulnerability scans as early as possible.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">06</div>
+        <div class="tip-title">Consider a compliance automation platform</div>
+        <div class="tip-text">Tools like Vanta, Drata, Sprinto, or Scytale can accelerate implementation and evidence collection. For &lt; 20 employees this may be cost-effective.</div>
+      </div>
+    </div>
+
+    <h3>How to Make It Cheaper</h3>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-num">01</div>
+        <div class="tip-title">Do as much as possible in-house</div>
+        <div class="tip-text">As a tech company, Arthmatic DevWorks has the capability to write policies, conduct risk assessments, and implement technical controls internally. Use external consultants only for gap analysis, internal audit, and advice.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">02</div>
+        <div class="tip-title">Choose a cost-effective certification body</div>
+        <div class="tip-text">SACAS or DQS are SANAS accredited but significantly cheaper than BSI or SGS. The certificate carries the same ISO 27001:2022 designation regardless of which accredited body issues it.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">03</div>
+        <div class="tip-title">Bundle POPIA and ISO 27001</div>
+        <div class="tip-text">Engage one consultant for both. The overlap means you avoid duplicating work and paying twice.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">04</div>
+        <div class="tip-title">Apply for the SEDA STP grant</div>
+        <div class="tip-text">Up to R600,000 in non-repayable funding. This alone could cover the bulk of certification costs.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">05</div>
+        <div class="tip-title">Negotiate fixed fees</div>
+        <div class="tip-text">IMSM and some other consultants offer fixed-fee arrangements. This removes cost uncertainty.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-num">06</div>
+        <div class="tip-title">Remote audits</div>
+        <div class="tip-text">Post-COVID, most certification bodies offer remote/hybrid audits. These reduce travel costs (especially if the CB is based in Johannesburg).</div>
+      </div>
+    </div>
+
+    <h3>Common Pitfalls to Avoid</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Pitfall</th><th>Impact</th><th>How to Avoid</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Scope too broad</td>
+            <td>Increases audit days, documentation, and cost</td>
+            <td>Define scope tightly around VeriGate platform only</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Over-documenting</td>
+            <td>Wastes time, creates maintenance burden</td>
+            <td>Write policies you will actually follow. ISO 27001 requires documented procedures, not a novel</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Treating it as a one-off project</td>
+            <td>Fails at first surveillance audit</td>
+            <td>Build the ISMS into daily operations from day one</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">No management commitment</td>
+            <td>Auditors will fail you if management is not visibly involved</td>
+            <td>Ensure management reviews happen, resources are allocated</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Ignoring the risk assessment</td>
+            <td>The risk assessment IS the ISMS foundation</td>
+            <td>Take it seriously. It drives which controls you implement</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Choosing controls without justification</td>
+            <td>Auditors will ask why each control is included or excluded</td>
+            <td>The Statement of Applicability must justify every control decision</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Not allowing enough ISMS operating time</td>
+            <td>Auditors need evidence the system is working</td>
+            <td>Run the ISMS for at least 6&ndash;8 weeks before Stage 2 audit</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-weight:600;">Picking the cheapest consultant</td>
+            <td>Poor implementation = failed audit = wasted money</td>
+            <td>Choose based on ISO 27001 expertise and tech company experience, not just price</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 12: RECOMMENDED APPROACH -->
+  <section class="section" id="s12">
+    <div class="section-label">Section 12</div>
+    <div class="recommended-section">
+      <div class="recommended-badge">Recommended</div>
+      <h2>Recommended Approach for Arthmatic DevWorks</h2>
+
+      <div class="table-wrapper" style="margin-bottom:28px;">
+        <table>
+          <thead>
+            <tr><th>Decision</th><th>Recommendation</th><th>Rationale</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Consulting partner</strong></td>
+              <td><strong>Imbertech</strong> or <strong>WWISE</strong></td>
+              <td>Cape Town based. Imbertech offers combined POPIA + ISO 27001. WWISE has strong local reputation and training capabilities</td>
+            </tr>
+            <tr>
+              <td><strong>Certification body</strong></td>
+              <td><strong>DQS</strong> (primary) or <strong>SACAS</strong> (budget)</td>
+              <td>DQS has dual DAkkS/SANAS accreditation &mdash; recognised internationally. Good value. SACAS is the most affordable SANAS-accredited option</td>
+            </tr>
+            <tr>
+              <td><strong>Implementation approach</strong></td>
+              <td>Hybrid: consultant for gap analysis + internal audit, in-house for implementation</td>
+              <td>Leverages Arthmatic DevWorks' technical capability. Keeps costs down</td>
+            </tr>
+            <tr>
+              <td><strong>Timeline target</strong></td>
+              <td><strong>5&ndash;6 months</strong></td>
+              <td>Realistic for a small, motivated team</td>
+            </tr>
+            <tr>
+              <td><strong>Budget target</strong></td>
+              <td><strong>R250,000 &ndash; R350,000</strong></td>
+              <td>Lean approach with in-house implementation</td>
+            </tr>
+            <tr>
+              <td><strong>Funding</strong></td>
+              <td>Apply for SEDA STP grant in parallel</td>
+              <td>Could recover up to R600,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:8px;">Suggested Budget Allocation</h3>
+
+      <div class="cost-bar-chart" style="margin-bottom:20px;">
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Gap analysis (external)</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:15.7%;background:linear-gradient(90deg,var(--navy),rgba(26,46,75,0.6));">R45K</div></div>
+          <div class="cost-bar-amount">R45,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">ISO 27001 toolkit</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:3.5%;min-width:50px;background:linear-gradient(90deg,var(--navy),rgba(26,46,75,0.6));">R10K</div></div>
+          <div class="cost-bar-amount">R10,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Implementation</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:12.2%;background:linear-gradient(90deg,var(--cyan),rgba(0,179,217,0.5));">R35K</div></div>
+          <div class="cost-bar-amount">R35,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Lead Implementer training</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:10.5%;background:linear-gradient(90deg,var(--cyan),rgba(0,179,217,0.5));">R30K</div></div>
+          <div class="cost-bar-amount">R30,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Staff awareness training</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:3.5%;min-width:50px;background:linear-gradient(90deg,var(--cyan),rgba(0,179,217,0.5));">R10K</div></div>
+          <div class="cost-bar-amount">R10,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Internal audit (outsourced)</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:10.5%;background:linear-gradient(90deg,var(--red),rgba(226,61,54,0.5));">R30K</div></div>
+          <div class="cost-bar-amount">R30,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Certification audit (DQS)</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:35%;background:linear-gradient(90deg,var(--green),rgba(5,150,105,0.5));">R100K</div></div>
+          <div class="cost-bar-amount">R100,000</div>
+        </div>
+        <div class="cost-bar-item">
+          <div class="cost-bar-label">Contingency (10%)</div>
+          <div class="cost-bar-track"><div class="cost-bar-fill" style="width:9.1%;background:linear-gradient(90deg,var(--muted),rgba(100,116,139,0.4));">R26K</div></div>
+          <div class="cost-bar-amount">R26,000</div>
+        </div>
+      </div>
+
+      <div class="summary-grid" style="max-width:350px;">
+        <div class="summary-box highlight">
+          <div class="label">Total Budget</div>
+          <div class="value" style="font-size:28px;">R286,000</div>
+          <div class="detail">Lean approach, in-house implementation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 13: NEXT STEPS -->
+  <section class="section" id="s13">
+    <div class="section-label">Section 13</div>
+    <h2>Next Steps</h2>
+
+    <ul class="checklist">
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Immediate</span>
+        <div><strong>Contact SEDA/SEDFA Cape Town</strong> &mdash; Schedule a free needs assessment. Mention ISO 27001 certification for a data-handling tech platform. Ask about STP Quality &amp; Standards grant eligibility.</div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Week 1</span>
+        <div><strong>Get formal quotes from 3 consulting providers:</strong>
+          <ul style="margin-top:6px;margin-bottom:0;">
+            <li>Imbertech (Cape Town) &mdash; combined POPIA + ISO 27001</li>
+            <li>WWISE (Century City) &mdash; 021 525 9159</li>
+            <li>One of: Hosi Technologies, CSI, or VerosCert</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Week 1</span>
+        <div><strong>Get formal quotes from 2 certification bodies:</strong>
+          <ul style="margin-top:6px;margin-bottom:0;">
+            <li>DQS South Africa &mdash; <a href="https://www.dqsglobal.com/en-za/" target="_blank">dqsglobal.com/en-za</a></li>
+            <li>SACAS &mdash; +27 16 931 2001</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Week 2</span>
+        <div><strong>Decide on consultant and certification body.</strong> Negotiate fixed fees where possible.</div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Week 2</span>
+        <div><strong>Appoint internal ISMS lead.</strong> CTO or senior engineer. Does not need to be a dedicated role but needs allocated time (estimate 40&ndash;60% for the first 3&ndash;4 months).</div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Week 3</span>
+        <div><strong>Begin gap analysis.</strong></div>
+      </li>
+      <li>
+        <div class="check-box"></div>
+        <span class="step-label">Parallel</span>
+        <div><strong>Submit SEDA STP grant application</strong> with consultant quotations as supporting documentation.</div>
+      </li>
+    </ul>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- SECTION 14: SOURCES -->
+  <section class="section" id="s14">
+    <div class="section-label">Section 14</div>
+    <h2>Sources</h2>
+
+    <div class="sources-section">
+
+      <h3>Certification Bodies</h3>
+      <ul class="source-list">
+        <li><a href="https://www.bsigroup.com/en-ZA/ISOIEC-27001-Information-Security/Certification-for-ISO-27001/" target="_blank">BSI South Africa &mdash; ISO 27001 Certification</a></li>
+        <li><a href="https://www.sgs.com/en-za/services/iso-iec-27001-certification-information-security-cybersecurity-and-privacy-protection" target="_blank">SGS South Africa &mdash; ISO/IEC 27001 Certification</a></li>
+        <li><a href="https://www.bureauveritas.co.za/ISO-27001" target="_blank">Bureau Veritas South Africa &mdash; ISO 27001</a></li>
+        <li><a href="https://www.dqsglobal.com/en-za/certify/iso-27001-certification" target="_blank">DQS South Africa &mdash; ISO 27001 Certification</a></li>
+        <li><a href="https://www.sacas.co.za/" target="_blank">SACAS &mdash; South African Certification and Auditing Services</a></li>
+      </ul>
+
+      <h3>Consulting Providers</h3>
+      <ul class="source-list">
+        <li><a href="https://wwise.co.za/" target="_blank">WWISE &mdash; ISO Consulting &amp; Implementation</a></li>
+        <li><a href="https://imbertech.co.za/services/compliance" target="_blank">Imbertech &mdash; POPIA &amp; ISO 27001 Compliance</a></li>
+        <li><a href="https://www.imsm.com/south-africa/iso-27001/" target="_blank">IMSM South Africa &mdash; ISO 27001</a></li>
+        <li><a href="https://hosi.co.za/information-security/compliance-governance/" target="_blank">Hosi Technologies &mdash; Governance Risk and Compliance</a></li>
+        <li><a href="https://cybersecurityinstitute.co.za/iso27001andpopia/" target="_blank">Cyber Security Institute &mdash; ISO 27001 and POPIA</a></li>
+        <li><a href="https://www.iso-certification.co.za/iso-27001-certification-consulting-cape-town.html" target="_blank">TopCertifier &mdash; ISO 27001 Cape Town</a></li>
+        <li><a href="https://veroscert.com/southafrica/iso-27001-certification-southafrica.html" target="_blank">VerosCert &mdash; ISO 27001 South Africa</a></li>
+        <li><a href="https://certvalue.com/iso-27001-certification-in-south-africa/" target="_blank">CertValue &mdash; ISO 27001 South Africa</a></li>
+        <li><a href="https://factocert.com/south-africa/iso-27001-certification-in-south-africa/" target="_blank">Factocert &mdash; ISO 27001 South Africa</a></li>
+        <li><a href="https://www.nrkc.co.za/" target="_blank">NRKC Norocke Consulting &mdash; ISO Certification Pretoria</a></li>
+      </ul>
+
+      <h3>Cost Research</h3>
+      <ul class="source-list">
+        <li><a href="https://www.strongdm.com/blog/iso-27001-certification-cost" target="_blank">StrongDM &mdash; ISO 27001 Certification Cost Breakdown 2026</a></li>
+        <li><a href="https://hightable.io/iso-27001-certification-cost/" target="_blank">High Table &mdash; ISO 27001 Certification Cost 2026</a></li>
+        <li><a href="https://sprinto.com/blog/iso-27001-certification-cost/" target="_blank">Sprinto &mdash; ISO 27001 Certification Cost</a></li>
+        <li><a href="https://www.vanta.com/collection/iso-27001/iso-27001-certification-cost" target="_blank">Vanta &mdash; ISO 27001 Certification Cost</a></li>
+        <li><a href="https://www.nrkc.co.za/the-cost-of-iso-certification-in-pretoria-what-to-expect-in-south-africa/" target="_blank">NRKC &mdash; Cost of ISO Certification in South Africa</a></li>
+        <li><a href="https://factocert.com/how-to-get-iso-certification-in-south-africa-a-step-by-step-guide-with-benefits-and-costs-explained/" target="_blank">Factocert &mdash; ISO Certification South Africa Step-by-Step Guide</a></li>
+      </ul>
+
+      <h3>Timeline &amp; Process</h3>
+      <ul class="source-list">
+        <li><a href="https://www.konfirmity.com/blog/iso-27001-audit-timeline" target="_blank">Konfirmity &mdash; ISO 27001 Audit Timeline 2026</a></li>
+        <li><a href="https://secureframe.com/hub/iso-27001/certification-timeline" target="_blank">Secureframe &mdash; ISO 27001 Certification Timeline</a></li>
+        <li><a href="https://drata.com/grc-central/iso-27001/certification-process" target="_blank">Drata &mdash; ISO 27001 Certification Process</a></li>
+        <li><a href="https://www.vanta.com/collection/iso-27001/iso-27001-for-startups" target="_blank">Vanta &mdash; ISO 27001 for Startups</a></li>
+      </ul>
+
+      <h3>Tips for Startups</h3>
+      <ul class="source-list">
+        <li><a href="https://sprinto.com/blog/iso-27001-compliance-for-startups/" target="_blank">Sprinto &mdash; ISO 27001 for Startups</a></li>
+        <li><a href="https://drata.com/grc-central/get-started-iso-27001/iso-27001-for-startups" target="_blank">Drata &mdash; ISO 27001 for Startups: Ten Best Practices</a></li>
+        <li><a href="https://hightable.io/iso-27001-for-tech-startups-everything-you-need-to-know/" target="_blank">High Table &mdash; ISO 27001 for Tech Startups</a></li>
+        <li><a href="https://scytale.ai/resources/iso-27001-for-startups/" target="_blank">Scytale &mdash; ISO 27001 for Startups</a></li>
+      </ul>
+
+      <h3>POPIA &amp; ISO 27001 Overlap</h3>
+      <ul class="source-list">
+        <li><a href="https://www.isms.online/iso-27001/country/south-africa/" target="_blank">ISMS.online &mdash; Guide to ISO 27001 in South Africa</a></li>
+        <li><a href="https://scytale.ai/resources/south-africa-popia-compliance/" target="_blank">Scytale &mdash; POPIA Compliance</a></li>
+        <li><a href="https://cybersecurityinstitute.co.za/iso27001andpopia/" target="_blank">Cyber Security Institute &mdash; ISO 27001 and POPIA</a></li>
+        <li><a href="https://imbertech.co.za/services/compliance" target="_blank">Imbertech &mdash; POPIA &amp; ISO 27001 Compliance</a></li>
+      </ul>
+
+      <h3>Government Subsidies &amp; Support</h3>
+      <ul class="source-list">
+        <li><a href="https://www.sedfa.org.za/" target="_blank">SEDFA (formerly SEDA)</a></li>
+        <li><a href="https://www.thedtic.gov.za/financial-and-non-financial-support/incentives/seda-technology-programme/" target="_blank">SEDA Technology Programme &mdash; dtic</a></li>
+        <li><a href="https://www.thedtic.gov.za/financial-and-non-financial-support/incentives/stp/" target="_blank">STP Quality Standards and Technology Transfer Fund &mdash; dtic</a></li>
+        <li><a href="https://grantza.org.za/business/seda" target="_blank">GrantZA &mdash; SEDA/SEDFA Support Programmes 2026</a></li>
+        <li><a href="https://www.thedtic.gov.za/wp-content/uploads/the-dtic-incentive-schemes-guide-2026.pdf" target="_blank">dtic Incentive Schemes Guide 2025/26</a></li>
+        <li><a href="https://www.sanas.co.za/" target="_blank">SANAS &mdash; South African National Accreditation System</a></li>
+        <li><a href="https://wwise.co.za/uncategorized/the-top-9-iso-certification-bodies-in-south-africa/" target="_blank">Top 9 ISO Certification Bodies in South Africa &mdash; WWISE</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    This document is for internal planning purposes. All cost estimates are indicative and based on publicly available information as of April 2026. Formal quotations should be obtained from providers before budgeting.
+  </div>
+
+</div>
+
+</body>
+</html>

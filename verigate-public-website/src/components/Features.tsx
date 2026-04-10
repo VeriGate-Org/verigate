@@ -1,37 +1,37 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { UserCheck, FileSearch, Fingerprint, Database, Shield, Zap } from "lucide-react";
+import { UserCheck, FileSearch, Fingerprint, GraduationCap, CreditCard, Shield } from "lucide-react";
 import { AnimatedSection, StaggeredList } from "@/components/AnimatedSection";
 
 const features = [
   {
-    icon: UserCheck,
-    title: "KYC Verification",
-    description: "Automated identity verification with document scanning, facial recognition, and liveness detection for seamless onboarding.",
+    icon: Shield,
+    title: "Criminal Checks",
+    description: "Comprehensive SAPS criminal record checks across all South African jurisdictions. Results within 24 hours for most cases.",
   },
   {
-    icon: FileSearch,
-    title: "Due Diligence",
-    description: "Comprehensive background checks, risk assessment, and compliance monitoring to ensure regulatory adherence.",
+    icon: GraduationCap,
+    title: "Qualification Verification",
+    description: "Verify degrees, diplomas, and professional qualifications through SAQA, universities, and professional bodies like HPCSA.",
+  },
+  {
+    icon: UserCheck,
+    title: "Employment History",
+    description: "Thorough employment history verification including dates, job titles, and reason for leaving with previous employers.",
   },
   {
     icon: Fingerprint,
-    title: "Digital Identity",
-    description: "Secure digital identity creation and management with biometric authentication and encrypted data storage.",
+    title: "Identity Validation",
+    description: "Validate South African IDs, passports, and work permits against Department of Home Affairs records.",
   },
   {
-    icon: Database,
-    title: "Data Intelligence",
-    description: "Access to global databases and registries for thorough verification and risk profiling across jurisdictions.",
+    icon: CreditCard,
+    title: "Credit Screening",
+    description: "Credit bureau checks through TransUnion SA, Experian SA, and XDS for comprehensive financial risk assessment.",
   },
   {
-    icon: Shield,
-    title: "Compliance Automation",
-    description: "Stay ahead of AML, CFT, and sanctions regulations with automated compliance checks and real-time monitoring.",
-  },
-  {
-    icon: Zap,
-    title: "Real-Time Processing",
-    description: "Lightning-fast verification results with industry-leading accuracy and instant API responses.",
+    icon: FileSearch,
+    title: "Compliance Monitoring",
+    description: "Ongoing FICA, POPIA, and sector-specific compliance monitoring with automated alerts and audit trails.",
   },
 ];
 
@@ -45,23 +45,23 @@ const Features = () => {
             Complete Verification Suite
           </h2>
           <p className="text-lg text-muted-foreground">
-            Everything you need to verify identities, ensure compliance, and mitigate risk in one powerful platform
+            Everything you need to screen candidates, verify identities, and ensure compliance in one powerful platform
           </p>
         </AnimatedSection>
-        
+
         {/* Features Grid */}
-        <StaggeredList 
+        <StaggeredList
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
           staggerDelay={0.1}
           containerDelay={0.2}
         >
           {features.map((feature, index) => (
-            <Card 
-              key={index} 
-              className="border-border/50 hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1 group bg-gradient-to-br from-card to-card/50 hover:from-card hover:to-accent/5"
+            <Card
+              key={index}
+              className="border-border/50 hover:border-accent/50 transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1 group bg-gradient-to-br from-card to-card/50 hover:from-card hover:to-accent/5"
             >
               <CardContent className="p-6 space-y-4">
-                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-200">
                   <feature.icon className="w-6 h-6 text-accent" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground">

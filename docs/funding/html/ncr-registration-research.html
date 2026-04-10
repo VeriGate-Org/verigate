@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NCR Registration Research | VeriGate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1A2E4B;
+      --cyan: #00B3D9;
+      --red: #E23D36;
+      --off-white: #F8FAFC;
+      --light-gray: #F1F5F9;
+      --border-gray: #E2E8F0;
+      --body-text: #334155;
+      --muted: #64748B;
+      --dark-bg: #0F1A2E;
+      --white: #FFFFFF;
+      --cyan-light: rgba(0, 179, 217, 0.08);
+      --cyan-border: rgba(0, 179, 217, 0.25);
+      --red-light: rgba(226, 61, 54, 0.06);
+      --red-border: rgba(226, 61, 54, 0.2);
+      --green: #059669;
+      --green-light: rgba(5, 150, 105, 0.06);
+      --green-border: rgba(5, 150, 105, 0.2);
+      --amber: #D97706;
+      --amber-light: rgba(217, 119, 6, 0.06);
+      --amber-border: rgba(217, 119, 6, 0.2);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--off-white);
+      color: var(--body-text);
+      line-height: 1.7;
+      font-weight: 400;
+      border-top: 3px solid var(--red);
+    }
+
+    /* ── LAYOUT ───────────────────────────────────── */
+    .page-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR NAV ──────────────────────────────── */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 300px;
+      min-width: 300px;
+      background: var(--dark-bg);
+      color: rgba(255,255,255,0.7);
+      overflow-y: auto;
+      padding: 32px 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-brand .brand-name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand .brand-name span {
+      color: var(--cyan);
+    }
+
+    .sidebar-brand .doc-type {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .sidebar nav {
+      padding: 0 16px;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      transition: all 0.2s ease;
+      margin-bottom: 2px;
+      font-weight: 400;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--white);
+    }
+
+    .sidebar nav a .nav-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--cyan);
+      font-weight: 600;
+      min-width: 22px;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    /* ── MAIN CONTENT ─────────────────────────────── */
+    .main-content {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 48px 80px;
+    }
+
+    /* ── DOCUMENT HEADER ──────────────────────────── */
+    .doc-header {
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 2px solid var(--border-gray);
+    }
+
+    .doc-header .classification {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--red);
+      background: var(--red-light);
+      border: 1px solid var(--red-border);
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .doc-header h1 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 2.25rem;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .doc-header .subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 700px;
+      margin-bottom: 24px;
+    }
+
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .doc-meta .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .doc-meta .meta-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .doc-meta .meta-value {
+      font-size: 0.875rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    /* ── SECTION STYLING ──────────────────────────── */
+    .section {
+      margin-bottom: 56px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-gray);
+    }
+
+    .section h2 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .section h3 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--navy);
+      margin-bottom: 12px;
+      margin-top: 32px;
+      letter-spacing: -0.01em;
+    }
+
+    .section h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+      margin-top: 24px;
+    }
+
+    .section p {
+      margin-bottom: 16px;
+      font-size: 0.925rem;
+    }
+
+    .section ul, .section ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .section li {
+      margin-bottom: 8px;
+      font-size: 0.925rem;
+    }
+
+    .section a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+
+    .section a:hover {
+      border-bottom-color: var(--cyan);
+    }
+
+    /* ── CARDS ─────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* ── STEP CARDS ────────────────────────────────── */
+    .step-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 24px;
+      padding-left: 80px;
+      position: relative;
+      margin-bottom: 12px;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .step-card:hover {
+      box-shadow: 0 2px 12px rgba(26, 46, 75, 0.06);
+    }
+
+    .step-card .step-num {
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      width: 40px;
+      height: 40px;
+      background: var(--dark-bg);
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .step-card h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--navy);
+      margin: 0 0 8px;
+    }
+
+    .step-card p, .step-card ul {
+      font-size: 0.875rem;
+      color: var(--body-text);
+      margin-bottom: 8px;
+    }
+
+    .step-card ul {
+      padding-left: 20px;
+    }
+
+    .step-card li {
+      font-size: 0.875rem;
+      margin-bottom: 4px;
+    }
+
+    /* ── TABLES ────────────────────────────────────── */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 24px;
+      border-radius: 8px;
+      border: 1px solid var(--border-gray);
+      background: var(--white);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead th {
+      background: var(--light-gray);
+      color: var(--navy);
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-gray);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-gray);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--light-gray);
+    }
+
+    tbody tr:hover {
+      background: var(--cyan-light);
+    }
+
+    td strong {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    /* ── CALLOUT BOXES ─────────────────────────────── */
+    .callout {
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      border-left: 4px solid;
+    }
+
+    .callout-info {
+      background: var(--cyan-light);
+      border-left-color: var(--cyan);
+    }
+
+    .callout-info .callout-title {
+      color: var(--cyan);
+    }
+
+    .callout-warning {
+      background: var(--amber-light);
+      border-left-color: var(--amber);
+    }
+
+    .callout-warning .callout-title {
+      color: var(--amber);
+    }
+
+    .callout-danger {
+      background: var(--red-light);
+      border-left-color: var(--red);
+    }
+
+    .callout-danger .callout-title {
+      color: var(--red);
+    }
+
+    .callout-success {
+      background: var(--green-light);
+      border-left-color: var(--green);
+    }
+
+    .callout-success .callout-title {
+      color: var(--green);
+    }
+
+    .callout .callout-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .callout p {
+      margin-bottom: 8px;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── BLOCKQUOTE ────────────────────────────────── */
+    blockquote {
+      background: var(--light-gray);
+      border-left: 4px solid var(--navy);
+      padding: 16px 24px;
+      margin: 16px 0 20px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* ── TIMELINE ──────────────────────────────────── */
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+      margin: 24px 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--cyan), var(--navy));
+      border-radius: 1px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      background: var(--cyan);
+      border-radius: 50%;
+      border: 3px solid var(--off-white);
+      box-shadow: 0 0 0 2px var(--cyan);
+    }
+
+    .timeline-item .tl-phase {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .timeline-item .tl-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .timeline-item .tl-duration {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── COST BREAKDOWN ────────────────────────────── */
+    .cost-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .cost-item {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .cost-item .cost-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .cost-item .cost-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .cost-item .cost-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .cost-total {
+      background: var(--dark-bg);
+      color: var(--white);
+      border: none;
+    }
+
+    .cost-total .cost-label {
+      color: var(--cyan);
+    }
+
+    .cost-total .cost-amount {
+      color: var(--white);
+    }
+
+    .cost-total .cost-note {
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── RECOMMENDATION BANNER ─────────────────────── */
+    .recommendation-banner {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #162544 100%);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      color: var(--white);
+      border: 1px solid rgba(0, 179, 217, 0.15);
+    }
+
+    .recommendation-banner h3 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      color: var(--white);
+      font-size: 1.25rem;
+      margin: 0 0 8px;
+    }
+
+    .recommendation-banner .rec-subtitle {
+      color: var(--cyan);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    .recommendation-banner p {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── PHASE CARDS ───────────────────────────────── */
+    .phase-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border-top: 3px solid var(--cyan);
+    }
+
+    .phase-card .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .phase-card .phase-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--dark-bg);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .phase-card .phase-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--navy);
+    }
+
+    .phase-card .phase-timeline {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .phase-card ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .phase-card li {
+      font-size: 0.875rem;
+      margin-bottom: 6px;
+    }
+
+    .phase-card .phase-cost {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--navy);
+      font-weight: 600;
+      background: var(--light-gray);
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+
+    /* ── CONTACT GRID ──────────────────────────────── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .contact-item {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .contact-item .contact-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .contact-item .contact-value {
+      font-size: 0.875rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    .contact-item .contact-value a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    .contact-item .contact-value a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── SOURCES LIST ──────────────────────────────── */
+    .sources-list {
+      list-style: none;
+      padding: 0;
+      columns: 1;
+    }
+
+    .sources-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-gray);
+      font-size: 0.825rem;
+    }
+
+    .sources-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sources-list a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      word-break: break-all;
+    }
+
+    .sources-list a:hover {
+      color: var(--navy);
+    }
+
+    /* ── BADGE / TAG ───────────────────────────────── */
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .tag-cyan {
+      background: var(--cyan-light);
+      color: var(--cyan);
+      border: 1px solid var(--cyan-border);
+    }
+
+    .tag-green {
+      background: var(--green-light);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .tag-amber {
+      background: var(--amber-light);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .tag-red {
+      background: var(--red-light);
+      color: var(--red);
+      border: 1px solid var(--red-border);
+    }
+
+    /* ── CODE / MONO TEXT ──────────────────────────── */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: var(--light-gray);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--navy);
+    }
+
+    /* ── FOOTER ────────────────────────────────────── */
+    .doc-footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 2px solid var(--border-gray);
+      text-align: center;
+    }
+
+    .doc-footer p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .doc-footer .footer-brand {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--navy);
+      margin-top: 8px;
+    }
+
+    .doc-footer .footer-brand span {
+      color: var(--cyan);
+    }
+
+    /* ── COMPARISON HIGHLIGHT ──────────────────────── */
+    .comparison-table tbody td:first-child {
+      font-weight: 600;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .highlight-row td {
+      background: var(--cyan-light) !important;
+      font-weight: 600;
+    }
+
+    /* ── MOBILE MENU BUTTON ────────────────────────── */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--dark-bg);
+      color: var(--cyan);
+      border: 2px solid var(--cyan);
+      font-size: 1.25rem;
+      cursor: pointer;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .sidebar {
+        position: fixed;
+        left: -320px;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .main-content {
+        padding: 32px 24px 80px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .doc-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .main-content {
+        padding: 24px 16px 80px;
+      }
+
+      .doc-meta {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .step-card {
+        padding-left: 24px;
+        padding-top: 60px;
+      }
+
+      .step-card .step-num {
+        top: 16px;
+        left: 16px;
+      }
+
+      .cost-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phase-card .phase-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    /* ── PRINT STYLES ──────────────────────────────── */
+    @media print {
+      body {
+        border-top: none;
+        background: white;
+        font-size: 11pt;
+      }
+
+      .sidebar, .mobile-menu-btn {
+        display: none !important;
+      }
+
+      .page-wrapper {
+        display: block;
+      }
+
+      .main-content {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      .section {
+        page-break-inside: avoid;
+      }
+
+      .card, .step-card, .phase-card, .callout, .table-wrapper {
+        break-inside: avoid;
+      }
+
+      .doc-header {
+        border-bottom: 2pt solid #1A2E4B;
+      }
+
+      .doc-header h1 {
+        font-size: 22pt;
+      }
+
+      .recommendation-banner {
+        background: #F1F5F9 !important;
+        color: #1A2E4B !important;
+        border: 2px solid #1A2E4B;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .recommendation-banner h3,
+      .recommendation-banner .rec-subtitle {
+        color: #1A2E4B !important;
+      }
+
+      .recommendation-banner p {
+        color: #334155 !important;
+      }
+
+      a {
+        color: #1A2E4B !important;
+        text-decoration: underline;
+      }
+
+      .sources-list a::after {
+        content: " (" attr(href) ")";
+        font-size: 8pt;
+        color: #64748B;
+        word-break: break-all;
+      }
+
+      .step-card .step-num {
+        background: #F1F5F9 !important;
+        color: #1A2E4B !important;
+        border: 1px solid #1A2E4B;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .cost-total {
+        background: #F1F5F9 !important;
+        color: #1A2E4B !important;
+        border: 2px solid #1A2E4B;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .cost-total .cost-label {
+        color: #1A2E4B !important;
+      }
+
+      .cost-total .cost-amount {
+        color: #1A2E4B !important;
+      }
+
+      .cost-total .cost-note {
+        color: #64748B !important;
+      }
+
+      .timeline::before {
+        background: #1A2E4B !important;
+      }
+
+      .timeline-item::before {
+        background: #1A2E4B !important;
+        box-shadow: none;
+        border-color: white;
+      }
+
+      thead th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      tbody tr:nth-child(even) {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile menu toggle -->
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="page-wrapper">
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div style="margin-bottom: 12px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="180" height="44" role="img" aria-label="VeriGate logo"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+        <div class="doc-type">Internal Research Document</div>
+      </div>
+      <nav>
+        <a href="#executive-summary"><span class="nav-num">01</span> Executive Summary</a>
+        <a href="#registration-categories"><span class="nav-num">02</span> Registration Categories</a>
+        <a href="#registration-process"><span class="nav-num">03</span> Full Registration Process</a>
+        <a href="#required-documents"><span class="nav-num">04</span> Required Documents</a>
+        <a href="#fees-costs"><span class="nav-num">05</span> Registration Fees &amp; Costs</a>
+        <a href="#timeline"><span class="nav-num">06</span> Processing Timeline</a>
+        <a href="#credit-bureaus"><span class="nav-num">07</span> Credit Bureaus in SA</a>
+        <a href="#compliance"><span class="nav-num">08</span> Ongoing Compliance</a>
+        <a href="#alternatives"><span class="nav-num">09</span> Alternatives &amp; Intermediaries</a>
+        <a href="#regulatory-changes"><span class="nav-num">10</span> Recent Regulatory Changes</a>
+        <a href="#ncr-contact"><span class="nav-num">11</span> NCR Contact Details</a>
+        <a href="#prescribed-reasons"><span class="nav-num">12</span> Prescribed Enquiry Reasons</a>
+        <a href="#recommendation"><span class="nav-num">13</span> Recommendation</a>
+        <a href="#sources"><span class="nav-num">14</span> Sources</a>
+      </nav>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
+
+      <!-- ── HEADER ── -->
+      <header class="doc-header">
+        <div class="classification">Internal &mdash; Confidential</div>
+        <h1>NCR Registration Research</h1>
+        <p class="subtitle">Research into National Credit Regulator (NCR) registration requirements for VeriGate, a real-time risk intelligence platform that needs to access credit bureau data for verification, conflict of interest detection, and risk scoring purposes (not lending).</p>
+        <div class="doc-meta">
+          <div class="meta-item">
+            <span class="meta-label">Date</span>
+            <span class="meta-value">7 April 2026</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Legislation</span>
+            <span class="meta-value">National Credit Act No. 34 of 2005</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Amendment</span>
+            <span class="meta-value">NCA Amendment Act No. 19 of 2014</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span class="meta-value"><span class="tag tag-cyan">Active Research</span></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 1: Executive Summary               -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="executive-summary">
+        <div class="section-label">Section 01</div>
+        <h2>Executive Summary</h2>
+
+        <p>VeriGate intends to access credit bureau data as part of a verification gateway service &mdash; not as a credit provider or lender. Under the National Credit Act, any entity that accesses, resells, or distributes consumer credit information must be registered with the NCR as a <strong>credit bureau</strong>. Since VeriGate will not maintain its own credit database but will pull data from existing registered credit bureaus, the most appropriate registration category is <strong>Reseller Credit Bureau</strong>.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Two Strategic Paths Available</div>
+          <p><strong>1. Direct Registration</strong> &mdash; Register directly with the NCR as a Reseller Credit Bureau (Section 43 of the NCA). This provides full autonomy and direct bureau relationships, but carries a heavier regulatory and compliance burden.</p>
+          <p><strong>2. Intermediary Partnership</strong> &mdash; Partner with an already-registered intermediary (e.g., Datanamix, MarisIT, Gathr, OmniCheck). This is faster to market with lower compliance overhead, but introduces a dependency and reduces margin.</p>
+        </div>
+
+        <div class="recommendation-banner">
+          <div class="rec-subtitle">Recommended Approach</div>
+          <h3>Hybrid / Phased Strategy</h3>
+          <p>Start with an intermediary for MVP/launch, then pursue direct NCR registration in parallel to gain full autonomy over time. This balances speed-to-market with long-term independence.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 2: Registration Categories          -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="registration-categories">
+        <div class="section-label">Section 02</div>
+        <h2>Registration Categories &mdash; Which One Applies?</h2>
+
+        <p>The NCR registers four types of entities:</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Entity Type</th>
+                <th>Section of NCA</th>
+                <th>Who This Applies To</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Credit Provider</strong></td>
+                <td>Section 40</td>
+                <td>Entities that extend credit (loans, financing, etc.)</td>
+              </tr>
+              <tr>
+                <td><strong>Credit Bureau</strong></td>
+                <td>Section 43</td>
+                <td>Entities that compile, maintain, and issue consumer credit reports</td>
+              </tr>
+              <tr>
+                <td><strong>Reseller Credit Bureau</strong> <span class="tag tag-cyan">VeriGate</span></td>
+                <td>Section 43 (subset)</td>
+                <td>Entities that pull credit data from registered bureaus and resell/distribute it (do not maintain their own database)</td>
+              </tr>
+              <tr>
+                <td><strong>Debt Counsellor</strong></td>
+                <td>Section 44</td>
+                <td>Individuals providing debt review services</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>VeriGate's Classification: Reseller Credit Bureau</h3>
+
+        <p>VeriGate is <strong>not</strong> extending credit, so it does not need credit provider registration. Instead, VeriGate will be pulling consumer credit information from registered full-member credit bureaus and presenting it as part of its verification service.</p>
+
+        <blockquote>
+          An entity qualifies to register as a credit bureau if it is &ldquo;engaged in the business of receiving reports or investigating credit applications, credit agreements, payment history or patterns, or consumer credit information relating to consumers or prospective consumers.&rdquo;
+        </blockquote>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Key Distinction</div>
+          <p>A reseller credit bureau does not compile or maintain its own consumer data &mdash; it accesses and redistributes data from full-member bureaus under licence. Reseller credit bureaus are subject to a <strong>lighter-touch regulatory regime</strong> and are exempt from certain obligations imposed on full credit bureaus.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 3: Registration Process             -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="registration-process">
+        <div class="section-label">Section 03</div>
+        <h2>Full Registration Process (Step-by-Step)</h2>
+
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h4>Determine Eligibility and Prepare the Business</h4>
+          <ul>
+            <li>Ensure the entity is properly registered with CIPC (Companies and Intellectual Property Commission).</li>
+            <li>Confirm all directors/shareholders have clean criminal records (no fraud, theft, or dishonesty convictions).</li>
+            <li>Establish a compliant IT infrastructure for handling consumer credit data (encryption, access controls, audit trails).</li>
+            <li>Ensure POPIA (Protection of Personal Information Act) compliance framework is in place.</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h4>Obtain Required Documents</h4>
+          <p>Gather all documentation listed in Section 4 below. Key items include criminal clearance certificates (which can take 2&ndash;4 weeks to obtain from SAPS) and the signed bank confirmation letter.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h4>Complete NCR Form 5</h4>
+          <p>Download and complete <strong>Form 5 &mdash; Application for Registration as Credit Bureau</strong> from the NCR website:</p>
+          <ul>
+            <li>URL: <a href="https://www.ncr.org.za/act/list-of-forms" target="_blank">ncr.org.za/act/list-of-forms</a></li>
+          </ul>
+          <p>The form requires full entity details, nature of activities, details of all directors/shareholders, and a declaration of compliance with the NCA.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h4>Pay the Application Fee</h4>
+          <p>Pay the non-refundable application fee of <strong>R550</strong> to the NCR. Payment details are provided on the application form.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">05</div>
+          <h4>Submit the Application</h4>
+          <p>Submit the completed Form 5 along with all supporting documents to:</p>
+          <ul>
+            <li><strong>Physical:</strong> 127 15th Road, Randjespark, Midrand, 1683</li>
+            <li><strong>Postal:</strong> PO Box 209, Halfway House, 1685</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">06</div>
+          <h4>NCR Assessment</h4>
+          <p>The NCR will review the application for completeness, verify all supporting documentation, conduct background checks on directors/shareholders, and assess the applicant's technical and operational capability.</p>
+          <div class="callout callout-warning" style="margin-top:12px">
+            <div class="callout-title">Response Deadline</div>
+            <p>If additional information is requested, the applicant has <strong>15 business days</strong> to respond per Section 45(2) of the NCA.</p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">07</div>
+          <h4>Registration Decision</h4>
+          <p>The NCR issues a registration certificate with conditions of registration, or provides written reasons for refusal. Once registered, VeriGate will appear on the NCR's Register of Registrants.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">08</div>
+          <h4>Negotiate Bureau Access Agreements</h4>
+          <p>After registration, negotiate and sign service level agreements (SLAs) with the full-member credit bureaus (TransUnion, Experian, XDS, etc.) to gain API access to their data.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 4: Required Documents               -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="required-documents">
+        <div class="section-label">Section 04</div>
+        <h2>Required Documents and Prerequisites</h2>
+
+        <h3>For a Company (Pty Ltd)</h3>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Completed and signed Form 5</strong></td><td>Application for Registration as Credit Bureau</td></tr>
+              <tr><td><strong>CIPC registration certificate</strong></td><td>COR14.3 or COR15.1</td></tr>
+              <tr><td><strong>Company share certificate(s)</strong></td><td>If applicable</td></tr>
+              <tr><td><strong>Certified copies of ID/passport</strong></td><td>For <strong>all</strong> directors, shareholders, members, trustees</td></tr>
+              <tr><td><strong>Criminal clearance certificates</strong></td><td>For <strong>all</strong> directors/shareholders; must be less than 6 months old</td></tr>
+              <tr><td><strong>Signed and stamped bank confirmation letter</strong></td><td>From the company's bank, confirming banking details</td></tr>
+              <tr><td><strong>SARS tax registration confirmation</strong></td><td>Proof of registration with SARS</td></tr>
+              <tr><td><strong>Company letterhead</strong></td><td>Specimen letterhead</td></tr>
+              <tr><td><strong>High-level organogram</strong></td><td>Showing CEO and first level of senior management</td></tr>
+              <tr><td><strong>Service level agreements (SLAs)</strong></td><td>With key contractors/outsourced service providers</td></tr>
+              <tr><td><strong>NCR-specific resolution</strong></td><td>Signed resolution authorising the NCR application</td></tr>
+              <tr><td><strong>Proof of physical address</strong></td><td>For the business premises</td></tr>
+              <tr><td><strong>POPIA compliance documentation</strong></td><td>Privacy policy, consent mechanisms, data processing agreements</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Additional Requirements for Credit Bureaus</h3>
+        <ul>
+          <li>Description of the IT systems and infrastructure used to store/process credit data</li>
+          <li>Data security and access control measures</li>
+          <li>Description of the credit bureau activities to be conducted</li>
+          <li>Details of the credit bureaus from which data will be sourced (for resellers)</li>
+          <li>Consumer complaints handling procedures</li>
+        </ul>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 5: Fees and Costs                   -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="fees-costs">
+        <div class="section-label">Section 05</div>
+        <h2>Registration Fees and Costs</h2>
+
+        <h3>Credit Bureau Registration Fees</h3>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fee Type</th>
+                <th>Amount</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Application fee</strong></td><td>R550</td><td>Non-refundable, payable on submission</td></tr>
+              <tr><td><strong>Registration fee</strong></td><td>R10,000 base</td><td>Plus R5 per 1,000 consumer credit enquiries</td></tr>
+              <tr><td><strong>Maximum registration fee</strong></td><td>R210,000</td><td>Cap on registration fee</td></tr>
+              <tr><td><strong>Branch fee</strong></td><td>R250 per branch</td><td>Per physical branch location</td></tr>
+              <tr><td><strong>Annual renewal fee</strong></td><td>Varies</td><td>Due by <strong>31 July</strong> each year</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Fee Calculation Note</div>
+          <p>The registration fee for credit bureaus is based on the number of consumer credit enquiries for the past 12-month period, as certified by the CEO of the applicant. For a new entity with no history, the base fee of R10,000 would apply initially.</p>
+        </div>
+
+        <h3>Budget Estimate for VeriGate</h3>
+
+        <div class="cost-grid">
+          <div class="cost-item">
+            <div class="cost-label">Application Fee</div>
+            <div class="cost-amount">R550</div>
+            <div class="cost-note">Non-refundable</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-label">Registration Fee</div>
+            <div class="cost-amount">R10,000</div>
+            <div class="cost-note">Initial base amount</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-label">Criminal Clearances</div>
+            <div class="cost-amount">R300&ndash;800</div>
+            <div class="cost-note">3&ndash;4 directors, R100&ndash;200 each</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-label">Legal / Compliance Advisory</div>
+            <div class="cost-amount">R10K&ndash;30K</div>
+            <div class="cost-note">Specialist consultants</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-label">IT Compliance Setup</div>
+            <div class="cost-amount">R20K&ndash;50K</div>
+            <div class="cost-note">Infrastructure &amp; security</div>
+          </div>
+          <div class="cost-item cost-total">
+            <div class="cost-label">Total Estimated Initial Cost</div>
+            <div class="cost-amount">R40K&ndash;90K</div>
+            <div class="cost-note">All-inclusive estimate</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 6: Processing Timeline              -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="timeline">
+        <div class="section-label">Section 06</div>
+        <h2>Processing Timeline</h2>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-phase">Phase 1</div>
+            <div class="tl-title">Document Preparation</div>
+            <div class="tl-duration">2&ndash;4 weeks &mdash; Criminal clearances, bank letters, gathering all documents</div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-phase">Phase 2</div>
+            <div class="tl-title">NCR Application Review &amp; Processing</div>
+            <div class="tl-duration">8&ndash;12 weeks &mdash; Core processing period by the NCR</div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-phase">Phase 2b (if needed)</div>
+            <div class="tl-title">Additional Information Requests</div>
+            <div class="tl-duration">+2&ndash;4 weeks &mdash; If the NCR requests clarifications or further documentation</div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-phase">Phase 3</div>
+            <div class="tl-title">Bureau SLA Negotiations</div>
+            <div class="tl-duration">4&ndash;8 weeks &mdash; Post-registration, negotiate access with TransUnion, Experian, XDS</div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-phase">Phase 4</div>
+            <div class="tl-title">Technical API Integration</div>
+            <div class="tl-duration">4&ndash;8 weeks &mdash; Build and test integrations with bureau APIs</div>
+          </div>
+          <div class="timeline-item" style="border-color: var(--cyan);">
+            <div class="tl-phase" style="color: var(--navy); font-weight: 700;">Total End-to-End</div>
+            <div class="tl-title">Registration to Live</div>
+            <div class="tl-duration" style="font-weight: 700; color: var(--navy);">5&ndash;8 months</div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">Important Notes</div>
+          <p>The 8&ndash;12 week processing time assumes <strong>complete and accurate documentation</strong> is submitted. Incomplete applications will result in delays.</p>
+          <p>The NCR may request additional information at any point, and the applicant has <strong>15 business days</strong> to respond.</p>
+          <p>Bureau SLA negotiations can run in parallel with the later stages of NCR registration.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 7: Credit Bureaus                   -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="credit-bureaus">
+        <div class="section-label">Section 07</div>
+        <h2>Credit Bureaus in South Africa</h2>
+
+        <p>The Credit Bureau Association (CBA) categorises credit bureaus into three tiers:</p>
+
+        <h3>Full Member Credit Bureaus (Primary Data Holders)</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Bureau</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Experian South Africa</strong></td><td>One of the "Big 4"; acquired Compuscan in 2019</td></tr>
+              <tr><td><strong>TransUnion South Africa</strong></td><td>One of the "Big 4"; major consumer and commercial data</td></tr>
+              <tr><td><strong>XDS (Xpert Decision Systems)</strong></td><td>Full member; growing market share</td></tr>
+              <tr><td><strong>VeriCred</strong></td><td>Full member; consumer credit data</td></tr>
+              <tr><td><strong>Consumer Profile Bureau (CPB)</strong></td><td>Full member</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Intermediate Credit Bureau Members</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Bureau</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>MIE (Managed Integrity Evaluation)</strong></td><td>Employment and background screening</td></tr>
+              <tr><td><strong>Tenant Profile Network (TPN)</strong></td><td>Rental/tenant credit data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Reseller Credit Bureau Members</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Bureau</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>LexisNexis Risk Management Services</strong></td><td>Legal and risk data</td></tr>
+              <tr><td><strong>SearchWorks 360</strong></td><td>Verification and search services</td></tr>
+              <tr><td><strong>Credit IT Data Risk Management Solution</strong></td><td>Risk management</td></tr>
+              <tr><td><strong>Africa Credit Bureau</strong></td><td>Pan-African credit data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Note on Compuscan</div>
+          <p>Experian acquired Compuscan in 2019. Compuscan no longer operates independently but its data is accessible through Experian's platforms.</p>
+        </div>
+
+        <h3>Key Bureaus for VeriGate's Use Case</h3>
+        <p>For a verification gateway service, the most relevant bureaus to integrate with would be:</p>
+        <div class="card-grid">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="tag tag-cyan">Priority 1</span>
+              <strong style="color:var(--navy)">TransUnion</strong>
+            </div>
+            <p style="font-size:0.85rem;margin:0;color:var(--muted)">Largest consumer database in SA</p>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="tag tag-cyan">Priority 2</span>
+              <strong style="color:var(--navy)">Experian</strong>
+            </div>
+            <p style="font-size:0.85rem;margin:0;color:var(--muted)">Comprehensive consumer and commercial data (includes former Compuscan data)</p>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="tag tag-green">Priority 3</span>
+              <strong style="color:var(--navy)">XDS</strong>
+            </div>
+            <p style="font-size:0.85rem;margin:0;color:var(--muted)">Growing alternative with competitive pricing</p>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="tag tag-green">Priority 4</span>
+              <strong style="color:var(--navy)">CPB</strong>
+            </div>
+            <p style="font-size:0.85rem;margin:0;color:var(--muted)">Additional coverage for consumer profiles</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 8: Ongoing Compliance               -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="compliance">
+        <div class="section-label">Section 08</div>
+        <h2>Ongoing Compliance Requirements</h2>
+
+        <p>Once registered as a credit bureau with the NCR, VeriGate must comply with the following on an ongoing basis:</p>
+
+        <h3>Annual Obligations</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Obligation</th><th>Details</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Annual renewal fee</strong></td><td>Must be paid by <strong>31 July</strong> each year, regardless of registration date</td></tr>
+              <tr><td><strong>Annual compliance report</strong></td><td>Must be submitted to the NCR within 6 months of financial year-end</td></tr>
+              <tr><td><strong>Audit of consumer credit enquiries</strong></td><td>CEO must certify the number of enquiries for fee calculation</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Data and Consumer Protection Obligations</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Obligation</th><th>Details</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Data accuracy</strong></td><td>Must ensure all consumer data accessed and distributed is accurate</td></tr>
+              <tr><td><strong>Error correction</strong></td><td>Must remove or correct inaccurate information immediately, at no cost to the consumer, upon complaint</td></tr>
+              <tr><td><strong>Consumer consent</strong></td><td>Must obtain and retain proof of written consumer consent before accessing credit data (per NCA and POPIA)</td></tr>
+              <tr><td><strong>Prescribed reasons</strong></td><td>Every credit enquiry must be for a prescribed reason under the NCA</td></tr>
+              <tr><td><strong>POPIA compliance</strong></td><td>Full compliance with the Protection of Personal Information Act &mdash; data minimisation, purpose limitation, retention limits, security safeguards</td></tr>
+              <tr><td><strong>FICA compliance</strong></td><td>Where applicable, Financial Intelligence Centre Act compliance for KYC/AML</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Regulatory Obligations</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Obligation</th><th>Details</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>NCR compliance notices</strong></td><td>Must respond to and comply with any compliance notices issued by the NCR</td></tr>
+              <tr><td><strong>Record keeping</strong></td><td>Must maintain records of all credit enquiries, consents, and data access</td></tr>
+              <tr><td><strong>Consumer complaints</strong></td><td>Must maintain a complaints handling procedure and resolve complaints within prescribed timeframes</td></tr>
+              <tr><td><strong>NCR inspections</strong></td><td>Must cooperate with NCR inspections and provide access to records</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Penalties for Non-Compliance</h3>
+
+        <div class="callout callout-danger">
+          <div class="callout-title">Warning: Non-Compliance Consequences</div>
+          <p>The NCR can issue compliance notices. Failure to comply can result in <strong>civil liability</strong> (fines) or <strong>criminal liability</strong> (fines and/or imprisonment).</p>
+          <p>Non-payment of renewal fees can result in <strong>deregistration</strong>.</p>
+          <p>Operating as an unregistered credit bureau renders any agreements <strong>unlawful and unenforceable</strong> per Section 89 of the NCA.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 9: Alternatives                     -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="alternatives">
+        <div class="section-label">Section 09</div>
+        <h2>Alternatives &mdash; Accessing Credit Data Through an Intermediary</h2>
+
+        <p>VeriGate does not necessarily need to register directly with the NCR to access credit bureau data. Several <strong>already-registered intermediaries</strong> offer API access to credit bureau data, allowing VeriGate to operate without its own NCR registration (at least initially).</p>
+
+        <h3>Option A: Partner with a Registered Reseller/Intermediary</h3>
+
+        <h4>Datanamix (formerly PBVerify)</h4>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <span class="tag tag-green">NCR Registered</span>
+            <span class="tag tag-cyan">REST API</span>
+            <span class="tag tag-cyan">ISO 9001:2015</span>
+            <span class="tag tag-cyan">ISO 27001</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:12px">
+            <table>
+              <tbody>
+                <tr><td style="width:160px"><strong>Bureau Access</strong></td><td>TransUnion, Experian, XDS</td></tr>
+                <tr><td><strong>Services</strong></td><td>Consumer credit reports, ID verification, bank account verification, AML screening, business verification</td></tr>
+                <tr><td><strong>Integration</strong></td><td>REST API and web portal</td></tr>
+                <tr><td><strong>Onboarding</strong></td><td>Online registration, business validation, compliance checks; API credentials issued upon approval</td></tr>
+                <tr><td><strong>Website</strong></td><td><a href="https://www.datanamix.com" target="_blank">datanamix.com</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-warning" style="margin-bottom:0">
+            <div class="callout-title">Key Consideration</div>
+            <p>Credit report API services <strong>cannot be resold to third parties</strong> and must be used for NCR-prescribed purposes.</p>
+          </div>
+        </div>
+
+        <h4>MarisIT</h4>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <span class="tag tag-green">NCR Registered (NCRCB23)</span>
+            <span class="tag tag-cyan">ISO 27001:2022</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:0">
+            <table>
+              <tbody>
+                <tr><td style="width:160px"><strong>Bureau Access</strong></td><td>Multiple SA credit bureaus</td></tr>
+                <tr><td><strong>Services</strong></td><td>Credit scoring, vetting, qualification verification, vehicle verification</td></tr>
+                <tr><td><strong>Integration</strong></td><td>Web-based reporting platform and API</td></tr>
+                <tr><td><strong>Website</strong></td><td><a href="https://www.marisit.co.za" target="_blank">marisit.co.za</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h4>OmniCheck (by OmniSol)</h4>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <span class="tag tag-green">NCR Registered Reseller</span>
+            <span class="tag tag-cyan">RESTful API</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:0">
+            <table>
+              <tbody>
+                <tr><td style="width:160px"><strong>Bureau Access</strong></td><td>All major credit bureaus, plus CIPC, SARS, DHA</td></tr>
+                <tr><td><strong>Services</strong></td><td>ID verification, credit checks, fraud prevention, company searches</td></tr>
+                <tr><td><strong>Integration</strong></td><td>RESTful API over secure SSL</td></tr>
+                <tr><td><strong>Website</strong></td><td><a href="https://www.verifyid.co.za" target="_blank">verifyid.co.za</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h4>Gathr</h4>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <span class="tag tag-amber">Registered via Partnerships</span>
+            <span class="tag tag-cyan">API-First</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:0">
+            <table>
+              <tbody>
+                <tr><td style="width:160px"><strong>Bureau Access</strong></td><td>TransUnion and others via partnerships</td></tr>
+                <tr><td><strong>Services</strong></td><td>Credit bureau checks, affordability assessments, ID verification, bank account verification</td></tr>
+                <tr><td><strong>Integration</strong></td><td>API-first platform with modular architecture</td></tr>
+                <tr><td><strong>Onboarding</strong></td><td>Demo &rarr; Contract &rarr; Technical onboarding &rarr; UAT &rarr; Go-live</td></tr>
+                <tr><td><strong>Website</strong></td><td><a href="https://gathrdocs.com" target="_blank">gathrdocs.com</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h4>Standard Bank OneHub API Marketplace</h4>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <span class="tag tag-amber">Requires SB Relationship</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:0">
+            <table>
+              <tbody>
+                <tr><td style="width:160px"><strong>Bureau Access</strong></td><td>CompuScan (Experian), Experian Sigma, TransUnion, VeriCred, XDS</td></tr>
+                <tr><td><strong>Services</strong></td><td>Company and consumer credit checks via API</td></tr>
+                <tr><td><strong>Website</strong></td><td><a href="https://corporateandinvestment.standardbank.com" target="_blank">corporateandinvestment.standardbank.com</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h3>Comparison: Intermediary vs Direct Registration</h3>
+
+        <div class="table-wrapper comparison-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Intermediary Partner</th>
+                <th>Direct NCR Registration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Time to market</strong></td><td><span class="tag tag-green">2&ndash;4 weeks</span></td><td><span class="tag tag-red">5&ndash;8 months</span></td></tr>
+              <tr><td><strong>Upfront cost</strong></td><td><span class="tag tag-green">Minimal (API fees)</span></td><td><span class="tag tag-amber">R40,000&ndash;90,000</span></td></tr>
+              <tr><td><strong>Ongoing cost</strong></td><td>Per-enquiry fees (higher per unit)</td><td>Annual renewal + lower per-unit bureau fees</td></tr>
+              <tr><td><strong>Compliance burden</strong></td><td><span class="tag tag-green">Low</span></td><td><span class="tag tag-red">High</span></td></tr>
+              <tr><td><strong>Control over data</strong></td><td><span class="tag tag-amber">Limited</span></td><td><span class="tag tag-green">Full</span></td></tr>
+              <tr><td><strong>Bureau relationships</strong></td><td>Indirect</td><td>Direct</td></tr>
+              <tr><td><strong>Margin per transaction</strong></td><td><span class="tag tag-amber">Lower</span></td><td><span class="tag tag-green">Higher</span></td></tr>
+              <tr><td><strong>Risk of dependency</strong></td><td><span class="tag tag-red">High</span></td><td><span class="tag tag-green">Low</span></td></tr>
+              <tr><td><strong>Scalability</strong></td><td>Good initially, expensive at volume</td><td>Better unit economics at scale</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 10: Regulatory Changes              -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="regulatory-changes">
+        <div class="section-label">Section 10</div>
+        <h2>Recent Regulatory Changes (2024&ndash;2026)</h2>
+
+        <h3>National Credit Amendment Act (2019, effective ongoing)</h3>
+        <p>The National Credit Amendment Act No. 7 of 2019 introduced debt intervention for low-income consumers. While not directly impacting credit bureau registration, it expanded the NCR's mandate and increased scrutiny on data accuracy in credit bureau records.</p>
+
+        <h3>Draft Regulation Amendments (August 2025)</h3>
+        <p>Published in <strong>Government Gazette No. 53154</strong> on 13 August 2025, the Department of Trade, Industry and Competition proposed significant amendments to NCA Regulations. Public comments were due by 13 September 2025.</p>
+
+        <h4>Regulation 18 &mdash; Consumer Identification</h4>
+        <div class="card">
+          <ul>
+            <li>Strengthened requirements for consumer identification using ID numbers, passport numbers, or registration numbers</li>
+            <li>Where standard identifiers are unavailable, credit bureaus must use &ldquo;other reasonable identifiers&rdquo;</li>
+            <li>New provisions for small business credit applications</li>
+          </ul>
+        </div>
+
+        <h4>Regulation 19 &mdash; Credit Bureau Data Scope</h4>
+        <div class="card" style="border-left: 3px solid var(--cyan);">
+          <div class="callout callout-info" style="margin-bottom:12px">
+            <div class="callout-title">Important for VeriGate</div>
+            <p>These changes directly expand the data available through credit bureau integrations.</p>
+          </div>
+          <ul>
+            <li><strong>Expanded the types of data</strong> credit bureaus may collect, now including payment histories for goods, services, and utilities</li>
+            <li>Permitted data collection from <strong>insurers, educational institutions, fraud investigation entities, and debt collectors</strong></li>
+            <li>Mandated submission of personal details including names, ID/passport numbers, dates of birth, addresses, and employment information</li>
+            <li>Required alignment with NCR guidelines on data format and quality</li>
+          </ul>
+        </div>
+
+        <h4>Regulation 23A &mdash; Affordability Assessments</h4>
+        <div class="card">
+          <ul>
+            <li>New standardised minimum expense norms table based on income brackets</li>
+            <li>Credit providers must evaluate discretionary income, financial means, and revenue flows</li>
+            <li>Mandatory validation of gross income</li>
+          </ul>
+        </div>
+
+        <h3>SACRRA Data Transmission Hub (DTH)</h3>
+        <div class="card">
+          <p>The NCR has designated the <strong>SACRRA (South African Credit and Risk Reporting Association) Data Transmission Hub</strong> as the prescribed mechanism for submitting credit information to authorised credit bureaus.</p>
+          <ul>
+            <li>Both monthly and daily files must be submitted</li>
+            <li>Daily data submissions (opened/closed accounts) must be made within <strong>48 hours</strong></li>
+            <li>All data must be accurate and current at the time of submission</li>
+          </ul>
+        </div>
+
+        <div class="callout callout-success">
+          <div class="callout-title">Impact on VeriGate &mdash; Positive</div>
+          <p>The 2025 draft regulation changes are <strong>positive for VeriGate's use case</strong>:</p>
+          <ul style="padding-left:20px;margin-top:8px">
+            <li>The expanded data scope means more verification data points will be available through credit bureaus</li>
+            <li>The inclusion of employment information, utility payment histories, and fraud investigation data aligns well with a verification gateway's needs</li>
+            <li>Tighter data quality standards will improve the reliability of credit bureau data for verification purposes</li>
+            <li>Credit bureau data combined with VeriGate's CIPC directorship cross-referencing strengthens the platform's <strong>conflict of interest detection</strong> capability &mdash; credit exposure patterns, directorial overlaps, and beneficial ownership signals can be correlated across sources to flag undisclosed relationships in procurement and onboarding</li>
+          </ul>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">Action Required</div>
+          <p>As of April 2026, it should be confirmed whether these draft regulations have been finalised and gazetted as law. Contact the NCR or check the Government Gazette for the latest status.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 11: NCR Contact Details             -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="ncr-contact">
+        <div class="section-label">Section 11</div>
+        <h2>NCR Contact Details</h2>
+
+        <div class="contact-grid">
+          <div class="contact-item">
+            <span class="contact-label">Call Centre</span>
+            <span class="contact-value">0860 627 627</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Reception</span>
+            <span class="contact-value">011 554 2700</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">General Enquiries</span>
+            <span class="contact-value"><a href="mailto:info@ncr.org.za">info@ncr.org.za</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Complaints</span>
+            <span class="contact-value"><a href="mailto:complaints@ncr.org.za">complaints@ncr.org.za</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Workshops</span>
+            <span class="contact-value"><a href="mailto:workshops@ncr.org.za">workshops@ncr.org.za</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Website</span>
+            <span class="contact-value"><a href="https://www.ncr.org.za" target="_blank">ncr.org.za</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Twitter / X</span>
+            <span class="contact-value">@NCRegulator</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Forms Download</span>
+            <span class="contact-value"><a href="https://www.ncr.org.za/act/list-of-forms" target="_blank">ncr.org.za/act/list-of-forms</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Register of Registrants</span>
+            <span class="contact-value"><a href="https://www.ncr.org.za/register_of_registrants/" target="_blank">ncr.org.za/register_of_registrants</a></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-top:0">Physical Address</h4>
+          <p style="margin-bottom:0">127 15th Road, Randjespark, Midrand, Johannesburg, 1685</p>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-top:0">Postal Address</h4>
+          <p style="margin-bottom:0">PO Box 209, Halfway House, 1685</p>
+        </div>
+
+        <h3>Draft Regulation Comments Submission</h3>
+        <div class="contact-grid">
+          <div class="contact-item">
+            <span class="contact-label">Email</span>
+            <span class="contact-value"><a href="mailto:credit@thedtic.gov.za">credit@thedtic.gov.za</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Physical</span>
+            <span class="contact-value">Department of Trade, Industry and Competition offices, Pretoria</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 12: Prescribed Reasons              -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="prescribed-reasons">
+        <div class="section-label">Section 12</div>
+        <h2>Prescribed Reasons for Credit Bureau Enquiries</h2>
+
+        <p>Under the NCA, every credit bureau enquiry must have a <strong>prescribed reason</strong>. The following are the recognised prescribed purposes relevant to VeriGate's verification use case:</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Prescribed Reason</th>
+                <th>Consent Required?</th>
+                <th>Relevance to VeriGate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Credit risk assessment</strong> (Section 81(2))</td><td>Yes</td><td>If verifying creditworthiness</td></tr>
+              <tr><td><strong>Insurance application</strong></td><td>Yes</td><td>If verifying for insurance purposes</td></tr>
+              <tr><td><strong>Employment</strong> (positions requiring trust/finances)</td><td>Yes</td><td>Pre-employment verification</td></tr>
+              <tr><td><strong>Fraud detection and prevention</strong></td><td>Context-dependent</td><td><span class="tag tag-cyan">Core VeriGate use case</span></td></tr>
+              <tr><td><strong>Setting limit for goods/utility/service</strong></td><td>Yes</td><td>Verification for service providers</td></tr>
+              <tr><td><strong>Affordability/financial means assessment</strong></td><td>Yes</td><td>Financial verification</td></tr>
+              <tr><td><strong>Tracing by credit provider/agent</strong></td><td>No (within terms)</td><td>Skip tracing services</td></tr>
+              <tr><td><strong>Fraud, corruption, or theft investigation</strong></td><td>No (SAPS/enforcement)</td><td>Law enforcement support</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-danger">
+          <div class="callout-title">Critical Note for VeriGate</div>
+          <p>Consumer consent must be <strong>voluntary, informed, and specific</strong> per POPIA. VeriGate's platform must implement robust consent collection and storage mechanisms. Each enquiry must be tagged with the applicable prescribed reason.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 13: Recommendation                  -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="recommendation">
+        <div class="section-label">Section 13</div>
+        <h2>Recommendation for VeriGate</h2>
+
+        <div class="recommendation-banner">
+          <div class="rec-subtitle">Recommended Strategy</div>
+          <h3>Phased Approach: Intermediary First, Direct Registration in Parallel</h3>
+          <p>This approach balances speed-to-market with long-term strategic independence, allowing VeriGate to begin serving customers immediately while building towards full regulatory autonomy.</p>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 1</span>
+            <span class="phase-title">MVP via Intermediary</span>
+          </div>
+          <div class="phase-timeline">Months 1&ndash;3</div>
+          <ul>
+            <li>Partner with <strong>Datanamix</strong> or <strong>OmniCheck</strong> as the primary credit data source</li>
+            <li>Integrate their REST API into VeriGate's platform</li>
+            <li>Implement POPIA-compliant consent collection</li>
+            <li>Begin serving customers with credit verification as part of VeriGate's gateway</li>
+          </ul>
+          <div class="phase-cost">Cost: API integration + per-enquiry fees (pay-as-you-go)</div>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 2</span>
+            <span class="phase-title">NCR Registration</span>
+          </div>
+          <div class="phase-timeline">Months 1&ndash;8 (runs in parallel with Phase 1)</div>
+          <ul>
+            <li>Begin NCR registration process immediately (runs in parallel with Phase 1)</li>
+            <li>Obtain criminal clearances, prepare documentation, complete Form 5</li>
+            <li>Submit application and await NCR approval</li>
+          </ul>
+          <div class="phase-cost">Cost: R40,000&ndash;90,000 for registration and compliance setup</div>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 3</span>
+            <span class="phase-title">Direct Bureau Integration</span>
+          </div>
+          <div class="phase-timeline">Months 6&ndash;10</div>
+          <ul>
+            <li>Once NCR-registered, negotiate direct SLAs with TransUnion, Experian, and XDS</li>
+            <li>Implement direct API integrations with each bureau</li>
+            <li>Transition from intermediary to direct access (or maintain both for redundancy)</li>
+          </ul>
+          <div class="phase-cost">Cost: API integration development + bureau setup fees</div>
+        </div>
+
+        <h3>Key Risks and Mitigations</h3>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Risk</th><th>Mitigation</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>NCR registration takes longer than expected</strong></td><td>Intermediary partnership allows VeriGate to operate while waiting</td></tr>
+              <tr><td><strong>Intermediary restricts resale of credit data</strong></td><td>Ensure VeriGate's use case qualifies as direct use (verification for own clients), not resale</td></tr>
+              <tr><td><strong>Regulatory changes increase compliance burden</strong></td><td>Monitor Government Gazette and NCR communications; engage a compliance advisor</td></tr>
+              <tr><td><strong>Consumer consent challenges</strong></td><td>Build robust consent management into VeriGate's platform from day one</td></tr>
+              <tr><td><strong>Data breach liability</strong></td><td>Implement ISO 27001-aligned security controls; consider cyber insurance</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Regulatory Advisory</div>
+          <p>Given the complexity of NCA compliance, it is strongly recommended that VeriGate engage a <strong>specialist NCR registration consultant</strong> (such as Bonmas Consulting, Barnard Inc., or Masthead) to assist with the registration process and ongoing compliance. Typical consulting fees range from R10,000&ndash;30,000 for the registration process.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- SECTION 14: Sources                         -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="section" id="sources">
+        <div class="section-label">Section 14</div>
+        <h2>Sources</h2>
+
+        <ul class="sources-list">
+          <li><a href="https://www.ncr.org.za" target="_blank">NCR Official Website</a></li>
+          <li><a href="https://www.ncr.org.za/register_of_registrants/registered_cb1.php" target="_blank">NCR Register of Registrants &mdash; Credit Bureaus</a></li>
+          <li><a href="https://www.ncr.org.za/act/list-of-forms" target="_blank">NCR List of Forms (Form 5)</a></li>
+          <li><a href="https://ncr.org.za/documents/pages/compliance&reports_cp/Requirements%20for%20registration%20as%20a%20credit%20bureau%20final.pdf" target="_blank">NCR Requirements for Registration as a Credit Bureau (PDF)</a></li>
+          <li><a href="https://www.thedtic.gov.za/wp-content/uploads/National_Credit_Act34of2005.pdf" target="_blank">National Credit Act No. 34 of 2005</a></li>
+          <li><a href="https://www.gov.za/documents/national-credit-act-determination-application-registration-and-renewal-fees-regulations-11" target="_blank">Government Gazette &mdash; Determination of Fees Regulations</a></li>
+          <li><a href="https://barnardinc.co.za/2024/11/12/what-is-ncr-credit-registration-and-why-is-it-important-in-south-africa/" target="_blank">Barnard Inc. &mdash; NCR Credit Registration Guide</a></li>
+          <li><a href="https://barnardinc.co.za/how-to-register-as-a-credit-provider/" target="_blank">Barnard Inc. &mdash; How to Register as a Credit Provider</a></li>
+          <li><a href="https://smesouthafrica.co.za/register-with-the-national-credit-regulator-ncr/" target="_blank">SME South Africa &mdash; Register with the NCR</a></li>
+          <li><a href="https://bonmasconsulting.co.za/ncr-registration.php" target="_blank">Bonmas Consulting &mdash; NCR Registration</a></li>
+          <li><a href="https://www.mondaq.com/southafrica/consumer-credit/1544142/what-is-ncr-credit-registration-and-why-is-it-important-in-south-africa" target="_blank">Mondaq &mdash; NCR Credit Registration Importance</a></li>
+          <li><a href="https://www.masthead.co.za/compliance-for-credit-providers/" target="_blank">Masthead &mdash; Compliance for Credit Providers</a></li>
+          <li><a href="https://www.masthead.co.za/newsletter/proposed-national-credit-act-regulations-aim-to-strengthen-consumer-protection-and-data-standards/" target="_blank">Masthead &mdash; Proposed NCA Regulation Amendments (Aug 2025)</a></li>
+          <li><a href="https://www.moonstone.co.za/draft-nca-regulations-widen-credit-data-scope-and-tighten-affordability-tests/" target="_blank">Moonstone &mdash; Draft NCA Regulations (Aug 2025)</a></li>
+          <li><a href="https://www.afriwise.com/blog/draft-amendments-to-the-affordability-assessment-regulations-under-the-national-credit-act" target="_blank">Afriwise &mdash; Draft NCA Affordability Assessment Amendments</a></li>
+          <li><a href="https://www.datanamix.com/how-it-works/" target="_blank">Datanamix &mdash; How It Works</a></li>
+          <li><a href="https://pbverify.freshdesk.com/support/solutions/articles/17000007324-data-api-overview" target="_blank">Datanamix &mdash; API Overview</a></li>
+          <li><a href="https://www.marisit.co.za/" target="_blank">MarisIT &mdash; Credit Services South Africa</a></li>
+          <li><a href="https://www.verifyid.co.za/" target="_blank">OmniCheck &mdash; Verification Platform</a></li>
+          <li><a href="https://gathrdocs.com/unpacking-gathr-module-6-credit-bureau-check/" target="_blank">Gathr &mdash; Credit Bureau Check Module</a></li>
+          <li><a href="https://corporateandinvestment.standardbank.com/cib/global/products-and-services/onehub/api-marketplace/consumer-credit-checks" target="_blank">Standard Bank OneHub &mdash; Credit Checks API</a></li>
+          <li><a href="https://www.cba.co.za/members" target="_blank">Credit Bureau Association &mdash; Members</a></li>
+          <li><a href="https://sacrra.org.za/about-us/" target="_blank">SACRRA &mdash; About Us</a></li>
+          <li><a href="https://creditdata.co.za/enquiryreasons/" target="_blank">Cred-it-data &mdash; Enquiry Reasons and Prescribed Purposes</a></li>
+          <li><a href="https://www.thedtic.gov.za/wp-content/uploads/NCR-Annual-Report-2024_2025.pdf" target="_blank">NCR Annual Report 2024/2025</a></li>
+          <li><a href="https://www.arcadiafinance.co.za/loans/credit-bureaus-in-south-africa/" target="_blank">Arcadia Finance &mdash; Credit Bureaus in South Africa</a></li>
+          <li><a href="https://nationalgovernment.co.za/units/view/126/national-credit-regulator-ncr" target="_blank">National Government &mdash; NCR Overview</a></li>
+        </ul>
+      </section>
+
+      <!-- ── FOOTER ── -->
+      <footer class="doc-footer">
+        <p>This research document was compiled on 7 April 2026. Regulatory information should be verified with the NCR directly before making business decisions, as regulations and fees may have changed since the date of this research.</p>
+        <div class="footer-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="120" height="29" role="img" aria-label="VeriGate logo" style="vertical-align: middle; margin-right: 8px;"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg>&mdash; Internal Research</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Close sidebar on link click (mobile)
+    document.querySelectorAll('.sidebar nav a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

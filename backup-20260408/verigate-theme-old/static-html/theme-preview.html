@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriGate Theme Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== THEME TOKENS (swapped by JS) ===== */
+    :root {
+      --bg-deep: #0F172A;
+      --bg-surface: #1E293B;
+      --bg-elevated: #334155;
+      --accent: #DC2626;
+      --accent-dark: #B91C1C;
+      --accent-glow: rgba(220, 38, 38, 0.15);
+      --accent-border: rgba(220, 38, 38, 0.25);
+      --accent-text: #FCA5A5;
+      --accent-secondary: #2563EB;
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.65);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --border: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --card-left-border: var(--accent);
+      --navbar-bg: rgba(15, 23, 42, 0.85);
+      --navbar-scrolled: rgba(15, 23, 42, 0.95);
+      --hero-gradient: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-surface) 50%, var(--bg-deep) 100%);
+      --cta-gradient: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+      --footer-bg: linear-gradient(180deg, #0B1120 0%, #070D18 100%);
+      --stat-color: var(--accent);
+      --btn-gradient: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      --btn-shadow: rgba(220, 38, 38, 0.3);
+      --step-bg: var(--btn-gradient);
+      --step-shadow: var(--btn-shadow);
+      /* Light mode overrides */
+      --is-light: 0;
+    }
+
+    /* ===== BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-deep);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-weight: 700; line-height: 1.15; color: var(--text-primary); letter-spacing: -0.03em; }
+    h1, h2 { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; letter-spacing: -0.02em; }
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2.25rem; }
+    h3 { font-size: 1.5rem; }
+    p { color: var(--text-secondary); }
+    a { color: var(--accent); text-decoration: none; }
+    img { max-width: 100%; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ===== THEME PICKER ===== */
+    .theme-picker {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: #000;
+      border-bottom: 2px solid var(--accent);
+      padding: 12px 0;
+    }
+    .theme-picker .container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .theme-picker__label {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .theme-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .theme-btn.active { border-color: var(--accent); color: #fff; background: rgba(255,255,255,0.1); }
+    .theme-btn__swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+
+    /* ===== SPACER for fixed picker ===== */
+    .picker-spacer { height: 60px; }
+
+    /* ===== NAVBAR MOCK ===== */
+    .navbar-mock {
+      background: var(--navbar-bg);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 100%;
+    }
+    .navbar-mock__logo svg { height: 36px; }
+    .navbar-mock__links { display: flex; align-items: center; gap: 2rem; }
+    .navbar-mock__links a { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
+    .navbar-mock__links a:hover { color: var(--text-primary); }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn--primary {
+      background: var(--btn-gradient);
+      color: var(--btn-text, #fff);
+      box-shadow: 0 2px 8px var(--btn-shadow);
+    }
+    .btn--primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--btn-shadow); }
+    .btn--outline {
+      border: 2px solid rgba(255,255,255,0.3);
+      color: var(--text-primary);
+      background: transparent;
+    }
+    .btn--outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+    .btn--lg { padding: 1rem 2.5rem; font-size: 1rem; }
+    .btn--sm { padding: 0.5rem 1.25rem; font-size: 0.75rem; }
+    .btn--white { background: #fff; color: var(--accent); }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-glow);
+      color: var(--accent-text);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--accent-border);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 0 4rem;
+      position: relative;
+      overflow: hidden;
+      background: var(--hero-gradient);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero__title { margin-bottom: 1.5rem; font-size: 3.5rem; }
+    .hero__subtitle { font-size: 1.125rem; margin-bottom: 2rem; line-height: 1.7; }
+    .hero__actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ===== STATS ===== */
+    .stats-bar {
+      padding: 3rem 0;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center; }
+    .stat__number { font-size: 2.25rem; font-weight: 800; color: var(--stat-color); display: block; }
+    .stat__label { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; display: block; }
+
+    /* ===== SECTION ===== */
+    .section { padding: 5rem 0; position: relative; }
+    .section--alt { background: var(--bg-surface); }
+    .section__header { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
+    .section__header h2 { margin-bottom: 1rem; }
+    .section__header::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--accent);
+      margin: 1rem auto;
+      border-radius: 999px;
+    }
+
+    /* ===== CARDS ===== */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--card-left-border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+      backdrop-filter: blur(40px);
+    }
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 20px 48px rgba(0,0,0,0.25);
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      color: var(--accent-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      border: 1px solid var(--accent-border);
+    }
+    .card__icon svg { width: 24px; height: 24px; }
+    .card__title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .card__text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ===== STEPS ===== */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; counter-reset: step; position: relative; }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: calc(12.5% + 24px);
+      right: calc(12.5% + 24px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.1));
+    }
+    .step { text-align: center; counter-increment: step; position: relative; z-index: 1; }
+    .step::before {
+      content: counter(step);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: var(--step-bg);
+      color: var(--btn-text, #fff);
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 16px var(--step-shadow), 0 0 0 4px var(--accent-glow);
+    }
+    .step__title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .step__text { font-size: 0.875rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ===== FLIP CARDS ===== */
+    .flip-card { perspective: 1000px; height: 280px; }
+    .flip-card__inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-card__inner { transform: rotateY(180deg); }
+    .flip-card__front, .flip-card__back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .flip-card__front {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--accent);
+      backdrop-filter: blur(40px);
+      justify-content: center;
+    }
+    .flip-card__back {
+      background: linear-gradient(135deg, var(--bg-surface), var(--bg-elevated));
+      border: 1px solid rgba(255,255,255,0.1);
+      transform: rotateY(180deg);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .flip-card__back p { color: var(--text-secondary); font-size: 0.875rem; line-height: 1.7; margin-bottom: 1rem; }
+
+    /* ===== CTA ===== */
+    .cta {
+      padding: 4rem 0;
+    }
+    .cta__inner {
+      background: var(--cta-gradient);
+      border-radius: 20px;
+      padding: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px var(--btn-shadow);
+    }
+    .cta__inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px);
+      pointer-events: none;
+    }
+    .cta h2 { color: #fff !important; font-size: 1.875rem; margin-bottom: 1rem; position: relative; }
+    .cta p { color: rgba(255,255,255,0.9) !important; font-size: 1.125rem; margin-bottom: 2rem; max-width: 520px; margin-left: auto; margin-right: auto; position: relative; }
+    .cta .btn--primary { background: #fff; color: var(--accent); position: relative; }
+    .cta .btn--primary:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+
+    /* ===== FOOTER MOCK ===== */
+    .footer-mock {
+      background: var(--footer-bg);
+      padding: 4rem 0 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .footer-mock__brand p { color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem; max-width: 280px; line-height: 1.7; }
+    .footer-mock__heading {
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .footer-mock__links { list-style: none; }
+    .footer-mock__links li { margin-bottom: 0.75rem; }
+    .footer-mock__links a { color: var(--text-muted); font-size: 0.875rem; }
+    .footer-mock__links a:hover { color: var(--text-primary); }
+    .footer-mock__bottom {
+      padding: 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== PRICING CARDS ===== */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: stretch; }
+    .pricing-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card--featured {
+      border: 2px solid var(--accent);
+      transform: scale(1.03);
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 24px 56px var(--btn-shadow);
+      z-index: 2;
+    }
+    .pricing-card--featured::before {
+      content: 'Most Popular';
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--btn-gradient);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 1rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px var(--btn-shadow);
+    }
+    .pricing-card__name { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+    .pricing-card__price { margin: 1.5rem 0; }
+    .pricing-card__amount { font-size: 3rem; font-weight: 800; color: var(--stat-color); }
+    .pricing-card__period { font-size: 0.875rem; color: var(--text-muted); }
+    .pricing-card__features { text-align: left; flex: 1; margin-bottom: 1.5rem; }
+    .pricing-card__features li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      list-style: none;
+    }
+    .pricing-card__features li::before { content: '\2713'; color: #16A34A; font-weight: 700; }
+
+    /* ===== CERT BADGES ===== */
+    .cert-badges { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; padding: 1rem 0; }
+    .cert-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      backdrop-filter: blur(20px);
+    }
+    .cert-badge__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .cert-badge__label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .card-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero__title { font-size: 2.5rem; }
+      .theme-picker .container { justify-content: center; }
+      .flip-card { height: auto; perspective: none; }
+      .flip-card__inner { transform-style: flat; }
+      .flip-card:hover .flip-card__inner { transform: none; }
+      .flip-card__front { position: relative; }
+      .flip-card__back { position: relative; transform: none; margin-top: 1rem; border-radius: 16px; }
+    }
+
+    /* ===== LIGHT MODE OVERRIDES ===== */
+    body.light-mode {
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --border: rgba(0, 0, 0, 0.08);
+      --glass-bg: rgba(0, 0, 0, 0.02);
+      --glass-border: rgba(0, 0, 0, 0.06);
+      --navbar-bg: rgba(255, 255, 255, 0.9);
+      --navbar-scrolled: rgba(255, 255, 255, 0.97);
+    }
+    body.light-mode .card:hover { background: rgba(0,0,0,0.03); box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 20px 48px rgba(0,0,0,0.1); }
+    body.light-mode .flip-card__front { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.06); }
+    body.light-mode .flip-card__back { background: linear-gradient(135deg, #F1F5F9, #E2E8F0); border-color: rgba(0,0,0,0.08); }
+    body.light-mode .flip-card__back p { color: #475569; }
+    body.light-mode .pricing-card { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.06); }
+    body.light-mode .pricing-card--featured { border-color: var(--accent); }
+    body.light-mode .cert-badge { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+    body.light-mode .navbar-mock { border-bottom-color: rgba(0,0,0,0.08); }
+    body.light-mode .stats-bar { border-bottom-color: rgba(0,0,0,0.08); }
+    body.light-mode .step::before { color: #fff; }
+    body.light-mode .card__icon { background: var(--accent-glow); }
+    body.light-mode .footer-mock { background: #0F172A; color: rgba(255,255,255,0.9); }
+    body.light-mode .footer-mock .footer-mock__heading { color: #fff; }
+    body.light-mode .footer-mock .footer-mock__links a { color: rgba(255,255,255,0.4); }
+    body.light-mode .footer-mock .footer-mock__brand p { color: rgba(255,255,255,0.4); }
+    body.light-mode .footer-mock .footer-mock__bottom { color: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+
+  <!-- Theme Picker -->
+  <div class="theme-picker">
+    <div class="container">
+      <span class="theme-picker__label">Theme:</span>
+      <button class="theme-btn active" onclick="setTheme('navy-red')" id="btn-navy-red">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#0F172A,#DC2626)"></span>
+        1. Dark Navy + Red
+      </button>
+      <button class="theme-btn" onclick="setTheme('charcoal-emerald')" id="btn-charcoal-emerald">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#111827,#059669)"></span>
+        2. Charcoal + Emerald
+      </button>
+      <button class="theme-btn" onclick="setTheme('slate-indigo')" id="btn-slate-indigo">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#0F172A,#6366F1)"></span>
+        3. Slate + Indigo
+      </button>
+      <button class="theme-btn" onclick="setTheme('light-classic')" id="btn-light-classic">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#FFFFFF,#DC2626)"></span>
+        4. Light + Navy/Red
+      </button>
+      <button class="theme-btn" onclick="setTheme('midnight-gold')" id="btn-midnight-gold">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#09101D,#D97706)"></span>
+        5. Midnight + Gold
+      </button>
+      <button class="theme-btn" onclick="setTheme('verigate-cyan')" id="btn-verigate-cyan">
+        <span class="theme-btn__swatch" style="background:linear-gradient(135deg,#1B2F5C,#00D4FF)"></span>
+        6. VeriGate Public Site
+      </button>
+    </div>
+  </div>
+
+  <div class="picker-spacer"></div>
+
+  <!-- Navbar Mock -->
+  <div class="navbar-mock">
+    <div class="navbar-mock__logo">
+      <svg viewBox="0 0 360 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 8 C8 4, 12 0, 16 0 L44 0 C48 0, 52 4, 52 8 L52 36 C52 48, 30 60, 30 60 C30 60, 8 48, 8 36Z" fill="#DC2626" class="logo-shield"/>
+        <polyline points="18,30 26,40 42,18" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="64" y="42" font-family="'Manrope', sans-serif" font-weight="800" font-size="38" class="logo-text" letter-spacing="-0.5">VeriGate</text>
+      </svg>
+    </div>
+    <div class="navbar-mock__links">
+      <a href="#">Products</a>
+      <a href="#">Solutions</a>
+      <a href="#">Company</a>
+      <a href="#">Resources</a>
+      <a href="#">Pricing</a>
+      <button class="btn btn--primary btn--sm">Get Started</button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__inner">
+        <span class="badge">Enterprise Verification Platform</span>
+        <h1 class="hero__title">Trusted Background Screening for South Africa</h1>
+        <p class="hero__subtitle">Comprehensive, accurate, and compliant verification services that help organisations make confident hiring and onboarding decisions.</p>
+        <div class="hero__actions">
+          <button class="btn btn--primary btn--lg">Get Started</button>
+          <button class="btn btn--outline btn--lg">View Platform</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div><span class="stat__number">50,000+</span><span class="stat__label">Verifications Completed</span></div>
+        <div><span class="stat__number">99.2%</span><span class="stat__label">Accuracy Rate</span></div>
+        <div><span class="stat__number">24hrs</span><span class="stat__label">Average Turnaround</span></div>
+        <div><span class="stat__number">200+</span><span class="stat__label">Enterprise Clients</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Badges -->
+  <section class="section" style="padding:2.5rem 0">
+    <div class="container">
+      <div class="cert-badges">
+        <div class="cert-badge">
+          <span class="cert-badge__dot" style="background:#16A34A"></span>
+          <span class="cert-badge__label">POPIA Compliant</span>
+        </div>
+        <div class="cert-badge">
+          <span class="cert-badge__dot" style="background:#2563EB"></span>
+          <span class="cert-badge__label">ISO 27001</span>
+        </div>
+        <div class="cert-badge">
+          <span class="cert-badge__dot" style="background:#D97706"></span>
+          <span class="cert-badge__label">SOC 2 Type II</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Cards -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2>Comprehensive Verification Services</h2>
+        <p>From identity validation to compliance monitoring, VeriGate delivers thorough and reliable screening.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="m14.5 13.5 2 2"/></svg>
+          </div>
+          <h3 class="card__title">Criminal Checks</h3>
+          <p class="card__text">Thorough criminal record screening through SAPS and international databases to ensure a safe workforce.</p>
+        </div>
+        <div class="card">
+          <div class="card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5z"/><path d="M6 12v5c0 0 3 3 6 3s6-3 6-3v-5"/><path d="M22 10v6"/></svg>
+          </div>
+          <h3 class="card__title">Qualification Verification</h3>
+          <p class="card__text">Direct validation of academic credentials with universities and SAQA.</p>
+        </div>
+        <div class="card">
+          <div class="card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-3.3 2.7-6 6-6 1.8 0 3.4.8 4.5 2"/><path d="M12 10a2 2 0 0 1 2 2c0 4.4-1.2 8-2.5 10"/></svg>
+          </div>
+          <h3 class="card__title">Identity Validation</h3>
+          <p class="card__text">Multi-layered identity verification using DHA database and biometric matching.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Steps -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section__header">
+        <h2>How It Works</h2>
+        <p>Our streamlined four-step process ensures fast, accurate verification results every time.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><h3 class="step__title">Submit Request</h3><p class="step__text">Upload candidate details through our secure portal or API.</p></div>
+        <div class="step"><h3 class="step__title">Verification</h3><p class="step__text">Automated systems cross-reference multiple data sources.</p></div>
+        <div class="step"><h3 class="step__title">Quality Assurance</h3><p class="step__text">Results undergo rigorous quality review for accuracy.</p></div>
+        <div class="step"><h3 class="step__title">Report Delivered</h3><p class="step__text">Comprehensive report delivered to your dashboard.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flip Cards -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2>Verification Types</h2>
+        <p>Hover over each card to learn more about our verification services.</p>
+      </div>
+      <div class="card-grid">
+        <div class="flip-card">
+          <div class="flip-card__inner">
+            <div class="flip-card__front">
+              <div class="card__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="10" r="3"/><path d="M7 17c0-2.2 2.2-4 5-4s5 1.8 5 4"/></svg></div>
+              <h3 class="card__title">Face Verification</h3>
+              <p class="card__text">Biometric facial matching with liveness detection.</p>
+            </div>
+            <div class="flip-card__back">
+              <p>AI-powered selfie-to-document matching with passive liveness detection, preventing spoofing.</p>
+              <button class="btn btn--primary btn--sm">Learn More</button>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card__inner">
+            <div class="flip-card__front">
+              <div class="card__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg></div>
+              <h3 class="card__title">Document Verification</h3>
+              <p class="card__text">AI-powered document authentication and forgery detection.</p>
+            </div>
+            <div class="flip-card__back">
+              <p>Machine learning analysis of 50+ security features to detect forged documents.</p>
+              <button class="btn btn--primary btn--sm">Learn More</button>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card__inner">
+            <div class="flip-card__front">
+              <div class="card__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/></svg></div>
+              <h3 class="card__title">Business Verification</h3>
+              <p class="card__text">CIPC company checks, director screening, BEE verification.</p>
+            </div>
+            <div class="flip-card__back">
+              <p>Comprehensive KYB due diligence including ownership mapping and director screening.</p>
+              <button class="btn btn--primary btn--sm">Learn More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section__header">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Plans designed for every organisation size.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-card__name">Starter</div>
+          <div class="pricing-card__price"><span class="pricing-card__amount">R29</span><span class="pricing-card__period">/verification</span></div>
+          <ul class="pricing-card__features"><li>Up to 100 verifications/month</li><li>Criminal checks</li><li>Identity verification</li><li>Email support</li></ul>
+          <button class="btn btn--outline" style="width:100%;justify-content:center">Get Started</button>
+        </div>
+        <div class="pricing-card pricing-card--featured">
+          <div class="pricing-card__name">Professional</div>
+          <div class="pricing-card__price"><span class="pricing-card__amount">R22</span><span class="pricing-card__period">/verification</span></div>
+          <ul class="pricing-card__features"><li>Up to 1,000 verifications/month</li><li>All Starter features</li><li>Face & document verification</li><li>AML screening</li><li>Phone + email support</li></ul>
+          <button class="btn btn--primary" style="width:100%;justify-content:center">Get Started</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-card__name">Enterprise</div>
+          <div class="pricing-card__price"><span class="pricing-card__amount">Custom</span></div>
+          <ul class="pricing-card__features"><li>Unlimited verifications</li><li>All Professional features</li><li>Fraud prevention suite</li><li>Dedicated account manager</li><li>24/7 priority support</li></ul>
+          <button class="btn btn--outline" style="width:100%;justify-content:center">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta__inner">
+        <h2>Ready to streamline your verification process?</h2>
+        <p>Get started with VeriGate today and experience faster, more accurate background screening.</p>
+        <button class="btn btn--primary btn--lg">Get Started</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Mock -->
+  <section class="footer-mock">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-mock__brand">
+          <svg viewBox="0 0 360 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:32px">
+            <path d="M8 8 C8 4, 12 0, 16 0 L44 0 C48 0, 52 4, 52 8 L52 36 C52 48, 30 60, 30 60 C30 60, 8 48, 8 36Z" fill="#DC2626" class="logo-shield"/>
+            <polyline points="18,30 26,40 42,18" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="64" y="42" font-family="'Manrope', sans-serif" font-weight="800" font-size="38" fill="white" letter-spacing="-0.5">VeriGate</text>
+          </svg>
+          <p>Enterprise-grade verification platform trusted by South Africa's leading organisations.</p>
+        </div>
+        <div>
+          <div class="footer-mock__heading">Products</div>
+          <ul class="footer-mock__links"><li><a href="#">Verification Types</a></li><li><a href="#">Compliance</a></li><li><a href="#">Fraud Prevention</a></li><li><a href="#">Platform</a></li></ul>
+        </div>
+        <div>
+          <div class="footer-mock__heading">Company</div>
+          <ul class="footer-mock__links"><li><a href="#">About Us</a></li><li><a href="#">Careers</a></li><li><a href="#">Partners</a></li><li><a href="#">Contact</a></li></ul>
+        </div>
+        <div>
+          <div class="footer-mock__heading">Resources</div>
+          <ul class="footer-mock__links"><li><a href="#">Blog</a></li><li><a href="#">FAQs</a></li><li><a href="#">Technical Support</a></li><li><a href="#">Privacy Policy</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-mock__bottom">
+        <span>&copy; 2026 VeriGate (Pty) Ltd. All rights reserved.</span>
+        <span>Built by Arthmatic</span>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    var themes = {
+      'navy-red': {
+        '--bg-deep': '#0F172A',
+        '--bg-surface': '#1E293B',
+        '--bg-elevated': '#334155',
+        '--accent': '#DC2626',
+        '--accent-dark': '#B91C1C',
+        '--accent-glow': 'rgba(220, 38, 38, 0.15)',
+        '--accent-border': 'rgba(220, 38, 38, 0.25)',
+        '--accent-text': '#FCA5A5',
+        '--stat-color': '#DC2626',
+        '--btn-shadow': 'rgba(220, 38, 38, 0.3)',
+        '--hero-gradient': 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #0B1120 0%, #070D18 100%)',
+        '--card-left-border': '#DC2626',
+        '--btn-gradient': 'linear-gradient(135deg, #DC2626, #B91C1C)',
+        '--step-bg': 'linear-gradient(135deg, #DC2626, #B91C1C)',
+        '--step-shadow': 'rgba(220, 38, 38, 0.3)',
+        light: false,
+        logoColor: '#DC2626',
+        logoText: 'white'
+      },
+      'charcoal-emerald': {
+        '--bg-deep': '#111827',
+        '--bg-surface': '#1F2937',
+        '--bg-elevated': '#374151',
+        '--accent': '#059669',
+        '--accent-dark': '#047857',
+        '--accent-glow': 'rgba(5, 150, 105, 0.15)',
+        '--accent-border': 'rgba(5, 150, 105, 0.25)',
+        '--accent-text': '#6EE7B7',
+        '--stat-color': '#10B981',
+        '--btn-shadow': 'rgba(5, 150, 105, 0.3)',
+        '--hero-gradient': 'linear-gradient(135deg, #111827 0%, #1F2937 50%, #111827 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #0D1117 0%, #080C12 100%)',
+        '--card-left-border': '#059669',
+        '--btn-gradient': 'linear-gradient(135deg, #059669, #047857)',
+        '--step-bg': 'linear-gradient(135deg, #059669, #047857)',
+        '--step-shadow': 'rgba(5, 150, 105, 0.3)',
+        light: false,
+        logoColor: '#059669',
+        logoText: 'white'
+      },
+      'slate-indigo': {
+        '--bg-deep': '#0F172A',
+        '--bg-surface': '#1E293B',
+        '--bg-elevated': '#334155',
+        '--accent': '#6366F1',
+        '--accent-dark': '#4F46E5',
+        '--accent-glow': 'rgba(99, 102, 241, 0.15)',
+        '--accent-border': 'rgba(99, 102, 241, 0.25)',
+        '--accent-text': '#A5B4FC',
+        '--stat-color': '#818CF8',
+        '--btn-shadow': 'rgba(99, 102, 241, 0.3)',
+        '--hero-gradient': 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #0B1120 0%, #070D18 100%)',
+        '--card-left-border': '#6366F1',
+        '--btn-gradient': 'linear-gradient(135deg, #6366F1, #4F46E5)',
+        '--step-bg': 'linear-gradient(135deg, #6366F1, #4F46E5)',
+        '--step-shadow': 'rgba(99, 102, 241, 0.3)',
+        light: false,
+        logoColor: '#6366F1',
+        logoText: 'white'
+      },
+      'light-classic': {
+        '--bg-deep': '#FFFFFF',
+        '--bg-surface': '#F8FAFC',
+        '--bg-elevated': '#F1F5F9',
+        '--accent': '#DC2626',
+        '--accent-dark': '#B91C1C',
+        '--accent-glow': 'rgba(220, 38, 38, 0.08)',
+        '--accent-border': 'rgba(220, 38, 38, 0.15)',
+        '--accent-text': '#DC2626',
+        '--stat-color': '#DC2626',
+        '--btn-shadow': 'rgba(220, 38, 38, 0.2)',
+        '--hero-gradient': 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #0F172A 0%, #0B1120 100%)',
+        '--card-left-border': '#DC2626',
+        '--btn-gradient': 'linear-gradient(135deg, #DC2626, #B91C1C)',
+        '--step-bg': 'linear-gradient(135deg, #DC2626, #B91C1C)',
+        '--step-shadow': 'rgba(220, 38, 38, 0.2)',
+        light: true,
+        logoColor: '#DC2626',
+        logoText: '#0F172A'
+      },
+      'midnight-gold': {
+        '--bg-deep': '#09101D',
+        '--bg-surface': '#141B2D',
+        '--bg-elevated': '#1E2740',
+        '--accent': '#D97706',
+        '--accent-dark': '#B45309',
+        '--accent-glow': 'rgba(217, 119, 6, 0.15)',
+        '--accent-border': 'rgba(217, 119, 6, 0.25)',
+        '--accent-text': '#FCD34D',
+        '--stat-color': '#F59E0B',
+        '--btn-shadow': 'rgba(217, 119, 6, 0.3)',
+        '--hero-gradient': 'linear-gradient(135deg, #09101D 0%, #141B2D 50%, #09101D 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #D97706 0%, #B45309 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #060B14 0%, #030610 100%)',
+        '--card-left-border': '#D97706',
+        '--btn-gradient': 'linear-gradient(135deg, #D97706, #B45309)',
+        '--step-bg': 'linear-gradient(135deg, #D97706, #B45309)',
+        '--step-shadow': 'rgba(217, 119, 6, 0.3)',
+        light: false,
+        logoColor: '#D97706',
+        logoText: 'white'
+      },
+      'verigate-cyan': {
+        '--bg-deep': '#0F1621',
+        '--bg-surface': '#1B2F5C',
+        '--bg-elevated': '#2C3E54',
+        '--accent': '#00D4FF',
+        '--accent-dark': '#06B6D4',
+        '--accent-glow': 'rgba(0, 212, 255, 0.15)',
+        '--accent-border': 'rgba(0, 212, 255, 0.25)',
+        '--accent-text': '#67E8F9',
+        '--stat-color': '#00D4FF',
+        '--btn-shadow': 'rgba(0, 212, 255, 0.3)',
+        '--hero-gradient': 'linear-gradient(135deg, #0F1621 0%, #1B2F5C 50%, #0F1621 100%)',
+        '--cta-gradient': 'linear-gradient(135deg, #00D4FF 0%, #06B6D4 100%)',
+        '--footer-bg': 'linear-gradient(180deg, #0A0F18 0%, #060B12 100%)',
+        '--card-left-border': '#00D4FF',
+        '--btn-gradient': 'linear-gradient(135deg, #00D4FF, #06B6D4)',
+        '--step-bg': 'linear-gradient(135deg, #00D4FF, #06B6D4)',
+        '--step-shadow': 'rgba(0, 212, 255, 0.3)',
+        light: false,
+        lightAccent: true,
+        logoColor: '#1B2F5C',
+        logoText: 'white'
+      }
+    };
+
+    function setTheme(name) {
+      var theme = themes[name];
+      var root = document.documentElement;
+
+      // Set CSS variables
+      for (var key in theme) {
+        if (key.startsWith('--')) {
+          root.style.setProperty(key, theme[key]);
+        }
+      }
+
+      // Toggle light mode
+      if (theme.light) {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+
+      // Handle light-accent themes (cyan/gold) where button text on gradient needs to be dark
+      var lightAccent = theme.lightAccent || false;
+      root.style.setProperty('--btn-text', lightAccent ? '#0F1621' : '#fff');
+      document.querySelectorAll('.step').forEach(function(el) {
+        el.style.setProperty('--step-text', lightAccent ? '#0F1621' : '#fff');
+      });
+
+      // Update logo colors
+      document.querySelectorAll('.logo-shield').forEach(function(el) {
+        el.setAttribute('fill', theme.logoColor);
+      });
+      document.querySelectorAll('.logo-text').forEach(function(el) {
+        el.setAttribute('fill', theme.logoText);
+      });
+
+      // Update active button
+      document.querySelectorAll('.theme-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      document.getElementById('btn-' + name).classList.add('active');
+
+      // Update picker border
+      document.querySelector('.theme-picker').style.borderBottomColor = theme['--accent'];
+    }
+  </script>
+</body>
+</html>

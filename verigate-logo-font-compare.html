@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VeriGate Logo — Font Comparison</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&family=Poppins:wght@700;800&family=Nunito:wght@900&family=Outfit:wght@700;800&family=Montserrat:wght@800&family=Plus+Jakarta+Sans:wght@800&family=DM+Sans:wght@700;800&family=Urbanist:wght@800&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #E8ECF0;
+    padding: 32px;
+    margin: 0;
+  }
+
+  h1 {
+    font-size: 18px;
+    color: #1A2E4B;
+    margin-bottom: 8px;
+  }
+
+  p.sub {
+    font-size: 12px;
+    color: #64748B;
+    margin-bottom: 32px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1100px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(26,46,75,0.08);
+    padding: 24px 32px;
+    position: relative;
+  }
+
+  .card .label {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    background: #1A2E4B;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 16px 0 8px 0;
+  }
+
+  .shield {
+    flex-shrink: 0;
+  }
+
+  .wordmark {
+    font-size: 52px;
+    color: #1A1A2E;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .original {
+    border: 2px solid #E23D36;
+  }
+
+  .original .label {
+    background: #E23D36;
+  }
+
+  .original img {
+    height: 58px;
+    width: auto;
+  }
+</style>
+</head>
+<body>
+
+<h1>VeriGate Logo — Font Comparison</h1>
+<p class="sub">Original PNG on top-left for reference. Pick the closest match.</p>
+
+<div class="grid">
+
+  <!-- Original PNG -->
+  <div class="card original">
+    <div class="label">ORIGINAL PNG</div>
+    <div class="logo-row" style="margin-top: 24px;">
+      <img src="verigate-public-website/src/assets/verigate-logo-trans-bg.png" alt="Original">
+    </div>
+  </div>
+
+  <!-- 1. Poppins Bold 700 -->
+  <div class="card">
+    <div class="label">1 — Poppins Bold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Poppins'; font-weight: 700;">Veri<span style="font-family: 'Poppins'; font-weight: 700;">G</span>ate</span>
+    </div>
+  </div>
+
+  <!-- 2. Poppins ExtraBold 800 -->
+  <div class="card">
+    <div class="label">2 — Poppins ExtraBold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Poppins'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 3. Nunito Black -->
+  <div class="card">
+    <div class="label">3 — Nunito Black</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Nunito'; font-weight: 900;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 4. Outfit Bold -->
+  <div class="card">
+    <div class="label">4 — Outfit Bold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Outfit'; font-weight: 700;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 5. Outfit ExtraBold -->
+  <div class="card">
+    <div class="label">5 — Outfit ExtraBold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Outfit'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 6. Montserrat ExtraBold -->
+  <div class="card">
+    <div class="label">6 — Montserrat ExtraBold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Montserrat'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 7. Plus Jakarta Sans ExtraBold -->
+  <div class="card">
+    <div class="label">7 — Plus Jakarta Sans ExtraBold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Plus Jakarta Sans'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 8. DM Sans Bold -->
+  <div class="card">
+    <div class="label">8 — DM Sans Bold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'DM Sans'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 9. Urbanist ExtraBold -->
+  <div class="card">
+    <div class="label">9 — Urbanist ExtraBold</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Urbanist'; font-weight: 800;">VeriGate</span>
+    </div>
+  </div>
+
+  <!-- 10. Inter Black (current) -->
+  <div class="card">
+    <div class="label">10 — Inter Black (current)</div>
+    <div class="logo-row">
+      <svg class="shield" width="58" height="58" viewBox="0 0 152 152">
+        <path fill="#E23D36" d="M76 6 C56 6 2 15 2 18 L2 50 C2 82 26 108 76 118 C126 108 150 82 150 50 L150 18 C150 15 96 6 76 6 Z"/>
+        <path d="M22 60 L39 78 L82 34" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="wordmark" style="font-family: 'Inter'; font-weight: 900;">VeriGate</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

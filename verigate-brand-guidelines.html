@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeriGate — Brand Guidelines v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   VeriGate Brand Guidelines — Master Stylesheet
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --navy: #1A2E4B;
+  --cyan: #00B3D9;
+  --red: #E23D36;
+  --off-white: #F8FAFC;
+  --light-gray: #F1F5F9;
+  --border-gray: #E2E8F0;
+  --body-text: #334155;
+  --muted: #64748B;
+  --dark-bg: #0F1A2E;
+  --sidebar-w: 260px;
+  --sidebar-collapsed: 60px;
+  --portal-primary: #0972D3;
+  --portal-cta: #EC7211;
+  --portal-success: #2C974B;
+  --portal-danger: #D13212;
+  --portal-warning: #C28B0B;
+  --portal-bg: #F2F3F3;
+  --portal-surface: #FFFFFF;
+  --portal-text: #1A2024;
+  --portal-text-muted: #4F5B67;
+  --portal-border: #D5DBDB;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--body-text);
+  background: var(--off-white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 3px red accent at very top ── */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--red);
+  z-index: 1000;
+}
+
+/* ═══════ SIDEBAR ═══════ */
+.sidebar {
+  position: fixed;
+  top: 3px; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  z-index: 900;
+  overflow-y: auto;
+  transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-shield { flex-shrink: 0; }
+
+.sidebar-brand {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.4);
+  padding: 16px 24px 8px;
+}
+
+.sidebar-nav { flex: 1; padding: 0 0 16px; }
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 24px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+}
+
+.sidebar-link.active {
+  color: var(--cyan);
+  background: rgba(0,179,217,0.08);
+  border-left-color: var(--cyan);
+  font-weight: 500;
+}
+
+.sidebar-link .num {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.5;
+  min-width: 20px;
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.7;
+}
+
+.sidebar-footer a { color: var(--cyan); text-decoration: none; }
+
+/* ═══════ HAMBURGER ═══════ */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 1001;
+  width: 40px; height: 40px;
+  background: var(--navy);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger span {
+  display: block;
+  width: 20px; height: 2px;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.hamburger span + span { margin-top: 5px; }
+
+/* ═══════ MAIN CONTENT ═══════ */
+.main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* ═══════ SECTION STYLING ═══════ */
+.section {
+  padding: 64px 48px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section + .section { border-top: 1px solid var(--border-gray); }
+
+.section-num {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.section-subtitle {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  max-width: 640px;
+}
+
+/* ═══════ HERO / COVER ═══════ */
+.hero {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0F1A2E 0%, var(--navy) 40%, #1a3a5c 70%, #0d2440 100%);
+  transition: margin-left 0.3s ease;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,179,217,0.12) 0%, transparent 70%);
+}
+
+.hero-dot-grid {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 40px;
+}
+
+.hero-logo { margin-bottom: 32px; }
+
+.hero-tagline {
+  font-size: 18px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 400;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.hero-version {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ═══════ UTILITY CLASSES ═══════ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.flex-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mt-40 { margin-top: 40px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.card-flat {
+  background: var(--off-white);
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--light-gray);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--navy);
+}
+
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--navy);
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.spec-table th {
+  background: var(--light-gray);
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.spec-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: middle;
+}
+
+.spec-table tr:last-child td { border-bottom: none; }
+
+/* ═══════ LOGO SECTION ═══════ */
+.logo-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  border-radius: 8px;
+  min-height: 140px;
+}
+
+.logo-display svg { max-width: 260px; height: auto; }
+
+.logo-bg-white { background: #fff; border: 1px solid var(--border-gray); }
+.logo-bg-offwhite { background: var(--off-white); border: 1px solid var(--border-gray); }
+.logo-bg-navy { background: var(--navy); }
+.logo-bg-dark { background: var(--dark-bg); }
+
+.clearspace-demo {
+  display: inline-block;
+  position: relative;
+  padding: 32px;
+  border: 2px dashed var(--cyan);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.clearspace-label {
+  position: absolute;
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.dos-donts .item {
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dos-donts .do { border: 2px solid var(--cyan); }
+.dos-donts .dont { border: 2px solid var(--red); }
+
+.dos-donts .badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.dos-donts .do .badge { background: rgba(0,179,217,0.1); color: var(--cyan); }
+.dos-donts .dont .badge { background: rgba(226,61,54,0.1); color: var(--red); }
+
+/* ═══════ COLOUR SWATCHES ═══════ */
+.swatch {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-gray);
+  background: #fff;
+}
+
+.swatch-color {
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+}
+
+.swatch-color.large { height: 140px; }
+
+.swatch-info {
+  padding: 12px;
+  font-size: 12px;
+}
+
+.swatch-name {
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.swatch-hex {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ═══════ TYPOGRAPHY ═══════ */
+.type-specimen {
+  padding: 32px;
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+}
+
+.type-scale-row {
+  display: flex;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--light-gray);
+  gap: 24px;
+}
+
+.type-scale-row:last-child { border-bottom: none; }
+
+.type-scale-meta {
+  min-width: 160px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.type-scale-meta strong { color: var(--navy); display: block; font-size: 12px; }
+
+/* ═══════ SPACING ═══════ */
+.spacing-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.spacing-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.spacing-bar {
+  background: var(--cyan);
+  border-radius: 2px;
+  min-width: 24px;
+}
+
+.spacing-label {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+}
+
+.radius-demo {
+  width: 80px;
+  height: 80px;
+  background: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ═══════ SHADOWS ═══════ */
+.shadow-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.shadow-card .shadow-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.shadow-card .shadow-css {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.glow-demo {
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glow-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px 32px;
+  box-shadow: 0 0 40px rgba(0,179,217,0.3);
+  text-align: center;
+}
+
+/* ═══════ MOTION ═══════ */
+.motion-card {
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.motion-card .speed {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--navy);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.motion-card .speed-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.motion-box {
+  width: 60px;
+  height: 60px;
+  background: var(--cyan);
+  border-radius: 4px;
+  cursor: pointer;
+  transition-property: transform, background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.motion-box:hover {
+  transform: scale(1.2) translateY(-4px);
+  background: var(--navy);
+}
+
+.motion-box.quick { transition-duration: 100ms; }
+.motion-box.show { transition-duration: 200ms; }
+.motion-box.slow { transition-duration: 500ms; }
+
+/* ═══════ LETTERHEAD ═══════ */
+.letterhead-thumb {
+  aspect-ratio: 210 / 297;
+  border: 1px solid var(--border-gray);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(26,46,75,0.08);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.letterhead-thumb:hover {
+  box-shadow: 0 8px 24px rgba(26,46,75,0.15);
+  transform: translateY(-2px);
+}
+
+.letterhead-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--navy);
+  margin-top: 12px;
+}
+
+.letterhead-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ═══════ STATIONERY ═══════ */
+.biz-card {
+  width: 340px;
+  height: 200px;
+  border-radius: 8px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.biz-card-front {
+  background: var(--navy);
+  color: #fff;
+}
+
+.biz-card-back {
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-sig {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 480px;
+}
+
+/* ═══════ WEBSITE DESIGN SYSTEM ═══════ */
+.web-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  text-decoration: none;
+}
+
+.web-btn-hero {
+  background: linear-gradient(90deg, var(--cyan), #0ea5e9, var(--cyan));
+  background-size: 200%;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,179,217,0.3);
+}
+
+.web-btn-hero:hover {
+  box-shadow: 0 8px 25px rgba(0,179,217,0.5);
+  transform: scale(1.05);
+  background-position: right;
+}
+
+.web-btn-default {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: 0 4px 6px -1px rgba(26,46,75,0.1);
+}
+
+.web-btn-default:hover { background: #152640; box-shadow: 0 10px 15px -3px rgba(26,46,75,0.1); }
+
+.web-btn-outline {
+  border-color: var(--navy);
+  color: var(--navy);
+  background: transparent;
+}
+
+.web-btn-outline:hover { background: var(--navy); color: #fff; }
+
+.web-btn-ghost {
+  color: var(--navy);
+  background: transparent;
+}
+
+.web-btn-ghost:hover { background: rgba(0,179,217,0.08); color: var(--cyan); }
+
+.web-btn-destructive {
+  background: var(--red);
+  color: #fff;
+}
+
+.web-btn-destructive:hover { background: #c82f29; }
+
+/* Feature card hover pattern */
+.web-feature-card {
+  background: #fff;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.web-feature-card:hover {
+  border-color: rgba(0,179,217,0.5);
+  box-shadow: 0 20px 25px -5px rgba(0,179,217,0.1);
+  transform: translateY(-4px);
+}
+
+/* ═══════ PORTAL DESIGN SYSTEM ═══════ */
+.portal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.portal-btn-primary { background: var(--portal-primary); border-color: #0b5cab; color: #fff; }
+.portal-btn-primary:hover { background: #0b5cab; }
+
+.portal-btn-secondary { background: #fff; border-color: #687078; color: var(--portal-text); }
+.portal-btn-secondary:hover { background: #e4e7e7; border-color: var(--portal-primary); color: #0b5cab; }
+
+.portal-btn-cta { background: var(--portal-cta); border-color: #dd6a10; color: #fff; font-weight: 600; border-radius: 4px; }
+.portal-btn-cta:hover { background: #dd6a10; }
+
+.portal-btn-cta-outline { background: transparent; border-color: var(--portal-cta); color: var(--portal-cta); border-radius: 4px; }
+.portal-btn-cta-outline:hover { background: var(--portal-cta); color: #fff; }
+
+.portal-btn-primary-outline { background: transparent; border-color: var(--portal-primary); color: var(--portal-primary); border-radius: 4px; }
+.portal-btn-primary-outline:hover { background: var(--portal-primary); color: #fff; }
+
+.portal-btn-destructive { background: var(--portal-danger); border-color: var(--portal-danger); color: #fff; }
+.portal-btn-destructive:hover { background: #b91c1c; }
+
+.portal-btn-ghost { background: transparent; border-color: transparent; color: var(--portal-text); }
+.portal-btn-ghost:hover { background: #e4e7e7; border-color: var(--portal-border); }
+
+.portal-btn-link { background: transparent; border-color: transparent; color: var(--portal-primary); padding: 0; font-weight: 400; }
+.portal-btn-link:hover { color: #0b5cab; text-decoration: underline; }
+
+/* Portal badges */
+.portal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.portal-badge-neutral { background: var(--portal-bg); color: var(--portal-text); border-color: var(--portal-border); }
+.portal-badge-success { background: rgba(44,151,75,0.1); color: var(--portal-success); border-color: rgba(44,151,75,0.2); }
+.portal-badge-warning { background: rgba(194,139,11,0.1); color: var(--portal-warning); border-color: rgba(194,139,11,0.2); }
+.portal-badge-danger { background: rgba(209,50,18,0.1); color: var(--portal-danger); border-color: rgba(209,50,18,0.2); }
+.portal-badge-info { background: rgba(9,114,211,0.1); color: var(--portal-primary); border-color: rgba(9,114,211,0.2); }
+.portal-badge-pending { background: rgba(79,91,103,0.1); color: var(--portal-text-muted); border-color: rgba(79,91,103,0.2); }
+
+/* Portal table */
+.portal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  font-size: 13px;
+}
+
+.portal-table thead { background: var(--portal-bg); }
+
+.portal-table th {
+  padding: 8px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--portal-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e9ebed;
+}
+
+.portal-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ebed;
+  vertical-align: middle;
+}
+
+.portal-table tbody tr { transition: background 100ms ease; }
+.portal-table tbody tr:hover { background: #e4e7e7; }
+.portal-table tbody tr:last-child td { border-bottom: none; }
+
+/* ═══════ COMPARISON TABLE ═══════ */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.comparison-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  background: var(--light-gray);
+  border-bottom: 2px solid var(--border-gray);
+}
+
+.comparison-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: top;
+}
+
+.comparison-table .col-website { background: rgba(0,179,217,0.03); }
+.comparison-table .col-portal { background: rgba(9,114,211,0.03); }
+
+/* ═══════ RESPONSIVE ═══════ */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .sidebar { width: var(--sidebar-collapsed); }
+  .sidebar .sidebar-brand,
+  .sidebar .sidebar-label,
+  .sidebar .sidebar-link span:not(.num),
+  .sidebar .sidebar-footer { display: none; }
+  .sidebar-header { justify-content: center; padding: 20px 0; }
+  .sidebar-link { justify-content: center; padding: 12px 0; border-left: none; }
+  .sidebar-link .num { min-width: auto; }
+  .main, .hero { margin-left: var(--sidebar-collapsed); }
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    width: 280px;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: flex; }
+  .main, .hero { margin-left: 0; }
+  .section { padding: 40px 20px 32px; }
+  .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+  .grid-6 { grid-template-columns: 1fr 1fr; }
+  .hero-content { padding: 20px; }
+  .hero-logo svg { width: 280px !important; }
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 899;
+}
+
+.sidebar-overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HAMBURGER ═══════ -->
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation">
+  <span></span><span></span><span></span>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-shield">
+      <svg width="28" height="34" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </div>
+    <span class="sidebar-brand">VeriGate</span>
+  </div>
+  <div class="sidebar-label">Brand Guidelines</div>
+  <div class="sidebar-nav">
+    <a href="#cover" class="sidebar-link active"><span class="num">00</span> <span>Cover</span></a>
+    <a href="#logo" class="sidebar-link"><span class="num">01</span> <span>Logo</span></a>
+    <a href="#colour" class="sidebar-link"><span class="num">02</span> <span>Colour Palette</span></a>
+    <a href="#typography" class="sidebar-link"><span class="num">03</span> <span>Typography</span></a>
+    <a href="#spacing" class="sidebar-link"><span class="num">04</span> <span>Spacing & Layout</span></a>
+    <a href="#shadows" class="sidebar-link"><span class="num">05</span> <span>Shadows & Elevation</span></a>
+    <a href="#motion" class="sidebar-link"><span class="num">06</span> <span>Motion</span></a>
+    <a href="#letterheads" class="sidebar-link"><span class="num">07</span> <span>Letterheads</span></a>
+    <a href="#stationery" class="sidebar-link"><span class="num">08</span> <span>Stationery & Usage</span></a>
+    <a href="#website" class="sidebar-link"><span class="num">09</span> <span>Website Design</span></a>
+    <a href="#portal" class="sidebar-link"><span class="num">10</span> <span>Partner Portal</span></a>
+    <a href="#comparison" class="sidebar-link"><span class="num">11</span> <span>Website vs Portal</span></a>
+    <a href="#dos-donts" class="sidebar-link"><span class="num">12</span> <span>Do's & Don'ts</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <strong style="color: rgba(255,255,255,0.7);">VeriGate (Pty) Ltd</strong><br>
+    <a href="mailto:info@verigate.co.za">info@verigate.co.za</a><br>
+    v1.0 — April 2026
+  </div>
+</nav>
+
+<!-- ═══════ 00. COVER / HERO ═══════ -->
+<section class="hero" id="cover">
+  <div class="hero-dot-grid"></div>
+  <div class="hero-content">
+    <div class="hero-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="420" height="102">
+        <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+          <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+          <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">Ver<tspan>i</tspan>Gate</text>
+      </svg>
+    </div>
+    <p class="hero-tagline">Enterprise-Grade Identity Verification &amp; Compliance</p>
+    <p class="hero-version">Brand Guidelines &mdash; Version 1.0 &mdash; April 2026</p>
+  </div>
+</section>
+
+<!-- ═══════ 01. LOGO ═══════ -->
+<div class="main" id="main-content">
+
+<section class="section" id="logo">
+  <span class="section-num">01 &mdash; Logo</span>
+  <h2 class="section-title">Logo</h2>
+  <p class="section-subtitle">The VeriGate logo combines a red verification shield with the "VeriGate" wordmark set in Manrope Medium. The dot on the "i" is always present.</p>
+
+  <!-- Primary on 4 backgrounds -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Primary Logo</h3>
+  <div class="grid-2 mb-32">
+    <div>
+      <div class="logo-display logo-bg-white">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="260" height="63">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On white <span class="code">#FFFFFF</span></p>
+    </div>
+    <div>
+      <div class="logo-display logo-bg-offwhite">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="260" height="63">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On off-white <span class="code">#F8FAFC</span></p>
+    </div>
+    <div>
+      <div class="logo-display logo-bg-navy">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="260" height="63">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On navy <span class="code">#1A2E4B</span> (reversed)</p>
+    </div>
+    <div>
+      <div class="logo-display logo-bg-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="260" height="63">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On dark <span class="code">#0F1A2E</span> (reversed)</p>
+    </div>
+  </div>
+
+  <!-- Icon-only variant -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Icon-Only (Shield)</h3>
+  <div class="flex-row mb-32" style="gap:24px;">
+    <div style="text-align:center;">
+      <div class="logo-display logo-bg-white" style="width:120px;height:120px;padding:20px;display:inline-flex;">
+        <svg width="48" height="58" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On white</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="logo-display logo-bg-navy" style="width:120px;height:120px;padding:20px;display:inline-flex;">
+        <svg width="48" height="58" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">On navy</p>
+    </div>
+  </div>
+
+  <!-- Clear space -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Clear Space</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Maintain a minimum clear space around the logo equal to the height of the shield icon (marked "x"). No other elements should intrude into this zone.</p>
+  <div style="text-align:center;margin-bottom:40px;">
+    <div class="clearspace-demo" style="display:inline-block;">
+      <span class="clearspace-label" style="top:-18px;left:50%;transform:translateX(-50%);">x</span>
+      <span class="clearspace-label" style="left:-14px;top:50%;transform:translateY(-50%);">x</span>
+      <span class="clearspace-label" style="right:-14px;top:50%;transform:translateY(-50%);">x</span>
+      <span class="clearspace-label" style="bottom:-18px;left:50%;transform:translateX(-50%);">x</span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="220" height="54">
+        <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Minimum size -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Minimum Sizes</h3>
+  <div class="flex-row mb-32" style="gap:32px;align-items:flex-end;">
+    <div style="text-align:center;">
+      <div class="logo-display logo-bg-white" style="padding:16px;display:inline-flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="120" height="29">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">120px — Digital minimum</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="logo-display logo-bg-white" style="padding:12px;display:inline-flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="80" height="20">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">80px — Small print</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="logo-display logo-bg-white" style="padding:10px;display:inline-flex;">
+        <svg width="20" height="24" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">48px — Icon only (favicon)</p>
+    </div>
+  </div>
+
+  <!-- Do's & Don'ts -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Do's &amp; Don'ts</h3>
+  <div class="dos-donts grid-6">
+    <div class="item do">
+      <div class="badge">Do</div>
+      <div style="margin-bottom:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Use approved colours
+    </div>
+    <div class="item do">
+      <div class="badge">Do</div>
+      <div style="margin-bottom:8px;background:var(--navy);padding:12px;border-radius:4px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Reverse on dark backgrounds
+    </div>
+    <div class="item do">
+      <div class="badge">Do</div>
+      <div style="margin-bottom:8px;padding:16px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Maintain clear space
+    </div>
+    <div class="item dont">
+      <div class="badge">Don't</div>
+      <div style="margin-bottom:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="180" height="28"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Don't stretch or distort
+    </div>
+    <div class="item dont">
+      <div class="badge">Don't</div>
+      <div style="margin-bottom:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#00B3D9" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Don't recolour the shield
+    </div>
+    <div class="item dont">
+      <div class="badge">Don't</div>
+      <div style="margin-bottom:8px;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22%23ddd%22/><rect width=%222%22 height=%222%22 fill=%22%23bbb%22/></svg>') repeat;padding:12px;border-radius:4px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+      </div>
+      Don't use on busy backgrounds
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 02. COLOUR PALETTE ═══════ -->
+<section class="section" id="colour">
+  <span class="section-num">02 &mdash; Colour Palette</span>
+  <h2 class="section-title">Colour Palette</h2>
+  <p class="section-subtitle">Three primary brand colours anchor the VeriGate identity: Navy for authority, Cyan for trust and technology, Red for verification and urgency.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Primary Colours</h3>
+  <div class="grid-3 mb-32">
+    <div class="swatch">
+      <div class="swatch-color large" style="background:#1A2E4B;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Navy</div>
+        <div class="swatch-hex">#1A2E4B</div>
+        <div class="swatch-hex">RGB 26, 46, 75</div>
+        <div class="swatch-hex">HSL 217, 49%, 20%</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color large" style="background:#00B3D9;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Cyan</div>
+        <div class="swatch-hex">#00B3D9</div>
+        <div class="swatch-hex">RGB 0, 179, 217</div>
+        <div class="swatch-hex">HSL 190, 100%, 43%</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color large" style="background:#E23D36;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Red</div>
+        <div class="swatch-hex">#E23D36</div>
+        <div class="swatch-hex">RGB 226, 61, 54</div>
+        <div class="swatch-hex">HSL 2, 76%, 55%</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Neutral Palette</h3>
+  <div class="grid-5 mb-32">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F8FAFC;border-bottom:1px solid var(--border-gray);"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Off-White</div>
+        <div class="swatch-hex">#F8FAFC</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F1F5F9;border-bottom:1px solid var(--border-gray);"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Light Gray</div>
+        <div class="swatch-hex">#F1F5F9</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#E2E8F0;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Border</div>
+        <div class="swatch-hex">#E2E8F0</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#64748B;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Muted</div>
+        <div class="swatch-hex">#64748B</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#334155;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Body Text</div>
+        <div class="swatch-hex">#334155</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Usage Guidance</h3>
+  <p style="font-size:13px;color:var(--body-text);margin-bottom:24px;max-width:700px;">Navy is the dominant colour for headers, navigation, and primary actions. Cyan is reserved for accents, links, and interactive highlights. Red is used sparingly — the shield, destructive actions, and urgent states only. Never use red as a general accent colour.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Contrast Ratios (WCAG AA)</h3>
+  <div class="table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr><th>Foreground</th><th>Background</th><th>Ratio</th><th>AA Normal</th><th>AA Large</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span style="color:#1A2E4B;font-weight:600;">Navy #1A2E4B</span></td><td>White #FFFFFF</td><td style="font-family:'JetBrains Mono',monospace;">12.5:1</td><td style="color:var(--portal-success);font-weight:600;">Pass</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+        <tr><td><span style="color:#fff;background:#1A2E4B;padding:2px 6px;border-radius:3px;">White on Navy</span></td><td>#1A2E4B</td><td style="font-family:'JetBrains Mono',monospace;">12.5:1</td><td style="color:var(--portal-success);font-weight:600;">Pass</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+        <tr><td><span style="color:#00B3D9;font-weight:600;">Cyan #00B3D9</span></td><td>White #FFFFFF</td><td style="font-family:'JetBrains Mono',monospace;">3.1:1</td><td style="color:var(--red);font-weight:600;">Fail</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+        <tr><td><span style="color:#fff;background:#00B3D9;padding:2px 6px;border-radius:3px;">White on Cyan</span></td><td>#00B3D9</td><td style="font-family:'JetBrains Mono',monospace;">3.1:1</td><td style="color:var(--red);font-weight:600;">Fail</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+        <tr><td><span style="color:#E23D36;font-weight:600;">Red #E23D36</span></td><td>White #FFFFFF</td><td style="font-family:'JetBrains Mono',monospace;">4.1:1</td><td style="color:var(--portal-success);font-weight:600;">Pass</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+        <tr><td><span style="color:#334155;font-weight:600;">Body #334155</span></td><td>White #FFFFFF</td><td style="font-family:'JetBrains Mono',monospace;">9.5:1</td><td style="color:var(--portal-success);font-weight:600;">Pass</td><td style="color:var(--portal-success);font-weight:600;">Pass</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════ 03. TYPOGRAPHY ═══════ -->
+<section class="section" id="typography">
+  <span class="section-num">03 &mdash; Typography</span>
+  <h2 class="section-title">Typography</h2>
+  <p class="section-subtitle">Manrope is reserved exclusively for the logo wordmark. Inter is the primary typeface for all UI and document text. JetBrains Mono handles code and data.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Manrope — Logo Only</h3>
+  <div class="type-specimen mb-32">
+    <p style="font-family:'Manrope',sans-serif;font-weight:500;font-size:36px;color:var(--navy);letter-spacing:-1px;margin-bottom:8px;">VeriGate</p>
+    <p style="font-size:12px;color:var(--muted);">Manrope Medium (500) &mdash; Used exclusively for the wordmark. Never use for body copy or headings.</p>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Inter — Primary Typeface</h3>
+  <div class="type-specimen mb-24">
+    <p style="font-family:'Inter',sans-serif;font-weight:300;font-size:28px;color:var(--navy);margin-bottom:4px;">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+    <p style="font-family:'Inter',sans-serif;font-weight:400;font-size:28px;color:var(--navy);margin-bottom:4px;">abcdefghijklmnopqrstuvwxyz</p>
+    <p style="font-family:'Inter',sans-serif;font-weight:500;font-size:28px;color:var(--navy);margin-bottom:4px;">0123456789 !@#$%&amp;*().,;:</p>
+    <p style="font-family:'Inter',sans-serif;font-weight:400;font-size:14px;color:var(--body-text);line-height:1.7;margin-top:16px;max-width:640px;">VeriGate provides enterprise-grade identity verification and compliance solutions. Our platform combines advanced document scanning, facial recognition, and real-time risk intelligence to help businesses onboard customers securely and efficiently.</p>
+  </div>
+
+  <!-- Weight scale -->
+  <div class="grid-5 mb-32">
+    <div class="card-flat" style="text-align:center;">
+      <p style="font-family:'Inter',sans-serif;font-weight:300;font-size:24px;color:var(--navy);">Aa</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Light 300</p>
+    </div>
+    <div class="card-flat" style="text-align:center;">
+      <p style="font-family:'Inter',sans-serif;font-weight:400;font-size:24px;color:var(--navy);">Aa</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Regular 400</p>
+    </div>
+    <div class="card-flat" style="text-align:center;">
+      <p style="font-family:'Inter',sans-serif;font-weight:500;font-size:24px;color:var(--navy);">Aa</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Medium 500</p>
+    </div>
+    <div class="card-flat" style="text-align:center;">
+      <p style="font-family:'Inter',sans-serif;font-weight:600;font-size:24px;color:var(--navy);">Aa</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Semibold 600</p>
+    </div>
+    <div class="card-flat" style="text-align:center;">
+      <p style="font-family:'Inter',sans-serif;font-weight:700;font-size:24px;color:var(--navy);">Aa</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Bold 700</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">JetBrains Mono — Code</h3>
+  <div class="code-block mb-32">
+<span style="color:#7dd3fc;">const</span> verification = <span style="color:#7dd3fc;">await</span> verigate.<span style="color:#a5f3fc;">verify</span>({
+  <span style="color:#94a3b8;">type</span>: <span style="color:#fbbf24;">"KYC"</span>,
+  <span style="color:#94a3b8;">document</span>: idDocument,
+  <span style="color:#94a3b8;">biometric</span>: <span style="color:#7dd3fc;">true</span>,
+});</div>
+
+  <!-- Type scale table -->
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Type Scale</h3>
+  <div class="card">
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Display</strong>48px / Bold 700</div>
+      <div style="font-size:48px;font-weight:700;color:var(--navy);line-height:1.1;">VeriGate</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Heading 1</strong>36px / Bold 700</div>
+      <div style="font-size:36px;font-weight:700;color:var(--navy);line-height:1.2;">Identity Verification</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Heading 2</strong>28px / Semibold 600</div>
+      <div style="font-size:28px;font-weight:600;color:var(--navy);line-height:1.3;">Real-Time Processing</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Heading 3</strong>20px / Semibold 600</div>
+      <div style="font-size:20px;font-weight:600;color:var(--navy);line-height:1.4;">Compliance Automation</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Body</strong>14px / Regular 400</div>
+      <div style="font-size:14px;font-weight:400;color:var(--body-text);line-height:1.6;">Comprehensive due diligence and KYC compliance solutions.</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Small</strong>13px / Regular 400</div>
+      <div style="font-size:13px;font-weight:400;color:var(--muted);line-height:1.5;">Updated 2 hours ago</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Caption</strong>11px / Medium 500</div>
+      <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;">Verification status</div>
+    </div>
+    <div class="type-scale-row">
+      <div class="type-scale-meta"><strong>Mono</strong>13px / Regular 400</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--navy);">2025/525145/07</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 04. SPACING & LAYOUT ═══════ -->
+<section class="section" id="spacing">
+  <span class="section-num">04 &mdash; Spacing &amp; Layout</span>
+  <h2 class="section-title">Spacing &amp; Layout</h2>
+  <p class="section-subtitle">An 8px base unit underpins all spacing. Consistent rhythm creates visual harmony across interfaces and documents.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Spacing Scale</h3>
+  <div class="card mb-32" style="padding:32px;">
+    <div class="spacing-box">
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:2px;"></div>
+        <span class="spacing-label">2px</span>
+        <span style="font-size:10px;color:var(--muted);">2xs</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:4px;"></div>
+        <span class="spacing-label">4px</span>
+        <span style="font-size:10px;color:var(--muted);">xs</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:8px;"></div>
+        <span class="spacing-label">8px</span>
+        <span style="font-size:10px;color:var(--muted);">s</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:16px;"></div>
+        <span class="spacing-label">16px</span>
+        <span style="font-size:10px;color:var(--muted);">m</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:20px;"></div>
+        <span class="spacing-label">20px</span>
+        <span style="font-size:10px;color:var(--muted);">l</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:32px;"></div>
+        <span class="spacing-label">32px</span>
+        <span style="font-size:10px;color:var(--muted);">xl</span>
+      </div>
+      <div class="spacing-unit">
+        <div class="spacing-bar" style="width:24px;height:40px;"></div>
+        <span class="spacing-label">40px</span>
+        <span style="font-size:10px;color:var(--muted);">xxl</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Border Radius</h3>
+  <div class="flex-row mb-32" style="gap:32px;">
+    <div style="text-align:center;">
+      <div class="radius-demo" style="border-radius:2px;">2px</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;"><strong>Control</strong><br>Buttons, inputs</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-demo" style="border-radius:8px;">8px</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;"><strong>Container</strong><br>Cards, modals</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-demo" style="border-radius:16px;">16px</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;"><strong>Token</strong><br>Badges, pills</p>
+    </div>
+  </div>
+
+  <div class="card-flat" style="max-width:500px;">
+    <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">8px Base Unit Rule:</strong> All spacing values should be multiples of 8px (with 2px and 4px exceptions for fine-tuning). This creates consistent vertical and horizontal rhythm across all VeriGate interfaces.</p>
+  </div>
+</section>
+
+<!-- ═══════ 05. SHADOWS & ELEVATION ═══════ -->
+<section class="section" id="shadows">
+  <span class="section-num">05 &mdash; Shadows &amp; Elevation</span>
+  <h2 class="section-title">Shadows &amp; Elevation</h2>
+  <p class="section-subtitle">A four-level elevation system creates depth and hierarchy. Shadows use navy-tinted values for visual coherence.</p>
+
+  <div class="grid-4 mb-32">
+    <div class="shadow-card" style="box-shadow:0 1px 1px 0 rgba(0,28,36,0.3);">
+      <div class="shadow-name">Base</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">Cards, containers</p>
+      <p class="shadow-css" style="margin-top:8px;">0 1px 1px 0 rgba(0,28,36,0.3)</p>
+    </div>
+    <div class="shadow-card" style="box-shadow:0 1px 4px 2px rgba(0,28,36,0.15);">
+      <div class="shadow-name">Raised</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">Hover state, dropdowns</p>
+      <p class="shadow-css" style="margin-top:8px;">0 1px 4px 2px rgba(0,28,36,0.15)</p>
+    </div>
+    <div class="shadow-card" style="box-shadow:0 6px 12px 4px rgba(0,28,36,0.15);">
+      <div class="shadow-name">Sticky</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">Sticky headers, toolbars</p>
+      <p class="shadow-css" style="margin-top:8px;">0 6px 12px 4px rgba(0,28,36,0.15)</p>
+    </div>
+    <div class="shadow-card" style="box-shadow:0 8px 16px 4px rgba(0,28,36,0.18);">
+      <div class="shadow-name">Modal</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">Modals, dialogs</p>
+      <p class="shadow-css" style="margin-top:8px;">0 8px 16px 4px rgba(0,28,36,0.18)</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Cyan Glow</h3>
+  <div class="glow-demo mb-32">
+    <div class="glow-card">
+      <p style="font-size:14px;font-weight:600;color:var(--navy);">Accent Glow</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">Used on hero CTAs and featured elements</p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);margin-top:8px;">0 0 40px rgba(0,179,217,0.3)</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Usage Reference</h3>
+  <div class="table-wrap">
+    <table class="spec-table">
+      <thead><tr><th>Level</th><th>Token</th><th>CSS Value</th><th>Context</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><span class="code">elevation-base</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">0 1px 1px 0 rgba(0,28,36,0.3)</td><td>Default cards, table containers</td></tr>
+        <tr><td>2</td><td><span class="code">elevation-raised</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">0 1px 4px 2px rgba(0,28,36,0.15)</td><td>Hover states, popovers, dropdown menus</td></tr>
+        <tr><td>3</td><td><span class="code">elevation-sticky</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">0 6px 12px 4px rgba(0,28,36,0.15)</td><td>Sticky navigation, floating toolbars</td></tr>
+        <tr><td>4</td><td><span class="code">elevation-modal</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">0 8px 16px 4px rgba(0,28,36,0.18)</td><td>Modal dialogs, confirmation overlays</td></tr>
+        <tr><td>Glow</td><td><span class="code">shadow-glow</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">0 0 40px rgba(0,179,217,0.3)</td><td>Hero CTA buttons, featured highlights</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════ 06. MOTION ═══════ -->
+<section class="section" id="motion">
+  <span class="section-num">06 &mdash; Motion</span>
+  <h2 class="section-title">Motion</h2>
+  <p class="section-subtitle">Three timing tiers ensure animations feel responsive yet natural. All transitions use a single easing curve.</p>
+
+  <div class="grid-3 mb-32">
+    <div class="motion-card">
+      <div class="speed">100<span style="font-size:16px;font-weight:400;color:var(--muted);">ms</span></div>
+      <div class="speed-label">Quick</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">Hover states, focus rings, button presses</p>
+    </div>
+    <div class="motion-card">
+      <div class="speed">200<span style="font-size:16px;font-weight:400;color:var(--muted);">ms</span></div>
+      <div class="speed-label">Show</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">Dropdowns, tooltips, accordion reveals</p>
+    </div>
+    <div class="motion-card">
+      <div class="speed">500<span style="font-size:16px;font-weight:400;color:var(--muted);">ms</span></div>
+      <div class="speed-label">Slow</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">Page transitions, scroll animations, modals</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Easing Curve</h3>
+  <div class="card mb-32" style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
+    <div>
+      <svg width="160" height="160" viewBox="0 0 160 160" style="background:#f8fafc;border-radius:8px;">
+        <line x1="20" y1="140" x2="140" y2="140" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="20" y1="20" x2="20" y2="140" stroke="#e2e8f0" stroke-width="1"/>
+        <path d="M 20 140 C 84 140, 52 20, 140 20" fill="none" stroke="#00B3D9" stroke-width="2.5"/>
+        <circle cx="84" cy="140" r="4" fill="#00B3D9" opacity="0.4"/>
+        <circle cx="52" cy="20" r="4" fill="#00B3D9" opacity="0.4"/>
+        <line x1="20" y1="140" x2="84" y2="140" stroke="#00B3D9" stroke-width="1" stroke-dasharray="4" opacity="0.4"/>
+        <line x1="140" y1="20" x2="52" y2="20" stroke="#00B3D9" stroke-width="1" stroke-dasharray="4" opacity="0.4"/>
+      </svg>
+    </div>
+    <div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--navy);font-weight:500;">cubic-bezier(0.4, 0, 0.2, 1)</p>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;max-width:320px;">Material-standard easing. Fast start with a gentle deceleration, making interactions feel snappy yet smooth.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Interactive Demo</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Hover over each box to see the timing difference.</p>
+  <div class="flex-row" style="gap:32px;">
+    <div style="text-align:center;">
+      <div class="motion-box quick"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">100ms Quick</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="motion-box show"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">200ms Show</p>
+    </div>
+    <div style="text-align:center;">
+      <div class="motion-box slow"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">500ms Slow</p>
+    </div>
+  </div>
+
+  <div class="card-flat mt-32" style="max-width:600px;">
+    <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Motion Rules:</strong></p>
+    <ul style="font-size:13px;color:var(--body-text);margin-top:8px;padding-left:20px;line-height:1.8;">
+      <li>Always use the standard easing curve — never linear or ease-in-out</li>
+      <li>Prefer transform and opacity for animations (GPU-accelerated)</li>
+      <li>Respect <span class="code">prefers-reduced-motion</span> — disable non-essential animations</li>
+      <li>Scroll-triggered animations: fade-in with y:20 &rarr; 0, stagger children by 100ms</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════ 07. LETTERHEADS ═══════ -->
+<section class="section" id="letterheads">
+  <span class="section-num">07 &mdash; Letterheads</span>
+  <h2 class="section-title">Letterhead Templates</h2>
+  <p class="section-subtitle">Three letterhead designs serve different contexts. Each maintains brand consistency while adapting tone and formality.</p>
+
+  <div class="grid-3">
+    <!-- Bold & Branded -->
+    <div>
+      <div class="letterhead-thumb">
+        <div style="height:6px;display:flex;"><div style="flex:3;background:#D63031;"></div><div style="flex:5;background:#1A2E4B;"></div><div style="flex:2;background:#00B3D9;"></div></div>
+        <div style="padding:16px 20px 12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <svg width="80" height="20" viewBox="45 58 245 60"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope',sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+            <div style="font-size:5px;color:#94A3B8;text-align:right;line-height:1.6;">Registered Office<br>1 Cinnebar St</div>
+          </div>
+          <div style="height:2px;background:linear-gradient(90deg,#D63031 25%,#1A2E4B 25% 75%,#00B3D9 75%);margin:8px 0;border-radius:1px;"></div>
+          <div style="font-size:5px;color:#94A3B8;margin-bottom:6px;">7 April 2026</div>
+          <div style="font-size:5.5px;font-weight:700;color:#1A2E4B;margin-bottom:6px;">CONFIRMATION OF ED CONTRIBUTION</div>
+          <div style="font-size:4.5px;color:#64748B;line-height:1.6;">VeriGate (Pty) Ltd hereby confirm that we are an eligible supplier development or enterprise development beneficiary...</div>
+          <!-- Watermark shield -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.025;">
+            <svg width="60" height="72" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#1A2E4B"/></svg>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;">
+          <div style="margin:0 20px;height:1px;background:#E2E8F0;"></div>
+          <div style="padding:6px 20px;display:flex;justify-content:space-between;font-size:4px;color:#94A3B8;">
+            <span>+27 82 211 8921</span><span>info@verigate.co.za</span><span>2025/525145/07</span>
+          </div>
+          <div style="height:6px;display:flex;"><div style="flex:2;background:#00B3D9;"></div><div style="flex:5;background:#1A2E4B;"></div><div style="flex:3;background:#D63031;"></div></div>
+        </div>
+      </div>
+      <p class="letterhead-name">Bold &amp; Branded</p>
+      <p class="letterhead-desc">External communications, proposals, marketing documents. Tri-colour bars and gradient accents with shield watermark.</p>
+    </div>
+
+    <!-- Corporate Minimal -->
+    <div>
+      <div class="letterhead-thumb">
+        <div style="padding:20px 24px 12px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <svg width="72" height="18" viewBox="45 58 245 60"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope',sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2">VeriGate</text></svg>
+            <div style="font-size:4.5px;color:#94A3B8;text-align:right;line-height:1.6;">1 Cinnebar St<br>Table View, 7441</div>
+          </div>
+          <div style="height:1px;background:#E2E8F0;margin:10px 0 0;"></div>
+          <div style="width:24px;height:1px;background:#D63031;margin-top:-1px;"></div>
+          <div style="margin-top:12px;">
+            <div style="font-size:4.5px;color:#94A3B8;margin-bottom:8px;">7 April 2026</div>
+            <div style="font-size:5px;font-weight:600;color:#1A2E4B;margin-bottom:6px;">Confirmation of ED Contribution Received</div>
+            <div style="font-size:4.5px;color:#64748B;line-height:1.7;">VeriGate (Pty) Ltd hereby confirm that we are an eligible supplier development or enterprise development beneficiary...</div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;">
+          <div style="margin:0 24px;height:1px;background:#F1F5F9;"></div>
+          <div style="padding:8px 24px;display:flex;justify-content:space-between;font-size:3.5px;color:#94A3B8;">
+            <span>Reg. 2025/525145/07</span><span>info@verigate.co.za | www.verigate.co.za</span>
+          </div>
+          <div style="margin:0 24px 10px;display:flex;height:2px;"><div style="width:12px;background:#D63031;border-radius:1px;"></div></div>
+        </div>
+      </div>
+      <p class="letterhead-name">Corporate Minimal</p>
+      <p class="letterhead-desc">Internal memos, day-to-day correspondence. Maximum whitespace with subtle red accent dash.</p>
+    </div>
+
+    <!-- Classic Formal -->
+    <div>
+      <div class="letterhead-thumb">
+        <div style="background:#1A2E4B;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <svg width="72" height="18" viewBox="45 58 245 60"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope',sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text></svg>
+          <div style="font-size:4px;color:rgba(255,255,255,0.6);text-align:right;line-height:1.6;">VeriGate (Pty) Ltd<br>1 Cinnebar St, Table View</div>
+        </div>
+        <div style="height:3px;background:#D63031;"></div>
+        <div style="padding:6px 20px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;justify-content:space-between;font-size:3.5px;color:#64748B;">
+          <span style="color:#00B3D9;">+27 82 211 8921 | info@verigate.co.za</span>
+          <span>Reg. 2025/525145/07</span>
+        </div>
+        <div style="padding:12px 20px;">
+          <div style="font-size:4.5px;color:#64748B;margin-bottom:6px;">7 April 2026</div>
+          <div style="font-size:5.5px;font-weight:700;color:#1A2E4B;margin-bottom:4px;padding-bottom:4px;border-bottom:1.5px solid #D63031;display:inline-block;">CONFIRMATION OF ED CONTRIBUTION</div>
+          <div style="font-size:4.5px;color:#64748B;line-height:1.6;margin-top:6px;">VeriGate (Pty) Ltd hereby confirm that we are an eligible supplier development or enterprise development beneficiary...</div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;">
+          <div style="background:#1A2E4B;padding:8px 20px;display:flex;justify-content:space-between;font-size:3.5px;color:rgba(255,255,255,0.5);">
+            <span>Contact: +27 82 211 8921</span><span>1 Cinnebar St, Table View</span><span>Reg. 2025/525145/07</span>
+          </div>
+          <div style="height:3px;background:#D63031;"></div>
+        </div>
+      </div>
+      <p class="letterhead-name">Classic Formal</p>
+      <p class="letterhead-desc">Legal documents, board resolutions, formal notices. Navy header/footer bands with red accent strip.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 08. STATIONERY & USAGE ═══════ -->
+<section class="section" id="stationery">
+  <span class="section-num">08 &mdash; Stationery &amp; Usage</span>
+  <h2 class="section-title">Stationery &amp; Usage</h2>
+  <p class="section-subtitle">Consistent application of the brand across business cards, email signatures, and social media.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Business Card</h3>
+  <div class="flex-row mb-32" style="gap:24px;flex-wrap:wrap;">
+    <!-- Front -->
+    <div class="biz-card biz-card-front">
+      <svg width="100" height="24" viewBox="45 58 245 60" style="margin-bottom:24px;"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope',sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text></svg>
+      <div style="margin-top:auto;">
+        <p style="font-size:14px;font-weight:600;color:#fff;">Arthur Manena</p>
+        <p style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;">Director</p>
+        <div style="margin-top:12px;font-size:10px;color:rgba(255,255,255,0.5);line-height:1.8;">
+          +27 82 211 8921<br>
+          arthur@verigate.co.za<br>
+          www.verigate.co.za
+        </div>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;display:flex;">
+        <div style="flex:3;background:#D63031;"></div>
+        <div style="flex:5;background:#1A2E4B;"></div>
+        <div style="flex:2;background:#00B3D9;"></div>
+      </div>
+    </div>
+    <!-- Back -->
+    <div class="biz-card biz-card-back">
+      <svg width="48" height="58" viewBox="0 0 200 240" fill="none" style="opacity:0.06;"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#1A2E4B"/><polyline points="60,120 90,155 145,95" stroke="#1A2E4B" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Email Signature</h3>
+  <div class="email-sig mb-32">
+    <table cellpadding="0" cellspacing="0" border="0" style="font-family:'Inter',Arial,sans-serif;font-size:13px;color:#334155;">
+      <tr>
+        <td style="padding-right:16px;vertical-align:top;border-right:2px solid #E23D36;">
+          <svg width="36" height="43" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </td>
+        <td style="padding-left:16px;vertical-align:top;">
+          <div style="font-weight:600;font-size:14px;color:#1A2E4B;">Arthur Manena</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px;">Director</div>
+          <div style="margin-top:8px;font-size:11px;color:#64748B;line-height:1.7;">
+            <span style="color:#00B3D9;">m:</span> +27 82 211 8921<br>
+            <span style="color:#00B3D9;">e:</span> arthur@verigate.co.za<br>
+            <span style="color:#00B3D9;">w:</span> www.verigate.co.za
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Social Media Avatar</h3>
+  <div class="flex-row" style="gap:24px;">
+    <div style="text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;">
+        <svg width="32" height="38" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">Navy background</p>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#fff;border:1px solid var(--border-gray);display:flex;align-items:center;justify-content:center;">
+        <svg width="32" height="38" viewBox="0 0 200 240" fill="none"><path d="M100 0C100 0 0 30 0 110C0 190 100 240 100 240C100 240 200 190 200 110C200 30 100 0 100 0Z" fill="#E23D36"/><polyline points="60,120 90,155 145,95" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">White background</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 09. WEBSITE DESIGN SYSTEM ═══════ -->
+<section class="section" id="website">
+  <span class="section-num">09 &mdash; Public Website</span>
+  <h2 class="section-title">Website Design System</h2>
+  <p class="section-subtitle">The public website uses Navy as the primary colour with Cyan accents, gradient hero backgrounds, and scroll-triggered animations via Framer Motion.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Colour Usage</h3>
+  <div class="flex-row mb-24" style="gap:12px;">
+    <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:var(--navy);"></div><span style="font-size:12px;">Primary — Headers, buttons, text</span></div>
+    <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:var(--cyan);"></div><span style="font-size:12px;">Accent — Links, icons, highlights</span></div>
+    <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:var(--red);"></div><span style="font-size:12px;">Destructive — Errors, warnings only</span></div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Button Variants</h3>
+  <div class="card mb-32" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:24px;">
+    <button class="web-btn web-btn-hero">Hero CTA</button>
+    <button class="web-btn web-btn-default">Default</button>
+    <button class="web-btn web-btn-outline">Outline</button>
+    <button class="web-btn web-btn-ghost">Ghost</button>
+    <button class="web-btn web-btn-destructive">Destructive</button>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Card Hover Pattern</h3>
+  <div class="grid-3 mb-32">
+    <div class="web-feature-card">
+      <div style="width:40px;height:40px;border-radius:8px;background:rgba(0,179,217,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+      </div>
+      <p style="font-weight:600;color:var(--navy);margin-bottom:4px;">KYC Verification</p>
+      <p style="font-size:13px;color:var(--muted);">Automated identity verification with document scanning and liveness detection.</p>
+    </div>
+    <div class="web-feature-card">
+      <div style="width:40px;height:40px;border-radius:8px;background:rgba(0,179,217,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <p style="font-weight:600;color:var(--navy);margin-bottom:4px;">Due Diligence</p>
+      <p style="font-size:13px;color:var(--muted);">Comprehensive background checks and risk assessment for regulatory adherence.</p>
+    </div>
+    <div class="web-feature-card">
+      <div style="width:40px;height:40px;border-radius:8px;background:rgba(0,179,217,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <p style="font-weight:600;color:var(--navy);margin-bottom:4px;">Compliance Automation</p>
+      <p style="font-size:13px;color:var(--muted);">Stay ahead of AML, CFT, and sanctions regulations with real-time monitoring.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Gradient Recipes</h3>
+  <div class="grid-2 mb-32">
+    <div>
+      <div style="height:80px;border-radius:8px;background:linear-gradient(135deg,#1A2E4B 0%,#1a3a5c 50%,#00B3D9 100%);margin-bottom:8px;"></div>
+      <p class="label">Hero Gradient</p>
+      <p class="code" style="font-size:11px;">linear-gradient(135deg, #1A2E4B, #1a3a5c, #00B3D9)</p>
+    </div>
+    <div>
+      <div style="height:80px;border-radius:8px;background:linear-gradient(90deg,#22d3ee,#60a5fa,#06b6d4);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:24px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#60a5fa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Redefined</span>
+      </div>
+      <p class="label" style="margin-top:8px;">Text Gradient</p>
+      <p class="code" style="font-size:11px;">from-cyan-400 via-blue-400 to-cyan-500</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Animation Patterns</h3>
+  <div class="card-flat mb-32" style="max-width:600px;">
+    <p style="font-size:13px;color:var(--body-text);line-height:1.7;"><strong style="color:var(--navy);">Scroll-triggered (Framer Motion):</strong></p>
+    <ul style="font-size:13px;color:var(--body-text);padding-left:20px;line-height:1.8;margin-top:4px;">
+      <li>Sections: fade-in with <span class="code">y: 20 → 0</span>, duration 600ms</li>
+      <li>Staggered lists: 100ms delay between children</li>
+      <li>Floating shapes: <span class="code">animate-float</span> (infinite, 6s ease-in-out)</li>
+      <li>Hero CTA: gradient <span class="code">bg-[length:200%]</span> shift on hover</li>
+    </ul>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Page Structure</h3>
+  <div class="flex-row" style="gap:8px;flex-wrap:wrap;">
+    <span style="background:var(--navy);color:#fff;padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;">Hero</span>
+    <span style="color:var(--muted);font-size:16px;">→</span>
+    <span style="background:var(--light-gray);color:var(--navy);padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;">Features</span>
+    <span style="color:var(--muted);font-size:16px;">→</span>
+    <span style="background:var(--light-gray);color:var(--navy);padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;">How It Works</span>
+    <span style="color:var(--muted);font-size:16px;">→</span>
+    <span style="background:var(--cyan);color:#fff;padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;">CTA</span>
+    <span style="color:var(--muted);font-size:16px;">→</span>
+    <span style="background:var(--navy);color:#fff;padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;">Footer</span>
+  </div>
+
+  <div class="card-flat mt-32" style="max-width:600px;">
+    <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Icon Library:</strong> Lucide React &mdash; <span class="code">UserCheck</span>, <span class="code">FileSearch</span>, <span class="code">Shield</span>, <span class="code">Zap</span>, <span class="code">CheckCircle2</span>, <span class="code">ArrowRight</span>, <span class="code">Fingerprint</span>, <span class="code">Database</span></p>
+  </div>
+</section>
+
+<!-- ═══════ 10. PARTNER PORTAL DESIGN SYSTEM ═══════ -->
+<section class="section" id="portal">
+  <span class="section-num">10 &mdash; Partner Portal</span>
+  <h2 class="section-title">Partner Portal Design System</h2>
+  <p class="section-subtitle">AWS Console-inspired enterprise interface. Compact, data-dense, with a muted palette optimised for extended use. Full dark mode support.</p>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Portal Colour System</h3>
+  <div class="grid-5 mb-32">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0972D3;"></div>
+      <div class="swatch-info"><div class="swatch-name">Primary Blue</div><div class="swatch-hex">#0972D3</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#EC7211;"></div>
+      <div class="swatch-info"><div class="swatch-name">CTA Orange</div><div class="swatch-hex">#EC7211</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2C974B;"></div>
+      <div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-hex">#2C974B</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#D13212;"></div>
+      <div class="swatch-info"><div class="swatch-name">Danger</div><div class="swatch-hex">#D13212</div></div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#C28B0B;"></div>
+      <div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-hex">#C28B0B</div></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Button Variants</h3>
+  <div class="card mb-32" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:24px;">
+    <button class="portal-btn portal-btn-primary">Primary</button>
+    <button class="portal-btn portal-btn-secondary">Secondary</button>
+    <button class="portal-btn portal-btn-destructive">Destructive</button>
+    <button class="portal-btn portal-btn-ghost">Ghost</button>
+    <button class="portal-btn portal-btn-cta">CTA</button>
+    <button class="portal-btn portal-btn-cta-outline">CTA Outline</button>
+    <button class="portal-btn portal-btn-primary-outline">Primary Outline</button>
+    <button class="portal-btn portal-btn-link">Link</button>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Badge Variants</h3>
+  <div class="card mb-32" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:24px;">
+    <span class="portal-badge portal-badge-neutral">Neutral</span>
+    <span class="portal-badge portal-badge-success">&#10003; Verified</span>
+    <span class="portal-badge portal-badge-warning">&#9888; Pending Review</span>
+    <span class="portal-badge portal-badge-danger">&#10007; Failed</span>
+    <span class="portal-badge portal-badge-info">&#8505; In Progress</span>
+    <span class="portal-badge portal-badge-pending">&#9711; Not Started</span>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Table Pattern</h3>
+  <div class="table-wrap mb-32" style="border-color:var(--portal-border);border-radius:8px;">
+    <table class="portal-table">
+      <thead>
+        <tr>
+          <th>Correlation ID</th>
+          <th>Type</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--portal-primary);">VG-2026-001</td>
+          <td>KYC</td>
+          <td>John M. Doe</td>
+          <td><span class="portal-badge portal-badge-success" style="font-size:12px;">&#10003; Verified</span></td>
+          <td style="color:var(--portal-text-muted);">2 min ago</td>
+        </tr>
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--portal-primary);">VG-2026-002</td>
+          <td>SANCTIONS</td>
+          <td>Acme Corp Ltd</td>
+          <td><span class="portal-badge portal-badge-warning" style="font-size:12px;">&#9888; Review</span></td>
+          <td style="color:var(--portal-text-muted);">15 min ago</td>
+        </tr>
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--portal-primary);">VG-2026-003</td>
+          <td>CREDIT</td>
+          <td>Jane Smith</td>
+          <td><span class="portal-badge portal-badge-danger" style="font-size:12px;">&#10007; Failed</span></td>
+          <td style="color:var(--portal-text-muted);">1 hr ago</td>
+        </tr>
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--portal-primary);">VG-2026-004</td>
+          <td>ID</td>
+          <td>Bob Williams</td>
+          <td><span class="portal-badge portal-badge-info" style="font-size:12px;">&#8505; In Progress</span></td>
+          <td style="color:var(--portal-text-muted);">Just now</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Modal / Dialog</h3>
+  <div style="background:rgba(0,0,0,0.03);border-radius:12px;padding:40px;display:flex;justify-content:center;margin-bottom:32px;">
+    <div style="background:#fff;border:1px solid var(--portal-border);border-radius:8px;padding:24px;max-width:400px;width:100%;box-shadow:0 8px 16px 4px rgba(0,28,36,0.18);">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <p style="font-size:16px;font-weight:600;color:var(--portal-text);">Delete Verification?</p>
+        <span style="color:var(--portal-text-muted);cursor:pointer;font-size:18px;">&times;</span>
+      </div>
+      <p style="font-size:13px;color:var(--portal-text-muted);margin-bottom:20px;">This action cannot be undone. The verification record VG-2026-003 will be permanently removed.</p>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button class="portal-btn portal-btn-secondary">Cancel</button>
+        <button class="portal-btn portal-btn-destructive">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Verification Status Colours</h3>
+  <div class="table-wrap mb-32">
+    <table class="spec-table">
+      <thead><tr><th>Status</th><th>Colour</th><th>Badge</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>Verified</td><td><span style="color:var(--portal-success);font-weight:600;">#2C974B</span></td><td><span class="portal-badge portal-badge-success" style="font-size:12px;">&#10003; Verified</span></td><td>Successful verification</td></tr>
+        <tr><td>Not Verified</td><td><span style="color:var(--portal-danger);font-weight:600;">#D13212</span></td><td><span class="portal-badge portal-badge-danger" style="font-size:12px;">&#10007; Not Verified</span></td><td>Failed verification or hard fail</td></tr>
+        <tr><td>In Progress</td><td><span style="color:var(--portal-warning);font-weight:600;">#C28B0B</span></td><td><span class="portal-badge portal-badge-warning" style="font-size:12px;">&#9888; In Progress</span></td><td>Awaiting provider response</td></tr>
+        <tr><td>Error</td><td><span style="color:var(--portal-danger);font-weight:600;">#D13212</span></td><td><span class="portal-badge portal-badge-danger" style="font-size:12px;">&#10007; Error</span></td><td>System error during verification</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Layout Structure</h3>
+  <div class="card-flat mb-32" style="max-width:600px;">
+    <p style="font-size:13px;color:var(--body-text);line-height:1.7;"><strong style="color:var(--navy);">Fixed sidebar navigation</strong> (collapsible, searchable, with favourites) + top navigation bar with breadcrumbs.</p>
+    <p style="font-size:13px;color:var(--body-text);line-height:1.7;margin-top:8px;"><strong style="color:var(--navy);">Navigation sections:</strong> Overview, Identity & Personal, Financial, Business & Compliance, Screening, Composite, Enterprise Features, Configuration.</p>
+    <p style="font-size:13px;color:var(--body-text);line-height:1.7;margin-top:8px;"><strong style="color:var(--navy);">Feature gating:</strong> "Requires [Plan]" tooltips with disabled state at <span class="code">opacity: 0.65</span>.</p>
+    <p style="font-size:13px;color:var(--body-text);line-height:1.7;margin-top:8px;"><strong style="color:var(--navy);">Dark mode:</strong> Full support with proper token overrides via <span class="code">data-theme="dark"</span>.</p>
+  </div>
+</section>
+
+<!-- ═══════ 11. WEBSITE vs PORTAL COMPARISON ═══════ -->
+<section class="section" id="comparison">
+  <span class="section-num">11 &mdash; Comparison</span>
+  <h2 class="section-title">Website vs Portal</h2>
+  <p class="section-subtitle">Two distinct design languages serve different audiences. The public website attracts; the partner portal performs.</p>
+
+  <div class="table-wrap mb-32">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width:160px;">Aspect</th>
+          <th class="col-website" style="width:auto;">Public Website</th>
+          <th class="col-portal" style="width:auto;">Partner Portal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Primary Colour</td>
+          <td class="col-website"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#1A2E4B;vertical-align:middle;margin-right:6px;"></span>Navy #1A2E4B</td>
+          <td class="col-portal"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#0972D3;vertical-align:middle;margin-right:6px;"></span>Blue #0972D3</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Accent</td>
+          <td class="col-website"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#00B3D9;vertical-align:middle;margin-right:6px;"></span>Cyan #00B3D9</td>
+          <td class="col-portal"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#EC7211;vertical-align:middle;margin-right:6px;"></span>Orange #EC7211</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Animation</td>
+          <td class="col-website">Framer Motion scroll-triggered, floating shapes, gradient shifts</td>
+          <td class="col-portal">Minimal — 100ms hover transitions only</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Button Radius</td>
+          <td class="col-website">6px (rounded, approachable)</td>
+          <td class="col-portal">2px (sharp, enterprise)</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Card Pattern</td>
+          <td class="col-website">Hover lift (-translate-y-1), cyan border glow, shadow-xl</td>
+          <td class="col-portal">Static with base shadow, hover → raised shadow</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Layout</td>
+          <td class="col-website">Marketing — hero, sections, CTA, footer</td>
+          <td class="col-portal">App shell — sidebar nav, topbar, content area</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Typography</td>
+          <td class="col-website">14px body, up to 48px display</td>
+          <td class="col-portal">13px body (compact), up to 32px heading-xl</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--navy);">Audience</td>
+          <td class="col-website">Prospects, marketing, brand awareness</td>
+          <td class="col-portal">Partners, operators, daily workflows</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:16px;">Status Indicator: Same Concept, Two Styles</h3>
+  <div class="grid-2">
+    <div class="card" style="text-align:center;">
+      <p class="label">Website Style</p>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(0,179,217,0.1);padding:8px 16px;border-radius:20px;margin-top:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span style="font-size:14px;font-weight:500;color:var(--navy);">Verified</span>
+      </div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p class="label">Portal Style</p>
+      <div style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;">
+        <span class="portal-badge portal-badge-success" style="font-size:12px;">&#10003; Verified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 12. DO'S & DON'TS ═══════ -->
+<section class="section" id="dos-donts">
+  <span class="section-num">12 &mdash; Do's &amp; Don'ts</span>
+  <h2 class="section-title">Do's &amp; Don'ts</h2>
+  <p class="section-subtitle">Quick-reference rules for maintaining brand consistency across all VeriGate touchpoints.</p>
+
+  <div class="grid-2" style="gap:24px;">
+    <!-- Do's -->
+    <div>
+      <h3 style="font-size:14px;font-weight:600;color:var(--cyan);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.1em;">Do's</h3>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Use approved background colours</strong> — white, off-white, navy, or dark navy for the logo.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Maintain clear space</strong> — equal to the shield height on all sides of the logo.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Use Inter for all body text</strong> — weights 300–700 as specified in the type scale.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Reserve cyan for accents</strong> — links, icons, highlights, and interactive states only.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Use the 8px spacing scale</strong> — all margins, padding, and gaps should be multiples of 8 (or 2/4 for fine-tuning).</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--cyan);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Respect the elevation hierarchy</strong> — Base → Raised → Sticky → Modal for consistent depth.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Don'ts -->
+    <div>
+      <h3 style="font-size:14px;font-weight:600;color:var(--red);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.1em;">Don'ts</h3>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't stretch or distort the logo</strong> — always scale proportionally, never warp.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't recolour the shield</strong> — the shield is always red (#E23D36) with a white checkmark.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't use Manrope for body text</strong> — Manrope is exclusively for the wordmark. Use Inter everywhere else.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't place the logo on busy backgrounds</strong> — no photos, patterns, or gradients without sufficient contrast.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't use red as a general accent</strong> — red is reserved for the shield, destructive actions, and urgent states.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red);">
+          <p style="font-size:13px;color:var(--body-text);"><strong style="color:var(--navy);">Don't mix website and portal styles</strong> — each design language serves a distinct audience and context.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer credit -->
+  <div style="margin-top:64px;padding-top:24px;border-top:1px solid var(--border-gray);text-align:center;">
+    <p style="font-size:12px;color:var(--muted);">VeriGate (Pty) Ltd &mdash; Reg. 2025/525145/07 &mdash; Brand Guidelines v1.0 &mdash; April 2026</p>
+    <p style="font-size:11px;color:var(--muted);margin-top:4px;">1 Cinnebar Street, Table View, Western Cape, 7441, South Africa</p>
+  </div>
+</section>
+
+</div><!-- end .main -->
+
+<script>
+// Sidebar toggle
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('show');
+}
+
+// Scroll-spy
+document.addEventListener('DOMContentLoaded', () => {
+  const sections = document.querySelectorAll('section[id], .hero[id]');
+  const links = document.querySelectorAll('.sidebar-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(section => observer.observe(section));
+});
+</script>
+</body>
+</html>

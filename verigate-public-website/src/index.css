@@ -43,7 +43,15 @@ All colors MUST be HSL.
     --brand-cyan: 193 95% 48%;
     --brand-light-blue: 210 100% 97%;
     --brand-gray: 217 20% 51%;
-    
+
+    /* Category Colors */
+    --cat-verification: 213 94% 52%;
+    --cat-compliance: 172 66% 40%;
+    --cat-fraud: 38 92% 50%;
+    --cat-industry: 152 69% 41%;
+    --cat-platform: 262 83% 58%;
+    --cat-company: 217 91% 18%;
+
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(217 91% 18%) 0%, hsl(217 71% 25%) 50%, hsl(193 95% 48%) 100%);
     --gradient-mesh: radial-gradient(at 0% 0%, hsl(217 91% 18% / 0.1) 0px, transparent 50%),
@@ -55,8 +63,14 @@ All colors MUST be HSL.
     --shadow-lg: 0 10px 15px -3px hsl(217 91% 18% / 0.1), 0 4px 6px -4px hsl(217 91% 18% / 0.1);
     --shadow-glow: 0 0 40px hsl(193 95% 48% / 0.3);
     
+    /* Semantic utility colours */
+    --color-rating: 45 93% 47%;
+    --color-http-get: 193 95% 48%;
+    --color-http-post: 217 91% 18%;
+    --color-http-delete: 0 84% 60%;
+
     /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -87,6 +101,14 @@ All colors MUST be HSL.
     --border: 217 33% 20%;
     --input: 217 33% 20%;
     --ring: 193 95% 48%;
+
+    /* Category Colors (dark) */
+    --cat-verification: 213 94% 60%;
+    --cat-compliance: 172 66% 50%;
+    --cat-fraud: 38 92% 58%;
+    --cat-industry: 152 69% 50%;
+    --cat-platform: 262 83% 68%;
+    --cat-company: 213 80% 60%;
   }
 }
 
@@ -97,5 +119,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

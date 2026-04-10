@@ -1,26 +1,26 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, Users, Globe, Award } from "lucide-react";
+import { TrendingUp, Users, Clock, Award } from "lucide-react";
 
 const stats = [
   {
     icon: Users,
-    value: "5M+",
+    value: "50,000+",
     label: "Verifications Completed",
   },
   {
-    icon: Globe,
-    value: "150+",
-    label: "Countries Covered",
-  },
-  {
     icon: TrendingUp,
-    value: "99.8%",
+    value: "99.2%",
     label: "Accuracy Rate",
   },
   {
+    icon: Clock,
+    value: "24hr",
+    label: "Turnaround Time",
+  },
+  {
     icon: Award,
-    value: "24/7",
-    label: "Expert Support",
+    value: "200+",
+    label: "Clients Nationwide",
   },
 ];
 
@@ -31,19 +31,19 @@ const TrustIndicators = () => {
         {/* Section Header */}
         <div className="max-w-2xl mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
-            Trusted by Industry Leaders
+            Trusted by South Africa's Leading Organisations
           </h2>
           <p className="text-lg text-muted-foreground">
-            Join thousands of organizations worldwide who rely on VeriGate for secure identity verification
+            Join hundreds of organisations across South Africa who rely on VeriGate for secure, compliant background screening
           </p>
         </div>
-        
+
         {/* Stats Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
-            <Card 
-              key={index} 
-              className="border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-md transition-all duration-300"
+            <Card
+              key={index}
+              className="border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-md transition-all duration-200"
             >
               <CardContent className="p-8 text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">

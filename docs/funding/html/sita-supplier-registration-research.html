@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SITA Supplier Registration Research | VeriGate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1A2E4B;
+    --cyan: #00B3D9;
+    --red: #E23D36;
+    --off-white: #F8FAFC;
+    --light-gray: #F1F5F9;
+    --border-gray: #E2E8F0;
+    --body-text: #334155;
+    --muted: #64748B;
+    --dark-bg: #0F1A2E;
+    --white: #FFFFFF;
+    --cyan-light: rgba(0, 179, 217, 0.08);
+    --red-light: rgba(226, 61, 54, 0.06);
+    --green: #059669;
+    --green-light: rgba(5, 150, 105, 0.08);
+    --amber: #D97706;
+    --amber-light: rgba(217, 119, 6, 0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--off-white);
+    color: var(--body-text);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- RED ACCENT BAR ---- */
+  body::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: var(--red);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+  }
+
+  /* ---- LAYOUT ---- */
+  .page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ---- HERO HEADER ---- */
+  .doc-header {
+    background: var(--dark-bg);
+    color: var(--white);
+    padding: 56px 48px 48px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,179,217,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .doc-header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(226,61,54,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .doc-header .brand-tag {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .doc-header h1 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 1.25;
+    color: var(--white);
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    position: relative;
+  }
+  .doc-meta-item {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+  .doc-meta-item strong {
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+  }
+  .doc-meta-item .status-badge {
+    display: inline-block;
+    background: rgba(0,179,217,0.15);
+    color: var(--cyan);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  /* ---- TABLE OF CONTENTS ---- */
+  .toc-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 32px 36px;
+    margin-bottom: 40px;
+  }
+  .toc-card .section-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+  }
+  .toc-card h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+  .toc-list {
+    list-style: none;
+    columns: 2;
+    column-gap: 32px;
+  }
+  .toc-list li {
+    break-inside: avoid;
+    margin-bottom: 8px;
+  }
+  .toc-list a {
+    color: var(--body-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    transition: color 0.15s;
+  }
+  .toc-list a:hover { color: var(--cyan); }
+  .toc-list .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 500;
+    min-width: 24px;
+  }
+
+  /* ---- SECTIONS ---- */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+  .section > h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--navy);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-gray);
+  }
+  .section h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--navy);
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+  .section h4 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--navy);
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  .section p {
+    margin-bottom: 14px;
+  }
+  .section ul, .section ol {
+    margin-bottom: 14px;
+    padding-left: 24px;
+  }
+  .section li {
+    margin-bottom: 6px;
+  }
+  .section a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .section a:hover {
+    border-bottom-color: var(--cyan);
+  }
+  .section strong { font-weight: 600; color: var(--navy); }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  /* ---- INFO CARD ---- */
+  .info-card {
+    background: var(--cyan-light);
+    border: 1px solid var(--cyan);
+    border-left: 4px solid var(--cyan);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .info-card .card-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  /* ---- HIGHLIGHT / OPPORTUNITY CARD ---- */
+  .opportunity-card {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #162440 100%);
+    border: 1px solid rgba(0,179,217,0.25);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin: 28px 0;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .opportunity-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--red));
+  }
+  .opportunity-card .opp-tag {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    background: rgba(0,179,217,0.12);
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .opportunity-card h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--white);
+    margin-bottom: 16px;
+    margin-top: 0;
+  }
+  .opportunity-card p {
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 12px;
+  }
+  .opportunity-card strong { color: var(--white); }
+  .opportunity-card ul { padding-left: 20px; }
+  .opportunity-card li { color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+
+  /* ---- TABLES ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--light-gray);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--navy);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-gray);
+  }
+  tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-gray);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--light-gray); }
+
+  /* ---- NUMBERED STEPS ---- */
+  .step-list {
+    list-style: none;
+    padding-left: 0;
+    counter-reset: step-counter;
+    margin: 20px 0;
+  }
+  .step-list > li {
+    counter-increment: step-counter;
+    position: relative;
+    padding-left: 64px;
+    margin-bottom: 28px;
+    min-height: 48px;
+  }
+  .step-list > li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0; top: 0;
+    width: 44px; height: 44px;
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+  .step-list > li .step-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .step-list > li .step-body { font-size: 14px; }
+  .step-list > li .step-body ol,
+  .step-list > li .step-body ul {
+    margin-top: 8px;
+    padding-left: 20px;
+  }
+
+  /* Connecting line between steps */
+  .step-list > li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: 48px;
+    bottom: -24px;
+    width: 2px;
+    background: var(--border-gray);
+  }
+
+  /* ---- PROCUREMENT TREE ---- */
+  .tree {
+    margin: 16px 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .tree-root {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy);
+    background: var(--light-gray);
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+  }
+  .tree-branch {
+    list-style: none;
+    padding-left: 28px;
+    border-left: 2px solid var(--border-gray);
+    margin-left: 16px;
+    margin-top: 4px;
+  }
+  .tree-branch > li {
+    position: relative;
+    padding: 5px 0 5px 20px;
+    font-size: 14px;
+    color: var(--body-text);
+  }
+  .tree-branch > li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px;
+    width: 14px; height: 2px;
+    background: var(--border-gray);
+  }
+  .tree-branch > li.tree-highlight {
+    font-weight: 600;
+    color: var(--cyan);
+  }
+
+  /* ---- PATHWAY CARDS (Alternative routes) ---- */
+  .pathway-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .pathway-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 20px 22px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .pathway-card:hover {
+    box-shadow: 0 4px 16px rgba(26,46,75,0.08);
+    border-color: var(--cyan);
+  }
+  .pathway-card .route-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .pathway-card h4 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy);
+    margin-bottom: 8px;
+    margin-top: 0;
+  }
+  .pathway-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+  .pathway-card.pathway-highlight {
+    border-color: var(--cyan);
+    background: var(--cyan-light);
+  }
+  .pathway-card.pathway-highlight .route-num { color: var(--navy); }
+
+  /* ---- CONTACT CARD ---- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .contact-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .contact-card h4 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy);
+    margin-bottom: 12px;
+    margin-top: 0;
+  }
+  .contact-card table {
+    margin: 0;
+    font-size: 13px;
+  }
+  .contact-card td {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  .contact-card td:first-child {
+    font-weight: 500;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-right: 16px;
+    width: 40%;
+  }
+  .contact-card tbody tr:last-child td { border-bottom: none; }
+
+  /* ---- TIP / PITFALL CALLOUTS ---- */
+  .callout {
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    padding-left: 52px;
+  }
+  .callout::before {
+    position: absolute;
+    left: 20px; top: 20px;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .callout-tip {
+    background: var(--cyan-light);
+    border: 1px solid var(--cyan);
+    border-left: 4px solid var(--cyan);
+  }
+  .callout-tip::before { content: '\2713'; color: var(--cyan); font-weight: 700; }
+  .callout-pitfall {
+    background: var(--red-light);
+    border: 1px solid var(--red);
+    border-left: 4px solid var(--red);
+  }
+  .callout-pitfall::before { content: '\2717'; color: var(--red); font-weight: 700; }
+  .callout .callout-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .callout-tip .callout-title { color: #0891B2; }
+  .callout-pitfall .callout-title { color: var(--red); }
+  .callout p { font-size: 14px; margin-bottom: 0; }
+
+  /* ---- ACTION PLAN TIMELINE ---- */
+  .timeline {
+    position: relative;
+    padding-left: 0;
+    list-style: none;
+    margin: 24px 0;
+  }
+  .timeline-phase {
+    position: relative;
+    padding-left: 36px;
+    padding-bottom: 32px;
+    border-left: 2px solid var(--border-gray);
+    margin-left: 12px;
+  }
+  .timeline-phase:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .timeline-phase::before {
+    content: '';
+    position: absolute;
+    left: -7px; top: 4px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan);
+    background: var(--white);
+  }
+  .timeline-phase.phase-immediate::before { background: var(--red); border-color: var(--red); }
+  .timeline-phase.phase-short::before { background: var(--amber); border-color: var(--amber); }
+  .timeline-phase.phase-medium::before { background: var(--cyan); border-color: var(--cyan); }
+  .timeline-phase.phase-long::before { background: var(--green); border-color: var(--green); }
+
+  .timeline-phase .phase-label {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .phase-immediate .phase-label { color: var(--red); }
+  .phase-short .phase-label { color: var(--amber); }
+  .phase-medium .phase-label { color: #0891B2; }
+  .phase-long .phase-label { color: var(--green); }
+
+  .timeline-phase .phase-timeframe {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .checklist {
+    list-style: none;
+    padding-left: 0;
+  }
+  .checklist li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .checklist li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px;
+    width: 16px; height: 16px;
+    border: 2px solid var(--border-gray);
+    border-radius: 3px;
+    background: var(--white);
+  }
+
+  /* ---- CODE / MONOSPACE ---- */
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--light-gray);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--navy);
+  }
+  pre {
+    background: var(--dark-bg);
+    color: rgba(255,255,255,0.85);
+    padding: 20px 24px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 16px 0;
+  }
+
+  /* ---- VERIGATE FIT CARD ---- */
+  .fit-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-left: 4px solid var(--navy);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .fit-card h4 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy);
+    margin-bottom: 12px;
+    margin-top: 0;
+  }
+  .fit-card ol { padding-left: 20px; }
+  .fit-card li { font-size: 14px; margin-bottom: 6px; }
+  .fit-card .primary-fit { color: var(--cyan); font-weight: 600; }
+
+  /* ---- SOURCES ---- */
+  .sources-list {
+    list-style: none;
+    padding-left: 0;
+    columns: 2;
+    column-gap: 24px;
+  }
+  .sources-list li {
+    break-inside: avoid;
+    font-size: 13px;
+    margin-bottom: 6px;
+    padding: 4px 0;
+  }
+  .sources-list a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 400;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .sources-list a:hover { border-bottom-color: var(--cyan); }
+
+  /* ---- FOOTER ---- */
+  .doc-footer {
+    text-align: center;
+    padding: 32px 0;
+    margin-top: 48px;
+    border-top: 1px solid var(--border-gray);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .doc-footer .brand {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  /* ---- DIVIDER ---- */
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-gray);
+    margin: 40px 0;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 768px) {
+    .page-wrapper { padding: 24px 16px 60px; }
+    .doc-header { padding: 36px 24px 32px; }
+    .doc-header h1 { font-size: 24px; }
+    .toc-list { columns: 1; }
+    .pathway-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .sources-list { columns: 1; }
+    .step-list > li { padding-left: 52px; }
+    .step-list > li::before { width: 36px; height: 36px; font-size: 15px; border-radius: 8px; }
+    .step-list > li:not(:last-child)::after { left: 17px; top: 40px; }
+  }
+
+  /* ---- PRINT STYLES ---- */
+  @media print {
+    body { background: white; font-size: 12px; }
+    body::before { display: none; }
+    .page-wrapper { max-width: 100%; padding: 0; }
+    .doc-header {
+      background: var(--navy) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      break-after: avoid;
+    }
+    .section { break-inside: avoid; }
+    .section > h2 { break-after: avoid; }
+    .card, .info-card, .opportunity-card, .callout, .pathway-card, .contact-card, .fit-card {
+      break-inside: avoid;
+      box-shadow: none;
+    }
+    .opportunity-card {
+      background: var(--dark-bg) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    table { break-inside: avoid; }
+    a { color: var(--navy) !important; }
+    a[href]::after { content: ' (' attr(href) ')'; font-size: 10px; color: var(--muted); }
+    .toc-list a[href]::after { display: none; }
+    .sources-list a[href]::after { display: block; word-break: break-all; }
+    .pathway-grid { grid-template-columns: 1fr 1fr; }
+    .contact-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ================= HERO HEADER ================= -->
+  <header class="doc-header">
+    <div class="brand-tag" style="display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="160" height="40" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+    <h1>SITA Supplier Registration Research</h1>
+    <div class="doc-meta">
+      <div class="doc-meta-item"><strong>Prepared for:</strong> Arthmatic DevWorks (Pty) Ltd</div>
+      <div class="doc-meta-item"><strong>Date:</strong> 8 April 2026</div>
+      <div class="doc-meta-item"><strong>Status:</strong> <span class="status-badge">Research Document</span></div>
+    </div>
+  </header>
+
+  <!-- ================= TABLE OF CONTENTS ================= -->
+  <nav class="toc-card">
+    <div class="section-label">Navigation</div>
+    <h2>Table of Contents</h2>
+    <ol class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> What Is SITA</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> How to Register as a SITA Supplier</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> Registration Requirements</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> SITA Procurement Categories</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> Fees</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> Timeline</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> SITA Transversal Contracts</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> SITA's Relationship with the CSD</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> Recent Changes (2024-2026)</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> Alternative &amp; Complementary Routes</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span> Contact Details</a></li>
+      <li><a href="#s12"><span class="toc-num">12</span> Tips and Common Pitfalls</a></li>
+      <li><a href="#s13"><span class="toc-num">13</span> Recommended Action Plan</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================= SECTION 1: WHAT IS SITA ================= -->
+  <section class="section" id="s1">
+    <div class="section-label">Section 01</div>
+    <h2>What Is SITA</h2>
+
+    <h3>Mandate and Legal Basis</h3>
+    <p>The <strong>State Information Technology Agency (SITA)</strong> is a South African state-owned enterprise established in 1999 under the <strong>SITA Act (No. 88 of 1998)</strong>. It falls under the <strong>Department of Communications and Digital Technologies (DCDT)</strong>.</p>
+    <p>SITA's mandate is to:</p>
+    <ul>
+      <li><strong>Consolidate and coordinate</strong> the State's information technology resources to achieve cost savings through economies of scale</li>
+      <li><strong>Increase delivery capabilities</strong> of IT services to government</li>
+      <li><strong>Enhance interoperability</strong> across government systems</li>
+      <li><strong>Manage the IT procurement and delivery process</strong> to ensure government gets value for money</li>
+      <li><strong>Leverage ICT as a strategic resource</strong> for government, improving public service delivery</li>
+    </ul>
+
+    <h3>Role in Government IT Procurement</h3>
+    <p>SITA is the <strong>mandatory procurement agency</strong> for all national and provincial government IT requirements. Under the SITA Act and its regulations:</p>
+    <ul>
+      <li>All government departments must approach SITA first for ICT goods and services procurement</li>
+      <li>The Auditor-General treats procurement outside SITA as <strong>irregular expenditure</strong> (though recent amendments have introduced exceptions &mdash; see <a href="#s9">Section 9</a>)</li>
+      <li>SITA negotiates <strong>transversal contracts</strong> (bulk agreements) on behalf of all government departments</li>
+      <li>SITA manages the entire supply chain: from needs assessment, solicitation, supplier selection, bid adjudication, through to contract administration</li>
+    </ul>
+
+    <h3>Why Registration Matters</h3>
+    <div class="info-card">
+      <div class="card-label">Key Insight</div>
+      <p>If Arthmatic DevWorks wants to sell VeriGate (its real-time risk intelligence platform) or any IT services to national or provincial government departments, <strong>SITA is the gatekeeper</strong>. Government departments are legally obligated to procure IT through SITA (with limited recent exceptions).</p>
+    </div>
+    <p>Being registered and visible in the correct procurement channels is essential for:</p>
+    <ul>
+      <li>Being discoverable when departments raise IT requirements through SITA</li>
+      <li>Qualifying to respond to SITA RFQs (Requests for Quotation) and RFBs (Requests for Bid)</li>
+      <li>Getting listed on transversal contracts or panels, which guarantee ongoing procurement flow</li>
+      <li>Meeting compliance requirements that are verified before any contract is awarded</li>
+    </ul>
+  </section>
+
+  <!-- ================= SECTION 2: HOW TO REGISTER ================= -->
+  <section class="section" id="s2">
+    <div class="section-label">Section 02</div>
+    <h2>How to Register as a SITA Supplier</h2>
+
+    <div class="info-card">
+      <div class="card-label">Critical Finding</div>
+      <p><strong>SITA does not maintain its own supplier register.</strong> There is no "SITA supplier registration form" to fill in. Instead, SITA uses the <strong>Central Supplier Database (CSD)</strong> managed by National Treasury as its supplier information source.</p>
+    </div>
+
+    <h3>Step-by-Step Process</h3>
+    <ol class="step-list">
+      <li>
+        <div class="step-title">Register on the Central Supplier Database (CSD)</div>
+        <div class="step-body">
+          <p>This is the foundational requirement. All potential SITA suppliers must self-register at <a href="https://secure.csd.gov.za/" target="_blank" rel="noopener">secure.csd.gov.za</a>.</p>
+          <ol>
+            <li><strong>Create a user account</strong> &mdash; Register with your email address and cell phone number</li>
+            <li><strong>Create your organisation profile</strong> &mdash; Enter company/business information including:
+              <ul>
+                <li>Company registration number (from CIPC)</li>
+                <li>Tax reference number (from SARS)</li>
+                <li>VAT number (if registered)</li>
+                <li>Company directors and shareholders</li>
+                <li>B-BBEE status</li>
+                <li>Banking details</li>
+                <li>Contact information</li>
+                <li>Business services/commodities you offer</li>
+              </ul>
+            </li>
+            <li><strong>Submit for verification</strong> &mdash; The CSD system automatically verifies against SARS, CIPC, Department of Home Affairs, and your bank</li>
+            <li><strong>Receive your CSD number and unique reference code</strong> &mdash; These are required when responding to any SITA tender</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <div class="step-title">Register on SITA's e-Procurement Platform (g-Commerce)</div>
+        <div class="step-body">
+          <p>SITA operates the <strong>g-Commerce</strong> platform (<a href="https://www.gcommerce.gov.za/" target="_blank" rel="noopener">gcommerce.gov.za</a>) &mdash; a fully integrated source-to-pay solution for government procurement.</p>
+          <ol>
+            <li>Go to the g-Commerce portal</li>
+            <li>Register with your username and password</li>
+            <li>Complete the supplier profile, linking to your CSD credentials</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <div class="step-title">Monitor and Respond to Tenders</div>
+        <div class="step-body">
+          <p>SITA does not have a pre-qualification or pre-approval step. Instead:</p>
+          <ol>
+            <li><strong>Continuously monitor</strong> tender opportunities at:
+              <ul>
+                <li><a href="https://www.sita.co.za/content/invitations" target="_blank" rel="noopener">sita.co.za/content/invitations</a> (SITA's own tender page)</li>
+                <li><a href="https://www.etenders.gov.za/" target="_blank" rel="noopener">etenders.gov.za</a> (National Treasury's eTender portal)</li>
+                <li>Government Gazette tender bulletins</li>
+              </ul>
+            </li>
+            <li><strong>Respond to relevant RFQs, RFBs, or RFPs</strong> when published</li>
+            <li>Include your <strong>CSD number and unique reference code</strong> in every bid submission</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <div class="step-title">Technology Certification Process (TCP) <span style="color:var(--muted);font-weight:400;font-size:13px;">&mdash; Optional</span></div>
+        <div class="step-body">
+          <p>If VeriGate includes hardware components or you are an OEM, SITA has a <strong>Technology Certification Process (TCP)</strong>. This is primarily for hardware OEMs (PCs, servers, networking equipment), not for software/SaaS products.</p>
+          <div class="info-card" style="margin-top:12px;">
+            <div class="card-label">VeriGate Note</div>
+            <p>For VeriGate (a software/SaaS verification platform), the TCP is <strong>likely not applicable</strong>. TCP contact: <code>tas@sita.co.za</code></p>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ================= SECTION 3: REGISTRATION REQUIREMENTS ================= -->
+  <section class="section" id="s3">
+    <div class="section-label">Section 03</div>
+    <h2>Registration Requirements</h2>
+
+    <h3>Documents and Prerequisites for CSD Registration</h3>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Requirement</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>CIPC Registration Certificate</strong></td><td>Valid company registration from the Companies and Intellectual Property Commission</td></tr>
+          <tr><td><strong>Tax Clearance / TCS Pin</strong></td><td>Valid Tax Compliance Status (TCS) pin from SARS &mdash; verified in real-time</td></tr>
+          <tr><td><strong>Banking Details</strong></td><td>Bank-verified letter or stamped bank confirmation</td></tr>
+          <tr><td><strong>Director ID Documents</strong></td><td>Certified copies of all directors' South African IDs</td></tr>
+          <tr><td><strong>B-BBEE Certificate or Affidavit</strong></td><td>Verification certificate from an accredited agency, or a sworn affidavit (for EMEs/QSEs with turnover below R50 million)</td></tr>
+          <tr><td><strong>VAT Registration</strong></td><td>If VAT-registered, your VAT number</td></tr>
+          <tr><td><strong>Company Contact Details</strong></td><td>Physical address, postal address, email, phone numbers</td></tr>
+          <tr><td><strong>Service/Commodity Classification</strong></td><td>Select UNSPSC (United Nations Standard Products and Services Code) categories</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Additional Requirements for Bidding on SITA Tenders</h3>
+    <p>When actually responding to SITA tenders (beyond CSD registration), you will typically need:</p>
+    <ul>
+      <li><strong>CSD number and unique reference code</strong> (mandatory on every bid)</li>
+      <li><strong>Completed SBD (Standard Bidding Document) forms</strong> &mdash; declarations of interest, past supply chain practices, etc.</li>
+      <li><strong>Technical proposal</strong> addressing the specific tender specifications</li>
+      <li><strong>Pricing schedule</strong> as per the tender format</li>
+      <li><strong>Proof of relevant experience</strong> and reference letters</li>
+      <li><strong>MIOS compliance</strong> &mdash; Minimum Interoperability Standards for government IT</li>
+      <li><strong>MISS compliance</strong> &mdash; Minimum Information Security Standards</li>
+      <li><strong>Professional indemnity insurance</strong> (often required for IT services contracts)</li>
+    </ul>
+
+    <h3>B-BBEE Considerations</h3>
+    <p>B-BBEE is not legally mandatory to register on CSD, but it is <strong>practically essential</strong> for competitiveness. Government procurement uses a Preferential Procurement Framework where B-BBEE status directly affects scoring:</p>
+    <div class="card" style="display:flex; gap:24px;">
+      <div style="flex:1; text-align:center; padding:16px; background:var(--light-gray); border-radius:6px;">
+        <div style="font-family:'Manrope',sans-serif; font-weight:800; font-size:28px; color:var(--navy);">80/20</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px;">Contracts up to R50M</div>
+        <div style="font-size:13px; margin-top:8px;">80 pts price, <strong>20 pts B-BBEE</strong></div>
+      </div>
+      <div style="flex:1; text-align:center; padding:16px; background:var(--light-gray); border-radius:6px;">
+        <div style="font-family:'Manrope',sans-serif; font-weight:800; font-size:28px; color:var(--navy);">90/10</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px;">Contracts above R50M</div>
+        <div style="font-size:13px; margin-top:8px;">90 pts price, <strong>10 pts B-BBEE</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 4: PROCUREMENT CATEGORIES ================= -->
+  <section class="section" id="s4">
+    <div class="section-label">Section 04</div>
+    <h2>SITA Procurement Categories</h2>
+
+    <h3>SITA's Service Portfolios</h3>
+    <div class="card">
+      <ol style="padding-left:20px;">
+        <li><strong>Network Services</strong> &mdash; Private and internet connectivity to government</li>
+        <li><strong>Application Development and Maintenance</strong> &mdash; Digitisation and automation of government functions</li>
+        <li><strong>Hosting and Cloud Services</strong> &mdash; Secure processing environments for e-Government</li>
+        <li><strong>End-User Computing</strong> &mdash; End-to-end management of government electronic workspace</li>
+        <li><strong>ICT Procurement Agency Services</strong> &mdash; Managing procurement of ICT products and services</li>
+        <li><strong>ICT Security, Architecture &amp; Consulting</strong> &mdash; Strategic ICT leadership for government</li>
+        <li><strong>Business Process Outsourcing Services</strong></li>
+        <li><strong>Printing &amp; Document Delivery</strong></li>
+        <li><strong>Service Management</strong></li>
+        <li><strong>Architecture, Standards &amp; Specifications</strong></li>
+      </ol>
+    </div>
+
+    <h3>RFB 1183 Service Categories (IT Services Transversal Contract)</h3>
+    <p>The most relevant transversal contract for VeriGate is <strong>RFB 1183</strong> &mdash; the transversal contract for the acquisition of IT services and skills for government.</p>
+
+    <!-- TREE VIEW -->
+    <div class="card" style="padding:20px 24px;">
+      <div class="tree-root">ICT Management Services</div>
+      <ul class="tree-branch">
+        <li>Technical Management Services</li>
+        <li>Functional Support Management</li>
+        <li>Contract Management</li>
+        <li>Programme Management Services</li>
+        <li>Project Management Services</li>
+        <li>Project Administration Support Services</li>
+        <li>ICT Governance and Compliance Services</li>
+        <li>Document Configuration Services</li>
+        <li>Quality Management Services</li>
+      </ul>
+
+      <div class="tree-root" style="margin-top:16px;">Business Planning and Development</div>
+      <ul class="tree-branch">
+        <li>ICT Strategic Consulting</li>
+        <li>Business Analysis</li>
+        <li>Business Process Architecture Services</li>
+        <li>Information Systems Architecture Services</li>
+        <li>Information Architecture Services</li>
+        <li>Information Technology Architecture Services</li>
+      </ul>
+
+      <div class="tree-root" style="margin-top:16px;">Application and Business Solutions</div>
+      <ul class="tree-branch">
+        <li>Business Solution Development</li>
+        <li>Business Solution Certification/Accreditation</li>
+        <li>Business Solution Maintenance</li>
+        <li>Specialised Business Intelligence Services</li>
+        <li>Specialised Geographic Information Management Services</li>
+        <li>Specialised Document and Image Management Services</li>
+        <li>Specialised Knowledge Management Services</li>
+        <li>Application Configuration Management Services</li>
+        <li>Service Delivery (SLA) Management</li>
+        <li>Capacity Planning and Availability Management</li>
+      </ul>
+
+      <div class="tree-root" style="margin-top:16px;">Information Security Services</div>
+      <ul class="tree-branch">
+        <li>Security Architecture Services</li>
+        <li>Business Continuity Consultancy Services</li>
+        <li>Policy Development and Implementation Services</li>
+        <li class="tree-highlight">Specialised Access Control Services</li>
+        <li class="tree-highlight">Specialised Identity Management Services</li>
+      </ul>
+    </div>
+
+    <div class="fit-card">
+      <h4>Where VeriGate Fits</h4>
+      <p>VeriGate, as a real-time risk intelligence platform, would most likely fall under:</p>
+      <ol>
+        <li><span class="primary-fit">Specialised Identity Management Services</span> (Information Security portfolio) &mdash; most direct fit for a verification/identity platform</li>
+        <li><span class="primary-fit">Specialised Access Control Services</span> (Information Security portfolio) &mdash; if VeriGate handles access control and authentication</li>
+        <li><strong>Business Solution Development</strong> (Application and Business Solutions) &mdash; positioning VeriGate as a custom solution</li>
+        <li><strong>Application Development and Maintenance</strong> &mdash; SITA's broader category for digitisation</li>
+        <li><strong>Hosting and Cloud Services</strong> &mdash; if offering VeriGate as a hosted/SaaS solution</li>
+        <li><strong>ICT Governance and Compliance Services</strong> (ICT Management portfolio) &mdash; VeriGate's conflict of interest detection capability directly addresses government procurement integrity. By cross-referencing CIPC directorships, shareholding, property ownership, and PEP databases, VeriGate can flag undisclosed relationships between officials and suppliers &mdash; a core governance requirement and one of the Auditor-General's most frequently cited findings</li>
+      </ol>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted);">When registering on CSD, select UNSPSC codes related to: identity verification services, software as a service (SaaS), information security services, application software, and IT consulting services.</p>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 5: FEES ================= -->
+  <section class="section" id="s5">
+    <div class="section-label">Section 05</div>
+    <h2>Fees</h2>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Fee</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>CSD Registration</strong></td><td style="color:var(--green);font-weight:700;">FREE</td><td>Electronic, self-service process</td></tr>
+          <tr><td><strong>SITA Registration</strong></td><td style="color:var(--green);font-weight:700;">No separate fee</td><td>SITA relies on CSD for supplier data</td></tr>
+          <tr><td><strong>Technology Certification (TCP)</strong></td><td style="color:var(--muted);">Unclear</td><td>Contact <code>tas@sita.co.za</code> for current pricing (if applicable)</td></tr>
+          <tr><td><strong>Third-Party Assistance</strong></td><td>R250 &ndash; R2,500+</td><td>Optional &mdash; you can self-register at no cost</td></tr>
+          <tr><td><strong>Tender Participation</strong></td><td style="color:var(--green);font-weight:700;">Generally free</td><td>May incur costs for document prep, travel to briefings, certifications</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 6: TIMELINE ================= -->
+  <section class="section" id="s6">
+    <div class="section-label">Section 06</div>
+    <h2>Timeline</h2>
+
+    <h3>CSD Registration Timeline</h3>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Duration</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Online form completion</td><td>1&ndash;2 hours</td></tr>
+          <tr><td>Automated verification (SARS, CIPC, Home Affairs, bank)</td><td>5&ndash;10 business days</td></tr>
+          <tr><td>Bank verification (manual component)</td><td>Up to 10 business days</td></tr>
+          <tr><td><strong>Total typical timeline</strong></td><td><strong>5&ndash;10 business days</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-card">
+      <div class="card-label">Important</div>
+      <p>CSD registration does not expire. However, you must keep your information current and updated.</p>
+    </div>
+
+    <h3>SITA Tender Response Timeline</h3>
+    <ul>
+      <li>SITA publishes tenders with a minimum <strong>21 days</strong> for response (typically 30&ndash;45 days)</li>
+      <li>Bid evaluation can take <strong>30&ndash;90 days</strong> depending on complexity</li>
+      <li>Contract award and negotiation: additional <strong>30&ndash;60 days</strong></li>
+      <li>For transversal contracts (like RFB 1183), the refresh/re-opening cycle happens periodically &mdash; the most recent RFB 1183 refresh opened on <strong>4 February 2025</strong> and closed on <strong>28 February 2025</strong></li>
+    </ul>
+
+    <h3>Getting on a Transversal Contract</h3>
+    <p>Transversal contracts are awarded through competitive bidding and typically have multi-year terms (3&ndash;5 years). You can only join when SITA issues a new RFB or refreshes an existing contract. The supplier list is refreshed annually by SITA.</p>
+  </section>
+
+  <!-- ================= SECTION 7: TRANSVERSAL CONTRACTS ================= -->
+  <section class="section" id="s7">
+    <div class="section-label">Section 07</div>
+    <h2>SITA Transversal Contracts</h2>
+
+    <h3>What Are Transversal Contracts?</h3>
+    <p>Transversal contracts are <strong>centralised, multi-department agreements</strong> that National Treasury and SITA facilitate for goods or services that multiple government institutions require. They are:</p>
+    <ul>
+      <li>Negotiated centrally to leverage government's collective purchasing power</li>
+      <li>Mandatory for government departments to use (where applicable)</li>
+      <li>Available to all national departments, provincial departments, parastatals, and organs of state</li>
+      <li>Designed to standardise pricing, terms, and quality across government</li>
+    </ul>
+
+    <h3>Legal Basis</h3>
+    <ul>
+      <li><strong>Public Finance Management Act (PFMA)</strong></li>
+      <li><strong>SITA Act (No. 88 of 1998)</strong></li>
+      <li><strong>Section 217 of the Constitution</strong> &mdash; requiring fair, equitable, transparent, competitive, and cost-effective procurement</li>
+    </ul>
+
+    <h3>Currently Active Transversal Contracts</h3>
+
+    <h4>Hardware Contracts</h4>
+    <div class="card">
+      <table>
+        <thead><tr><th>Reference</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>RFB 740</code></td><td>Hardware procurement (PCs, servers, etc.)</td></tr>
+          <tr><td><code>RFB 2004</code></td><td>OEM provision of Personal Computers, mobile devices, and services</td></tr>
+          <tr><td><code>RFB 2005</code></td><td>Reseller provision of Personal Computers, mobile devices, and services</td></tr>
+          <tr><td><code>RFB 2007</code></td><td>Reseller provision of Peripherals, Consumables, and Services</td></tr>
+          <tr><td><code>RFB 2003</code></td><td>Servers and Storage equipment, Solutions, and Services</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Software Contracts</h4>
+    <p><strong>Microsoft Enterprise Agreement</strong> &mdash; Runs July 2022 to June 2027 (for Microsoft licensing across government). Other software contracts are available but less publicly documented.</p>
+
+    <h4>Services Contracts</h4>
+    <div class="info-card">
+      <div class="card-label">Primary Vehicle for VeriGate</div>
+      <p><strong>RFB 1183</strong> &mdash; Transversal contract for IT services and skills. This is the primary vehicle for IT consulting, development, security, and identity services.</p>
+    </div>
+
+    <h3>Can VeriGate Get on a Transversal Contract?</h3>
+    <p><strong>Potentially, yes &mdash; through RFB 1183.</strong> However:</p>
+    <ul>
+      <li>You can only apply when SITA opens a <strong>refresher or new bid</strong> for the contract</li>
+      <li>The most recent RFB 1183-2024 refresh opened in February 2025 &mdash; the next refresh date is unknown</li>
+      <li>Suppliers are accredited per <strong>province</strong> and per <strong>service category</strong></li>
+      <li>As a Cape Town company, Arthmatic DevWorks would need to target the <strong>Western Cape</strong> accreditation at minimum</li>
+      <li>VeriGate would fit under the <strong>Information Security Services</strong> portfolio</li>
+    </ul>
+
+    <h3>Threshold Rules</h3>
+    <div class="card" style="display:flex;gap:24px;">
+      <div style="flex:1;padding:16px;background:var(--light-gray);border-radius:6px;">
+        <div style="font-family:'Manrope',sans-serif;font-weight:700;color:var(--navy);margin-bottom:4px;">Under R500,000</div>
+        <p style="font-size:13px;margin:0;">Departments can engage a <strong>single supplier</strong> from the panel</p>
+      </div>
+      <div style="flex:1;padding:16px;background:var(--light-gray);border-radius:6px;">
+        <div style="font-family:'Manrope',sans-serif;font-weight:700;color:var(--navy);margin-bottom:4px;">Above R500,000</div>
+        <p style="font-size:13px;margin:0;">Departments must approach <strong>all suppliers</strong> on the panel for fairness</p>
+      </div>
+    </div>
+
+    <h3>Panel Contracts</h3>
+    <div class="card">
+      <table>
+        <thead><tr><th>Panel</th><th>Reference</th><th>Expiry</th></tr></thead>
+        <tbody>
+          <tr><td>LAN Cabling Services</td><td><code>RFA 2168/2019</code></td><td>April 2026</td></tr>
+          <tr><td>Unified Communications &amp; Video Conferencing</td><td><code>RFA 2501-2021</code></td><td>April 2026</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:600;">Information Security Products &amp; Services</td><td><code style="color:var(--cyan);">RFA 2494-2021</code></td><td style="font-weight:600;">August 2027</td></tr>
+          <tr><td>End User Computing Infrastructure Support</td><td><code>RFA 952</code></td><td>April 2026</td></tr>
+          <tr><td>Training Provider Database</td><td><code>RFB 1626-2017</code></td><td>Month-to-month</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;margin-bottom:0;">The <strong>Information Security Products &amp; Services panel (RFA 2494-2021)</strong> is potentially relevant for VeriGate. It expires in August 2027, and it is unclear whether new suppliers can join mid-term.</p>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 8: CSD RELATIONSHIP ================= -->
+  <section class="section" id="s8">
+    <div class="section-label">Section 08</div>
+    <h2>SITA's Relationship with the CSD</h2>
+
+    <h3>The CSD Is the Foundation</h3>
+    <p>The <strong>Central Supplier Database (CSD)</strong> is a National Treasury initiative that serves as the <strong>single source of truth</strong> for all supplier information across all spheres of government.</p>
+
+    <pre>National Treasury
+    |
+    v
+Central Supplier Database (CSD) -- www.csd.gov.za
+    |
+    +--> Used by SITA for IT procurement
+    +--> Used by all national departments
+    +--> Used by all provincial departments
+    +--> Used by municipalities
+    +--> Used by SOEs and public entities</pre>
+
+    <h3>Do You Need CSD First?</h3>
+    <div class="info-card">
+      <div class="card-label">Answer</div>
+      <p><strong>Yes, absolutely.</strong> CSD registration is a <strong>prerequisite</strong> for any engagement with SITA. You cannot respond to any SITA RFQ or RFB without a CSD number. Your CSD number and unique reference code must appear on every bid submission.</p>
+    </div>
+
+    <h3>How They Interact</h3>
+    <ol>
+      <li><strong>You register on CSD</strong> (self-service, once)</li>
+      <li><strong>SITA publishes a tender</strong> on its website and the eTender portal</li>
+      <li><strong>You respond to the tender</strong>, including your CSD number</li>
+      <li><strong>SITA evaluates your bid</strong> and checks your CSD information (tax compliance, B-BBEE status, company validity) in real-time</li>
+      <li><strong>CSD verification happens automatically</strong> &mdash; no need to resubmit tax clearance certificates or B-BBEE documents each time</li>
+    </ol>
+
+    <h3>Key Benefit</h3>
+    <p>Once registered on CSD, you are visible to <strong>all</strong> government entities, not just SITA. This opens doors to:</p>
+    <ul>
+      <li>Direct departmental procurement</li>
+      <li>Municipal procurement</li>
+      <li>SOE procurement (Eskom, Transnet, etc.)</li>
+      <li>Provincial government procurement</li>
+    </ul>
+  </section>
+
+  <!-- ================= SECTION 9: RECENT CHANGES ================= -->
+  <section class="section" id="s9">
+    <div class="section-label">Section 09</div>
+    <h2>Recent Changes (2024&ndash;2026)</h2>
+
+    <div class="opportunity-card">
+      <div class="opp-tag">Key Opportunity</div>
+      <h3>Major Reform: Departments Can Now Procure IT Independently</h3>
+      <p>The most significant change affecting IT suppliers in 2025&ndash;2026 is the <strong>amendment to SITA regulations</strong> by Minister Solly Malatsi (DCDT):</p>
+      <ul>
+        <li><strong>Previously:</strong> Government departments were strictly required to procure all IT through SITA. Procurement outside SITA was flagged as irregular expenditure.</li>
+        <li><strong>Now (from mid-2025):</strong> Departments have been empowered to <strong>procure digital services independently</strong> where there is a compelling business case for better value and faster turnaround.</li>
+      </ul>
+    </div>
+
+    <h3>How the New Rules Work</h3>
+    <ol>
+      <li>A department identifies an IT need</li>
+      <li>The department <strong>must still approach SITA first</strong></li>
+      <li>The department provides SITA with a business case, user requirement specifications, and a required delivery timeline</li>
+      <li>SITA has <strong>10 working days</strong> to respond, indicating whether it can fulfill the requirement within the specified timeframe and budget</li>
+      <li>If SITA <strong>cannot meet the requirement</strong>, the department may procure independently through standard PFMA procurement processes</li>
+      <li>The department must demonstrate: faster turnaround time, lower cost, and compliance with procurement prescripts</li>
+    </ol>
+
+    <h3>Why This Happened</h3>
+    <p>This reform was driven by:</p>
+    <ul>
+      <li>Mounting governance concerns at SITA</li>
+      <li>Irregular procurement practices within SITA itself</li>
+      <li>Operational inefficiencies and alarming deterioration in service delivery</li>
+      <li>SITA being a bottleneck that delayed critical government IT projects</li>
+    </ul>
+
+    <div class="info-card" style="border-color:var(--green);background:var(--green-light);border-left-color:var(--green);">
+      <div class="card-label" style="color:var(--green);">What This Means for Arthmatic DevWorks</div>
+      <p>This is <strong>very good news</strong>. It means:</p>
+      <ul style="margin-top:8px;">
+        <li>Departments can now approach VeriGate <strong>directly</strong> (after giving SITA first right of refusal)</li>
+        <li>The previous SITA monopoly bottleneck is loosening</li>
+        <li>Departments frustrated with SITA's slow turnaround times now have a legal pathway to work with smaller, agile IT companies</li>
+        <li>Building relationships directly with department CIOs and IT managers becomes a viable strategy</li>
+        <li>VeriGate's <strong>conflict of interest detection</strong> is particularly compelling for departments under Auditor-General scrutiny for procurement irregularities and undisclosed relationships &mdash; it directly addresses a governance gap that no existing SITA-contracted solution fills</li>
+      </ul>
+    </div>
+
+    <h3>Other Recent Developments</h3>
+
+    <h4>Automated Procurement Platform</h4>
+    <p>SITA has soft-launched an <strong>automated supply chain management platform</strong> to streamline procurement workflows, incorporate predictive analytics, reduce administrative overhead, provide real-time reporting and audit trails, and improve supplier engagement.</p>
+
+    <h4>g-Commerce Platform</h4>
+    <p>SITA and National Treasury developed the <strong>g-Commerce platform</strong> &mdash; a fully integrated source-to-pay solution with an e-catalogue portal for transversal contracts, improved transaction tracking, and better price visibility.</p>
+
+    <h4>Digitech SMME Platform</h4>
+    <p>The DCDT and SITA established the <strong>Digitech SMME platform</strong>, which provides an inclusive marketplace for SMMEs to showcase products and services, connects them with government and private sector customers, and aims to expand reach locally and globally.</p>
+
+    <h4>SITA Innovation Centre</h4>
+    <p>Located at SITA's Centurion offices, the Innovation Centre provides facilities for South African innovators and SMMEs in the ICT industry, creating avenues for collaboration and development.</p>
+
+    <h4>GovTech 2025 Conference</h4>
+    <p>At GovTech 2025, SITA unveiled plans for a <strong>Citizen Super App</strong> for government services, strategic partnerships with Microsoft and DCDT for paperless government, and continued digital transformation of public services.</p>
+  </section>
+
+  <!-- ================= SECTION 10: ALTERNATIVE ROUTES ================= -->
+  <section class="section" id="s10">
+    <div class="section-label">Section 10</div>
+    <h2>Alternative and Complementary Routes</h2>
+
+    <div class="pathway-grid">
+      <div class="pathway-card pathway-highlight">
+        <div class="route-num">Route 1 &mdash; NEW</div>
+        <h4>Direct Departmental Engagement</h4>
+        <p>With the amended SITA regulations, departments can now procure IT independently after giving SITA first right of refusal. Identify target departments with verification needs (Home Affairs, SAPS, Justice, Social Development), build relationships with CIOs and IT directors, and position VeriGate as a solution.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 2</div>
+        <h4>eTender Portal Monitoring</h4>
+        <p>Register and actively monitor the <strong>eTender Publication Portal</strong> at etenders.gov.za. Set up alerts for keywords: "verification," "identity," "gateway," "API," "software," "SaaS," "security."</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 3</div>
+        <h4>Provincial Government Procurement</h4>
+        <p>Provincial departments (especially Western Cape, where Arthmatic is based) often have their own IT procurement processes. The WCG has its own e-procurement system with delegated authority thresholds.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 4</div>
+        <h4>Municipal Procurement</h4>
+        <p>Municipalities are <strong>not bound by the SITA Act</strong>. They can procure IT directly. Metro municipalities (Cape Town, Johannesburg, etc.) have substantial IT budgets. Register on municipal supplier databases directly.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 5</div>
+        <h4>SOE and Public Entity Procurement</h4>
+        <p>State-owned enterprises (SARS, CIPC, NPA, etc.) may have their own procurement processes and maintain separate supplier registration portals. SARS could be a strong target for VeriGate.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 6</div>
+        <h4>Subcontracting to Panel Holders</h4>
+        <p>Partner with or subcontract through a company already on the RFB 1183 panel. Many larger IT companies need specialised technology partners. Gets VeriGate into government projects faster.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 7</div>
+        <h4>Public-Private Partnerships (PPPs)</h4>
+        <p>For larger, longer-term engagements through National Treasury's PPP Unit. Suitable for ongoing verification services delivered as a managed service. Contact: +27 12 315 5741.</p>
+      </div>
+
+      <div class="pathway-card">
+        <div class="route-num">Route 8</div>
+        <h4>SITA Innovation Centre / Digitech SMME</h4>
+        <p>Engage with SITA's SMME development initiatives. Apply to showcase VeriGate at the SITA Innovation Centre (Centurion), register on the Digitech SMME platform, and participate in GovTech events.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 11: CONTACT DETAILS ================= -->
+  <section class="section" id="s11">
+    <div class="section-label">Section 11</div>
+    <h2>Contact Details</h2>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h4>SITA Head Office</h4>
+        <table>
+          <tbody>
+            <tr><td>Address</td><td>459 Tsitsa Street, Erasmuskloof, Pretoria, 0048</td></tr>
+            <tr><td>Postal</td><td>P.O. Box 26100, Monument Park, Pretoria, 0105</td></tr>
+            <tr><td>Switchboard</td><td>+27 12 482 3000</td></tr>
+            <tr><td>Fax</td><td>+27 12 367 5151</td></tr>
+            <tr><td>Toll-free</td><td>0800 748 222</td></tr>
+            <tr><td>Email</td><td><a href="mailto:contact.centre@sita.co.za">contact.centre@sita.co.za</a></td></tr>
+            <tr><td>Website</td><td><a href="https://www.sita.co.za/" target="_blank" rel="noopener">www.sita.co.za</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="contact-card">
+        <h4>SITA Procurement Contacts</h4>
+        <table>
+          <tbody>
+            <tr><td>Registration</td><td>Ellaraine Murray &mdash; <a href="mailto:Ellaraine.Murray@sita.co.za">Ellaraine.Murray@sita.co.za</a></td></tr>
+            <tr><td>Registration</td><td>Siphelele Tiyo &mdash; <a href="mailto:Siphelele.Tiyo@sita.co.za">Siphelele.Tiyo@sita.co.za</a></td></tr>
+            <tr><td>TCP</td><td><a href="mailto:tas@sita.co.za">tas@sita.co.za</a></td></tr>
+            <tr><td>Tenders</td><td><a href="https://www.sita.co.za/content/invitations" target="_blank" rel="noopener">sita.co.za/content/invitations</a></td></tr>
+            <tr><td>RFQ Portal</td><td><a href="https://rfq.sita.co.za/" target="_blank" rel="noopener">rfq.sita.co.za</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="contact-card">
+        <h4>Central Supplier Database (CSD)</h4>
+        <table>
+          <tbody>
+            <tr><td>Registration</td><td><a href="https://secure.csd.gov.za/" target="_blank" rel="noopener">secure.csd.gov.za</a></td></tr>
+            <tr><td>Call Centre</td><td>012 406 9222</td></tr>
+            <tr><td>Website</td><td><a href="https://www.csd.gov.za/" target="_blank" rel="noopener">www.csd.gov.za</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="contact-card">
+        <h4>Other Useful Contacts</h4>
+        <table>
+          <tbody>
+            <tr><td>eTender Portal</td><td><a href="https://www.etenders.gov.za/" target="_blank" rel="noopener">www.etenders.gov.za</a></td></tr>
+            <tr><td>National Treasury</td><td><a href="https://www.treasury.gov.za/" target="_blank" rel="noopener">www.treasury.gov.za</a></td></tr>
+            <tr><td>g-Commerce</td><td><a href="https://www.gcommerce.gov.za/" target="_blank" rel="noopener">www.gcommerce.gov.za</a></td></tr>
+            <tr><td>DCDT</td><td><a href="https://www.dcdt.gov.za/" target="_blank" rel="noopener">www.dcdt.gov.za</a></td></tr>
+            <tr><td>SITA Legislation</td><td><a href="https://www.sita.co.za/content/acts-legislation" target="_blank" rel="noopener">sita.co.za/content/acts-legislation</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 12: TIPS AND PITFALLS ================= -->
+  <section class="section" id="s12">
+    <div class="section-label">Section 12</div>
+    <h2>Tips and Common Pitfalls</h2>
+
+    <h3>Tips for Arthmatic DevWorks</h3>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">1. Register on CSD immediately</div>
+      <p>This is free, takes 5&ndash;10 business days, and is the non-negotiable first step. Do not wait until you see a relevant tender.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">2. Keep CSD information current</div>
+      <p>Procurement officials verify your information in real-time during bid evaluation. Outdated tax compliance or incorrect banking details will disqualify you automatically.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">3. Get your B-BBEE right</div>
+      <p>As an SMME, you can use a sworn affidavit (free) if your turnover is below R10 million (EME) or a verification certificate if between R10&ndash;50 million (QSE). A strong B-BBEE score (Level 1&ndash;4) is effectively a prerequisite.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">4. Select UNSPSC codes carefully on CSD</div>
+      <p>Choose codes that match VeriGate's capabilities: identity verification, access control, software services, security consulting. These codes determine which tender notifications you receive.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">5. Monitor tenders actively</div>
+      <p>Set up daily monitoring of sita.co.za/content/invitations and etenders.gov.za. Relevant tenders can have 21&ndash;45 day response windows &mdash; you need to spot them early.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">6. Attend compulsory briefing sessions</div>
+      <p>Many SITA tenders have compulsory briefing sessions. Missing one disqualifies your bid.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">7. Build department relationships before the tender</div>
+      <p>Government procurement is relationship-driven. Identify departments that need verification services (Home Affairs, SAPS, DHA, Social Development, SARS) and engage their IT leadership. When a tender is published, you want to already be a known entity.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">8. Position VeriGate within SITA's language</div>
+      <p>Frame your product using SITA's terminology: "Specialised Identity Management Services," "Specialised Access Control Services," "Business Solution Development." Match the RFB 1183 service definitions.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">9. Consider subcontracting initially</div>
+      <p>Partner with a company already on the RFB 1183 transversal contract. This gets VeriGate into government projects faster while you build your own track record.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">10. Leverage the 2025 SITA reform</div>
+      <p>The new regulations allowing departments to procure independently are a significant opportunity for agile SMMEs. Target departments frustrated with SITA's turnaround times.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">11. Comply with MIOS and MISS</div>
+      <p>Ensure VeriGate meets the Minimum Interoperability Standards and Minimum Information Security Standards. Non-compliance is a disqualifier.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">12. Prepare a standard government response template</div>
+      <p>Government bids require extensive documentation (SBD forms, declarations, technical proposals). Having templates ready saves time when a relevant tender drops.</p>
+    </div>
+
+    <h3 style="margin-top:36px;">Common Pitfalls</h3>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">1. Assuming SITA has a separate supplier register</div>
+      <p>They do not. CSD is the register. Do not waste time looking for a SITA-specific registration form.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">2. Expired tax compliance</div>
+      <p>SARS TCS status is verified in real-time. If your tax affairs are not in order, your bid is automatically disqualified regardless of technical merit.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">3. Incorrect or outdated CSD information</div>
+      <p>Non-existing or outdated supplier records are a known problem on CSD. Keep your profile active and accurate.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">4. Missing the transversal contract window</div>
+      <p>RFB 1183 refreshes happen periodically (not on a fixed schedule). If you miss the application window, you may wait 1&ndash;2 years for the next one. Monitor SITA's procurement page constantly.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">5. Underestimating B-BBEE impact</div>
+      <p>The 20-point (or 10-point) B-BBEE scoring component can make or break a bid. A Level 1 B-BBEE contributor gets maximum preference points.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">6. Not attending compulsory briefing sessions</div>
+      <p>This is an automatic disqualification. There is no exception.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">7. Submitting late</div>
+      <p>Government procurement has strict deadlines. Late submissions are not accepted under any circumstances.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">8. Not understanding the threshold rules</div>
+      <p>Different procurement rules apply based on value: RFQs for lower values, full tender processes for higher values. The R500,000 threshold on transversal contracts triggers different competitive requirements.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">9. Ignoring provincial presence requirements</div>
+      <p>SITA transversal contracts accredit suppliers per province. If you are registered only in Western Cape, you may not be eligible for Gauteng-based opportunities. Consider multi-province accreditation.</p>
+    </div>
+
+    <div class="callout callout-pitfall">
+      <div class="callout-title">10. Treating government procurement like private sector sales</div>
+      <p>Government procurement is process-driven, compliance-heavy, and slow. Patience, documentation rigour, and procedural adherence are essential.</p>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 13: ACTION PLAN ================= -->
+  <section class="section" id="s13">
+    <div class="section-label">Section 13</div>
+    <h2>Recommended Action Plan for Arthmatic DevWorks</h2>
+
+    <div class="timeline">
+      <div class="timeline-phase phase-immediate">
+        <div class="phase-label">Immediate Actions</div>
+        <div class="phase-timeframe">Next 2 Weeks</div>
+        <ul class="checklist">
+          <li><strong>Register on CSD</strong> at secure.csd.gov.za (if not already registered)</li>
+          <li>Ensure SARS tax compliance is in order and TCS pin is valid</li>
+          <li>Obtain or update B-BBEE sworn affidavit or certificate</li>
+          <li>Verify all CIPC records are current and accurate</li>
+          <li>Select appropriate UNSPSC codes for VeriGate's services</li>
+        </ul>
+      </div>
+
+      <div class="timeline-phase phase-short">
+        <div class="phase-label">Short-Term Actions</div>
+        <div class="phase-timeframe">1 &ndash; 3 Months</div>
+        <ul class="checklist">
+          <li>Register on the <strong>g-Commerce</strong> platform at gcommerce.gov.za</li>
+          <li>Set up daily monitoring of SITA tender invitations and the eTender portal</li>
+          <li>Prepare a <strong>government bid response template</strong> with all standard SBD forms pre-completed</li>
+          <li>Research <strong>MIOS and MISS</strong> requirements and document VeriGate's compliance</li>
+          <li>Identify and approach 3&ndash;5 <strong>target government departments</strong> that have verification needs</li>
+          <li>Explore the <strong>Digitech SMME platform</strong> and register VeriGate</li>
+        </ul>
+      </div>
+
+      <div class="timeline-phase phase-medium">
+        <div class="phase-label">Medium-Term Actions</div>
+        <div class="phase-timeframe">3 &ndash; 6 Months</div>
+        <ul class="checklist">
+          <li>Identify companies on the <strong>RFB 1183 transversal contract</strong> (Western Cape) and explore subcontracting/partnership opportunities</li>
+          <li>Attend <strong>GovTech</strong> and SITA-hosted events to build visibility</li>
+          <li>Apply to showcase VeriGate at the <strong>SITA Innovation Centre</strong> (Centurion)</li>
+          <li>Respond to first relevant SITA or government tender</li>
+          <li>Engage with the <strong>Western Cape Provincial Government</strong> IT procurement team directly</li>
+        </ul>
+      </div>
+
+      <div class="timeline-phase phase-long">
+        <div class="phase-label">Long-Term Actions</div>
+        <div class="phase-timeframe">6 &ndash; 12 Months</div>
+        <ul class="checklist">
+          <li>When RFB 1183 next refreshes, apply to be listed on the transversal contract under Information Security Services</li>
+          <li>Monitor for new panel contract opportunities (especially information security)</li>
+          <li>Build a portfolio of government references and case studies</li>
+          <li>Consider obtaining <strong>ISO 27001</strong> certification (strengthens government bid competitiveness)</li>
+          <li>Explore municipal procurement opportunities (City of Cape Town, etc.)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================= SOURCES ================= -->
+  <section class="section" id="sources">
+    <div class="section-label">References</div>
+    <h2>Sources</h2>
+    <ul class="sources-list">
+      <li><a href="https://www.sita.co.za/" target="_blank" rel="noopener">SITA Official Website</a></li>
+      <li><a href="https://rfq.sita.co.za/supplier.htm" target="_blank" rel="noopener">SITA Supplier Registration Page</a></li>
+      <li><a href="https://secure.csd.gov.za/" target="_blank" rel="noopener">Central Supplier Database (CSD)</a></li>
+      <li><a href="https://www.sita.co.za/content/central-supplier-database" target="_blank" rel="noopener">SITA Central Supplier Database Info</a></li>
+      <li><a href="https://www.sita.co.za/content/procurement" target="_blank" rel="noopener">SITA Procurement Page</a></li>
+      <li><a href="https://www.sita.co.za/content/services" target="_blank" rel="noopener">SITA Services</a></li>
+      <li><a href="https://www.sita.co.za/prodcert.htm" target="_blank" rel="noopener">SITA Technology Certification Process</a></li>
+      <li><a href="https://www.sita.co.za/content/e-procurement" target="_blank" rel="noopener">SITA e-Procurement / g-Commerce</a></li>
+      <li><a href="https://www.sita.co.za/page/faq" target="_blank" rel="noopener">SITA FAQs</a></li>
+      <li><a href="https://www.sita.co.za/content/sita-effective-panel-contracts" target="_blank" rel="noopener">SITA Effective Panel Contracts</a></li>
+      <li><a href="https://www.sita.co.za/content/software" target="_blank" rel="noopener">SITA Software Transversal Contracts</a></li>
+      <li><a href="https://www.sita.co.za/contact" target="_blank" rel="noopener">SITA Contact Information</a></li>
+      <li><a href="https://www.gov.za/about-government/contact-directory/soe/state-information-technology-agency-sita" target="_blank" rel="noopener">SITA on gov.za</a></li>
+      <li><a href="https://www.etenders.gov.za/" target="_blank" rel="noopener">eTender Publication Portal</a></li>
+      <li><a href="https://itlawco.com/transversal-contracts-in-south-africa-an-overview/" target="_blank" rel="noopener">Transversal Contracts Overview (ITLawCo)</a></li>
+      <li><a href="https://www.sita.co.za/sites/default/files/documents/Transversal%20Contracts/Services/RFB1183_Engagement_Model.pdf" target="_blank" rel="noopener">RFB 1183 Engagement Model (PDF)</a></li>
+      <li><a href="https://blog.oric.network/index.php/sita-740/" target="_blank" rel="noopener">SITA 740 Overview</a></li>
+      <li><a href="https://www.sita.co.za/sites/default/files/SITA_Annual_Performance_Plan_FY2025-2026_29032025_Signed.pdf" target="_blank" rel="noopener">SITA Annual Performance Plan FY2025-2026</a></li>
+      <li><a href="https://africannewsagency.com/govtech-2025-sita-unveils-new-digital-projects-to-transform-public-services/" target="_blank" rel="noopener">GovTech 2025: SITA Digital Projects</a></li>
+      <li><a href="https://mobileidworld.com/south-africas-sita-launches-automated-procurement-system-plans-super-app-for-government-services/" target="_blank" rel="noopener">SITA Automated Procurement System Launch</a></li>
+      <li><a href="https://www.dcdt.gov.za/media-statements-releases/579-minister-malatsi-setting-the-record-straight-on-sita-regulations-and-eeip-s.html" target="_blank" rel="noopener">Minister Malatsi on SITA Regulations (DCDT)</a></li>
+      <li><a href="https://www.news24.com/business/tech/sita-still-important-but-new-outside-procurement-rule-will-speed-things-up-says-malatsi-20250603-0877" target="_blank" rel="noopener">SITA Procurement Reform (News24)</a></li>
+      <li><a href="https://www.itweb.co.za/article/malatsi-makes-provision-for-govt-depts-to-purchase-independently/wbrpO7g2XkGvDLZn" target="_blank" rel="noopener">Malatsi on Independent Dept Procurement (ITWeb)</a></li>
+      <li><a href="https://www.adminboss.co.za/2025/12/19/central-supplier-database-registration-guide/" target="_blank" rel="noopener">CSD Registration Guide (AdminBoss)</a></li>
+      <li><a href="https://www.sourcefin.co.za/csd-registration-south-africa-suppliers/" target="_blank" rel="noopener">CSD Registration Process (SourceFin)</a></li>
+      <li><a href="https://www.trade.gov/country-commercial-guides/south-africa-selling-public-sector" target="_blank" rel="noopener">Selling to SA Public Sector (US Trade.gov)</a></li>
+      <li><a href="https://www.govchain.co.za/blog/the-secret-to-getting-government-contracts-in-south-africa" target="_blank" rel="noopener">Getting Government Contracts (GovChain)</a></li>
+      <li><a href="https://www.sanews.gov.za/south-africa/innovation-centre-support-ict-sector-create-new-products" target="_blank" rel="noopener">SITA Innovation Centre (SANews)</a></li>
+    </ul>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="doc-footer">
+    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="120" height="30" style="vertical-align: middle; margin-right: 6px;" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg> &mdash; Real-Time Risk Intelligence Platform</p>
+    <p style="margin-top:4px;">Arthmatic DevWorks (Pty) Ltd &bull; Internal Research Document &bull; 8 April 2026</p>
+    <p style="margin-top:4px;">This document is for internal use only and does not constitute legal advice.</p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+{
+  "customerLogos": [
+    {
+      "name": "Standard Bank",
+      "logo": "/logos/standard-bank.png",
+      "industry": "Banking",
+      "featured": true
+    },
+    {
+      "name": "Discovery",
+      "logo": "/logos/discovery.svg",
+      "industry": "Insurance",
+      "featured": true
+    },
+    {
+      "name": "Vodacom",
+      "logo": "/logos/vodacom.svg",
+      "industry": "Telecoms",
+      "featured": true
+    },
+    {
+      "name": "Old Mutual",
+      "logo": "/logos/old-mutual.svg",
+      "industry": "Financial Services",
+      "featured": true
+    },
+    {
+      "name": "Absa",
+      "logo": "/logos/absa.png",
+      "industry": "Banking",
+      "featured": true
+    },
+    {
+      "name": "Nedbank",
+      "logo": "/logos/nedbank.svg",
+      "industry": "Banking",
+      "featured": false
+    },
+    {
+      "name": "Sanlam",
+      "logo": "/logos/sanlam.svg",
+      "industry": "Insurance",
+      "featured": false
+    },
+    {
+      "name": "Sasol",
+      "logo": "/logos/sasol.png",
+      "industry": "Energy",
+      "featured": false
+    },
+    {
+      "name": "MTN",
+      "logo": "/logos/mtn.svg",
+      "industry": "Telecoms",
+      "featured": false
+    },
+    {
+      "name": "Capitec",
+      "logo": "/logos/capitec.svg",
+      "industry": "Banking",
+      "featured": true
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "1",
+      "quote": "VeriGate reduced our onboarding verification time from 5 days to under 24 hours. The accuracy of their criminal and qualification checks has been exceptional.",
+      "author": "Sipho Molefe",
+      "role": "Head of Human Resources",
+      "company": "Standard Bank",
+      "companyLogo": "/logos/standard-bank.png",
+      "photo": "https://images.unsplash.com/photo-1586232902955-df204f34b36e?w=200&h=200&fit=crop&crop=face",
+      "rating": 5,
+      "metrics": "80% faster onboarding",
+      "industry": "Banking",
+      "linkedin": "https://linkedin.com",
+      "verified": true
+    },
+    {
+      "id": "2",
+      "quote": "The POPIA-compliant platform gives us confidence that our screening processes meet all regulatory requirements. Their integration with SAPS and SAQA is seamless.",
+      "author": "Lindiwe Nkosi",
+      "role": "Compliance Director",
+      "company": "Discovery",
+      "companyLogo": "/logos/discovery.svg",
+      "photo": "https://images.unsplash.com/photo-1611432579402-7037e3e2c1e4?w=200&h=200&fit=crop&crop=face",
+      "rating": 5,
+      "metrics": "100% POPIA compliance",
+      "industry": "Insurance",
+      "linkedin": "https://linkedin.com",
+      "verified": true
+    },
+    {
+      "id": "3",
+      "quote": "We process hundreds of contractor verifications monthly. VeriGate's bulk upload feature and API integration have saved our team countless hours of manual work.",
+      "author": "Johan van der Merwe",
+      "role": "Operations Manager",
+      "company": "Vodacom",
+      "companyLogo": "/logos/vodacom.svg",
+      "photo": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+      "rating": 4,
+      "metrics": "10x processing speed",
+      "industry": "Telecoms",
+      "linkedin": "https://linkedin.com",
+      "verified": true
+    },
+    {
+      "id": "4",
+      "quote": "The credit screening integration with TransUnion and Experian SA gives us a comprehensive view of candidates. The reporting is clear and actionable.",
+      "author": "Kavitha Pillay",
+      "role": "Risk Manager",
+      "company": "Old Mutual",
+      "companyLogo": "/logos/old-mutual.svg",
+      "photo": "https://images.unsplash.com/photo-1619981970074-d0b06ef1ed83?w=200&h=200&fit=crop&crop=face",
+      "rating": 5,
+      "metrics": "60% reduction in bad hires",
+      "industry": "Financial Services",
+      "linkedin": "https://linkedin.com",
+      "verified": true
+    },
+    {
+      "id": "5",
+      "quote": "VeriGate scales with our growing team. Whether we're screening 50 or 500 candidates, the turnaround and quality remain consistently excellent.",
+      "author": "Kabelo Mabena",
+      "role": "Talent Acquisition Lead",
+      "company": "Capitec",
+      "companyLogo": "/logos/capitec.svg",
+      "photo": "https://images.unsplash.com/photo-1617244147299-5ef406921c35?w=200&h=200&fit=crop&crop=face",
+      "rating": 4,
+      "metrics": "Scaled to 500+ verifications/month",
+      "industry": "Banking",
+      "linkedin": "https://linkedin.com",
+      "verified": true
+    }
+  ],
+  "statistics": [
+    {
+      "value": "200+",
+      "label": "SA Clients",
+      "icon": "users"
+    },
+    {
+      "value": "50000+",
+      "label": "Verifications Completed",
+      "icon": "check"
+    },
+    {
+      "value": "99.2%",
+      "label": "Accuracy Rate",
+      "icon": "target"
+    },
+    {
+      "value": "24",
+      "label": "Hour Turnaround",
+      "icon": "zap"
+    },
+    {
+      "value": "9",
+      "label": "Verification Types",
+      "icon": "activity"
+    },
+    {
+      "value": "99.9%",
+      "label": "Uptime SLA",
+      "icon": "globe"
+    }
+  ]
+}

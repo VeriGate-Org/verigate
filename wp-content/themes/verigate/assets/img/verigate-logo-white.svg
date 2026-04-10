@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="490" height="120">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Shield + Checkmark (scaled to 76% to match text) -->
+  <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+    <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+    <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- VeriGate wordmark — white for dark backgrounds -->
+  <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text>
+</svg>

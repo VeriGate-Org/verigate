@@ -3,7 +3,7 @@ import { testimonials } from "@/data/social-proof";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Star, Quote, CheckCircle2, Linkedin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Quote, TrendingUp, Verified, Linkedin } from "lucide-react";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -66,7 +66,7 @@ export function Testimonials() {
             {/* Rating */}
             <div className="flex items-center gap-1 mb-6">
               {[...Array(current.rating)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                <Star key={i} className="w-5 h-5 fill-rating text-rating" />
               ))}
             </div>
 
@@ -79,7 +79,7 @@ export function Testimonials() {
             {current.metrics && (
               <div className="mb-8">
                 <Badge className="bg-accent/10 text-accent border-accent px-4 py-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  <TrendingUp className="w-4 h-4 mr-2" />
                   {current.metrics}
                 </Badge>
               </div>
@@ -88,21 +88,34 @@ export function Testimonials() {
             {/* Author Info */}
             <div className="flex items-center gap-4 pt-6 border-t border-border">
               {/* Author Photo */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
-                {current.author.split(' ').map(n => n[0]).join('')}
-              </div>
+              {current.photo && current.photo !== "/placeholder.svg" ? (
+                <img src={current.photo} alt={current.author} className="w-16 h-16 rounded-full object-cover flex-shrink-0 ring-2 ring-accent/20" loading="lazy" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                  {current.author.split(' ').map(n => n[0]).join('')}
+                </div>
+              )}
 
               {/* Author Details */}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-semibold text-foreground">{current.author}</h4>
                   {current.verified && (
-                    <CheckCircle2 className="w-4 h-4 text-accent" title="Verified Customer" />
+                    <Verified className="w-4 h-4 text-accent" title="Verified Customer" />
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {current.role} at {current.company}
                 </p>
+                <div className="flex items-center gap-2 mt-2">
+                  {current.companyLogo && (
+                    <img
+                      src={current.companyLogo}
+                      alt={current.company}
+                      className="h-5 w-auto max-w-[80px] object-contain opacity-60"
+                    />
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="outline" className="text-xs">{current.industry}</Badge>
                   {current.linkedin && (
@@ -166,7 +179,7 @@ export function Testimonials() {
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-4 h-4 fill-rating text-rating" />
                   ))}
                 </div>
 
@@ -177,12 +190,23 @@ export function Testimonials() {
 
                 {/* Author */}
                 <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                    {testimonial.author.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  {testimonial.photo && testimonial.photo !== "/placeholder.svg" ? (
+                    <img src={testimonial.photo} alt={testimonial.author} className="w-10 h-10 rounded-full object-cover flex-shrink-0" loading="lazy" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                      {testimonial.author.split(' ').map(n => n[0]).join('')}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{testimonial.author}</p>
                     <p className="text-xs text-muted-foreground truncate">{testimonial.company}</p>
+                    {testimonial.companyLogo && (
+                      <img
+                        src={testimonial.companyLogo}
+                        alt={testimonial.company}
+                        className="h-4 w-auto max-w-[60px] object-contain opacity-50 mt-1"
+                      />
+                    )}
                   </div>
                 </div>
               </CardContent>

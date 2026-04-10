@@ -19,21 +19,21 @@ export const CodeBlock = ({ code, language = "javascript", filename, showLineNum
   };
 
   return (
-    <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-900 my-4">
+    <div className="relative rounded-lg overflow-hidden border border-border bg-foreground my-4">
       {/* Header */}
       {filename && (
-        <div className="px-4 py-2 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
-          <span className="text-sm text-gray-400 font-mono">{filename}</span>
-          <span className="text-xs text-gray-500 uppercase">{language}</span>
+        <div className="px-4 py-2 bg-foreground/90 border-b border-background/10 flex items-center justify-between">
+          <span className="text-sm text-background/60 font-mono">{filename}</span>
+          <span className="text-xs text-background/40 uppercase">{language}</span>
         </div>
       )}
-      
+
       {/* Code Content */}
       <div className="relative">
         <Button
           size="sm"
           variant="ghost"
-          className="absolute top-2 right-2 h-8 px-2 text-gray-400 hover:text-white hover:bg-gray-800"
+          className="absolute top-2 right-2 h-8 px-2 text-background/60 hover:text-background hover:bg-background/10"
           onClick={handleCopy}
         >
           {copied ? (
@@ -48,9 +48,9 @@ export const CodeBlock = ({ code, language = "javascript", filename, showLineNum
             </>
           )}
         </Button>
-        
+
         <pre className="p-4 overflow-x-auto">
-          <code className="text-sm text-gray-100 font-mono leading-relaxed">
+          <code className="text-sm text-background font-mono leading-relaxed">
             {code}
           </code>
         </pre>

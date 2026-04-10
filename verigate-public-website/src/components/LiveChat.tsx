@@ -151,16 +151,16 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 sm:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col max-h-[600px]">
+    <div className="fixed bottom-4 right-4 z-50 w-80 sm:w-96 bg-white rounded-lg shadow-2xl border border-border flex flex-col max-h-[600px]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-primary to-primary/90 text-white p-4 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
             <MessageCircle className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-semibold">VeriGate Support</h3>
-            <p className="text-xs text-purple-100">We're here to help</p>
+            <p className="text-xs text-primary-foreground/70">We're here to help</p>
           </div>
         </div>
         <button
@@ -176,27 +176,27 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
       <div className="flex-1 p-4 overflow-y-auto">
         {isSubmitted ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h4 className="font-semibold text-lg mb-2">Message Sent!</h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-muted-foreground text-sm">
               We'll get back to you as soon as possible.
             </p>
           </div>
         ) : (
           <div>
-            <div className="bg-purple-50 rounded-lg p-3 mb-4">
-              <p className="text-sm text-gray-700">
+            <div className="bg-accent/5 rounded-lg p-3 mb-4">
+              <p className="text-sm text-foreground">
                 👋 Hi there! Our team is currently offline. Leave us a message and we'll get back to you soon.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label htmlFor="chat-name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="chat-name" className="block text-sm font-medium text-foreground mb-1">
                   Name *
                 </label>
                 <input
@@ -205,13 +205,13 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
                   placeholder="John Doe"
                 />
               </div>
 
               <div>
-                <label htmlFor="chat-email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="chat-email" className="block text-sm font-medium text-foreground mb-1">
                   Email *
                 </label>
                 <input
@@ -220,13 +220,13 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
                   placeholder="john@company.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="chat-message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="chat-message" className="block text-sm font-medium text-foreground mb-1">
                   Message *
                 </label>
                 <textarea
@@ -235,7 +235,7 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
                   onChange={(e) => setMessage(e.target.value)}
                   required
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+                  className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-sm resize-none"
                   placeholder="How can we help you?"
                 />
               </div>
@@ -243,7 +243,7 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -263,8 +263,8 @@ function CustomChatWidget({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-        <p className="text-xs text-gray-500 text-center">
+      <div className="p-3 border-t border-border bg-muted rounded-b-lg">
+        <p className="text-xs text-muted-foreground text-center">
           Typical reply time: Within 24 hours
         </p>
       </div>
@@ -329,15 +329,15 @@ export default function LiveChat({ provider = 'custom', offlineForm = true }: Li
       {showButton && (
         <button
           onClick={() => setShowCustomChat(true)}
-          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110 group"
+          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 group"
           aria-label="Open chat"
         >
           <MessageCircle className="w-6 h-6" />
           {/* Notification badge (optional) */}
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full animate-pulse" />
           
           {/* Tooltip */}
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
             Chat with us
           </span>
         </button>

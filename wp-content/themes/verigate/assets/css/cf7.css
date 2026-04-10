@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Contact Form 7 — VeriGate Style Overrides
+   Matches shadcn/ui form styling from the React site
+   ========================================================================== */
+
+/* --- Form wrapper --- */
+.wpcf7-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Labels --- */
+.wpcf7-form label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(217 33% 17%);
+  margin-bottom: 0.5rem;
+}
+
+/* --- Inputs & Textareas --- */
+.wpcf7-form input[type="text"],
+.wpcf7-form input[type="email"],
+.wpcf7-form input[type="tel"],
+.wpcf7-form input[type="url"],
+.wpcf7-form input[type="number"],
+.wpcf7-form textarea,
+.wpcf7-form select {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: hsl(217 33% 17%);
+  background-color: hsl(0 0% 100%);
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.wpcf7-form input:focus,
+.wpcf7-form textarea:focus,
+.wpcf7-form select:focus {
+  border-color: hsl(193 95% 48%);
+  box-shadow: 0 0 0 3px hsl(193 95% 48% / 0.15);
+}
+
+.wpcf7-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* --- Select --- */
+.wpcf7-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+/* --- Checkboxes --- */
+.wpcf7-form .wpcf7-acceptance {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(217 20% 51%);
+}
+
+.wpcf7-form .wpcf7-acceptance input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.125rem;
+  accent-color: hsl(193 95% 48%);
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* --- Submit Button --- */
+.wpcf7-form input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  background-color: hsl(193 95% 48%);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px hsl(217 91% 18% / 0.1);
+}
+
+.wpcf7-form input[type="submit"]:hover {
+  background-color: hsl(193 95% 42%);
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px hsl(217 91% 18% / 0.15);
+}
+
+.wpcf7-form input[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+/* --- Spinner --- */
+.wpcf7-spinner {
+  margin-left: 0.5rem;
+}
+
+/* --- Validation Errors --- */
+.wpcf7-not-valid-tip {
+  font-size: 0.75rem;
+  color: hsl(0 84% 60%);
+  margin-top: 0.25rem;
+}
+
+.wpcf7-not-valid {
+  border-color: hsl(0 84% 60%) !important;
+}
+
+/* --- Success / Error messages --- */
+.wpcf7-response-output {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.wpcf7-mail-sent-ok,
+.wpcf7 form.sent .wpcf7-response-output {
+  background-color: hsl(152 69% 41% / 0.1);
+  color: hsl(152 69% 30%);
+  border: 1px solid hsl(152 69% 41% / 0.3);
+}
+
+.wpcf7-validation-errors,
+.wpcf7 form.invalid .wpcf7-response-output,
+.wpcf7 form.failed .wpcf7-response-output {
+  background-color: hsl(0 84% 60% / 0.1);
+  color: hsl(0 84% 45%);
+  border: 1px solid hsl(0 84% 60% / 0.3);
+}
+
+/* --- Newsletter inline form (footer) --- */
+.newsletter-form .wpcf7-form {
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.newsletter-form .wpcf7-form input[type="email"] {
+  flex: 1;
+  background-color: hsl(217 33% 15%);
+  border-color: hsl(217 33% 25%);
+  color: white;
+}
+
+.newsletter-form .wpcf7-form input[type="email"]::placeholder {
+  color: hsl(217 20% 65%);
+}
+
+.newsletter-form .wpcf7-form input[type="email"]:focus {
+  border-color: hsl(193 95% 48%);
+}
+
+.newsletter-form .wpcf7-form input[type="submit"] {
+  flex-shrink: 0;
+}
+
+.newsletter-form .wpcf7-response-output {
+  width: 100%;
+}

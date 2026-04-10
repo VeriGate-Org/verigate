@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeriGate — ED Contribution Confirmation (Classic)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #1A2E4B;
+    background: #fff;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    position: relative;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top navy band ── */
+  .top-band {
+    background: #1A2E4B;
+    padding: 24px 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-band .logo-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .top-band .logo-container img {
+    height: 34px;
+    width: auto;
+  }
+
+  .top-band-text {
+    text-align: right;
+    font-size: 7.5px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+  }
+
+  .top-band-text strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* ── Red accent strip ── */
+  .accent-strip {
+    height: 3px;
+    background: #D63031;
+  }
+
+  /* ── Sub-header info bar ── */
+  .info-bar {
+    padding: 10px 52px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.5px;
+    color: #64748B;
+  }
+
+  .info-bar a {
+    color: #00B3D9;
+    text-decoration: none;
+  }
+
+  .info-bar .sep {
+    margin: 0 10px;
+    color: #CBD5E1;
+  }
+
+  /* ── Body ── */
+  .body {
+    flex: 1;
+    padding: 32px 52px 24px 52px;
+    font-size: 10.5px;
+    line-height: 1.8;
+    color: #334155;
+  }
+
+  .body .date {
+    margin-bottom: 24px;
+    font-size: 10px;
+    color: #64748B;
+  }
+
+  .body .recipient {
+    margin-bottom: 22px;
+    line-height: 1.8;
+    font-weight: 500;
+  }
+
+  .body .subject {
+    font-weight: 700;
+    font-size: 12px;
+    color: #1A2E4B;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #D63031;
+    display: inline-block;
+  }
+
+  .body .subject-wrapper {
+    margin-bottom: 16px;
+  }
+
+  .body p {
+    margin-bottom: 12px;
+    text-align: justify;
+  }
+
+  .body .closing {
+    margin-top: 28px;
+    line-height: 1.8;
+  }
+
+  .body .signature-space {
+    height: 56px;
+  }
+
+  .body .signatory {
+    font-weight: 600;
+    color: #1A2E4B;
+    font-size: 11px;
+  }
+
+  /* ── Tables ── */
+  .body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 9.5px;
+  }
+
+  .body table th {
+    background: #1A2E4B;
+    color: #fff;
+    font-weight: 600;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 7px 10px;
+    text-align: left;
+    border: 1px solid #1A2E4B;
+  }
+
+  .body table td {
+    padding: 7px 10px;
+    border: 1px solid #E2E8F0;
+    vertical-align: middle;
+    font-size: 9.5px;
+    line-height: 1.5;
+  }
+
+  .body table tr:nth-child(even) td {
+    background: #FAFBFC;
+  }
+
+  .body table .amount-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .body table .total-row td {
+    background: #F1F5F9 !important;
+    font-weight: 700;
+    color: #1A2E4B;
+    border-top: 2px solid #1A2E4B;
+  }
+
+  .body table .total-row .amount-cell {
+    font-size: 10.5px;
+  }
+
+  .tick-check {
+    color: #D63031;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: auto;
+  }
+
+  .footer-band {
+    background: #1A2E4B;
+    padding: 14px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-col {
+    font-size: 7px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.8;
+  }
+
+  .footer-col a {
+    color: #00B3D9;
+    text-decoration: none;
+  }
+
+  .footer-col .footer-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    font-size: 6px;
+    letter-spacing: 0.12em;
+    margin-bottom: 1px;
+  }
+
+  .footer-col .reg-no {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ── Bottom red accent ── */
+  .bottom-accent {
+    height: 3px;
+    background: #D63031;
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    body { background: none; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      min-height: 297mm;
+      height: 297mm;
+    }
+  }
+
+  @media screen {
+    body {
+      background: #E8ECF0;
+      padding: 24px 0;
+    }
+    .page {
+      box-shadow: 0 4px 20px rgba(26, 46, 75, 0.12);
+      border-radius: 2px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Top navy band with logo -->
+  <div class="top-band">
+    <div class="logo-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="490" height="120" style="height: 34px; width: auto;">
+        <defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500&amp;display=swap');</style></defs>
+        <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+          <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+          <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text>
+      </svg>
+    </div>
+    <div class="top-band-text">
+      <strong>VeriGate (Pty) Ltd</strong><br>
+      1 Cinnebar Street, Table View<br>
+      Western Cape, 7441, South Africa
+    </div>
+  </div>
+  <div class="accent-strip"></div>
+
+  <!-- Contact info bar -->
+  <div class="info-bar">
+    <div>
+      <a href="tel:+27822118921">+27 82 211 8921</a>
+      <span class="sep">|</span>
+      <a href="mailto:info@verigate.co.za">info@verigate.co.za</a>
+      <span class="sep">|</span>
+      <a href="https://www.verigate.co.za">www.verigate.co.za</a>
+    </div>
+    <div>
+      Reg. 2025/525145/07 &middot; Private Company
+    </div>
+  </div>
+
+  <!-- Letter body -->
+  <div class="body">
+
+    <div class="date">7 April 2026</div>
+
+    <div class="recipient">
+      To Whom It May Concern:
+    </div>
+
+    <div class="subject-wrapper">
+      <div class="subject">Confirmation of Enterprise Development Contribution Received</div>
+    </div>
+
+    <p>
+      VeriGate (Pty) Ltd hereby confirm that we are an eligible supplier development or enterprise development beneficiary and that we meet the following criteria:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 34px; text-align: center;">Tick</th>
+          <th>Category</th>
+          <th style="width: 88px; text-align: center;">% Black Ownership</th>
+          <th style="width: 88px; text-align: center;">% Black Women</th>
+          <th style="width: 72px; text-align: center;">B-BBEE Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center;"><span class="tick-check">&#10003;</span></td>
+          <td><strong>Enterprise Development:</strong> EME or QSE with 51% Black Ownership or at least 51% Black women owned &amp; Black Owned ICT Entity</td>
+          <td style="text-align: center; font-weight: 600;">100%</td>
+          <td style="text-align: center;">0%</td>
+          <td style="text-align: center; font-weight: 600;">1</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;"></td>
+          <td><strong>Supplier Development:</strong> EME or QSE with 51% Black Ownership or at least 51% Black women owned</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      We attach hereto a valid affidavit confirming our black ownership.
+    </p>
+
+    <p>
+      We also confirm that we have received the following contributions from <strong>NTT Data South Africa (Pty) Ltd</strong> during the period ended <strong>31 March 2026</strong>. The contribution was made with the specific objective of assisting or accelerating the development, sustainability and ultimate financial and operational independence of VeriGate (Pty) Ltd.
+    </p>
+
+    <p>The contribution can be classified and described as follows:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th style="width: 130px; text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Data AI Technical Training</td>
+          <td class="amount-cell">R 30 000.00</td>
+        </tr>
+        <tr>
+          <td>Copilot License</td>
+          <td class="amount-cell">R 720.00</td>
+        </tr>
+        <tr>
+          <td>Business Training</td>
+          <td class="amount-cell">R 63 000.00</td>
+        </tr>
+        <tr>
+          <td>Laptop</td>
+          <td class="amount-cell">R 9 800.00</td>
+        </tr>
+        <tr class="total-row">
+          <td>Total</td>
+          <td class="amount-cell">R 103 520.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="closing">
+      Yours truly,
+      <div class="signature-space"></div>
+      <div style="border-bottom: 1px solid #94A3B8; width: 220px; margin-bottom: 4px;"></div>
+      <div class="signatory">Arthur Manena</div>
+      Director<br>
+      VeriGate (Pty) Ltd
+    </div>
+
+  </div>
+
+  <!-- Footer band -->
+  <div class="footer">
+    <div class="footer-band">
+      <div class="footer-col">
+        <div class="footer-label">Contact</div>
+        <a href="tel:+27822118921">+27 82 211 8921</a> &middot;
+        <a href="mailto:info@verigate.co.za">info@verigate.co.za</a> &middot;
+        <a href="https://www.verigate.co.za">www.verigate.co.za</a>
+      </div>
+      <div class="footer-col" style="text-align: center;">
+        <div class="footer-label">Address</div>
+        1 Cinnebar Street, Table View, Western Cape, 7441
+      </div>
+      <div class="footer-col" style="text-align: right;">
+        <div class="footer-label">Registration</div>
+        <span class="reg-no">2025/525145/07</span> &middot; Private Company
+      </div>
+    </div>
+    <div class="bottom-accent"></div>
+  </div>
+
+</div>
+
+</body>
+</html>

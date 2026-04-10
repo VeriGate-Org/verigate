@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIA Seed Fund Application | VeriGate: Real-Time Risk Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================
+   CSS Variables - VeriGate Brand
+   ========================================= */
+:root {
+    --navy: #1A2E4B;
+    --cyan: #00B3D9;
+    --red: #E23D36;
+    --off-white: #F8FAFC;
+    --light-gray: #F1F5F9;
+    --border-gray: #E2E8F0;
+    --body-text: #334155;
+    --muted: #64748B;
+    --dark-bg: #0F1A2E;
+    --white: #FFFFFF;
+    --cyan-soft: rgba(0, 179, 217, 0.08);
+    --cyan-border: rgba(0, 179, 217, 0.25);
+    --red-soft: rgba(226, 61, 54, 0.08);
+    --green: #16a34a;
+    --green-soft: rgba(22, 163, 74, 0.08);
+    --amber: #d97706;
+    --amber-soft: rgba(217, 119, 6, 0.08);
+}
+
+/* =========================================
+   Reset & Base
+   ========================================= */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 15px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--body-text);
+    background: var(--off-white);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Red accent bar at top */
+body::before {
+    content: '';
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--red);
+    z-index: 9999;
+}
+
+/* =========================================
+   Page Wrapper
+   ========================================= */
+.page-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* =========================================
+   Cover / Hero Section
+   ========================================= */
+.cover-hero {
+    background: var(--dark-bg);
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(0, 179, 217, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(226, 61, 54, 0.04) 0%, transparent 50%);
+    color: var(--white);
+    padding: 5rem 2rem 4rem;
+    margin: 0 -2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cover-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+.cover-inner {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.cover-badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid var(--cyan-border);
+    background: rgba(0, 179, 217, 0.06);
+    padding: 0.35rem 1rem;
+    border-radius: 3px;
+    margin-bottom: 2rem;
+}
+
+.cover-brand {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 3.2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.cover-brand .brand-accent {
+    color: var(--cyan);
+}
+
+.cover-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3rem;
+    letter-spacing: 0.01em;
+}
+
+.cover-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cover-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.cover-detail-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+}
+
+.cover-detail-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cover-detail-value.highlight {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+/* =========================================
+   Table of Contents
+   ========================================= */
+.toc-section {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 2.5rem;
+    margin: 3rem 0;
+}
+
+.toc-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-gray);
+}
+
+.toc-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.15rem 3rem;
+}
+
+.toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+}
+
+.toc-item a {
+    color: var(--body-text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 400;
+    transition: color 0.15s;
+}
+
+.toc-item a:hover {
+    color: var(--cyan);
+}
+
+.toc-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--cyan);
+    min-width: 1.8rem;
+}
+
+/* =========================================
+   Section Styling
+   ========================================= */
+.section {
+    margin-bottom: 3rem;
+}
+
+.section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.65rem;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-gray);
+}
+
+.subsection-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--navy);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.sub-subsection-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+strong {
+    font-weight: 600;
+    color: var(--navy);
+}
+
+/* =========================================
+   Cards
+   ========================================= */
+.card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-accent {
+    border-left: 3px solid var(--cyan);
+}
+
+.card-highlight {
+    background: var(--cyan-soft);
+    border-color: var(--cyan-border);
+}
+
+/* =========================================
+   Tables
+   ========================================= */
+.table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border-gray);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+thead th {
+    background: var(--light-gray);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-gray);
+    white-space: nowrap;
+}
+
+tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-gray);
+    vertical-align: top;
+    color: var(--body-text);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background: rgba(0, 179, 217, 0.02);
+}
+
+/* Total / summary rows */
+tr.row-total td {
+    font-weight: 700;
+    color: var(--navy);
+    background: var(--light-gray);
+    border-top: 2px solid var(--border-gray);
+}
+
+/* Status badges in tables */
+.status {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.status-functional {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.status-development {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.status-pending {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.status-confirmed {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+/* =========================================
+   Lists
+   ========================================= */
+ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+li {
+    margin-bottom: 0.4rem;
+}
+
+li::marker {
+    color: var(--cyan);
+}
+
+/* Bullet-heavy descriptive lists */
+.desc-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.desc-list li {
+    position: relative;
+    padding-left: 1.25rem;
+    margin-bottom: 0.6rem;
+}
+
+.desc-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+}
+
+/* =========================================
+   Roadmap / Phase Cards
+   ========================================= */
+.phase-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.phase-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.75rem;
+    background: var(--navy);
+    color: var(--white);
+}
+
+.phase-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.phase-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(0, 179, 217, 0.2);
+    color: var(--cyan);
+    padding: 0.25rem 0.65rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+}
+
+.phase-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.phase-timeline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.phase-body {
+    padding: 1.75rem;
+}
+
+.phase-objective {
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    font-size: 0.92rem;
+}
+
+.phase-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--light-gray);
+    margin: 1.5rem -1.75rem -1.75rem;
+    padding: 1rem 1.75rem;
+    border-top: 1px solid var(--border-gray);
+}
+
+.phase-total-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.phase-total-value {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--navy);
+}
+
+.phase-milestone {
+    background: var(--cyan-soft);
+    border: 1px solid var(--cyan-border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-top: 1.25rem;
+    font-size: 0.88rem;
+}
+
+.phase-milestone-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+}
+
+/* =========================================
+   Risk Register
+   ========================================= */
+.risk-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.risk-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.risk-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--navy);
+}
+
+.risk-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.risk-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+}
+
+.likelihood-high {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.likelihood-medium {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.likelihood-low {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.impact-high {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.impact-medium {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.impact-low {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.risk-mitigation {
+    font-size: 0.88rem;
+    color: var(--body-text);
+    line-height: 1.65;
+}
+
+/* =========================================
+   Checklist
+   ========================================= */
+.checklist {
+    list-style: none;
+    padding: 0;
+}
+
+.checklist li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-gray);
+    font-size: 0.9rem;
+}
+
+.checklist li:last-child {
+    border-bottom: none;
+}
+
+.check-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green);
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* =========================================
+   Key Figures / Stat Cards
+   ========================================= */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.stat-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.stat-value {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--navy);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.35rem;
+}
+
+/* =========================================
+   Competitive Advantage Numbered Items
+   ========================================= */
+.advantage-item {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+}
+
+.advantage-number {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--cyan);
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 2rem;
+    opacity: 0.5;
+}
+
+.advantage-content h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 0.35rem;
+}
+
+.advantage-content p {
+    font-size: 0.92rem;
+    margin-bottom: 0;
+}
+
+/* =========================================
+   Tech Stack
+   ========================================= */
+.tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+}
+
+.tech-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border-gray);
+    border-right: 1px solid var(--border-gray);
+}
+
+.tech-item:nth-child(even) {
+    border-right: none;
+}
+
+.tech-item:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.tech-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 120px;
+}
+
+.tech-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--navy);
+    font-weight: 500;
+}
+
+/* =========================================
+   Architecture Layers
+   ========================================= */
+.arch-layer {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 8px 8px 0;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.arch-layer-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 0.35rem;
+}
+
+.arch-layer-desc {
+    font-size: 0.88rem;
+    color: var(--body-text);
+    margin-bottom: 0;
+}
+
+.arch-layer-desc ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* =========================================
+   Appendix
+   ========================================= */
+.appendix-section {
+    background: var(--light-gray);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.appendix-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-gray);
+}
+
+.placeholder-note {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+/* =========================================
+   Footer
+   ========================================= */
+.document-footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin: 3rem -2rem 0;
+    background: var(--dark-bg);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+    line-height: 1.8;
+}
+
+.document-footer strong {
+    color: var(--white);
+    font-weight: 600;
+}
+
+.footer-disclaimer {
+    max-width: 700px;
+    margin: 1.5rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* =========================================
+   Divider
+   ========================================= */
+.section-divider {
+    border: none;
+    height: 1px;
+    background: var(--border-gray);
+    margin: 3rem 0;
+}
+
+/* =========================================
+   Links
+   ========================================= */
+a {
+    color: var(--cyan);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+a:hover {
+    color: var(--navy);
+}
+
+/* =========================================
+   Utility
+   ========================================= */
+.text-muted {
+    color: var(--muted);
+}
+
+.text-navy {
+    color: var(--navy);
+}
+
+.text-cyan {
+    color: var(--cyan);
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+/* =========================================
+   Print Styles
+   ========================================= */
+@media print {
+    @page {
+        size: A4;
+        margin: 20mm 18mm;
+    }
+
+    html {
+        font-size: 12px;
+    }
+
+    body {
+        background: white;
+        color: #222;
+    }
+
+    body::before {
+        display: none;
+    }
+
+    .page-wrapper {
+        max-width: none;
+        padding: 0;
+    }
+
+    .cover-hero {
+        margin: 0;
+        padding: 3rem 2rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .section-divider {
+        margin: 1.5rem 0;
+    }
+
+    .page-break-before {
+        page-break-before: always;
+    }
+
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    .phase-card, .risk-card, .card, table {
+        page-break-inside: avoid;
+    }
+
+    .document-footer {
+        margin: 2rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .toc-section {
+        page-break-after: always;
+    }
+
+    /* Force background colors in print */
+    thead th, tr.row-total td, .phase-header, .cover-hero, .document-footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .status, .risk-badge, .check-icon, .phase-number, .cover-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    a {
+        color: var(--navy);
+    }
+
+    a[href]::after {
+        content: none;
+    }
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+
+    .cover-hero {
+        padding: 3rem 1.5rem;
+    }
+
+    .cover-brand {
+        font-size: 2.2rem;
+    }
+
+    .cover-details {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .toc-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .tech-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tech-item {
+        border-right: none;
+    }
+
+    .tech-item:last-child {
+        border-bottom: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .risk-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .phase-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- ============================================
+         COVER / HERO SECTION
+         ============================================ -->
+    <header class="cover-hero">
+        <div class="cover-inner">
+            <div class="cover-badge">TIA Seed Fund Application</div>
+            <div style="margin-bottom: 24px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="340" height="84" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+            <p class="cover-subtitle">Real-Time Risk Intelligence Platform</p>
+
+            <div class="cover-details">
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">Applicant</span>
+                    <span class="cover-detail-value">Arthmatic DevWorks (Pty) Ltd</span>
+                </div>
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">Location</span>
+                    <span class="cover-detail-value">Cape Town, Western Cape</span>
+                </div>
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">Funding Requested</span>
+                    <span class="cover-detail-value highlight">R1,500,000</span>
+                </div>
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">Project Duration</span>
+                    <span class="cover-detail-value">18 months</span>
+                </div>
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">Date</span>
+                    <span class="cover-detail-value">April 2026</span>
+                </div>
+                <div class="cover-detail-item">
+                    <span class="cover-detail-label">TRL Progression</span>
+                    <span class="cover-detail-value highlight">6-7 &rarr; 8-9</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================
+         TABLE OF CONTENTS
+         ============================================ -->
+    <nav class="toc-section page-break-after" id="toc">
+        <h2 class="toc-title">Table of Contents</h2>
+        <div class="toc-columns">
+            <div class="toc-item">
+                <span class="toc-number">01</span>
+                <a href="#section-1">Executive Summary</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">07</span>
+                <a href="#section-7">Team and Capability</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">02</span>
+                <a href="#section-2">Problem Statement</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">08</span>
+                <a href="#section-8">Development Roadmap</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">03</span>
+                <a href="#section-3">Solution Overview</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">09</span>
+                <a href="#section-9">Budget Breakdown</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">04</span>
+                <a href="#section-4">Technology Readiness Level Assessment</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">10</span>
+                <a href="#section-10">Expected Outcomes and Impact</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">05</span>
+                <a href="#section-5">Market Opportunity</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">11</span>
+                <a href="#section-11">Sustainability Plan</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">06</span>
+                <a href="#section-6">Competitive Advantage</a>
+            </div>
+            <div class="toc-item">
+                <span class="toc-number">12</span>
+                <a href="#section-12">Risk Mitigation</a>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- ============================================
+         SECTION 1: EXECUTIVE SUMMARY
+         ============================================ -->
+    <section class="section page-break-before" id="section-1">
+        <span class="section-label">Section 01</span>
+        <h2 class="section-title">Executive Summary</h2>
+
+        <p>Arthmatic DevWorks seeks R1,500,000 from the TIA Seed Fund to commercialise <strong>VeriGate</strong>, a Real-Time Risk Intelligence Platform that enables secure, cross-agency data verification, AI-powered risk scoring, conflict of interest detection, and fraud detection across South African government agencies and enterprises. VeriGate addresses one of the most persistent bottlenecks in public service delivery and private sector compliance: the inability to verify identity, company registration, tax status, qualifications, property ownership, and other critical data points across organisational boundaries without resorting to slow, manual, paper-based processes.</p>
+
+        <p>The platform is built on a <strong>zero-trust, data-sovereign architecture</strong>. No centralised database is created; each participating agency retains full custody and control of its data within its own isolated AWS environment. VeriGate acts as a secure verification broker, routing encrypted queries through adapter modules that translate between disparate agency systems. The result is sub-second verification that today takes days or weeks.</p>
+
+        <p>The core platform has been developed and demonstrated in a relevant environment (TRL 6-7). Fourteen verification adapter types have been designed, with the majority functional. The requested funding will close the remaining gaps required for market entry: ISO 27001 certification (a non-negotiable requirement for government procurement), NCR registration for credit bureau adapters, completion of outstanding adapter development, legal frameworks for data processing agreements, and structured go-to-market activities targeting government agencies and regulated enterprises.</p>
+
+        <p>VeriGate directly advances South Africa's National Digital and Future Skills Strategy, supports the Department of Public Service and Administration's modernisation agenda, and aligns with the broader objectives of the National Development Plan by reducing fraud, improving government efficiency, and enabling inclusive economic participation through trustworthy digital verification infrastructure.</p>
+
+        <p>Upon completion of the funded programme, VeriGate will be positioned as a self-sustaining SaaS platform generating revenue through per-verification transaction fees, with a clear path to profitability within 12 months of first commercial deployment.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">R1.5M</div>
+                <div class="stat-label">Funding Requested</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Verification Types</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">18 mo</div>
+                <div class="stat-label">Programme Duration</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">TRL 8-9</div>
+                <div class="stat-label">Target Readiness</div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 2: PROBLEM STATEMENT
+         ============================================ -->
+    <section class="section page-break-before" id="section-2">
+        <span class="section-label">Section 02</span>
+        <h2 class="section-title">Problem Statement</h2>
+
+        <h3 class="subsection-title">2.1 The Fragmented Verification Landscape</h3>
+
+        <p>South Africa's government and enterprise sectors operate within a deeply fragmented verification ecosystem. When a government department needs to verify a supplier's tax compliance, it must separately contact SARS. When it needs to confirm a director's identity, it must query the Department of Home Affairs. When it needs to check company registration status, it must access CIPC systems. Each of these interactions follows its own protocol, authentication model, data format, and response timeline.</p>
+
+        <p>This fragmentation produces measurable harm:</p>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Delays in service delivery</h4>
+            <p class="mb-0">Government procurement processes routinely stall for weeks while manual verification checks are conducted. The National Treasury's Central Supplier Database (CSD) partially addresses supplier verification, but covers only a subset of the checks required for due diligence, leaving departments to conduct the remainder manually.</p>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Fraud, corruption, and undisclosed conflicts of interest</h4>
+            <p class="mb-0">The absence of real-time, cross-referenced verification creates opportunities for fraudulent actors and conceals conflicts of interest. Undisclosed relationships between procurement officials and suppliers are pervasive: officials who are directors or shareholders of bidding companies, procurement officers with family ties to preferred vendors, and politically exposed persons with hidden stakes in contracting entities. The Auditor-General's 2024/25 reports consistently highlight irregular expenditure linked to inadequate supplier due diligence and flag undisclosed conflicts of interest as a root cause of procurement irregularities. Identity fraud, fictitious companies, and misrepresented qualifications cost the South African economy billions of rands annually. The SIU has repeatedly flagged weak verification and undetected conflicts of interest as root causes of procurement fraud.</p>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Regulatory burden on the private sector</h4>
+            <p class="mb-0">Banks, insurers, and large corporates face onerous Know Your Customer (KYC), Anti-Money Laundering (AML), and Financial Intelligence Centre Act (FICA) obligations. Each institution independently builds and maintains integrations with the same set of data sources, duplicating effort and cost across the economy.</p>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Exclusion of SMMEs and emerging enterprises</h4>
+            <p class="mb-0">Small businesses and informal traders are disproportionately affected by slow verification. A delayed company registration check or an unresolved identity query can stall a contract award for months, threatening the viability of small enterprises that lack the cash reserves to absorb such delays.</p>
+        </div>
+
+        <h3 class="subsection-title">2.2 Why Existing Solutions Fall Short</h3>
+
+        <p>Current approaches to cross-agency verification in South Africa suffer from one or more of the following limitations:</p>
+
+        <ul class="desc-list">
+            <li><strong>Point-to-point integrations</strong> are expensive to build, fragile to maintain, and do not scale. Each new data source requires a bespoke integration.</li>
+            <li><strong>Centralised databases</strong> (where data is copied into a single repository) create unacceptable data sovereignty and privacy risks, and face resistance from data custodian agencies unwilling to relinquish control.</li>
+            <li><strong>Manual processes</strong> (phone calls, emails, physical document submissions) are slow, error-prone, and susceptible to social engineering and forgery.</li>
+            <li><strong>International verification platforms</strong> (e.g., Refinitiv World-Check, LexisNexis) address only a narrow slice of the problem (typically sanctions and PEP screening) and are priced for multinational corporations, not South African government departments or SMMEs.</li>
+        </ul>
+
+        <p>There is no South African platform that provides a unified, real-time risk intelligence capability -- combining cross-agency verification, AI-powered risk scoring, conflict of interest detection, and fraud detection -- across the breadth of sources required for comprehensive due diligence.</p>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 3: SOLUTION OVERVIEW
+         ============================================ -->
+    <section class="section page-break-before" id="section-3">
+        <span class="section-label">Section 03</span>
+        <h2 class="section-title">Solution Overview</h2>
+
+        <h3 class="subsection-title">3.1 What VeriGate Does</h3>
+
+        <p>VeriGate is a modular, API-driven real-time risk intelligence platform that enables any authorised entity to perform verification queries, risk assessments, and fraud detection against multiple data sources through a single integration point. A requesting party submits a verification request (e.g., "Verify that ID number 8501015800083 is a valid South African identity") and receives a structured, auditable response within seconds.</p>
+
+        <p>The platform supports <strong>14 verification types</strong>, each implemented as an independent adapter module:</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Verification Type</th>
+                        <th>Data Source</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Identity</td>
+                        <td>Department of Home Affairs (DHA)</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Company Registration</td>
+                        <td>CIPC</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Bank Account</td>
+                        <td>QLink</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Property Ownership</td>
+                        <td>DeedsWeb</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Sanctions Screening</td>
+                        <td>WorldCheck, OpenSanctions</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Tax Compliance</td>
+                        <td>SARS</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Qualifications</td>
+                        <td>SAQA</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Credit Check</td>
+                        <td>Credit Bureaus</td>
+                        <td><span class="status status-pending">Pending NCR</span></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Employment Verification</td>
+                        <td>UIF/Employer APIs</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Income Verification</td>
+                        <td>Payroll/Bank data</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Document Verification</td>
+                        <td>AI/OCR (Bedrock)</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>Negative News Screening</td>
+                        <td>Media/Public records</td>
+                        <td><span class="status status-functional">Functional</span></td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>Fraud Watchlist</td>
+                        <td>SABRIC, internal models</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>VAT Vendor Verification</td>
+                        <td>SARS VAT registry</td>
+                        <td><span class="status status-development">In Development</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">3.2 Architecture: Data Sovereignty by Design</h3>
+
+        <p>VeriGate's architecture is fundamentally different from conventional integration platforms. It employs a <strong>cross-account AWS deployment model</strong> in which each participating agency operates within its own isolated AWS account. There is no centralised database. Data never leaves the custody of the agency that owns it.</p>
+
+        <p>The architecture comprises the following layers:</p>
+
+        <div class="arch-layer">
+            <div class="arch-layer-title">Verification Broker Layer</div>
+            <p class="arch-layer-desc">The central orchestration component that receives verification requests, routes them to the appropriate adapter, manages retry logic, and returns results. Built on AWS Lambda (serverless) for elastic scalability and cost efficiency.</p>
+        </div>
+
+        <div class="arch-layer">
+            <div class="arch-layer-title">Adapter Layer</div>
+            <p class="arch-layer-desc">Each data source is accessed through a purpose-built adapter that encapsulates the source-specific protocol, authentication, data mapping, and error handling. Adapters are deployed within the data custodian's AWS account, ensuring that raw data never traverses network boundaries. Only verification results (yes/no/match score) are returned.</p>
+        </div>
+
+        <div class="arch-layer">
+            <div class="arch-layer-title">AI/ML Layer</div>
+            <div class="arch-layer-desc">Three AI modules built on AWS Bedrock enhance the platform's intelligence:
+                <ul>
+                    <li><strong>Bedrock Common Module:</strong> Provides natural language processing for document verification, name matching across transliteration variants, and address normalisation.</li>
+                    <li><strong>Risk Signals Module:</strong> Aggregates signals across multiple verification types to produce a composite risk score, identifying patterns that individual checks would miss. This module powers VeriGate's conflict of interest detection capability by cross-referencing CIPC directorship records, shareholding data, property ownership registries, and Politically Exposed Person (PEP) databases to automatically flag undisclosed relationships between procurement officials, bidding entities, and their associated persons.</li>
+                    <li><strong>Fraud Detector Module:</strong> Applies anomaly detection and behavioural analysis to flag potentially fraudulent verification patterns.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="arch-layer">
+            <div class="arch-layer-title">Partner Portal</div>
+            <p class="arch-layer-desc">A Next.js 15.5 web application that provides a dashboard for partner organisations to manage their verification activities, view audit logs, configure alert thresholds, and access analytics.</p>
+        </div>
+
+        <div class="arch-layer">
+            <div class="arch-layer-title">Security Layer</div>
+            <p class="arch-layer-desc">AWS Cognito for identity and access management, with fine-grained role-based access control. All data in transit is encrypted with TLS 1.3. All data at rest is encrypted with AES-256 via AWS KMS. Every verification request and response is immutably logged for audit purposes.</p>
+        </div>
+
+        <h3 class="subsection-title">3.3 Technology Stack</h3>
+
+        <div class="tech-grid">
+            <div class="tech-item">
+                <span class="tech-label">Core Platform</span>
+                <span class="tech-value">Java 21, Spring Boot 3.3</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Compute</span>
+                <span class="tech-value">AWS Lambda</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Messaging</span>
+                <span class="tech-value">AWS SQS FIFO</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Database</span>
+                <span class="tech-value">AWS DynamoDB</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Streaming</span>
+                <span class="tech-value">AWS Kinesis</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Orchestration</span>
+                <span class="tech-value">AWS EventBridge</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Identity</span>
+                <span class="tech-value">AWS Cognito</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">AI / ML</span>
+                <span class="tech-value">AWS Bedrock</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Portal</span>
+                <span class="tech-value">Next.js 15.5 (React)</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-label">Pattern</span>
+                <span class="tech-value">Adapter, Event-Driven, CQRS</span>
+            </div>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 4: TRL ASSESSMENT
+         ============================================ -->
+    <section class="section page-break-before" id="section-4">
+        <span class="section-label">Section 04</span>
+        <h2 class="section-title">Technology Readiness Level Assessment</h2>
+
+        <h3 class="subsection-title">4.1 Current State: TRL 6-7</h3>
+
+        <p>VeriGate's current technology readiness sits between TRL 6 (system/subsystem model or prototype demonstration in a relevant environment) and TRL 7 (system prototype demonstration in an operational environment).</p>
+
+        <div class="card card-highlight">
+            <h4 class="sub-subsection-title mt-0" style="color: var(--cyan);">Evidence Supporting TRL 6-7 Classification</h4>
+            <ul class="desc-list">
+                <li>The core verification broker has been developed, tested, and demonstrated with live data sources in a staging environment that mirrors production infrastructure.</li>
+                <li>Eight of fourteen adapter modules are functional and have processed verification queries against real-world data sources.</li>
+                <li>The cross-account AWS deployment model has been validated, confirming that the data sovereignty architecture works as designed.</li>
+                <li>The AI/ML modules (document verification via OCR, risk signal aggregation) have been demonstrated with production-representative data.</li>
+                <li>The partner portal is functional, providing dashboard, audit log, and configuration capabilities.</li>
+                <li>Load testing has confirmed the platform's ability to handle concurrent verification requests at volumes representative of initial commercial deployment.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h4 class="sub-subsection-title mt-0">Gaps Preventing TRL 8-9 Classification</h4>
+            <ul class="desc-list">
+                <li>Six adapter modules remain in development or are pending external prerequisites (NCR registration for credit checks).</li>
+                <li>ISO 27001 certification has not been obtained. This is a prerequisite for government procurement and enterprise adoption.</li>
+                <li>No pilot deployment with a paying customer has been conducted.</li>
+                <li>Data processing agreements and legal frameworks for agency participation have not been finalised.</li>
+                <li>The Fraud Detector AI module requires training on a larger dataset to achieve production-grade accuracy.</li>
+            </ul>
+        </div>
+
+        <h3 class="subsection-title">4.2 Target State: TRL 8-9</h3>
+
+        <p>At the conclusion of the funded programme (18 months), VeriGate will achieve TRL 8-9:</p>
+
+        <ul class="desc-list">
+            <li>All fourteen adapter modules will be functional and tested.</li>
+            <li>ISO 27001 certification will be obtained.</li>
+            <li>At least two pilot deployments with government agencies or enterprise customers will have been completed.</li>
+            <li>The platform will be operating in a production environment processing live verification requests.</li>
+            <li>Legal and contractual frameworks will be in place for agency onboarding.</li>
+        </ul>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 5: MARKET OPPORTUNITY
+         ============================================ -->
+    <section class="section page-break-before" id="section-5">
+        <span class="section-label">Section 05</span>
+        <h2 class="section-title">Market Opportunity</h2>
+
+        <h3 class="subsection-title">5.1 Total Addressable Market</h3>
+
+        <p>The South African verification services market spans multiple segments:</p>
+
+        <div class="card card-accent">
+            <strong>Government Procurement and Compliance.</strong> National and provincial government departments, state-owned enterprises, and municipalities collectively process hundreds of thousands of supplier verifications annually. National Treasury's procurement spend exceeds R1 trillion per annum, all of which requires supplier due diligence.
+        </div>
+
+        <div class="card card-accent">
+            <strong>Financial Services KYC/AML.</strong> South Africa's banking sector processes millions of KYC checks annually. The Financial Intelligence Centre Act (FICA) and its amendments have progressively tightened verification requirements.
+        </div>
+
+        <div class="card card-accent">
+            <strong>Property and Real Estate.</strong> Property transactions require identity verification, FICA compliance, ownership confirmation, and rates clearance. The Deeds Registry processes hundreds of thousands of transfers annually.
+        </div>
+
+        <div class="card card-accent">
+            <strong>Professional Services and Recruitment.</strong> Employers, recruitment agencies, and professional bodies require qualification verification, identity confirmation, criminal record checks, and reference validation.
+        </div>
+
+        <h4 class="sub-subsection-title">Conservative Market Sizing</h4>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Segment</th>
+                        <th>Est. Annual Volume</th>
+                        <th>Avg. Revenue / Verification</th>
+                        <th>Segment Revenue Potential</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Government</td>
+                        <td>2,000,000</td>
+                        <td>R15</td>
+                        <td>R30,000,000</td>
+                    </tr>
+                    <tr>
+                        <td>Financial Services</td>
+                        <td>5,000,000</td>
+                        <td>R20</td>
+                        <td>R100,000,000</td>
+                    </tr>
+                    <tr>
+                        <td>Property</td>
+                        <td>500,000</td>
+                        <td>R25</td>
+                        <td>R12,500,000</td>
+                    </tr>
+                    <tr>
+                        <td>Professional Services</td>
+                        <td>1,000,000</td>
+                        <td>R12</td>
+                        <td>R12,000,000</td>
+                    </tr>
+                    <tr class="row-total">
+                        <td>Total</td>
+                        <td>8,500,000</td>
+                        <td></td>
+                        <td>R154,500,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>VeriGate's initial target is to capture 5-10% of the government segment within 3 years of launch, representing R1.5M-R3M in annual recurring revenue, with expansion into financial services and property thereafter.</p>
+
+        <h3 class="subsection-title">5.2 Beachhead Market</h3>
+
+        <p>The initial go-to-market strategy targets <strong>Western Cape government agencies</strong> as the beachhead market. The Western Cape Government has demonstrated a strong commitment to digital transformation, and agencies such as <strong>Wesgro</strong> (the Western Cape Trade and Investment Promotion Agency) have expressed interest in streamlining verification processes for investor onboarding and trade facilitation.</p>
+
+        <p>The Department of Home Affairs (DHA) is a secondary target, given its central role as both a data custodian (identity verification) and a high-volume consumer of verification services (immigration, civic services).</p>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 6: COMPETITIVE ADVANTAGE
+         ============================================ -->
+    <section class="section page-break-before" id="section-6">
+        <span class="section-label">Section 06</span>
+        <h2 class="section-title">Competitive Advantage</h2>
+
+        <h3 class="subsection-title">6.1 Differentiation</h3>
+
+        <p>VeriGate's competitive position rests on five structural advantages:</p>
+
+        <div class="advantage-item">
+            <span class="advantage-number">1</span>
+            <div class="advantage-content">
+                <h4>Data Sovereignty Architecture</h4>
+                <p>Unlike platforms that centralise data, VeriGate's cross-account model ensures that each agency retains full custody of its data. This eliminates the single biggest objection to adopting a shared verification platform and aligns with the Protection of Personal Information Act (POPIA) principle of purpose limitation.</p>
+            </div>
+        </div>
+
+        <div class="advantage-item">
+            <span class="advantage-number">2</span>
+            <div class="advantage-content">
+                <h4>Breadth of Coverage</h4>
+                <p>No existing South African platform offers fourteen verification types through a single integration. Competitors typically offer 2-4 verification types and require customers to maintain additional integrations for the remainder.</p>
+            </div>
+        </div>
+
+        <div class="advantage-item">
+            <span class="advantage-number">3</span>
+            <div class="advantage-content">
+                <h4>Adapter-Based Extensibility</h4>
+                <p>New data sources can be integrated by developing a new adapter module without modifying the core platform. This architectural choice means VeriGate can add new verification types in weeks rather than months.</p>
+            </div>
+        </div>
+
+        <div class="advantage-item">
+            <span class="advantage-number">4</span>
+            <div class="advantage-content">
+                <h4>AI-Enhanced Risk Intelligence and Conflict of Interest Detection</h4>
+                <p>The Risk Signals and Fraud Detector modules elevate VeriGate from a verification tool to a real-time risk intelligence platform. By correlating signals across multiple verification types, VeriGate identifies complex fraud patterns, assigns composite risk scores, and surfaces actionable intelligence that individual checks would miss. VeriGate's conflict of interest detection engine cross-references CIPC directorship records, shareholding structures, property ownership registries, PEP status, and sanctions lists to automatically identify undisclosed relationships between procurement officials and bidding entities. A weighted compliance scoring model evaluates the severity and materiality of each detected relationship, producing clear Accept/Review/Deny decisions that enable procurement teams to act decisively before contracts are awarded.</p>
+            </div>
+        </div>
+
+        <div class="advantage-item">
+            <span class="advantage-number">5</span>
+            <div class="advantage-content">
+                <h4>South African Built, South African Hosted</h4>
+                <p>VeriGate is developed in South Africa, by a South African company, and deployed on South African (or African-region) cloud infrastructure. This addresses data residency requirements and supports the government's localisation and transformation objectives.</p>
+            </div>
+        </div>
+
+        <h3 class="subsection-title">6.2 Competitive Landscape</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Competitor</th>
+                        <th>Coverage</th>
+                        <th>Data Model</th>
+                        <th>SA Focus</th>
+                        <th>Pricing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>XDS / TransUnion</td>
+                        <td>Credit, Identity</td>
+                        <td>Centralised</td>
+                        <td>Yes</td>
+                        <td>Per-query, premium</td>
+                    </tr>
+                    <tr>
+                        <td>LexisNexis SA</td>
+                        <td>Identity, Compliance</td>
+                        <td>Centralised</td>
+                        <td>Partial</td>
+                        <td>Enterprise licensing</td>
+                    </tr>
+                    <tr>
+                        <td>Refinitiv World-Check</td>
+                        <td>Sanctions, PEP</td>
+                        <td>Centralised</td>
+                        <td>No</td>
+                        <td>Enterprise licensing</td>
+                    </tr>
+                    <tr>
+                        <td>Managed Integrity Evaluation</td>
+                        <td>Background screening</td>
+                        <td>Manual + Digital</td>
+                        <td>Yes</td>
+                        <td>Per-check, slow</td>
+                    </tr>
+                    <tr style="background: var(--cyan-soft);">
+                        <td><strong>VeriGate</strong></td>
+                        <td><strong>14 types, unified</strong></td>
+                        <td><strong>Decentralised, sovereign</strong></td>
+                        <td><strong>Yes</strong></td>
+                        <td><strong>Per-verification, competitive</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 7: TEAM AND CAPABILITY
+         ============================================ -->
+    <section class="section page-break-before" id="section-7">
+        <span class="section-label">Section 07</span>
+        <h2 class="section-title">Team and Capability</h2>
+
+        <h3 class="subsection-title">7.1 Arthmatic DevWorks</h3>
+
+        <p>Arthmatic DevWorks is a Cape Town-based custom software development firm specialising in cloud services, application development, and business process automation. The company has delivered enterprise-grade software solutions for clients across government and the private sector, with deep expertise in AWS cloud architecture, Java/Spring Boot development, and modern frontend technologies.</p>
+
+        <h3 class="subsection-title">7.2 Core Competencies Relevant to VeriGate</h3>
+
+        <ul class="desc-list">
+            <li><strong>Cloud-native architecture:</strong> The team has extensive experience designing and deploying serverless, event-driven systems on AWS, including multi-account architectures with cross-account access patterns.</li>
+            <li><strong>Government and enterprise integration:</strong> Prior project experience integrating with South African government systems and regulatory data sources.</li>
+            <li><strong>Security-first development:</strong> Established practices around secure coding, encryption, access control, and audit logging that align with ISO 27001 requirements.</li>
+            <li><strong>AI/ML implementation:</strong> Practical experience deploying AWS Bedrock models for document processing, natural language understanding, and anomaly detection.</li>
+        </ul>
+
+        <h3 class="subsection-title">7.3 Resource Plan</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Allocation</th>
+                        <th>Responsibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Technical Lead / Architect</td>
+                        <td>Full-time</td>
+                        <td>Platform architecture, adapter development, security</td>
+                    </tr>
+                    <tr>
+                        <td>Backend Developer</td>
+                        <td>Full-time</td>
+                        <td>Adapter module development, API development, testing</td>
+                    </tr>
+                    <tr>
+                        <td>Frontend Developer</td>
+                        <td>Part-time</td>
+                        <td>Partner portal enhancements, dashboard development</td>
+                    </tr>
+                    <tr>
+                        <td>DevOps / Cloud Engineer</td>
+                        <td>Part-time</td>
+                        <td>AWS infrastructure, CI/CD, monitoring, compliance</td>
+                    </tr>
+                    <tr>
+                        <td>Business Development</td>
+                        <td>Part-time</td>
+                        <td>Go-to-market, agency engagement, partnership development</td>
+                    </tr>
+                    <tr>
+                        <td>Legal / Compliance</td>
+                        <td>Contract</td>
+                        <td>ISO 27001, NCR registration, data processing agreements</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 8: DEVELOPMENT ROADMAP
+         ============================================ -->
+    <section class="section page-break-before" id="section-8">
+        <span class="section-label">Section 08</span>
+        <h2 class="section-title">Development Roadmap</h2>
+
+        <p>The 18-month programme is structured in three phases:</p>
+
+        <!-- Phase 1 -->
+        <div class="phase-card avoid-break">
+            <div class="phase-header">
+                <div class="phase-header-left">
+                    <span class="phase-number">PHASE 1</span>
+                    <span class="phase-name">Compliance and Foundation</span>
+                </div>
+                <span class="phase-timeline">Months 1 &ndash; 6</span>
+            </div>
+            <div class="phase-body">
+                <p class="phase-objective">Obtain the certifications and registrations required for market entry.</p>
+
+                <div class="table-wrapper" style="margin-top: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deliverable</th>
+                                <th>Timeline</th>
+                                <th>Budget Allocation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ISO 27001 gap analysis and remediation</td>
+                                <td>Months 1-3</td>
+                                <td>R150,000</td>
+                            </tr>
+                            <tr>
+                                <td>ISO 27001 certification audit</td>
+                                <td>Months 4-6</td>
+                                <td>R200,000</td>
+                            </tr>
+                            <tr>
+                                <td>NCR registration application and processing</td>
+                                <td>Months 1-4</td>
+                                <td>R100,000</td>
+                            </tr>
+                            <tr>
+                                <td>Data processing agreement templates (legal)</td>
+                                <td>Months 2-4</td>
+                                <td>R80,000</td>
+                            </tr>
+                            <tr>
+                                <td>Terms and conditions, SLAs, contract frameworks</td>
+                                <td>Months 3-5</td>
+                                <td>R70,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="phase-total">
+                    <span class="phase-total-label">Phase 1 Total</span>
+                    <span class="phase-total-value">R600,000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-milestone avoid-break">
+            <div class="phase-milestone-label">Milestone</div>
+            ISO 27001 certificate obtained; NCR registration approved; legal frameworks ready for agency onboarding.
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-card avoid-break" style="margin-top: 2rem;">
+            <div class="phase-header">
+                <div class="phase-header-left">
+                    <span class="phase-number">PHASE 2</span>
+                    <span class="phase-name">Adapter Completion and Pilot</span>
+                </div>
+                <span class="phase-timeline">Months 4 &ndash; 12</span>
+            </div>
+            <div class="phase-body">
+                <p class="phase-objective">Complete all fourteen adapters and conduct at least two pilot deployments.</p>
+
+                <div class="table-wrapper" style="margin-top: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deliverable</th>
+                                <th>Timeline</th>
+                                <th>Budget Allocation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tax compliance adapter (SARS integration)</td>
+                                <td>Months 4-6</td>
+                                <td>R60,000</td>
+                            </tr>
+                            <tr>
+                                <td>Qualifications adapter (SAQA integration)</td>
+                                <td>Months 5-7</td>
+                                <td>R50,000</td>
+                            </tr>
+                            <tr>
+                                <td>Credit check adapter (post-NCR registration)</td>
+                                <td>Months 6-8</td>
+                                <td>R60,000</td>
+                            </tr>
+                            <tr>
+                                <td>Employment verification adapter</td>
+                                <td>Months 7-9</td>
+                                <td>R50,000</td>
+                            </tr>
+                            <tr>
+                                <td>Income verification adapter</td>
+                                <td>Months 8-10</td>
+                                <td>R50,000</td>
+                            </tr>
+                            <tr>
+                                <td>Fraud watchlist adapter</td>
+                                <td>Months 9-11</td>
+                                <td>R50,000</td>
+                            </tr>
+                            <tr>
+                                <td>VAT vendor verification adapter</td>
+                                <td>Months 7-9</td>
+                                <td>R40,000</td>
+                            </tr>
+                            <tr>
+                                <td>Fraud Detector AI model training and validation</td>
+                                <td>Months 6-10</td>
+                                <td>R40,000</td>
+                            </tr>
+                            <tr>
+                                <td>Pilot deployment 1 (target: Wesgro or WCG agency)</td>
+                                <td>Months 8-12</td>
+                                <td>Included in GTM</td>
+                            </tr>
+                            <tr>
+                                <td>Pilot deployment 2 (target: enterprise client)</td>
+                                <td>Months 10-12</td>
+                                <td>Included in GTM</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="phase-total">
+                    <span class="phase-total-label">Phase 2 Total</span>
+                    <span class="phase-total-value">R400,000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-milestone avoid-break">
+            <div class="phase-milestone-label">Milestone</div>
+            All fourteen adapters functional and tested; two pilot deployments underway with live verification queries being processed.
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-card avoid-break" style="margin-top: 2rem;">
+            <div class="phase-header">
+                <div class="phase-header-left">
+                    <span class="phase-number">PHASE 3</span>
+                    <span class="phase-name">Go-to-Market and Scale</span>
+                </div>
+                <span class="phase-timeline">Months 10 &ndash; 18</span>
+            </div>
+            <div class="phase-body">
+                <p class="phase-objective">Transition from pilot to commercial operations; establish a sustainable revenue pipeline.</p>
+
+                <div class="table-wrapper" style="margin-top: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deliverable</th>
+                                <th>Timeline</th>
+                                <th>Budget Allocation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Go-to-market strategy execution</td>
+                                <td>Months 10-18</td>
+                                <td>R200,000</td>
+                            </tr>
+                            <tr>
+                                <td>Government procurement registration (CSD, transversal contracts)</td>
+                                <td>Months 10-12</td>
+                                <td>R30,000</td>
+                            </tr>
+                            <tr>
+                                <td>Conference presentations, demos, industry engagement</td>
+                                <td>Months 12-18</td>
+                                <td>R70,000</td>
+                            </tr>
+                            <tr>
+                                <td>Cloud infrastructure (production environment, 12 months)</td>
+                                <td>Months 7-18</td>
+                                <td>R150,000</td>
+                            </tr>
+                            <tr>
+                                <td>Ongoing security monitoring and penetration testing</td>
+                                <td>Months 7-18</td>
+                                <td>R50,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="phase-total">
+                    <span class="phase-total-label">Phase 3 Total</span>
+                    <span class="phase-total-value">R500,000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-milestone avoid-break">
+            <div class="phase-milestone-label">Milestone</div>
+            At least one paying customer; production environment operational; revenue generation commenced.
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 9: BUDGET BREAKDOWN
+         ============================================ -->
+    <section class="section page-break-before" id="section-9">
+        <span class="section-label">Section 09</span>
+        <h2 class="section-title">Budget Breakdown</h2>
+
+        <h3 class="subsection-title">9.1 Summary by Category</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount (Incl. VAT)</th>
+                        <th>% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ISO 27001 Certification</td>
+                        <td>R350,000</td>
+                        <td>23.3%</td>
+                    </tr>
+                    <tr>
+                        <td>NCR Registration</td>
+                        <td>R100,000</td>
+                        <td>6.7%</td>
+                    </tr>
+                    <tr>
+                        <td>Adapter Development</td>
+                        <td>R400,000</td>
+                        <td>26.7%</td>
+                    </tr>
+                    <tr>
+                        <td>Legal and Compliance</td>
+                        <td>R150,000</td>
+                        <td>10.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Go-to-Market</td>
+                        <td>R300,000</td>
+                        <td>20.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Cloud Infrastructure</td>
+                        <td>R150,000</td>
+                        <td>10.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Security and Testing</td>
+                        <td>R50,000</td>
+                        <td>3.3%</td>
+                    </tr>
+                    <tr class="row-total">
+                        <td>Total</td>
+                        <td>R1,500,000</td>
+                        <td>100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">9.2 Summary by Phase</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Duration</th>
+                        <th>Amount (Incl. VAT)</th>
+                        <th>% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Phase 1: Compliance and Foundation</td>
+                        <td>Months 1-6</td>
+                        <td>R600,000</td>
+                        <td>40%</td>
+                    </tr>
+                    <tr>
+                        <td>Phase 2: Adapter Completion and Pilot</td>
+                        <td>Months 4-12</td>
+                        <td>R400,000</td>
+                        <td>27%</td>
+                    </tr>
+                    <tr>
+                        <td>Phase 3: Go-to-Market and Scale</td>
+                        <td>Months 10-18</td>
+                        <td>R500,000</td>
+                        <td>33%</td>
+                    </tr>
+                    <tr class="row-total">
+                        <td>Total</td>
+                        <td>18 months</td>
+                        <td>R1,500,000</td>
+                        <td>100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">9.3 Arthmatic DevWorks Co-Investment</h3>
+
+        <div class="card card-highlight">
+            <p>Arthmatic DevWorks has already invested approximately <strong style="font-size: 1.15rem;">R800,000</strong> in VeriGate development to date, comprising:</p>
+            <ul class="desc-list mb-0">
+                <li>Core platform architecture and development (12+ months of engineering effort)</li>
+                <li>AWS infrastructure costs during development and testing</li>
+                <li>Initial adapter development (eight functional adapters)</li>
+                <li>AI/ML module development and training</li>
+                <li>Partner portal design and development</li>
+            </ul>
+            <p class="mb-0" style="margin-top: 1rem; font-style: italic; color: var(--muted);">This co-investment demonstrates the company's commitment to the project and de-risks the TIA Seed Fund investment.</p>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 10: EXPECTED OUTCOMES AND IMPACT
+         ============================================ -->
+    <section class="section page-break-before" id="section-10">
+        <span class="section-label">Section 10</span>
+        <h2 class="section-title">Expected Outcomes and Impact</h2>
+
+        <h3 class="subsection-title">10.1 Direct Outcomes (18-Month Programme)</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Outcome</th>
+                        <th>Measure</th>
+                        <th>Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Platform readiness</td>
+                        <td>All 14 adapters functional</td>
+                        <td><strong>100%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Certification</td>
+                        <td>ISO 27001 obtained</td>
+                        <td><span class="status status-confirmed">Yes</span></td>
+                    </tr>
+                    <tr>
+                        <td>Regulatory registration</td>
+                        <td>NCR registration obtained</td>
+                        <td><span class="status status-confirmed">Yes</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pilot deployments</td>
+                        <td>Active pilot customers</td>
+                        <td><strong>2+</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Revenue</td>
+                        <td>Monthly recurring revenue at programme end</td>
+                        <td><strong>R50,000+</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Technology readiness</td>
+                        <td>TRL level at programme end</td>
+                        <td><strong>8-9</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">10.2 Economic Impact (3-Year Horizon)</h3>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Job Creation</h4>
+            <ul class="desc-list mb-0">
+                <li><strong>Direct employment:</strong> 5-8 full-time positions within Arthmatic DevWorks (developers, DevOps, support, business development) by Year 3.</li>
+                <li><strong>Indirect employment:</strong> 10-15 positions at implementation partners, resellers, and client organisations requiring VeriGate integration specialists.</li>
+                <li><strong>Skills development:</strong> Training and upskilling of developers in cloud-native, security-first, AI-enhanced platform development, directly contributing to South Africa's scarce skills pipeline.</li>
+            </ul>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Fraud Reduction and Conflict of Interest Prevention</h4>
+            <ul class="desc-list mb-0">
+                <li>Real-time cross-agency verification directly reduces the window of opportunity for identity fraud, tender fraud, and procurement irregularities.</li>
+                <li>VeriGate's conflict of interest detection addresses the root causes of procurement fraud by automatically flagging undisclosed relationships between officials and suppliers -- including directorship overlaps, shareholding ties, and PEP connections -- before contracts are awarded, shifting enforcement from reactive investigation to proactive prevention.</li>
+                <li>Conservative estimate: If VeriGate prevents even 0.1% of the R30B+ in annual irregular expenditure identified by the Auditor-General, the economic saving exceeds R30M per year -- a <strong>20x return</strong> on the TIA Seed Fund investment.</li>
+            </ul>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Government Efficiency</h4>
+            <ul class="desc-list mb-0">
+                <li>Verification processes that currently take 5-15 business days can be completed in seconds.</li>
+                <li>Reduced manual processing effort frees government officials to focus on value-adding activities.</li>
+                <li>Standardised verification reduces the administrative burden on SMMEs interacting with government.</li>
+            </ul>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">Digital Transformation</h4>
+            <ul class="desc-list mb-0">
+                <li>VeriGate provides foundational infrastructure for digital government services, enabling other platforms and services to build on reliable, real-time verification.</li>
+                <li>The adapter-based architecture creates a template for secure inter-agency data sharing that can be replicated across other government functions.</li>
+            </ul>
+        </div>
+
+        <div class="card card-accent">
+            <h4 class="sub-subsection-title mt-0">B-BBEE and Transformation</h4>
+            <ul class="desc-list mb-0">
+                <li>Arthmatic DevWorks is a Black-owned enterprise, and VeriGate's commercialisation will directly contribute to transformation in the ICT sector.</li>
+                <li>By reducing verification barriers for SMMEs, VeriGate indirectly supports the participation of emerging enterprises in government procurement.</li>
+            </ul>
+        </div>
+
+        <h3 class="subsection-title">10.3 Alignment with National Priorities</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>National Priority</th>
+                        <th>VeriGate Contribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>National Development Plan (NDP)</strong></td>
+                        <td>Supports efficient, corruption-free public service delivery</td>
+                    </tr>
+                    <tr>
+                        <td><strong>National Digital and Future Skills Strategy</strong></td>
+                        <td>Develops scarce cloud, AI, and cybersecurity skills</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DPSA Modernisation</strong></td>
+                        <td>Provides digital verification infrastructure for government</td>
+                    </tr>
+                    <tr>
+                        <td><strong>POPIA Compliance</strong></td>
+                        <td>Data sovereignty architecture inherently supports privacy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Operation Vulindlela (structural reform)</strong></td>
+                        <td>Reduces bureaucratic friction in government processes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>District Development Model</strong></td>
+                        <td>Enables consistent verification standards across all districts</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 11: SUSTAINABILITY PLAN
+         ============================================ -->
+    <section class="section page-break-before" id="section-11">
+        <span class="section-label">Section 11</span>
+        <h2 class="section-title">Sustainability Plan</h2>
+
+        <h3 class="subsection-title">11.1 Revenue Model</h3>
+
+        <p>VeriGate will generate revenue through a <strong>per-verification transaction fee</strong> model, supplemented by platform access fees for high-volume customers.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pricing Tier</th>
+                        <th>Monthly Verification Volume</th>
+                        <th>Per-Verification Fee</th>
+                        <th>Monthly Platform Fee</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Starter</td>
+                        <td>Up to 500</td>
+                        <td>R25</td>
+                        <td>R0</td>
+                    </tr>
+                    <tr>
+                        <td>Professional</td>
+                        <td>501 - 5,000</td>
+                        <td>R18</td>
+                        <td>R2,500</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise</td>
+                        <td>5,001 - 50,000</td>
+                        <td>R12</td>
+                        <td>R10,000</td>
+                    </tr>
+                    <tr>
+                        <td>Government</td>
+                        <td>50,001+</td>
+                        <td>R8</td>
+                        <td>R25,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">11.2 Revenue Projections</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Customers</th>
+                        <th>Avg. Monthly Verifications</th>
+                        <th>Monthly Revenue</th>
+                        <th>Annual Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Year 1 (post-pilot)</td>
+                        <td>3-5</td>
+                        <td>5,000</td>
+                        <td>R75,000</td>
+                        <td>R900,000</td>
+                    </tr>
+                    <tr>
+                        <td>Year 2</td>
+                        <td>10-15</td>
+                        <td>25,000</td>
+                        <td>R350,000</td>
+                        <td>R4,200,000</td>
+                    </tr>
+                    <tr>
+                        <td>Year 3</td>
+                        <td>25-40</td>
+                        <td>100,000</td>
+                        <td>R1,100,000</td>
+                        <td>R13,200,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">11.3 Path to Profitability</h3>
+
+        <ul class="desc-list">
+            <li><strong>Break-even point:</strong> Approximately 3,000 verifications per month (achievable with 2-3 Professional-tier customers).</li>
+            <li><strong>Gross margin at scale:</strong> 70-80% (cloud infrastructure costs scale sub-linearly with volume due to serverless architecture).</li>
+            <li><strong>Expected profitability:</strong> Month 6-9 post-commercial launch (Month 18-24 from programme start).</li>
+        </ul>
+
+        <h3 class="subsection-title">11.4 Growth Strategy</h3>
+
+        <ol>
+            <li style="margin-bottom: 0.75rem;"><strong>Land with government, expand to enterprise.</strong> Government agencies provide credibility and volume. Enterprise clients (banks, insurers, property companies) provide higher per-verification revenue.</li>
+            <li style="margin-bottom: 0.75rem;"><strong>Platform network effects.</strong> Each new agency that joins VeriGate as a data source increases the platform's value to all existing and potential customers.</li>
+            <li style="margin-bottom: 0.75rem;"><strong>Geographic expansion.</strong> The adapter-based architecture allows VeriGate to expand into other Southern African markets (Namibia, Botswana, Mozambique) by developing country-specific adapters while retaining the core platform.</li>
+            <li style="margin-bottom: 0.75rem;"><strong>API marketplace.</strong> In the medium term, third-party developers can build on VeriGate's verification infrastructure, creating an ecosystem of verification-enhanced applications.</li>
+        </ol>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         SECTION 12: RISK MITIGATION
+         ============================================ -->
+    <section class="section page-break-before" id="section-12">
+        <span class="section-label">Section 12</span>
+        <h2 class="section-title">Risk Mitigation</h2>
+
+        <h3 class="subsection-title">12.1 Risk Register</h3>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">Government agency reluctance to participate</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Begin with agencies that have expressed interest (Wesgro). Demonstrate data sovereignty architecture to address custody concerns. Engage through existing government relationships. Offer pilot at no cost to reduce adoption friction.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">ISO 27001 certification delays</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Engage certification body early (Month 1). Conduct gap analysis before formal audit process. Allocate contingency time in the schedule. Many ISO 27001 controls are already embedded in the platform's architecture.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">NCR registration delays or refusal</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-low">Likelihood: Low</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Begin application process immediately. Engage NCR compliance consultants. If registration is delayed beyond Month 6, prioritise the remaining 13 verification types and add credit checks when registration is obtained.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">Data source API changes or unavailability</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Adapter-based architecture isolates the impact of source-side changes to a single module. Implement health monitoring and alerting for all adapters. Maintain relationships with data source technical teams.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">Cloud infrastructure costs exceeding budget</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-low">Likelihood: Low</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Serverless architecture (Lambda, DynamoDB on-demand) ensures costs scale with usage. Reserved capacity pricing for predictable workloads. Monthly cost monitoring with automated alerts.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">Competitive entry by established player</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-low">Likelihood: Low</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">First-mover advantage in the data-sovereign, cross-agency segment. Deep local knowledge and relationships are difficult to replicate. Open standards and competitive pricing reduce incentive for customers to switch.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">POPIA regulatory challenge</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-low">Likelihood: Low</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Architecture is designed for POPIA compliance from the ground up (data sovereignty, purpose limitation, audit trails). Engage Information Regulator proactively. Obtain legal opinion on data processing model.</p>
+        </div>
+
+        <div class="risk-card avoid-break">
+            <div class="risk-header">
+                <span class="risk-title">Key person dependency</span>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+            </div>
+            <p class="risk-mitigation">Document architecture and code comprehensively. Use infrastructure-as-code (AWS CDK/CloudFormation) to ensure reproducibility. Cross-train team members on critical components.</p>
+        </div>
+
+        <h3 class="subsection-title">12.2 Contingency Planning</h3>
+
+        <ul class="desc-list">
+            <li><strong>Budget contingency:</strong> 10% of each phase budget is held as contingency within the allocated amounts. If ISO 27001 costs exceed estimates, go-to-market activities will be phased to accommodate.</li>
+            <li><strong>Timeline contingency:</strong> The 18-month programme includes 2 months of overlap between phases, providing schedule buffer.</li>
+            <li><strong>Technical contingency:</strong> If specific data source integrations prove infeasible within the programme period, VeriGate will launch with a subset of verification types (minimum 10 of 14) and add the remainder post-programme.</li>
+        </ul>
+    </section>
+
+    <hr class="section-divider">
+
+
+    <!-- ============================================
+         APPENDICES
+         ============================================ -->
+    <section class="section page-break-before" id="appendices">
+        <span class="section-label">Appendices</span>
+        <h2 class="section-title">Appendices</h2>
+
+        <!-- Appendix A -->
+        <div class="appendix-section avoid-break">
+            <h3 class="appendix-title">Appendix A: Company Details</h3>
+            <div class="table-wrapper" style="border: none; margin: 0;">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td style="width: 200px;"><strong>Company Name</strong></td>
+                            <td>Arthmatic DevWorks (Pty) Ltd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Registration</strong></td>
+                            <td>CIPC registered</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>Cape Town, Western Cape</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CSD Registration</strong></td>
+                            <td>Registered on Central Supplier Database</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tax Status</strong></td>
+                            <td>SARS tax compliant</td>
+                        </tr>
+                        <tr>
+                            <td><strong>B-BBEE</strong></td>
+                            <td>Compliant</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Appendix B -->
+        <div class="appendix-section avoid-break">
+            <h3 class="appendix-title">Appendix B: TIA Seed Fund Eligibility Checklist</h3>
+            <ul class="checklist">
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>South African citizen or permanent resident (founder) -- <strong>Confirmed</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>CIPC registered entity -- <strong>Confirmed</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>CSD registered -- <strong>Confirmed</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>Tax compliant (SARS) -- <strong>Confirmed</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>B-BBEE compliant -- <strong>Confirmed</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>Technology at TRL 5-6+ -- <strong>Confirmed (TRL 6-7)</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>Funding request within R1,500,000 cap -- <strong>Confirmed (R1,500,000)</strong></span>
+                </li>
+                <li>
+                    <span class="check-icon">&#10003;</span>
+                    <span>Programme duration within 12-24 months -- <strong>Confirmed (18 months)</strong></span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Appendix C -->
+        <div class="appendix-section avoid-break">
+            <h3 class="appendix-title">Appendix C: Letters of Support</h3>
+            <p class="placeholder-note">To be attached:</p>
+            <ul class="desc-list mb-0">
+                <li>Letter of interest from target pilot agency</li>
+                <li>AWS Partner Network membership confirmation</li>
+                <li>Technical reference from prior government project</li>
+            </ul>
+        </div>
+
+        <!-- Appendix D -->
+        <div class="appendix-section avoid-break">
+            <h3 class="appendix-title">Appendix D: Technical Architecture Diagram</h3>
+            <p class="placeholder-note">To be attached:</p>
+            <ul class="desc-list mb-0">
+                <li>VeriGate system architecture diagram</li>
+                <li>Cross-account AWS deployment model diagram</li>
+                <li>Adapter module interaction flow diagram</li>
+                <li>Data flow and encryption diagram</li>
+            </ul>
+        </div>
+    </section>
+
+</div><!-- /.page-wrapper -->
+
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="document-footer">
+    <strong>Arthmatic DevWorks (Pty) Ltd</strong><br>
+    Cape Town, Western Cape, South Africa
+
+    <div class="footer-disclaimer">
+        This application is submitted in support of a TIA Seed Fund grant to bridge VeriGate -- South Africa's first Real-Time Risk Intelligence Platform -- from its current prototype/MVP stage (TRL 6-7) to commercial readiness (TRL 8-9), directly advancing the Technology Innovation Agency's mandate to bridge the innovation chasm between research and commercialisation in South Africa.
+    </div>
+</footer>
+
+</body>
+</html>

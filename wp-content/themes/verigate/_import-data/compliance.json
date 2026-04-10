@@ -1,0 +1,749 @@
+[
+  {
+    "slug": "kyc",
+    "title": "Know Your Customer (KYC)",
+    "subtitle": "FICA-Compliant Customer Identification & Due Diligence",
+    "description": "Implement robust Know Your Customer processes that satisfy the Financial Intelligence Centre Act (FICA) requirements. VeriGate provides end-to-end KYC covering Customer Due Diligence (CDD), Enhanced Due Diligence (EDD), and ongoing monitoring, enabling accountable institutions to identify and verify their customers, assess risk, and maintain compliance with the FIC.",
+    "icon": "UserCheck",
+    "requirements": [
+      {
+        "title": "Customer Identification & Verification (CIV)",
+        "description": "Verify the identity of every customer before establishing a business relationship, using a valid SA ID, passport, or foreign identity document as mandated by FICA Section 21."
+      },
+      {
+        "title": "Customer Due Diligence (CDD)",
+        "description": "Collect and verify customer biographical data, assess the nature and purpose of the business relationship, and determine the source of funds for standard-risk customers."
+      },
+      {
+        "title": "Enhanced Due Diligence (EDD)",
+        "description": "Apply additional verification measures for high-risk customers including PEPs, foreign prominent persons, and customers from high-risk jurisdictions as defined by the FIC."
+      },
+      {
+        "title": "Ongoing Monitoring & Record Keeping",
+        "description": "Continuously monitor customer transactions, update CDD records, and retain all verification records for at least 5 years after the business relationship ends, as required by FICA Section 22."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "FICA Compliance Confidence",
+        "description": "Automated workflows ensure every customer is verified according to FICA requirements, reducing the risk of regulatory penalties from the FIC that can reach R50 million."
+      },
+      {
+        "title": "Faster Customer Onboarding",
+        "description": "Reduce KYC processing time from days to minutes with automated identity verification, document checks, and real-time DHA lookups."
+      },
+      {
+        "title": "95% Fewer False Positives",
+        "description": "AI-powered risk scoring reduces false positive alerts by up to 95%, allowing compliance teams to focus on genuine high-risk cases."
+      },
+      {
+        "title": "Audit-Ready Documentation",
+        "description": "Complete audit trails with timestamped verification evidence, consent records, and decision rationale ready for FIC inspections."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Customer Data Collection",
+        "description": "Collect the customer's identity information, proof of residence, and supporting documents via your digital onboarding flow or VeriGate's hosted widget."
+      },
+      {
+        "step": "02",
+        "title": "Automated Verification",
+        "description": "VeriGate automatically verifies the customer's identity against DHA, validates documents, runs credit bureau checks, and screens sanctions and PEP lists."
+      },
+      {
+        "step": "03",
+        "title": "Risk Assessment & Decisioning",
+        "description": "A risk score is calculated based on all verification results, customer profile, and your configurable risk rules, with automated approve/refer/decline decisioning."
+      },
+      {
+        "step": "04",
+        "title": "Ongoing Monitoring",
+        "description": "Continuous monitoring screens customers against updated sanctions lists, PEP databases, and adverse media, with automated alerts for status changes."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "aml-screening",
+        "title": "AML Screening",
+        "description": "Anti-money laundering screening against global sanctions and watchlists to complement your KYC programme."
+      },
+      {
+        "slug": "popia-compliance",
+        "title": "POPIA Compliance",
+        "description": "Ensure personal data collected during KYC is processed in compliance with the Protection of Personal Information Act."
+      },
+      {
+        "slug": "kyb",
+        "title": "Know Your Business (KYB)",
+        "description": "Extend your KYC programme to verify corporate clients, their ownership structures, and beneficial owners."
+      }
+    ],
+    "ctaTitle": "Automate Your KYC Process"
+  },
+  {
+    "slug": "kyb",
+    "title": "Know Your Business (KYB)",
+    "subtitle": "CIPC Verification, UBO Identification & Business Due Diligence",
+    "description": "Verify South African businesses and their ownership structures through CIPC registration checks, Ultimate Beneficial Owner (UBO) identification, director screening, and BEE certificate validation. VeriGate's KYB solution ensures you meet FICA requirements for verifying legal entities and their controllers.",
+    "icon": "Building2",
+    "requirements": [
+      {
+        "title": "Company Registration Verification",
+        "description": "Confirm the entity's CIPC registration status, company type (Pty Ltd, NPC, CC, etc.), and trading status to ensure the business is a legitimate, active legal entity."
+      },
+      {
+        "title": "Ultimate Beneficial Owner (UBO) Identification",
+        "description": "Identify all individuals who directly or indirectly hold 25% or more ownership or exercise control, as required by FICA's beneficial ownership provisions."
+      },
+      {
+        "title": "Director & Controller Screening",
+        "description": "Screen all directors, members, and authorised representatives against sanctions lists, PEP databases, and criminal records to assess entity-level risk."
+      },
+      {
+        "title": "Source of Funds & Business Activity",
+        "description": "Assess the nature of the business, its primary activities, and source of funds to ensure the relationship aligns with AML/CFT risk management requirements."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Comprehensive Entity Verification",
+        "description": "Verify the complete ownership chain from company registration through to individual beneficial owners, eliminating blind spots in your onboarding."
+      },
+      {
+        "title": "Shell Company Detection",
+        "description": "Automated analysis of company age, director networks, and registration patterns identifies potential shell companies and layered ownership structures."
+      },
+      {
+        "title": "Streamlined Vendor Onboarding",
+        "description": "Reduce vendor and supplier onboarding time from weeks to days with automated CIPC, BEE, tax clearance, and director screening checks."
+      },
+      {
+        "title": "Regulatory Penalty Avoidance",
+        "description": "Proactive KYB processes protect your organisation from penalties under FICA, as well as reputational damage from dealing with sanctioned or fraudulent entities."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Entity Information Collection",
+        "description": "Collect the company registration number, trading name, registered address, and details of directors and shareholders via the dashboard or API."
+      },
+      {
+        "step": "02",
+        "title": "CIPC & Database Verification",
+        "description": "VeriGate verifies the entity against CIPC records, confirms BEE certification, validates tax clearance, and checks the CSD for government supplier status."
+      },
+      {
+        "step": "03",
+        "title": "UBO Identification & Screening",
+        "description": "Beneficial owners are identified through ownership chain analysis and screened against sanctions, PEP, and criminal databases."
+      },
+      {
+        "step": "04",
+        "title": "Entity Risk Report",
+        "description": "A comprehensive entity risk report is generated with registration details, ownership structure, director screening results, and an overall risk rating."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "KYC forms the foundation for verifying the individuals behind the business entity."
+      },
+      {
+        "slug": "aml-screening",
+        "title": "AML Screening",
+        "description": "Screen directors and beneficial owners against sanctions, PEP, and adverse media lists."
+      },
+      {
+        "slug": "transaction-screening",
+        "title": "Transaction Screening",
+        "description": "Monitor entity transactions for suspicious activity after onboarding."
+      }
+    ],
+    "ctaTitle": "Verify Businesses Thoroughly"
+  },
+  {
+    "slug": "kyi",
+    "title": "Know Your Investor (KYI)",
+    "subtitle": "Accredited Investor Verification & Source of Funds",
+    "description": "Verify investor identities, confirm accredited investor status, and assess source of funds and wealth for South African investment platforms, asset managers, and fund administrators. VeriGate's KYI processes satisfy FSCA, FICA, and FAIS requirements for investor due diligence.",
+    "icon": "TrendingUp",
+    "requirements": [
+      {
+        "title": "Investor Identity Verification",
+        "description": "Confirm the identity of every investor using FICA-compliant KYC processes, including DHA verification, document checks, and biometric face matching."
+      },
+      {
+        "title": "Accredited Investor Confirmation",
+        "description": "Verify that investors meet the accreditation thresholds defined by the FSCA, including net asset value and annual income requirements for qualifying investors."
+      },
+      {
+        "title": "Source of Funds & Wealth Assessment",
+        "description": "Establish and verify the legitimate origin of investment funds through bank statements, payslips, tax returns, and business income documentation."
+      },
+      {
+        "title": "Investment Suitability & Risk Profiling",
+        "description": "Assess investor knowledge, experience, and risk appetite to ensure investment recommendations are suitable under FAIS General Code of Conduct requirements."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "FSCA & FAIS Compliance",
+        "description": "Automated investor onboarding workflows ensure compliance with FSCA licensing conditions and FAIS fit-and-proper requirements for financial service providers."
+      },
+      {
+        "title": "Reduced Onboarding Friction",
+        "description": "Digital source of funds collection and automated verification reduces investor onboarding time while maintaining thorough due diligence standards."
+      },
+      {
+        "title": "Enhanced Investor Trust",
+        "description": "Transparent and professional KYI processes build investor confidence, demonstrating your commitment to regulatory compliance and fraud prevention."
+      },
+      {
+        "title": "Cross-Border Investor Support",
+        "description": "Verify international investors with passport verification, foreign PEP screening, and SARB Exchange Control compliance for inbound investments."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Investor Registration & Identity Check",
+        "description": "The investor completes registration with identity verification via eIDV, document upload, or face verification through your platform."
+      },
+      {
+        "step": "02",
+        "title": "Accreditation & Source of Funds Review",
+        "description": "VeriGate verifies accreditation status, collects and validates source of funds documentation, and assesses wealth legitimacy."
+      },
+      {
+        "step": "03",
+        "title": "AML & Sanctions Screening",
+        "description": "The investor is screened against global sanctions lists, PEP databases, and adverse media to assess money laundering and terrorism financing risk."
+      },
+      {
+        "step": "04",
+        "title": "Investor Profile & Ongoing Monitoring",
+        "description": "A complete investor profile is created with risk rating, and ongoing monitoring is activated for sanctions, PEP status, and adverse media changes."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "KYC processes form the identity verification foundation of investor due diligence."
+      },
+      {
+        "slug": "aml-screening",
+        "title": "AML Screening",
+        "description": "Screen investors against sanctions, PEP, and adverse media databases as part of KYI."
+      },
+      {
+        "slug": "transaction-screening",
+        "title": "Transaction Screening",
+        "description": "Monitor investment transactions for suspicious activity and SARB compliance."
+      }
+    ],
+    "ctaTitle": "Streamline Investor Onboarding"
+  },
+  {
+    "slug": "aml-screening",
+    "title": "Anti-Money Laundering (AML) Screening",
+    "subtitle": "Sanctions, PEP & Watchlist Screening Aligned with FATF & the FIC Act",
+    "description": "Screen individuals and entities against global sanctions lists, Politically Exposed Person (PEP) databases, and watchlists in real time. VeriGate's AML screening aligns with FATF recommendations, the FIC Act, and SARB directives, helping South African accountable institutions detect and prevent money laundering and terrorism financing.",
+    "icon": "ShieldAlert",
+    "requirements": [
+      {
+        "title": "Sanctions List Screening",
+        "description": "Screen all customers, beneficial owners, and counterparties against UN, EU, OFAC, UK, and South African targeted financial sanctions lists before establishing a business relationship."
+      },
+      {
+        "title": "PEP Identification & Screening",
+        "description": "Identify Politically Exposed Persons, their family members, and close associates as defined by the FIC Act, and apply enhanced due diligence measures."
+      },
+      {
+        "title": "Ongoing Monitoring",
+        "description": "Continuously screen your customer base against updated sanctions and PEP lists, with automated alerts when a customer's status changes, as required by FICA Section 21C."
+      },
+      {
+        "title": "Suspicious Transaction Reporting",
+        "description": "Establish processes for identifying and reporting suspicious and unusual transactions to the FIC via Section 29 (suspicious) and Section 28 (cash threshold) reports."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Real-Time Screening",
+        "description": "Screen against 1 500+ global sanctions, watchlist, and PEP databases with sub-second response times, preventing delays in customer onboarding."
+      },
+      {
+        "title": "95% Fewer False Positives",
+        "description": "AI-powered fuzzy matching and contextual analysis reduces false positive alerts by 95%, saving compliance analyst time and reducing operational costs."
+      },
+      {
+        "title": "FIC Reporting Integration",
+        "description": "Automated generation of Section 29 suspicious transaction reports and cash threshold reports in the format required by the FIC's goAML platform."
+      },
+      {
+        "title": "FATF Readiness",
+        "description": "Demonstrate FATF-aligned AML processes during South Africa's mutual evaluation assessments, reducing the risk of grey-listing impact on your business."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Customer & Entity Data Submission",
+        "description": "Submit customer or entity details (name, ID number, date of birth, nationality) for screening via the API or batch upload."
+      },
+      {
+        "step": "02",
+        "title": "Multi-Database Screening",
+        "description": "VeriGate screens against global sanctions lists (UN, EU, OFAC, UK, SA), PEP databases, adverse media, and law enforcement watchlists simultaneously."
+      },
+      {
+        "step": "03",
+        "title": "Alert Review & Disposition",
+        "description": "Potential matches are presented with match confidence scores and context. Compliance analysts review, confirm, or dismiss alerts through the case management dashboard."
+      },
+      {
+        "step": "04",
+        "title": "Ongoing Monitoring & Reporting",
+        "description": "Activated customers are continuously monitored. Status changes trigger automated alerts, and suspicious activity reports are generated for FIC submission."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "KYC forms the foundation of your AML compliance programme. Verify identities before screening."
+      },
+      {
+        "slug": "transaction-screening",
+        "title": "Transaction Screening",
+        "description": "Extend AML screening to real-time transaction monitoring for suspicious activity detection."
+      },
+      {
+        "slug": "adverse-media",
+        "title": "Adverse Media Screening",
+        "description": "Complement sanctions screening with negative news monitoring for comprehensive risk coverage."
+      }
+    ],
+    "ctaTitle": "Start AML Screening Now"
+  },
+  {
+    "slug": "popia-compliance",
+    "title": "POPIA Compliance",
+    "subtitle": "Data Protection, Information Regulator Readiness & Consent Management",
+    "description": "Ensure your verification and screening processes comply with South Africa's Protection of Personal Information Act (POPIA). VeriGate provides built-in POPIA compliance controls including lawful processing, consent management, data minimisation, data subject rights facilitation, and Information Regulator audit readiness.",
+    "icon": "Lock",
+    "requirements": [
+      {
+        "title": "Lawful Processing & Consent",
+        "description": "Process personal information only with a lawful basis (consent, contractual necessity, legal obligation, or legitimate interest) as defined in POPIA Section 11, with documented evidence."
+      },
+      {
+        "title": "Data Minimisation & Purpose Limitation",
+        "description": "Collect only the personal information that is necessary for the specified purpose and do not retain it longer than required, per POPIA Sections 13 and 14."
+      },
+      {
+        "title": "Data Subject Rights Facilitation",
+        "description": "Enable data subjects to exercise their rights to access, correction, deletion, and objection as defined in POPIA Sections 23-25, within the prescribed timeframes."
+      },
+      {
+        "title": "Information Officer & Operator Agreements",
+        "description": "Register an Information Officer with the Information Regulator, and ensure all data processing operators have written agreements per POPIA Sections 19-22."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Built-In POPIA Controls",
+        "description": "Every VeriGate verification process includes POPIA-compliant consent capture, data minimisation, and retention controls out of the box."
+      },
+      {
+        "title": "Information Regulator Readiness",
+        "description": "Pre-built PAIA manuals, POPIA impact assessments, and audit-ready documentation help you respond to Information Regulator inquiries with confidence."
+      },
+      {
+        "title": "Reduced Data Breach Risk",
+        "description": "Encryption at rest and in transit, access controls, and data minimisation reduce the likelihood and impact of personal information breaches."
+      },
+      {
+        "title": "Automated Compliance Monitoring",
+        "description": "Dashboard monitoring of consent status, data retention periods, access request SLAs, and operator agreement compliance across your organisation."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "POPIA Gap Assessment",
+        "description": "VeriGate analyses your current verification processes against POPIA requirements and identifies gaps in consent, data handling, and retention practices."
+      },
+      {
+        "step": "02",
+        "title": "Consent & Controls Implementation",
+        "description": "Implement POPIA-compliant consent collection, data minimisation rules, and retention policies within your VeriGate verification workflows."
+      },
+      {
+        "step": "03",
+        "title": "Data Subject Rights Portal",
+        "description": "Deploy a self-service data subject rights portal enabling individuals to view, correct, delete, or object to processing of their personal information."
+      },
+      {
+        "step": "04",
+        "title": "Ongoing Compliance Monitoring",
+        "description": "Monitor consent status, retention compliance, access request SLAs, and operator agreements through the VeriGate POPIA compliance dashboard."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "Ensure your KYC processes are POPIA-compliant with proper consent and data handling throughout customer onboarding."
+      },
+      {
+        "slug": "iso-27001",
+        "title": "ISO 27001",
+        "description": "ISO 27001 controls support POPIA Section 19 security safeguard requirements."
+      },
+      {
+        "slug": "soc2",
+        "title": "SOC 2",
+        "description": "SOC 2 confidentiality criteria complement POPIA data protection requirements."
+      }
+    ],
+    "ctaTitle": "Achieve POPIA Compliance"
+  },
+  {
+    "slug": "iso-27001",
+    "title": "ISO 27001",
+    "subtitle": "Information Security Management System Certification",
+    "description": "VeriGate maintains ISO 27001:2022 certification for its information security management system (ISMS), demonstrating our commitment to protecting the personal information processed during verification and screening. Our certification covers all verification services, data centres, and operational processes.",
+    "icon": "ShieldCheck",
+    "requirements": [
+      {
+        "title": "Information Security Management System (ISMS)",
+        "description": "Establish, implement, maintain, and continually improve an ISMS that addresses information security risks across people, processes, and technology."
+      },
+      {
+        "title": "Risk Assessment & Treatment",
+        "description": "Conduct regular information security risk assessments, implement appropriate controls from Annex A, and maintain a Statement of Applicability (SoA)."
+      },
+      {
+        "title": "Access Control & Encryption",
+        "description": "Implement role-based access controls, multi-factor authentication, and encryption at rest (AES-256) and in transit (TLS 1.3) for all personal information."
+      },
+      {
+        "title": "Incident Management & Business Continuity",
+        "description": "Maintain incident response procedures, conduct regular DR tests, and ensure business continuity plans are tested and updated annually."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Certified Security Assurance",
+        "description": "VeriGate's ISO 27001:2022 certification, audited annually by an accredited certification body, provides independent assurance of our security controls."
+      },
+      {
+        "title": "POPIA Alignment",
+        "description": "ISO 27001 controls directly support POPIA Section 19 security safeguard requirements, providing a recognised framework for demonstrating compliance."
+      },
+      {
+        "title": "Reduced Third-Party Risk",
+        "description": "Using an ISO 27001-certified verification provider reduces your organisation's third-party information security risk and simplifies vendor assessments."
+      },
+      {
+        "title": "Continuous Improvement",
+        "description": "The ISO 27001 management system ensures continuous monitoring, internal audits, and management reviews drive ongoing security improvements."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "ISMS Scope & Context",
+        "description": "Define the ISMS scope covering all verification services, supporting infrastructure, and third-party integrations, with documented context of the organisation."
+      },
+      {
+        "step": "02",
+        "title": "Risk Assessment & Controls",
+        "description": "Conduct comprehensive risk assessments, select and implement controls from Annex A, and document the Statement of Applicability."
+      },
+      {
+        "step": "03",
+        "title": "Implementation & Internal Audit",
+        "description": "Implement all selected controls, conduct internal audits against ISO 27001 requirements, and address any non-conformities before external audit."
+      },
+      {
+        "step": "04",
+        "title": "Certification & Surveillance",
+        "description": "Undergo Stage 1 and Stage 2 certification audits by an accredited body, followed by annual surveillance audits and a 3-year recertification cycle."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "soc2",
+        "title": "SOC 2",
+        "description": "SOC 2 and ISO 27001 together provide overlapping but complementary security assurance."
+      },
+      {
+        "slug": "popia-compliance",
+        "title": "POPIA Compliance",
+        "description": "ISO 27001 controls support POPIA Section 19 security safeguard requirements."
+      },
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "ISO 27001 ensures the security of personal data processed during KYC verification."
+      }
+    ],
+    "ctaTitle": "Learn About Our ISO 27001 Certification"
+  },
+  {
+    "slug": "soc2",
+    "title": "SOC 2",
+    "subtitle": "Service Organisation Controls for Security, Availability & Confidentiality",
+    "description": "VeriGate undergoes annual SOC 2 Type II examinations covering the Security, Availability, and Confidentiality trust service criteria. Our SOC 2 report provides detailed assurance to South African and international clients that our verification platform meets rigorous operational and security standards.",
+    "icon": "Award",
+    "requirements": [
+      {
+        "title": "Security (Common Criteria)",
+        "description": "Protect information and systems against unauthorised access through logical and physical access controls, network security, and change management."
+      },
+      {
+        "title": "Availability",
+        "description": "Ensure the verification platform meets availability commitments (99.9% uptime SLA) through redundancy, monitoring, disaster recovery, and incident response."
+      },
+      {
+        "title": "Confidentiality",
+        "description": "Protect confidential information (personal data, verification results, client data) through encryption, access restrictions, and secure disposal procedures."
+      },
+      {
+        "title": "Monitoring & Reporting",
+        "description": "Implement continuous monitoring of controls, log security events, and produce evidence for the annual SOC 2 Type II examination by an independent auditor."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Independent Assurance",
+        "description": "SOC 2 Type II reports are issued by independent CPA firms, providing objective assurance of VeriGate's control environment over a 12-month period."
+      },
+      {
+        "title": "Enterprise Client Confidence",
+        "description": "SOC 2 certification satisfies the vendor security assessment requirements of major South African banks, insurers, and corporate clients."
+      },
+      {
+        "title": "International Recognition",
+        "description": "SOC 2 is globally recognised, supporting VeriGate's ability to serve international clients and meet cross-border data processing requirements."
+      },
+      {
+        "title": "Complementary to ISO 27001",
+        "description": "SOC 2 and ISO 27001 together provide overlapping but complementary assurance, covering both the management system and operational controls."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Scope & Trust Service Criteria Selection",
+        "description": "Define the systems in scope and select the applicable trust service criteria (Security, Availability, Confidentiality) based on client requirements."
+      },
+      {
+        "step": "02",
+        "title": "Control Design & Implementation",
+        "description": "Design and implement controls that address each selected trust service criterion, mapping controls to specific criteria requirements."
+      },
+      {
+        "step": "03",
+        "title": "Evidence Collection & Monitoring",
+        "description": "Collect control evidence continuously over the audit period, monitor control effectiveness, and remediate any identified gaps."
+      },
+      {
+        "step": "04",
+        "title": "Type II Examination & Report",
+        "description": "An independent CPA firm examines controls over the 12-month period, tests operating effectiveness, and issues the SOC 2 Type II report."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "iso-27001",
+        "title": "ISO 27001",
+        "description": "ISO 27001 provides a complementary management system framework alongside SOC 2 operational controls."
+      },
+      {
+        "slug": "popia-compliance",
+        "title": "POPIA Compliance",
+        "description": "SOC 2 confidentiality criteria support POPIA data protection requirements."
+      },
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "SOC 2 assures the security of personal data processed during KYC verification."
+      }
+    ],
+    "ctaTitle": "Request Our SOC 2 Report"
+  },
+  {
+    "slug": "adverse-media",
+    "title": "Adverse Media Screening",
+    "subtitle": "Negative News Monitoring & Reputation Risk Assessment",
+    "description": "Screen individuals and entities against global and South African news sources for adverse media mentions related to financial crime, fraud, corruption, sanctions, and other risk indicators. VeriGate's AI-powered adverse media screening analyses thousands of sources in real time, reducing manual research while improving detection accuracy.",
+    "icon": "Newspaper",
+    "requirements": [
+      {
+        "title": "Comprehensive Source Coverage",
+        "description": "Screen against a broad range of South African and international news sources, including print media, online publications, court records, and regulatory enforcement actions."
+      },
+      {
+        "title": "Risk Category Classification",
+        "description": "Classify adverse media mentions by risk category (financial crime, fraud, corruption, terrorism, sanctions, environmental crime, human trafficking) for targeted risk assessment."
+      },
+      {
+        "title": "Ongoing Monitoring",
+        "description": "Continuously monitor screened individuals and entities for new adverse media mentions, with automated alerts when relevant negative news is published."
+      },
+      {
+        "title": "False Positive Management",
+        "description": "Implement entity resolution and contextual analysis to distinguish between genuine adverse media and false positive matches due to common names."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Early Warning System",
+        "description": "Detect potential risks before they materialise by identifying adverse media mentions early, enabling proactive risk management decisions."
+      },
+      {
+        "title": "SA-Specific Coverage",
+        "description": "Deep coverage of South African media sources including News24, Business Day, Daily Maverick, Scorpio, amaBhungane, and government gazettes."
+      },
+      {
+        "title": "AI-Powered Accuracy",
+        "description": "Natural language processing and entity resolution reduce false positives by 90%, ensuring analysts focus on genuine adverse media hits."
+      },
+      {
+        "title": "FATF Recommendation Compliance",
+        "description": "Adverse media screening satisfies FATF Recommendation 10 requirements for customer due diligence, supporting your AML programme."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Subject Submission",
+        "description": "Submit the individual or entity details for screening, including name variations, date of birth, nationality, and any known aliases."
+      },
+      {
+        "step": "02",
+        "title": "AI-Powered Media Analysis",
+        "description": "VeriGate's NLP engine analyses thousands of news sources, classifies mentions by risk category, and applies entity resolution to filter false positives."
+      },
+      {
+        "step": "03",
+        "title": "Alert Review & Assessment",
+        "description": "Adverse media hits are presented with source articles, risk categorisation, and relevance scores for compliance analyst review and dispositioning."
+      },
+      {
+        "step": "04",
+        "title": "Ongoing Monitoring & Alerts",
+        "description": "Continuous monitoring is activated, with automated email and dashboard alerts when new adverse media is published about screened subjects."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "aml-screening",
+        "title": "AML Screening",
+        "description": "Adverse media screening complements sanctions and PEP checks in your AML programme."
+      },
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "Add adverse media screening to your KYC process for comprehensive customer due diligence."
+      },
+      {
+        "slug": "transaction-screening",
+        "title": "Transaction Screening",
+        "description": "Combine adverse media monitoring with transaction screening for full risk visibility."
+      }
+    ],
+    "ctaTitle": "Enable Adverse Media Screening"
+  },
+  {
+    "slug": "transaction-screening",
+    "title": "Transaction Screening",
+    "subtitle": "Real-Time Transaction Monitoring & SARB Reporting",
+    "description": "Monitor customer transactions in real time to detect suspicious activity, unusual patterns, and potential money laundering or terrorism financing. VeriGate's transaction screening integrates with your payment systems to analyse transactions against configurable rules, SARB thresholds, and machine learning models, generating FIC-ready reports.",
+    "icon": "ArrowLeftRight",
+    "requirements": [
+      {
+        "title": "Real-Time Transaction Monitoring",
+        "description": "Monitor all customer transactions in real time against configurable rules, thresholds, and behavioural patterns to detect suspicious activity as required by FICA."
+      },
+      {
+        "title": "Cash Threshold Reporting",
+        "description": "Automatically identify and report cash transactions exceeding R24 999.99 (or the equivalent in foreign currency) to the FIC as required by FICA Section 28."
+      },
+      {
+        "title": "Suspicious Activity Detection",
+        "description": "Detect and investigate unusual transaction patterns, structuring, rapid movement of funds, and other indicators of money laundering or terrorism financing."
+      },
+      {
+        "title": "SARB Exchange Control Compliance",
+        "description": "Monitor cross-border transactions for compliance with SARB Exchange Control Regulations, including individual and corporate allowance limits."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Automated FIC Reporting",
+        "description": "Automatically generate Section 28 cash threshold reports and Section 29 suspicious transaction reports in goAML-compatible format for FIC submission."
+      },
+      {
+        "title": "Reduced Financial Crime Exposure",
+        "description": "Real-time monitoring and automated blocking of suspicious transactions reduce your organisation's exposure to money laundering and fraud losses."
+      },
+      {
+        "title": "Machine Learning Detection",
+        "description": "AI-powered anomaly detection identifies complex layering and structuring patterns that rule-based systems miss, improving detection rates by up to 40%."
+      },
+      {
+        "title": "Configurable Rule Engine",
+        "description": "Create and modify transaction monitoring rules without code changes, including amount thresholds, velocity checks, geographic rules, and counterparty patterns."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Transaction Data Integration",
+        "description": "Integrate your payment, banking, or trading system with VeriGate's transaction monitoring API to stream transaction data in real time."
+      },
+      {
+        "step": "02",
+        "title": "Rule Configuration & Calibration",
+        "description": "Configure monitoring rules including cash thresholds, velocity checks, geographic restrictions, and counterparty patterns, calibrated to your risk profile."
+      },
+      {
+        "step": "03",
+        "title": "Real-Time Monitoring & Alerting",
+        "description": "Transactions are analysed in real time. Suspicious transactions trigger alerts for compliance review, with automated blocking for high-risk scenarios."
+      },
+      {
+        "step": "04",
+        "title": "Investigation & Reporting",
+        "description": "Compliance analysts investigate alerts through the case management dashboard, with automated FIC report generation for confirmed suspicious activity."
+      }
+    ],
+    "relatedCompliance": [
+      {
+        "slug": "aml-screening",
+        "title": "AML Screening",
+        "description": "Transaction screening extends your AML programme from onboarding to ongoing monitoring."
+      },
+      {
+        "slug": "kyc",
+        "title": "KYC Compliance",
+        "description": "KYC risk ratings inform transaction monitoring thresholds and rules."
+      },
+      {
+        "slug": "kyb",
+        "title": "KYB Compliance",
+        "description": "Monitor corporate client transactions with entity-level risk context from KYB verification."
+      }
+    ],
+    "ctaTitle": "Monitor Transactions in Real Time"
+  }
+]

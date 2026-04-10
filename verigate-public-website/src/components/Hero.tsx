@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Award, BadgeCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroBackground from "@/assets/hero-background.jpg";
 import DotPattern from "@/components/DotPattern";
+import { ShieldVerification } from "@/components/illustrations";
+
+const trustIndicators = [
+  { icon: ShieldCheck, label: "POPIA Compliant" },
+  { icon: Award, label: "ISO 27001 Certified" },
+  { icon: BadgeCheck, label: "SOC 2 Type II" },
+];
 
 const Hero = () => {
   return (
@@ -29,45 +37,45 @@ const Hero = () => {
 
       {/* Content */}
       <div className="container mx-auto max-w-6xl relative z-10 py-20 md:py-32">
-        <div className="max-w-3xl space-y-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            {/* Heading */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight">
+              Enterprise Verification Platform
+              <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                Trusted Background Screening for South Africa
+              </span>
+            </h1>
 
-          {/* Heading */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight">
-            Real Time Risk Intelligence
-            <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent">
-              Redefined
-            </span>
-          </h1>
+            {/* Subheading */}
+            <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-2xl">
+              Comprehensive criminal checks, qualification verification, employment history, and identity validation for modern South African businesses
+            </p>
 
-          {/* Subheading */}
-          <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-2xl">
-            Comprehensive due diligence, KYC compliance, and digital identification solutions for modern businesses
-          </p>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start pt-4">
+              <Button size="lg" variant="hero" className="min-w-[200px]" asChild>
+                <Link to="/request-demo">Get Started</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="min-w-[200px] border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Link to="/platform">View Platform</Link>
+              </Button>
+            </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start pt-4">
-            <Button size="lg" variant="hero" className="min-w-[200px]">
-              Request Demo
-            </Button>
-            <Button size="lg" variant="outline" className="min-w-[200px] border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-              Learn More
-            </Button>
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap gap-8 pt-12">
+              {trustIndicators.map((item) => (
+                <div key={item.label} className="flex items-center gap-2 text-primary-foreground/80">
+                  <item.icon className="w-5 h-5 text-accent" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap gap-8 pt-12">
-            <div className="flex items-center gap-2 text-primary-foreground/80">
-              <CheckCircle2 className="w-5 h-5 text-accent" />
-              <span className="text-sm font-medium">ISO 27001 Certified</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary-foreground/80">
-              <CheckCircle2 className="w-5 h-5 text-accent" />
-              <span className="text-sm font-medium">GDPR Compliant</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary-foreground/80">
-              <CheckCircle2 className="w-5 h-5 text-accent" />
-              <span className="text-sm font-medium">99.9% Uptime SLA</span>
-            </div>
+          {/* Illustration */}
+          <div className="hidden lg:flex items-center justify-center">
+            <ShieldVerification className="w-full max-w-md opacity-90" />
           </div>
         </div>
       </div>

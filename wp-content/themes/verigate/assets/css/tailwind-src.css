@@ -1,0 +1,466 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* VeriGate Design System — Light Mode Only */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 217 33% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
+
+    --primary: 217 91% 18%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 100% 97%;
+    --secondary-foreground: 217 91% 18%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 217 20% 51%;
+
+    --accent: 193 95% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 18%;
+
+    --radius: 0.75rem;
+
+    /* VeriGate Brand Colors */
+    --brand-navy: 217 91% 18%;
+    --brand-cyan: 193 95% 48%;
+    --brand-light-blue: 210 100% 97%;
+    --brand-gray: 217 20% 51%;
+
+    /* Category Colors */
+    --cat-verification: 213 94% 52%;
+    --cat-compliance: 172 66% 40%;
+    --cat-fraud: 38 92% 50%;
+    --cat-industry: 152 69% 41%;
+    --cat-platform: 262 83% 58%;
+    --cat-company: 217 91% 18%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 18%) 0%, hsl(217 71% 25%) 50%, hsl(193 95% 48%) 100%);
+    --gradient-mesh: radial-gradient(at 0% 0%, hsl(217 91% 18% / 0.1) 0px, transparent 50%),
+                     radial-gradient(at 100% 100%, hsl(193 95% 48% / 0.15) 0px, transparent 50%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(217 91% 18% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(217 91% 18% / 0.1), 0 2px 4px -2px hsl(217 91% 18% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(217 91% 18% / 0.1), 0 4px 6px -4px hsl(217 91% 18% / 0.1);
+    --shadow-glow: 0 0 40px hsl(193 95% 48% / 0.3);
+
+    /* Semantic */
+    --color-rating: 45 93% 47%;
+
+    /* Transitions */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* WordPress Block Styles — outside @layer so Tailwind does NOT tree-shake them
+   (these classes come from WP the_content() output, not our PHP templates) */
+
+/* WP Block columns */
+.wp-block-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.wp-block-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* WP Block buttons */
+.wp-block-button__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wp-block-button__link:hover {
+  opacity: 0.9;
+}
+
+/* WP Block separator */
+.wp-block-separator {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 2rem 0;
+}
+
+/* WP Block quote */
+.wp-block-quote {
+  border-left: 4px solid hsl(var(--accent));
+  padding-left: 1.5rem;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+  margin: 1.5rem 0;
+}
+
+/* WP Block image */
+.wp-block-image {
+  margin: 1.5rem 0;
+}
+.wp-block-image img {
+  border-radius: 0.5rem;
+}
+.wp-block-image figcaption {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* WP Block group with background */
+.wp-block-group.has-background {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+/* WP Block table */
+.wp-block-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.wp-block-table th {
+  background-color: hsl(var(--secondary) / 0.5);
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+}
+.wp-block-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+}
+
+/* WP Block list */
+.wp-block-list {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+.wp-block-list li {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 0.5rem;
+}
+
+/* Entry content — styles for the_content() output */
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+  color: hsl(var(--foreground));
+  font-weight: 700;
+}
+.entry-content h1 { font-size: 2.25rem; margin-top: 3rem; margin-bottom: 1.5rem; }
+.entry-content h2 { font-size: 1.875rem; margin-top: 2.5rem; margin-bottom: 1.25rem; }
+.entry-content h3 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 1rem; }
+.entry-content h4 { font-size: 1.125rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+.entry-content p {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+.entry-content a {
+  color: hsl(var(--accent));
+}
+.entry-content a:hover {
+  text-decoration: underline;
+}
+.entry-content ul,
+.entry-content ol {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+  color: hsl(var(--muted-foreground));
+}
+.entry-content ul { list-style-type: disc; }
+.entry-content ol { list-style-type: decimal; }
+.entry-content li {
+  margin-bottom: 0.5rem;
+}
+.entry-content strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+.entry-content img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+/* Contact Form 7 styling */
+.wpcf7 input[type="text"],
+.wpcf7 input[type="email"],
+.wpcf7 input[type="tel"],
+.wpcf7 input[type="url"],
+.wpcf7 textarea,
+.wpcf7 select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wpcf7 input[type="text"]:focus,
+.wpcf7 input[type="email"]:focus,
+.wpcf7 input[type="tel"]:focus,
+.wpcf7 input[type="url"]:focus,
+.wpcf7 textarea:focus,
+.wpcf7 select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--accent) / 0.3);
+  border-color: hsl(var(--accent));
+}
+.wpcf7 textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.wpcf7 input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  box-shadow: 0 10px 15px -3px hsl(var(--primary) / 0.2);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wpcf7 input[type="submit"]:hover {
+  opacity: 0.9;
+}
+.wpcf7 label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.5rem;
+}
+.wpcf7-form p {
+  margin-bottom: 1rem;
+}
+.wpcf7-response-output {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  font-size: 0.875rem;
+}
+.wpcf7-mail-sent-ok {
+  border-color: #22c55e;
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+.wpcf7-validation-errors {
+  border-color: hsl(var(--destructive));
+  background-color: #fef2f2;
+  color: hsl(var(--destructive));
+}
+.wpcf7-acceptance {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.wpcf7-acceptance input[type="checkbox"] {
+  margin-top: 0.25rem;
+}
+
+/* ── Logo Marquee ──────────────────────────────────────────────────── */
+.logo-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.logo-marquee__track {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  animation: vg-marquee 35s linear infinite;
+  width: max-content;
+}
+.logo-marquee:hover .logo-marquee__track {
+  animation-play-state: paused;
+}
+@keyframes vg-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Enhanced Card Hover (top-border gradient reveal) ─────────────── */
+.vg-card-hover {
+  position: relative;
+  overflow: hidden;
+}
+.vg-card-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vg-card-hover:hover::before {
+  transform: scaleX(1);
+}
+
+/* ── Gradient Mesh Blobs ──────────────────────────────────────────── */
+.vg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+.vg-blob--primary {
+  background: hsl(var(--primary));
+  width: 500px;
+  height: 500px;
+}
+.vg-blob--accent {
+  background: hsl(var(--accent));
+  width: 400px;
+  height: 400px;
+}
+
+/* ── Mobile Sticky CTA Bar ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .vg-sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: hsl(var(--background));
+    padding: 0.75rem 1rem;
+    box-shadow: 0 -4px 12px hsl(var(--foreground) / 0.08);
+    z-index: 999;
+    display: flex;
+    gap: 0.75rem;
+    border-top: 1px solid hsl(var(--border));
+  }
+  .vg-sticky-cta a {
+    flex: 1;
+    text-align: center;
+  }
+  body.has-sticky-cta {
+    padding-bottom: 72px;
+  }
+}
+@media (min-width: 769px) {
+  .vg-sticky-cta {
+    display: none;
+  }
+}
+
+/* ── Cookie Consent Banner ────────────────────────────────────────── */
+.vg-cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  z-index: 9999;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-wrap: wrap;
+}
+.vg-cookie-banner.is-visible {
+  transform: translateY(0);
+}
+.vg-cookie-banner__text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 200px;
+}
+.vg-cookie-banner__text a {
+  color: hsl(var(--accent));
+  text-decoration: underline;
+}
+.vg-cookie-banner__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.vg-cookie-banner__btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.vg-cookie-banner__btn--accept {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.vg-cookie-banner__btn--accept:hover {
+  opacity: 0.9;
+}
+.vg-cookie-banner__btn--decline {
+  background: transparent;
+  color: hsl(var(--background));
+  border: 1px solid hsl(var(--background) / 0.3);
+}
+.vg-cookie-banner__btn--decline:hover {
+  border-color: hsl(var(--background) / 0.6);
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

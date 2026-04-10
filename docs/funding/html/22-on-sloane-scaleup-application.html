@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriGate -- 22 On Sloane Scale Up Programme Application</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1A2E4B;
+      --cyan: #00B3D9;
+      --red: #E23D36;
+      --off-white: #F8FAFC;
+      --light-gray: #F1F5F9;
+      --border-gray: #E2E8F0;
+      --body-text: #334155;
+      --muted: #64748B;
+      --dark-bg: #0F1A2E;
+      --white: #FFFFFF;
+      --cyan-light: rgba(0, 179, 217, 0.08);
+      --cyan-mid: rgba(0, 179, 217, 0.15);
+      --red-light: rgba(226, 61, 54, 0.06);
+      --green: #16A34A;
+      --amber: #D97706;
+      --gold: #F59E0B;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--body-text);
+      background: var(--off-white);
+      line-height: 1.7;
+      border-top: 3px solid var(--red);
+    }
+
+    /* ============================
+       HERO SECTION
+    ============================ */
+    .hero {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #162340 40%, #1A2E4B 100%);
+      color: var(--white);
+      padding: 80px 0 70px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -150px;
+      right: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 179, 217, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(226, 61, 54, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(0, 179, 217, 0.15);
+      border: 1px solid rgba(0, 179, 217, 0.3);
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      text-transform: uppercase;
+    }
+
+    .hero-brand {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 3.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero-brand .accent {
+      color: var(--cyan);
+    }
+
+    .hero-tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-meta strong {
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 600;
+    }
+
+    .hero-programme {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-programme-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .hero-programme-name {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    /* ============================
+       MARKET SIZE BANNER
+    ============================ */
+    .market-banner {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-gray);
+      padding: 0;
+    }
+
+    .market-banner-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .market-stat {
+      padding: 36px 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .market-stat:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      height: 60%;
+      width: 1px;
+      background: var(--border-gray);
+    }
+
+    .market-stat-value {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+
+    .market-stat-value .cyan {
+      color: var(--cyan);
+    }
+
+    .market-stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* ============================
+       MAIN CONTENT
+    ============================ */
+    .content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 40px 80px;
+    }
+
+    /* ============================
+       SECTION STYLES
+    ============================ */
+    .section {
+      margin-bottom: 64px;
+    }
+
+    .section-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.25;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle-sm {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      line-height: 1.75;
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* ============================
+       CARDS
+    ============================ */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+
+    .card-accent {
+      border-top: 3px solid var(--cyan);
+    }
+
+    .card-dark {
+      background: var(--dark-bg);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .card-dark strong {
+      color: var(--white);
+    }
+
+    .card-dark .section-subtitle {
+      color: var(--white);
+    }
+
+    /* ============================
+       VISION CALLOUT
+    ============================ */
+    .vision-callout {
+      background: linear-gradient(135deg, var(--dark-bg), #162340);
+      border-radius: 12px;
+      padding: 40px;
+      color: var(--white);
+      margin: 32px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vision-callout::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(0, 179, 217, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .vision-callout p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+      position: relative;
+      z-index: 1;
+    }
+
+    .vision-callout strong {
+      color: var(--cyan);
+    }
+
+    .vision-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================
+       PROBLEM STAT CARDS
+    ============================ */
+    .problem-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 28px 0;
+    }
+
+    .problem-stat {
+      background: var(--red-light);
+      border: 1px solid rgba(226, 61, 54, 0.12);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .problem-stat-value {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--red);
+      margin-bottom: 4px;
+    }
+
+    .problem-stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ============================
+       BULLET LISTS
+    ============================ */
+    ul {
+      margin-bottom: 16px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    ul li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+    }
+
+    /* ============================
+       TABLES
+    ============================ */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border-gray);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: var(--light-gray);
+    }
+
+    thead th {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--navy);
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-gray);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border-gray);
+      color: var(--body-text);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 179, 217, 0.03);
+    }
+
+    .status-done {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--green);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .status-done::before {
+      content: '';
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: var(--green);
+      border-radius: 50%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+      background-size: 12px;
+      background-position: center;
+      background-repeat: no-repeat;
+      flex-shrink: 0;
+    }
+
+    .status-progress {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--amber);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .status-progress::before {
+      content: '';
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid var(--amber);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .status-pending {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .status-pending::before {
+      content: '';
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px dashed var(--muted);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .table-highlight-row td {
+      background: var(--cyan-light);
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* ============================
+       VERIFICATION GRID
+    ============================ */
+    .verification-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .verification-item {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .verification-item .v-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--cyan);
+      background: var(--cyan-light);
+      border-radius: 4px;
+      padding: 2px 7px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .verification-item .v-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .verification-item .v-name {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+
+    .verification-item .v-source {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .verification-item .v-status {
+      flex-shrink: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 5px;
+    }
+
+    .verification-item .v-status.done {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    .verification-item .v-status.pending {
+      background: var(--amber);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+
+    /* ============================
+       AI MODULE CARDS
+    ============================ */
+    .ai-modules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .ai-module {
+      background: linear-gradient(135deg, var(--dark-bg), #162340);
+      border-radius: 8px;
+      padding: 28px 24px;
+      color: var(--white);
+    }
+
+    .ai-module-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 179, 217, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .ai-module h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .ai-module p {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.6;
+    }
+
+    /* ============================
+       PRICING TIERS
+    ============================ */
+    .pricing-tiers {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .pricing-tier {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 28px 22px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .pricing-tier:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .pricing-tier.featured {
+      border-color: var(--cyan);
+      border-width: 2px;
+    }
+
+    .pricing-tier.featured::before {
+      content: 'POPULAR';
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--cyan);
+      color: var(--white);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 3px 12px;
+      border-radius: 10px;
+    }
+
+    .pricing-tier-name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .pricing-tier-price {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .pricing-tier-price .currency {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .pricing-tier-period {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .pricing-tier-includes {
+      font-size: 0.82rem;
+      color: var(--body-text);
+      padding-top: 16px;
+      border-top: 1px solid var(--border-gray);
+      line-height: 1.6;
+    }
+
+    .pricing-tier-includes strong {
+      display: block;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    /* ============================
+       REVENUE PROJECTIONS
+    ============================ */
+    .revenue-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .revenue-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .revenue-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .revenue-card:nth-child(1)::before {
+      background: var(--cyan);
+    }
+
+    .revenue-card:nth-child(2)::before {
+      background: var(--navy);
+    }
+
+    .revenue-card:nth-child(3)::before {
+      background: var(--red);
+    }
+
+    .revenue-card .rc-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .revenue-card .rc-arr {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+
+    .revenue-card .rc-arr-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 16px;
+    }
+
+    .revenue-card .rc-details {
+      font-size: 0.82rem;
+      color: var(--body-text);
+      line-height: 1.6;
+    }
+
+    .revenue-card .rc-details span {
+      display: block;
+    }
+
+    /* ============================
+       ROADMAP PHASES
+    ============================ */
+    .roadmap {
+      position: relative;
+      margin: 32px 0;
+    }
+
+    .phase {
+      position: relative;
+      padding-left: 40px;
+      margin-bottom: 40px;
+    }
+
+    .phase::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 36px;
+      bottom: -40px;
+      width: 2px;
+      background: var(--border-gray);
+    }
+
+    .phase:last-child::before {
+      display: none;
+    }
+
+    .phase-marker {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--white);
+      z-index: 1;
+    }
+
+    .phase:nth-child(1) .phase-marker { background: var(--cyan); }
+    .phase:nth-child(2) .phase-marker { background: var(--navy); }
+    .phase:nth-child(3) .phase-marker { background: var(--red); }
+
+    .phase-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .phase-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--navy);
+    }
+
+    .phase-timeline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .phase-content {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    /* ============================
+       ASK SECTION CARDS
+    ============================ */
+    .ask-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .ask-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 28px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .ask-card h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .ask-card p, .ask-card ul {
+      font-size: 0.88rem;
+    }
+
+    .ask-card ul li {
+      margin-bottom: 6px;
+    }
+
+    /* ============================
+       WHY SUCCEED SECTION
+    ============================ */
+    .succeed-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .succeed-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .succeed-card .sc-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cyan-mid);
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .succeed-card h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .succeed-card p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .succeed-card.full-width {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--dark-bg), #162340);
+      border-color: transparent;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .succeed-card.full-width h4 {
+      color: var(--cyan);
+    }
+
+    .succeed-card.full-width p {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .succeed-card.full-width .sc-number {
+      color: rgba(0, 179, 217, 0.12);
+    }
+
+    /* ============================
+       TEAM SECTION
+    ============================ */
+    .team-founder {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 36px;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      margin: 24px 0;
+    }
+
+    .team-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--dark-bg));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .team-avatar-initials {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--cyan);
+    }
+
+    .team-info h4 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .team-info .team-role {
+      font-size: 0.85rem;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .team-info p {
+      font-size: 0.9rem;
+    }
+
+    .team-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .team-skill {
+      background: var(--cyan-light);
+      color: var(--navy);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* ============================
+       SUMMARY TABLE
+    ============================ */
+    .summary-section {
+      background: var(--white);
+      border: 2px solid var(--cyan);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 40px 0;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, var(--dark-bg), #162340);
+      padding: 28px 32px;
+      color: var(--white);
+    }
+
+    .summary-header h3 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--white);
+    }
+
+    .summary-body {
+      padding: 0;
+    }
+
+    .summary-row {
+      display: flex;
+      border-bottom: 1px solid var(--border-gray);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--navy);
+      padding: 16px 24px;
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--light-gray);
+      display: flex;
+      align-items: center;
+    }
+
+    .summary-value {
+      padding: 16px 24px;
+      font-size: 0.9rem;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ============================
+       ARCHITECTURE HIGHLIGHTS
+    ============================ */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .arch-item {
+      background: var(--light-gray);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .arch-item h5 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--cyan);
+      margin-bottom: 6px;
+    }
+
+    .arch-item p {
+      font-size: 0.85rem;
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+
+    /* ============================
+       WHY NOW CARDS
+    ============================ */
+    .why-now-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .why-now-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .why-now-card h5 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .why-now-card p {
+      font-size: 0.85rem;
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+
+    /* ============================
+       DIVIDER
+    ============================ */
+    .divider {
+      height: 1px;
+      background: var(--border-gray);
+      margin: 48px 0;
+    }
+
+    /* ============================
+       TRL BADGE
+    ============================ */
+    .trl-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cyan-light);
+      border: 1px solid rgba(0, 179, 217, 0.2);
+      border-radius: 6px;
+      padding: 8px 16px;
+      margin: 16px 0;
+    }
+
+    .trl-badge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .trl-badge-value {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--navy);
+    }
+
+    /* ============================
+       FOOTER
+    ============================ */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-gray);
+      font-style: italic;
+    }
+
+    /* ============================
+       PRINT STYLES
+    ============================ */
+    @media print {
+      body {
+        background: white;
+        border-top: 3px solid var(--red);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .hero {
+        background: var(--dark-bg) !important;
+        padding: 50px 0 40px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .hero::before, .hero::after {
+        display: none;
+      }
+
+      .content {
+        padding: 40px 30px 40px;
+      }
+
+      .section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 40px;
+      }
+
+      .card, .ask-card, .succeed-card, .phase-content, .team-founder, .summary-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .verification-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .pricing-tiers {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .pricing-tier:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      table {
+        font-size: 0.8rem;
+      }
+
+      .status-progress::before {
+        animation: none;
+        border-top-color: var(--amber);
+      }
+
+      .market-banner {
+        border-bottom: 1px solid var(--border-gray);
+      }
+
+      .ai-module {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .vision-callout {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .succeed-card.full-width {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .summary-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      a {
+        text-decoration: none;
+        color: var(--body-text);
+      }
+
+      @page {
+        margin: 1.5cm;
+      }
+    }
+
+    /* ============================
+       RESPONSIVE
+    ============================ */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 50px 0 40px;
+      }
+
+      .hero-brand {
+        font-size: 2.5rem;
+      }
+
+      .hero-tagline {
+        font-size: 1.1rem;
+      }
+
+      .hero-meta {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .market-banner-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .market-stat:nth-child(2)::after {
+        display: none;
+      }
+
+      .market-stat:nth-child(3)::after {
+        display: block;
+      }
+
+      .problem-stats,
+      .ai-modules,
+      .revenue-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-tiers {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .ask-grid,
+      .succeed-grid,
+      .arch-grid,
+      .why-now-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .succeed-card.full-width {
+        grid-column: auto;
+      }
+
+      .team-founder {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .team-skills {
+        justify-content: center;
+      }
+
+      .content {
+        padding: 40px 20px 60px;
+      }
+
+      .hero-inner {
+        padding: 0 20px;
+      }
+
+      .market-banner-inner {
+        padding: 0 20px;
+      }
+
+      .summary-row {
+        flex-direction: column;
+      }
+
+      .summary-label {
+        width: 100%;
+      }
+
+      .verification-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .market-banner-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .pricing-tiers {
+        grid-template-columns: 1fr;
+      }
+
+      .verification-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-brand {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==============================
+       HERO SECTION
+  ============================== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">22 On Sloane Scale Up Programme</div>
+      <div style="margin-bottom: 20px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="320" height="78" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+      <p class="hero-tagline">Real-Time Risk Intelligence Platform for Africa's Digital Economy</p>
+      <div class="hero-meta">
+        <span><strong>Company:</strong> Arthmatic DevWorks (Pty) Ltd</span>
+        <span><strong>Location:</strong> Cape Town, South Africa</span>
+        <span><strong>Founder:</strong> Arthur Manena, CTO</span>
+        <span><strong>Date:</strong> April 2026</span>
+      </div>
+      <div class="hero-programme">
+        <div>
+          <div class="hero-programme-label">Application For</div>
+          <div class="hero-programme-name">22 On Sloane Scale Up Programme</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================
+       MARKET SIZE BANNER
+  ============================== -->
+  <section class="market-banner">
+    <div class="market-banner-inner">
+      <div class="market-stat">
+        <div class="market-stat-value"><span class="cyan">$</span>1.7B+</div>
+        <div class="market-stat-label">Total Addressable Market</div>
+      </div>
+      <div class="market-stat">
+        <div class="market-stat-value">14</div>
+        <div class="market-stat-label">Verification Types</div>
+      </div>
+      <div class="market-stat">
+        <div class="market-stat-value">3</div>
+        <div class="market-stat-label">AI Modules</div>
+      </div>
+      <div class="market-stat">
+        <div class="market-stat-value">TRL <span class="cyan">6-7</span></div>
+        <div class="market-stat-label">Technology Readiness</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================
+       MAIN CONTENT
+  ============================== -->
+  <main class="content">
+
+    <!-- Section 1: Company Overview & Vision -->
+    <section class="section">
+      <span class="section-number">Section 01</span>
+      <h2 class="section-title">Company Overview &amp; Vision</h2>
+
+      <p>Arthmatic DevWorks is a Cape Town-based software development firm building enterprise-grade infrastructure for Africa's digital economy. Our flagship product, <strong>VeriGate</strong>, is a real-time risk intelligence platform that combines cross-agency verification, AI-powered risk scoring, and fraud detection -- purpose-built for the realities of African government and enterprise environments.</p>
+
+      <div class="vision-callout">
+        <span class="vision-label">Our Vision</span>
+        <p>Become the continent's default risk intelligence layer -- the infrastructure that sits between every agency, bank, insurer, and law firm that needs to verify, assess risk, detect conflicts of interest, and prevent fraud in real time. <strong>One API. Fourteen verification types. Three AI modules. Automated conflict of interest detection. Zero centralised data storage.</strong></p>
+      </div>
+
+      <p>VeriGate is not a point verification solution. It is risk intelligence infrastructure. We are building <strong>Africa's Plaid for identity, compliance, and risk</strong> -- except we go far beyond banking, covering government registries, sanctions databases, property records, tax status, qualifications, and more, with AI-powered risk scoring that correlates signals across all sources.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 2: Problem Being Solved -->
+    <section class="section">
+      <span class="section-number">Section 02</span>
+      <h2 class="section-title">Problem Being Solved</h2>
+
+      <p><strong>Verification in South Africa -- and across Africa -- is broken.</strong></p>
+
+      <h3 class="section-subtitle">For Businesses</h3>
+      <ul>
+        <li>Onboarding a single customer can require checks against <strong>6-10 different agencies</strong> (DHA for identity, CIPC for company status, SARS for tax, SAQA for qualifications, credit bureaus, sanctions lists, and more).</li>
+        <li>Each agency has its own portal, its own credentials, its own data format, and its own downtime schedule.</li>
+        <li>There is no unified API. Businesses stitch together manual processes, CSV uploads, and bespoke integrations that break constantly.</li>
+        <li>A single end-to-end KYC/KYB check can take <strong>3-5 business days</strong> and involve multiple teams.</li>
+      </ul>
+
+      <h3 class="section-subtitle">For Government Agencies</h3>
+      <ul>
+        <li>Cross-department verification is largely manual. DHA cannot easily verify SARS status. CIPC data does not talk to DeedsWeb data.</li>
+        <li>Fraud slips through the cracks because no single system correlates signals across agencies.</li>
+        <li><strong>Conflicts of interest slip through the cracks</strong> because no single system correlates signals across agencies. A procurement officer who is also a director of the bidding company is invisible when checks happen in silos -- CIPC directorship records, property ownership, and beneficial shareholding are never cross-referenced against the individuals involved in a transaction. The Auditor-General consistently flags undisclosed conflicts of interest as root causes of irregular expenditure.</li>
+        <li>Each department builds its own verification silo, duplicating effort and cost.</li>
+      </ul>
+
+      <h3 class="section-subtitle">The Cost of the Status Quo</h3>
+
+      <div class="problem-stats">
+        <div class="problem-stat">
+          <div class="problem-stat-value">R30B+</div>
+          <div class="problem-stat-label">Lost annually to identity &amp; grant fraud</div>
+        </div>
+        <div class="problem-stat">
+          <div class="problem-stat-value">R1B+</div>
+          <div class="problem-stat-label">Banks spend on fragmented KYC/AML</div>
+        </div>
+        <div class="problem-stat">
+          <div class="problem-stat-value">R7B+</div>
+          <div class="problem-stat-label">Insurance fraud costs annually</div>
+        </div>
+      </div>
+
+      <p><strong>The root cause is architectural:</strong> there is no shared risk intelligence layer that respects data sovereignty while enabling real-time cross-agency verification and fraud detection. VeriGate is that layer.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 3: Product Description -->
+    <section class="section">
+      <span class="section-number">Section 03</span>
+      <h2 class="section-title">Product Description &amp; Demo-Ready Features</h2>
+
+      <p>A real-time risk intelligence platform that connects to <strong>14 verification sources</strong> through a single, unified API, with AI-powered risk scoring and fraud detection layered on top. Each agency or data source is accessed through a purpose-built adapter, and the platform is deployed using a cross-account AWS model where every participating agency retains full control of its own environment. <strong>There is no centralised database</strong> -- data sovereignty is enforced by architecture, not by policy.</p>
+
+      <h3 class="section-subtitle">14 Verification Types</h3>
+
+      <div class="verification-grid">
+        <div class="verification-item">
+          <span class="v-number">01</span>
+          <div class="v-info">
+            <div class="v-name">Identity</div>
+            <div class="v-source">DHA (Home Affairs)</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">02</span>
+          <div class="v-info">
+            <div class="v-name">Company</div>
+            <div class="v-source">CIPC (Companies Register)</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">03</span>
+          <div class="v-info">
+            <div class="v-name">Bank Account</div>
+            <div class="v-source">QLink</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">04</span>
+          <div class="v-info">
+            <div class="v-name">Property</div>
+            <div class="v-source">DeedsWeb</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">05</span>
+          <div class="v-info">
+            <div class="v-name">Sanctions</div>
+            <div class="v-source">WorldCheck, OpenSanctions</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">06</span>
+          <div class="v-info">
+            <div class="v-name">Tax Status</div>
+            <div class="v-source">SARS</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">07</span>
+          <div class="v-info">
+            <div class="v-name">Qualifications</div>
+            <div class="v-source">SAQA</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">08</span>
+          <div class="v-info">
+            <div class="v-name">Credit Check</div>
+            <div class="v-source">TransUnion / Experian</div>
+          </div>
+          <div class="v-status pending"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">09</span>
+          <div class="v-info">
+            <div class="v-name">Employment</div>
+            <div class="v-source">Employer databases</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">10</span>
+          <div class="v-info">
+            <div class="v-name">Income</div>
+            <div class="v-source">Payroll / bank statement</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">11</span>
+          <div class="v-info">
+            <div class="v-name">Document Verification</div>
+            <div class="v-source">AI/OCR (Bedrock)</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">12</span>
+          <div class="v-info">
+            <div class="v-name">Negative News</div>
+            <div class="v-source">Media screening</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">13</span>
+          <div class="v-info">
+            <div class="v-name">Fraud Watchlist</div>
+            <div class="v-source">Industry databases</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+        <div class="verification-item">
+          <span class="v-number">14</span>
+          <div class="v-info">
+            <div class="v-name">VAT Vendor</div>
+            <div class="v-source">SARS VAT registry</div>
+          </div>
+          <div class="v-status done"></div>
+        </div>
+      </div>
+
+      <p style="font-size: 0.8rem; color: var(--muted); margin-top: -8px;">
+        <span style="display: inline-block; width: 10px; height: 10px; background: var(--green); border-radius: 50; vertical-align: middle; margin-right: 4px; border-radius: 50%;"></span> Adapter built
+        <span style="display: inline-block; width: 10px; height: 10px; background: var(--amber); border-radius: 50%; vertical-align: middle; margin-left: 16px; margin-right: 4px;"></span> Pending NCR registration
+      </p>
+
+      <h3 class="section-subtitle">3 AI Modules</h3>
+
+      <div class="ai-modules">
+        <div class="ai-module">
+          <div class="ai-module-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h4>Risk Signals Engine</h4>
+          <p>Aggregates verification results and flags anomalies across sources in real time. Surfaces risk indicators that single-source checks would miss. Powers <strong>conflict of interest detection</strong> by cross-referencing CIPC directorship records, shareholding percentages, property ownership, PEP status, and sanctions lists to automatically flag undisclosed relationships. Uses a weighted compliance scoring model with configurable thresholds to produce Accept/Review/Deny decisions.</p>
+        </div>
+        <div class="ai-module">
+          <div class="ai-module-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Fraud Detector</h4>
+          <p>Uses pattern matching and ML models to detect synthetic identities, document tampering, and coordinated fraud rings.</p>
+        </div>
+        <div class="ai-module">
+          <div class="ai-module-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B3D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h4>Bedrock Common</h4>
+          <p>Shared AI/ML infrastructure layer built on AWS Bedrock for document OCR, entity extraction, and natural language processing of unstructured records.</p>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Partner Portal</h3>
+      <div class="card">
+        <p style="margin-bottom: 8px;"><strong>Built with Next.js 15.5</strong></p>
+        <ul>
+          <li><strong>Visual policy builder</strong> -- partners define their own verification workflows (e.g., "for property transactions over R2M, run identity + CIPC + DeedsWeb + sanctions + tax").</li>
+          <li>Real-time dashboard with verification status, throughput, and risk scoring.</li>
+          <li>API key management, webhook configuration, and audit trail access.</li>
+        </ul>
+      </div>
+
+      <h3 class="section-subtitle">Architecture Highlights</h3>
+
+      <div class="arch-grid">
+        <div class="arch-item">
+          <h5>Java 21 + Spring Boot 3.3</h5>
+          <p>Battle-tested, enterprise-grade core platform.</p>
+        </div>
+        <div class="arch-item">
+          <h5>Fully Serverless on AWS</h5>
+          <p>Lambda, SQS FIFO, DynamoDB, Kinesis, EventBridge, Cognito.</p>
+        </div>
+        <div class="arch-item">
+          <h5>Adapter-Based Architecture</h5>
+          <p>Each verification source is a self-contained adapter. Adding a new source means building one adapter, not re-architecting the platform.</p>
+        </div>
+        <div class="arch-item">
+          <h5>Cross-Account Deployment</h5>
+          <p>Each agency gets its own AWS account. VeriGate orchestrates across accounts without ever centralising raw data.</p>
+        </div>
+        <div class="arch-item" style="grid-column: 1 / -1;">
+          <h5>Event-Driven</h5>
+          <p>Every verification request, result, and decision is an event -- fully auditable, replayable, and analyzable.</p>
+        </div>
+      </div>
+
+      <div class="trl-badge">
+        <span class="trl-badge-label">Technology Readiness Level</span>
+        <span class="trl-badge-value">TRL 6-7 -- System demonstrated in relevant environment</span>
+      </div>
+
+      <p>Core verification flows work end-to-end. The partner portal is functional. The AI modules produce real risk scores. This is not a prototype -- it is a <strong>working platform</strong> that needs customers and compliance certification to go to market.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 4: Traction & Milestones -->
+    <section class="section">
+      <span class="section-number">Section 04</span>
+      <h2 class="section-title">Traction &amp; Milestones</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Milestone</th>
+              <th style="width: 160px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Core platform architecture designed and built</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>14 verification adapters developed (13 complete, 1 pending NCR)</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>Cross-account AWS deployment model proven</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>3 AI modules (Risk Signals, Fraud Detector, Bedrock Common) built</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>Partner portal with visual policy builder shipped</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>Event-driven audit trail and compliance logging operational</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>Adapter-based architecture validated (new sources plug in cleanly)</td>
+              <td><span class="status-done">Done</span></td>
+            </tr>
+            <tr>
+              <td>ISO 27001 certification</td>
+              <td><span class="status-progress">In progress</span></td>
+            </tr>
+            <tr>
+              <td>NCR registration (for credit bureau access)</td>
+              <td><span class="status-progress">In progress</span></td>
+            </tr>
+            <tr>
+              <td>First pilot customer</td>
+              <td><span class="status-pending">Actively pursuing</span></td>
+            </tr>
+            <tr>
+              <td>Revenue</td>
+              <td><span class="status-pending">Pre-revenue</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card card-accent" style="margin-top: 24px;">
+        <p><strong>What this means:</strong> We have done the hardest part -- building a working, production-grade platform that handles the complexity of multi-agency verification with full data sovereignty. The remaining work is commercial: certification, partnerships, and landing the first paying customers. That is exactly where 22 On Sloane can accelerate us.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 5: Market Size & Opportunity -->
+    <section class="section">
+      <span class="section-number">Section 05</span>
+      <h2 class="section-title">Market Size &amp; Opportunity</h2>
+
+      <h3 class="section-subtitle">South Africa</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Annual Spend on Verification/KYC</th>
+              <th>VeriGate Addressable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Banking &amp; Financial Services</td>
+              <td>R2-4 billion</td>
+              <td>R800M-R1.5B</td>
+            </tr>
+            <tr>
+              <td>Insurance</td>
+              <td>R1-2 billion</td>
+              <td>R400M-R800M</td>
+            </tr>
+            <tr>
+              <td>Government (DHA, SARS, SIU, etc.)</td>
+              <td>R1-3 billion</td>
+              <td>R500M-R1B</td>
+            </tr>
+            <tr>
+              <td>Property &amp; Legal</td>
+              <td>R500M-R1B</td>
+              <td>R200M-R400M</td>
+            </tr>
+            <tr>
+              <td>Telecoms &amp; Retail (RICA, FICA)</td>
+              <td>R500M-R1B</td>
+              <td>R200M-R400M</td>
+            </tr>
+            <tr class="table-highlight-row">
+              <td><strong>Total SA TAM</strong></td>
+              <td><strong>R5-11 billion</strong></td>
+              <td><strong>R2.1-4.1 billion</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-subtitle">Africa (5-Year Horizon)</h3>
+
+      <ul>
+        <li><strong>Nigeria:</strong> National Identity Management Commission (NIMC) alone processes 100M+ identity records. KYC spend across Nigerian banks exceeds $500M/year.</li>
+        <li><strong>Kenya:</strong> Huduma Namba, eCitizen, and mobile money KYC create a $200M+ verification market.</li>
+        <li><strong>East Africa (Kenya, Tanzania, Uganda, Rwanda):</strong> Combined $400M+ addressable market.</li>
+        <li><strong>West Africa (Nigeria, Ghana, Senegal):</strong> Combined $700M+ addressable market.</li>
+      </ul>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Market</th>
+              <th>TAM (5-Year)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>South Africa</td>
+              <td>R4B ($220M)</td>
+            </tr>
+            <tr>
+              <td>Rest of Africa</td>
+              <td>$1.5B+</td>
+            </tr>
+            <tr class="table-highlight-row">
+              <td><strong>Total Addressable Market</strong></td>
+              <td><strong>$1.7B+</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;">
+        <div class="card" style="border-top: 3px solid var(--cyan);">
+          <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; font-weight: 500;">SAM (Year 1-3)</p>
+          <p style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--navy); margin-bottom: 4px;">R500M-R800M</p>
+          <p style="font-size: 0.85rem; margin-bottom: 0;">Focus on financial services, government, and property sectors in South Africa.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--navy);">
+          <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; font-weight: 500;">SOM (Year 1-2)</p>
+          <p style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--navy); margin-bottom: 4px;">R15M-R40M</p>
+          <p style="font-size: 0.85rem; margin-bottom: 0;">Land 3-5 enterprise/government pilot customers, each running 50K-500K verifications per month.</p>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Why Now</h3>
+
+      <div class="why-now-grid">
+        <div class="why-now-card">
+          <h5>POPIA Enforcement Is Real</h5>
+          <p>The Information Regulator is actively investigating and fining. Companies need compliant verification, and VeriGate's data-sovereignty architecture is purpose-built for POPIA.</p>
+        </div>
+        <div class="why-now-card">
+          <h5>Government Digitisation Is Accelerating</h5>
+          <p>DHA's modernisation programme, SARS eFiling expansion, and the push for integrated service delivery all create demand for cross-agency verification.</p>
+        </div>
+        <div class="why-now-card">
+          <h5>AfCFTA Creates Cross-Border Demand</h5>
+          <p>The African Continental Free Trade Area requires cross-border KYB/KYC for trade -- a market VeriGate's adapter architecture is designed to serve.</p>
+        </div>
+        <div class="why-now-card">
+          <h5>Banks Are Under Pressure</h5>
+          <p>SARB's updated AML/CFT guidance (Guidance Note 7) demands more rigorous, multi-source verification. Manual processes cannot scale.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 6: Business Model -->
+    <section class="section">
+      <span class="section-number">Section 06</span>
+      <h2 class="section-title">Business Model</h2>
+
+      <p style="font-size: 1.05rem; font-weight: 500; color: var(--navy); margin-bottom: 24px;">SaaS -- Per-Verification Pricing + Subscription Tiers</p>
+
+      <h3 class="section-subtitle">Per-Verification Pricing (Pay-As-You-Go)</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Verification Type</th>
+              <th>Price per Check</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Identity (DHA)</td>
+              <td>R8-R15</td>
+            </tr>
+            <tr>
+              <td>Company (CIPC)</td>
+              <td>R10-R20</td>
+            </tr>
+            <tr>
+              <td>Bank Account</td>
+              <td>R12-R25</td>
+            </tr>
+            <tr>
+              <td>Sanctions Screening</td>
+              <td>R5-R10</td>
+            </tr>
+            <tr>
+              <td>Property (DeedsWeb)</td>
+              <td>R15-R30</td>
+            </tr>
+            <tr>
+              <td>Tax Status (SARS)</td>
+              <td>R10-R20</td>
+            </tr>
+            <tr>
+              <td>Document Verification (AI/OCR)</td>
+              <td>R15-R35</td>
+            </tr>
+            <tr style="background: var(--cyan-light);">
+              <td><strong>Full KYC Bundle (5+ checks)</strong></td>
+              <td><strong>R40-R80</strong></td>
+            </tr>
+            <tr style="background: var(--cyan-light);">
+              <td><strong>Full KYB Bundle (company + directors)</strong></td>
+              <td><strong>R60-R120</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-subtitle">Subscription Tiers</h3>
+
+      <div class="pricing-tiers">
+        <div class="pricing-tier">
+          <div class="pricing-tier-name">Starter</div>
+          <div class="pricing-tier-price"><span class="currency">R</span>5,000</div>
+          <div class="pricing-tier-period">per month</div>
+          <div class="pricing-tier-includes">
+            <strong>500 verifications</strong>
+            Standard overage rates
+          </div>
+        </div>
+        <div class="pricing-tier featured">
+          <div class="pricing-tier-name">Professional</div>
+          <div class="pricing-tier-price"><span class="currency">R</span>25,000</div>
+          <div class="pricing-tier-period">per month</div>
+          <div class="pricing-tier-includes">
+            <strong>3,000 verifications</strong>
+            15% overage discount
+          </div>
+        </div>
+        <div class="pricing-tier">
+          <div class="pricing-tier-name">Enterprise</div>
+          <div class="pricing-tier-price"><span class="currency">R</span>75,000<span style="font-size: 0.7rem; font-weight: 500;">+</span></div>
+          <div class="pricing-tier-period">per month</div>
+          <div class="pricing-tier-includes">
+            <strong>15,000+ verifications</strong>
+            25% discount + SLA
+          </div>
+        </div>
+        <div class="pricing-tier">
+          <div class="pricing-tier-name">Government</div>
+          <div class="pricing-tier-price" style="font-size: 1.2rem;">Custom</div>
+          <div class="pricing-tier-period">negotiated</div>
+          <div class="pricing-tier-includes">
+            <strong>Custom volume</strong>
+            Dedicated support
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Unit Economics Target</h3>
+      <div class="card">
+        <ul>
+          <li><strong>Gross margin per verification:</strong> 65-80% (cost is primarily API fees to source agencies + compute).</li>
+          <li><strong>Blended ARPC:</strong> R25,000-R100,000/month for enterprise customers.</li>
+          <li><strong>LTV:CAC target:</strong> 5:1+ (enterprise contracts are sticky -- switching verification providers is painful).</li>
+        </ul>
+      </div>
+
+      <h3 class="section-subtitle">Revenue Projections</h3>
+
+      <div class="revenue-cards">
+        <div class="revenue-card">
+          <div class="rc-period">Month 6</div>
+          <div class="rc-arr">R1M-R2.4M</div>
+          <div class="rc-arr-label">ARR</div>
+          <div class="rc-details">
+            <span><strong>2-3</strong> pilot customers</span>
+            <span><strong>20K-50K</strong> monthly verifications</span>
+            <span><strong>R80K-R200K</strong> MRR</span>
+          </div>
+        </div>
+        <div class="revenue-card">
+          <div class="rc-period">Month 12</div>
+          <div class="rc-arr">R5M-R14M</div>
+          <div class="rc-arr-label">ARR</div>
+          <div class="rc-details">
+            <span><strong>5-8</strong> paying customers</span>
+            <span><strong>100K-300K</strong> monthly verifications</span>
+            <span><strong>R400K-R1.2M</strong> MRR</span>
+          </div>
+        </div>
+        <div class="revenue-card">
+          <div class="rc-period">Month 24</div>
+          <div class="rc-arr">R24M-R72M</div>
+          <div class="rc-arr-label">ARR</div>
+          <div class="rc-details">
+            <span><strong>15-25</strong> customers</span>
+            <span><strong>500K-1.5M</strong> monthly verifications</span>
+            <span><strong>R2M-R6M</strong> MRR</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 7: What We Need from 22 On Sloane -->
+    <section class="section">
+      <span class="section-number">Section 07</span>
+      <h2 class="section-title">What We Need from 22 On Sloane</h2>
+
+      <p>We are not looking for generic startup advice. VeriGate is a technically mature platform that needs <strong>specific commercial acceleration</strong>. Here is exactly what we are looking for:</p>
+
+      <div class="ask-grid">
+        <div class="ask-card">
+          <h4>Investor Network Access</h4>
+          <p>Targeting a <strong>R10M-R20M seed round</strong> to fund go-to-market, ISO 27001, NCR registration, and first 12 months of commercial operations.</p>
+          <p style="margin-top: 8px; margin-bottom: 0; font-size: 0.82rem;"><strong>Target funds:</strong> Knife Capital, 4Di Capital, Naspers Foundry, Norrsken, TLcom Capital, SAVCA members with govtech exposure.</p>
+        </div>
+        <div class="ask-card">
+          <h4>Government &amp; Enterprise Introductions</h4>
+          <p>This is the <strong>single highest-value ask</strong>. VeriGate's sales cycle is enterprise/government -- it requires warm introductions and credibility signals.</p>
+          <ul style="margin-top: 8px; margin-bottom: 0;">
+            <li>Government: Wesgro, DHA, SARS, National Treasury, SIU, SITA</li>
+            <li>Financial: Standard Bank, FNB, Absa, Nedbank, Old Mutual, Sanlam, Discovery</li>
+            <li>Property &amp; Legal: Major conveyancing firms, Law Society of SA</li>
+          </ul>
+        </div>
+        <div class="ask-card">
+          <h4>B2G Sales Strategy Mentorship</h4>
+          <ul>
+            <li>Mentors who have sold software to SA government departments (SCM, bid committees, BBBEE, SITA).</li>
+            <li>Guidance on structuring government pilot agreements that convert to multi-year contracts.</li>
+            <li>Understanding the cadence: RFP timing, vendor panels, transversal contracts.</li>
+          </ul>
+        </div>
+        <div class="ask-card">
+          <h4>Pilot Customer Facilitation</h4>
+          <p>Help us land <strong>2-3 paid pilot customers</strong> within the first 6 months of the programme.</p>
+          <p style="margin-top: 8px; margin-bottom: 0; font-size: 0.82rem;"><strong>Ideal pilot profile:</strong> Financial institution or government agency running 50K+ verifications/month, currently using manual or fragmented processes.</p>
+        </div>
+        <div class="ask-card" style="grid-column: 1 / -1;">
+          <h4>Strategic Partner Connections</h4>
+          <ul>
+            <li><strong>AWS:</strong> Introduction to AWS Public Sector team (South Africa) or AWS ISV Accelerate programme.</li>
+            <li><strong>Credit Bureaus:</strong> TransUnion and Experian South Africa -- commercial agreements and NCR-compliant access.</li>
+            <li><strong>Industry Bodies:</strong> SABRIC (banking risk), ASISA (insurance), PASA (payments).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 8: Growth Plan (Roadmap) -->
+    <section class="section">
+      <span class="section-number">Section 08</span>
+      <h2 class="section-title">Growth Plan -- 6-12 Month Roadmap</h2>
+
+      <div class="roadmap">
+        <!-- Phase 1 -->
+        <div class="phase">
+          <div class="phase-marker">1</div>
+          <div class="phase-header">
+            <span class="phase-title">Certification &amp; First Revenue</span>
+            <span class="phase-timeline">Months 1-4</span>
+          </div>
+          <div class="phase-content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Timeline</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Complete ISO 27001 certification</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 1-3</span></td>
+                  <td>Mandatory for government and banking contracts</td>
+                </tr>
+                <tr>
+                  <td>Obtain NCR registration</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 1-4</span></td>
+                  <td>Unlocks credit bureau adapter (14th verification type)</td>
+                </tr>
+                <tr>
+                  <td>Land first 2 pilot customers</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 2-4</span></td>
+                  <td>Prove commercial viability, generate case studies</td>
+                </tr>
+                <tr>
+                  <td>Finalise per-verification pricing with real cost data</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 2-3</span></td>
+                  <td>Validate unit economics</td>
+                </tr>
+                <tr>
+                  <td>Hire 1x enterprise sales lead (JHB-based)</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 2</span></td>
+                  <td>B2G/B2B sales capacity</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase">
+          <div class="phase-marker">2</div>
+          <div class="phase-header">
+            <span class="phase-title">Commercial Traction</span>
+            <span class="phase-timeline">Months 4-8</span>
+          </div>
+          <div class="phase-content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Timeline</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Convert pilots to paid contracts</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 4-6</span></td>
+                  <td>First recurring revenue</td>
+                </tr>
+                <tr>
+                  <td>Land 3-5 additional enterprise customers</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 4-8</span></td>
+                  <td>R400K+ MRR</td>
+                </tr>
+                <tr>
+                  <td>Launch self-service API portal for SME market</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 5-7</span></td>
+                  <td>Volume play -- long-tail revenue</td>
+                </tr>
+                <tr>
+                  <td>Build 2 additional adapters (market-driven)</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 5-8</span></td>
+                  <td>Expand verification coverage</td>
+                </tr>
+                <tr>
+                  <td>Begin POPIA compliance audit (external)</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 6</span></td>
+                  <td>Compliance credential for sales collateral</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase">
+          <div class="phase-marker">3</div>
+          <div class="phase-header">
+            <span class="phase-title">Scale &amp; Expansion</span>
+            <span class="phase-timeline">Months 8-12</span>
+          </div>
+          <div class="phase-content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Timeline</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Reach 10+ paying customers</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 8-12</span></td>
+                  <td>R1M+ MRR target</td>
+                </tr>
+                <tr>
+                  <td>Begin Nigeria market research and adapter scoping</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 9-10</span></td>
+                  <td>Africa expansion groundwork</td>
+                </tr>
+                <tr>
+                  <td>Prepare Series A materials</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 10-12</span></td>
+                  <td>R30M-R50M raise for continental expansion</td>
+                </tr>
+                <tr>
+                  <td>Hire 2x engineers for adapter development</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 8-10</span></td>
+                  <td>Capacity for new markets</td>
+                </tr>
+                <tr>
+                  <td>Establish partnerships with 2+ system integrators</td>
+                  <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Month 8-12</span></td>
+                  <td>Channel sales for government</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 9: Team -->
+    <section class="section">
+      <span class="section-number">Section 09</span>
+      <h2 class="section-title">Team</h2>
+
+      <div class="team-founder">
+        <div class="team-avatar">
+          <span class="team-avatar-initials">AM</span>
+        </div>
+        <div class="team-info">
+          <h4>Arthur Manena</h4>
+          <div class="team-role">Founder &amp; CTO</div>
+          <p>Full-stack architect and engineer with deep expertise in enterprise software, cloud-native architecture, and security-first design. Built VeriGate's entire platform architecture -- from the adapter framework and cross-account AWS deployment model to the AI modules and partner portal. Hands-on technical founder who understands both the code and the commercial opportunity.</p>
+          <div class="team-skills">
+            <span class="team-skill">Java / Spring Boot</span>
+            <span class="team-skill">AWS Serverless</span>
+            <span class="team-skill">Security Architecture</span>
+            <span class="team-skill">API Design</span>
+            <span class="team-skill">AI/ML Integration</span>
+            <span class="team-skill">.NET Enterprise</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Hiring Plan (Funded)</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Priority</th>
+              <th>Timeline</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Enterprise Sales Lead (B2G/B2B)</strong></td>
+              <td><span style="color: var(--red); font-weight: 600;">Critical</span></td>
+              <td>Month 1-2</td>
+            </tr>
+            <tr>
+              <td><strong>Solutions Architect / Pre-Sales Engineer</strong></td>
+              <td><span style="color: var(--amber); font-weight: 600;">High</span></td>
+              <td>Month 3-4</td>
+            </tr>
+            <tr>
+              <td><strong>Backend Engineer (adapter development)</strong></td>
+              <td><span style="color: var(--amber); font-weight: 600;">High</span></td>
+              <td>Month 4-6</td>
+            </tr>
+            <tr>
+              <td><strong>Compliance &amp; Partnerships Manager</strong></td>
+              <td><span style="color: var(--cyan); font-weight: 600;">Medium</span></td>
+              <td>Month 6-8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Section 10: Why VeriGate Will Succeed -->
+    <section class="section">
+      <span class="section-number">Section 10</span>
+      <h2 class="section-title">Why VeriGate Will Succeed</h2>
+
+      <div class="succeed-grid">
+        <div class="succeed-card">
+          <span class="sc-number">01</span>
+          <h4>First-Mover Advantage in South Africa</h4>
+          <p>There is no unified real-time risk intelligence platform in the South African market. Existing solutions are single-source (e.g., XDS for credit, Idenfo for identity) or manual (government portals). VeriGate is the first platform to aggregate 14 verification types with AI-powered risk scoring behind a single API, with full data sovereignty. No competitor offers real-time cross-referencing of CIPC directorships, shareholding, property ownership, and PEP databases to surface hidden relationships -- this automated conflict of interest detection is VeriGate's flagship differentiator.</p>
+        </div>
+        <div class="succeed-card">
+          <span class="sc-number">02</span>
+          <h4>Architecture Is the Moat</h4>
+          <p>VeriGate's competitive moat is the architecture. Adapter-based design means expanding to a new country is building adapters, not rebuilding the platform. Cross-account deployment enforces data sovereignty -- a hard requirement for government that is extraordinarily difficult to retrofit.</p>
+        </div>
+        <div class="succeed-card">
+          <span class="sc-number">03</span>
+          <h4>Regulatory Tailwinds</h4>
+          <p>POPIA demands data minimisation. FICA/FIC Act amendments expand KYC requirements to more sectors. SARB Guidance Note 7 pushes banks toward multi-source verification. VeriGate is purpose-built for this regulatory environment.</p>
+        </div>
+        <div class="succeed-card">
+          <span class="sc-number">04</span>
+          <h4>Network Effects</h4>
+          <p>Every new agency or data source that connects makes the platform more valuable for every existing customer. A bank that starts with identity + CIPC checks will naturally expand to sanctions + tax + property. This creates organic revenue expansion within accounts.</p>
+        </div>
+        <div class="succeed-card">
+          <span class="sc-number">05</span>
+          <h4>Switching Costs</h4>
+          <p>Once an enterprise integrates VeriGate's API into its onboarding, compliance, or underwriting workflow, switching is expensive and risky. Verification is embedded in critical business processes -- it is not a tool you swap out casually.</p>
+        </div>
+        <div class="succeed-card">
+          <span class="sc-number">06</span>
+          <h4>Africa-Scale Opportunity</h4>
+          <p>The adapter architecture means VeriGate can expand to any African country by building local adapters. Nigeria alone -- with 200M+ people, a booming fintech sector, and the NIMC identity programme -- represents a larger market than South Africa.</p>
+        </div>
+        <div class="succeed-card full-width">
+          <span class="sc-number">07</span>
+          <h4>The Team Ships</h4>
+          <p>VeriGate is not a slide deck. It is a working platform at TRL 6-7 with 14 verification adapters, 3 AI modules, a partner portal with a visual policy builder, and a proven cross-account deployment model. This was built by a small team with zero external funding. That combination of technical depth and capital efficiency is rare, and it is the strongest signal that this team can execute.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Summary Table -->
+    <section class="section">
+      <span class="section-number">Summary</span>
+      <h2 class="section-title">Application Summary</h2>
+
+      <div class="summary-section">
+        <div class="summary-header">
+          <h3>VeriGate -- At a Glance</h3>
+        </div>
+        <div class="summary-body">
+          <div class="summary-row">
+            <div class="summary-label">Company</div>
+            <div class="summary-value">Arthmatic DevWorks (Pty) Ltd</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Product</div>
+            <div class="summary-value"><strong>VeriGate</strong> -- Real-Time Risk Intelligence Platform</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Stage</div>
+            <div class="summary-value">Working platform (TRL 6-7), pre-revenue</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Ask</div>
+            <div class="summary-value">22 On Sloane Scale Up Programme membership</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Key Need</div>
+            <div class="summary-value">Investor introductions, government/enterprise partnerships, B2G sales mentorship</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">TAM (Africa)</div>
+            <div class="summary-value" style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--navy);">$1.7B+</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">SOM (Year 1-2)</div>
+            <div class="summary-value" style="font-family: 'Manrope', sans-serif; font-weight: 700; color: var(--navy);">R15M-R40M</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Revenue Model</div>
+            <div class="summary-value">SaaS -- per-verification pricing + subscription tiers</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Moat</div>
+            <div class="summary-value">First-mover, adapter architecture, data-sovereignty by design, AI-powered real-time risk intelligence, AI-powered conflict of interest detection</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Location</div>
+            <div class="summary-value">Cape Town (open to Johannesburg presence)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================
+       FOOTER
+  ============================== -->
+  <footer class="footer">
+    Prepared by Arthmatic DevWorks for the 22 On Sloane Scale Up Programme, April 2026.
+  </footer>
+
+</body>
+</html>

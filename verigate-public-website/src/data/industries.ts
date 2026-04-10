@@ -1,0 +1,1671 @@
+// Industry data — 12 SA-focused industries
+// Consumed by /solutions (hub) and /solutions/:slug (detail)
+import { IndustryData } from "@/components/templates/IndustryTemplate";
+
+export const industriesData: IndustryData[] = [
+  // ──────────────────────────────────────────────
+  // 1. Banking & Financial Services
+  // ──────────────────────────────────────────────
+  {
+    slug: "banking",
+    title: "Banking & Financial Services",
+    subtitle: "Compliant Verification for SA Banks",
+    description:
+      "Meet FICA, FAIS, NCA, and SARB requirements with automated customer and employee verification. VeriGate helps South African banks, insurers, and asset managers streamline KYC, AML screening, and background checks while reducing fraud losses.",
+    icon: "Landmark",
+    badgeText: "Financial Services",
+    metrics: [
+      { metric: "KYC Onboarding Time", before: "5 days", after: "15 min", improvement: "98% faster" },
+      { metric: "False Positive Rate", before: "45%", after: "8%", improvement: "82% reduction" },
+      { metric: "Manual Review Volume", before: "100%", after: "20%", improvement: "80% automated" },
+      { metric: "Compliance Audit Time", before: "2 weeks", after: "2 hours", improvement: "99% faster" },
+    ],
+    challenges: [
+      {
+        title: "Complex Regulatory Landscape",
+        description:
+          "South African banks must comply with FICA, FAIS, the Banks Act, NCA, and SARB directives simultaneously, with FIC penalties reaching R50 million.",
+        impact: "High compliance costs and regulatory risk",
+      },
+      {
+        title: "Manual KYC Processes",
+        description:
+          "Many SA banks still rely on manual document collection and verification, leading to slow onboarding and poor customer experience.",
+        impact: "Customer drop-off rates exceeding 40%",
+      },
+      {
+        title: "Fraud & Financial Crime",
+        description:
+          "South African banks face increasing identity fraud, synthetic identities, SIM swap attacks, and money laundering through compromised accounts.",
+        impact: "R4.6 billion annual fraud losses in SA banking",
+      },
+      {
+        title: "Digital Transformation Pressure",
+        description:
+          "Customers expect fully digital account opening and services, requiring banks to digitise KYC without compromising compliance or security.",
+        impact: "40% of customers switch banks due to poor digital experience",
+      },
+    ],
+    solutions: [
+      {
+        title: "Automated KYC Onboarding",
+        description: "Digital customer onboarding with real-time FICA compliance",
+        features: [
+          "DHA identity verification in real time",
+          "Automated FICA CDD and EDD workflows",
+          "Digital proof of address verification",
+          "Sanctions, PEP, and adverse media screening",
+        ],
+        result: "98% faster onboarding",
+      },
+      {
+        title: "AML Screening Platform",
+        description: "Continuous sanctions and transaction monitoring for FICA compliance",
+        features: [
+          "Real-time sanctions list screening (1 500+ lists)",
+          "PEP and adverse media ongoing monitoring",
+          "Transaction pattern analysis and alerting",
+          "Automated Section 29 STR preparation for FIC",
+        ],
+        result: "82% fewer false positives",
+      },
+      {
+        title: "Employee Background Screening",
+        description: "Comprehensive employee vetting for financial services staff",
+        features: [
+          "Criminal record checks via SAPS",
+          "Credit bureau screening (TransUnion, Experian, XDS)",
+          "Qualification verification through SAQA",
+          "FAIS fit-and-proper checks for representatives",
+        ],
+        result: "100% regulatory compliance",
+      },
+    ],
+    regulations: [
+      { name: "FICA", description: "Financial Intelligence Centre Act -- Customer due diligence, record keeping, and suspicious transaction reporting for accountable institutions." },
+      { name: "Banks Act", description: "Governs the conduct and regulation of banks in South Africa, including capital adequacy, risk management, and corporate governance." },
+      { name: "SARB Directives", description: "South African Reserve Bank prudential requirements, capital adequacy standards, and AML/CFT supervisory expectations." },
+      { name: "NCA", description: "National Credit Act -- Governs credit granting, affordability assessments, and consumer credit information for lending activities." },
+    ],
+    useCases: [
+      {
+        title: "Digital Account Opening",
+        description: "Enable fully digital bank account opening with compliant KYC verification",
+        benefits: [
+          "Real-time DHA identity verification",
+          "Automated FICA-compliant CDD workflow",
+          "Digital document authentication and OCR",
+          "Biometric face verification with liveness",
+        ],
+      },
+      {
+        title: "Loan Origination",
+        description: "Streamline loan application processing with automated verification",
+        benefits: [
+          "Multi-bureau credit screening",
+          "Income and employment verification",
+          "Document authenticity checks for payslips",
+          "NCA affordability assessment data extraction",
+        ],
+      },
+      {
+        title: "Employee & Contractor Vetting",
+        description: "Screen all banking staff for FAIS fit-and-proper requirements",
+        benefits: [
+          "SAPS criminal record checks",
+          "Credit bureau screening for financial risk",
+          "SAQA qualification verification",
+          "FAIS competency and fit-and-proper confirmation",
+        ],
+      },
+      {
+        title: "Ongoing AML Monitoring",
+        description: "Continuous monitoring of existing customers against sanctions and PEP lists",
+        benefits: [
+          "Daily sanctions list screening updates",
+          "Transaction pattern anomaly detection",
+          "Automated FIC reporting via goAML",
+          "Customer risk rating reassessment triggers",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA mid-tier bank processing 50,000 KYC verifications per month",
+      stats: [
+        { label: "Cost per Verification", value: "78% lower" },
+        { label: "Onboarding Completion", value: "94%" },
+        { label: "Compliance Score", value: "99.2%" },
+        { label: "Annual Savings", value: "R4.2M" },
+      ],
+    },
+    ctaTitle: "Transform Banking Verification",
+  },
+
+  // ──────────────────────────────────────────────
+  // 2. Fintech & Digital Banking
+  // ──────────────────────────────────────────────
+  {
+    slug: "fintech",
+    title: "Fintech & Digital Banking",
+    subtitle: "API-First Verification for Digital Finance",
+    description:
+      "Built for South African fintechs that need fast, compliant customer onboarding and ongoing verification. VeriGate's API-first platform integrates seamlessly with your digital product for real-time KYC, AML compliance, and fraud prevention.",
+    icon: "Smartphone",
+    badgeText: "Fintech Solutions",
+    metrics: [
+      { metric: "API Response Time", before: "8 sec", after: "1.2 sec", improvement: "85% faster" },
+      { metric: "Onboarding Drop-off", before: "38%", after: "12%", improvement: "68% reduction" },
+      { metric: "Verification Accuracy", before: "91%", after: "99.2%", improvement: "8.2% increase" },
+      { metric: "Time to Market", before: "6 months", after: "2 weeks", improvement: "92% faster" },
+    ],
+    challenges: [
+      {
+        title: "Balancing Speed with Compliance",
+        description:
+          "Fintechs must deliver seamless digital experiences while meeting the same FICA, NCA, and FSCA requirements as traditional banks.",
+        impact: "Customer acquisition cost increases with verification friction",
+      },
+      {
+        title: "Scalability Demands",
+        description:
+          "Rapid growth means verification volumes can spike dramatically, requiring infrastructure that scales without degradation or downtime.",
+        impact: "System failures during growth spikes lose customers",
+      },
+      {
+        title: "Identity Fraud at Scale",
+        description:
+          "Digital-first channels are targeted by sophisticated fraud networks using synthetic identities, bots, and automated bot attacks.",
+        impact: "Fraud losses up to 3% of transaction volume",
+      },
+      {
+        title: "FSCA Licensing Compliance",
+        description:
+          "Fintechs offering financial products must meet FSCA licensing requirements including ongoing KYC monitoring and conduct standards.",
+        impact: "Licence revocation and operational shutdown",
+      },
+    ],
+    solutions: [
+      {
+        title: "API-First KYC",
+        description: "RESTful APIs for real-time identity verification in your onboarding flow",
+        features: [
+          "Sub-second API responses for frictionless UX",
+          "DHA identity verification with eIDV",
+          "Sanctions and PEP screening",
+          "Webhook-driven async flows for batch processing",
+        ],
+        result: "85% faster verification",
+      },
+      {
+        title: "Embedded Verification SDK",
+        description: "White-label web and mobile SDKs for in-app verification",
+        features: [
+          "Document capture with OCR extraction",
+          "Biometric face verification with liveness",
+          "Customisable branded verification flows",
+          "On-device processing for privacy-first UX",
+        ],
+        result: "68% lower drop-off",
+      },
+      {
+        title: "Fraud Prevention Suite",
+        description: "Multi-layered fraud detection for digital-first channels",
+        features: [
+          "Device intelligence and fingerprinting",
+          "Behavioural biometrics monitoring",
+          "Velocity and pattern checks",
+          "Consortium fraud database screening",
+        ],
+        result: "90% fraud detection rate",
+      },
+    ],
+    regulations: [
+      { name: "FSCA", description: "Financial Sector Conduct Authority -- Licensing and conduct requirements for fintech financial service providers." },
+      { name: "FICA", description: "Financial Intelligence Centre Act requirements apply to all licensed financial services providers including fintechs." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Data protection for processing customer personal information in digital channels." },
+      { name: "NPS Act", description: "National Payment System Act -- Requirements for fintechs processing payments and operating payment infrastructure." },
+    ],
+    useCases: [
+      {
+        title: "Digital Wallet Onboarding",
+        description: "Instant KYC for mobile wallet registration and RICA compliance",
+        benefits: [
+          "Real-time eIDV identity verification",
+          "Automated FICA CDD workflow",
+          "Biometric face enrolment",
+          "SIM-swap fraud detection",
+        ],
+      },
+      {
+        title: "Lending Platform Verification",
+        description: "Fast, compliant borrower verification for digital lending products",
+        benefits: [
+          "Multi-bureau credit integration",
+          "Income and employment verification",
+          "Bank statement analysis and OCR",
+          "NCA affordability assessment data",
+        ],
+      },
+      {
+        title: "BNPL Customer Verification",
+        description: "Instant identity and credit checks for buy-now-pay-later services",
+        benefits: [
+          "Sub-second identity confirmation",
+          "Real-time credit risk assessment",
+          "Age verification for age-restricted goods",
+          "Fraud scoring at point of sale",
+        ],
+      },
+      {
+        title: "Neobank Account Opening",
+        description: "Fully digital bank account opening with zero-branch onboarding",
+        benefits: [
+          "Document capture and verification via SDK",
+          "DHA population register cross-check",
+          "Selfie-to-ID face matching with liveness",
+          "Address verification via utility bill OCR",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA fintech processing 100,000 verifications per month",
+      stats: [
+        { label: "Cost per Verification", value: "65% lower" },
+        { label: "Conversion Rate", value: "+32%" },
+        { label: "Fraud Prevention", value: "R2.1M saved" },
+        { label: "Integration Time", value: "2 weeks" },
+      ],
+    },
+    ctaTitle: "Power Your Fintech with VeriGate",
+  },
+
+  // ──────────────────────────────────────────────
+  // 3. Cryptocurrency & Digital Assets
+  // ──────────────────────────────────────────────
+  {
+    slug: "cryptocurrency",
+    title: "Cryptocurrency & Digital Assets",
+    subtitle: "KYC & AML for SA Crypto Platforms",
+    description:
+      "Meet FSCA, FICA, and FATF Travel Rule requirements for Crypto Asset Service Providers (CASPs) in South Africa. VeriGate provides KYC, AML screening, and Travel Rule compliance for crypto exchanges, custodians, and DeFi platforms.",
+    icon: "Bitcoin",
+    badgeText: "Crypto Compliance",
+    metrics: [
+      { metric: "KYC Completion", before: "52%", after: "89%", improvement: "71% increase" },
+      { metric: "Onboarding Time", before: "48 hrs", after: "5 min", improvement: "99% faster" },
+      { metric: "AML Screening", before: "Manual", after: "Real-time", improvement: "Automated" },
+      { metric: "Travel Rule", before: "Non-compliant", after: "Compliant", improvement: "100%" },
+    ],
+    challenges: [
+      {
+        title: "Evolving FSCA Regulation",
+        description:
+          "South Africa's crypto regulatory framework is rapidly evolving with FSCA CASP licensing, FICA extension, and IFWG guidelines creating compliance complexity.",
+        impact: "Regulatory uncertainty and licence risk",
+      },
+      {
+        title: "High Fraud & Money Laundering Risk",
+        description:
+          "Crypto platforms face disproportionately high rates of identity fraud, money laundering, and sanctions evasion attempts using digital assets.",
+        impact: "Regulatory enforcement and reputational damage",
+      },
+      {
+        title: "User Experience Expectations",
+        description:
+          "Crypto users expect instant, frictionless account activation that conflicts with thorough FICA CDD and EDD requirements.",
+        impact: "KYC abandonment rates exceeding 48%",
+      },
+      {
+        title: "FATF Travel Rule Compliance",
+        description:
+          "CASPs must implement the FATF Travel Rule requiring originator and beneficiary information sharing for crypto transfers above thresholds.",
+        impact: "Non-compliance risks grey-list consequences for SA",
+      },
+    ],
+    solutions: [
+      {
+        title: "Crypto KYC Platform",
+        description: "Purpose-built tiered KYC for cryptocurrency service providers",
+        features: [
+          "Tiered KYC levels by transaction volume",
+          "Real-time DHA identity verification",
+          "Document and biometric verification",
+          "Wallet address risk scoring via blockchain analytics",
+        ],
+        result: "89% KYC completion rate",
+      },
+      {
+        title: "AML & Travel Rule Compliance",
+        description: "Automated AML screening and FATF Travel Rule data exchange",
+        features: [
+          "Real-time sanctions and PEP screening",
+          "Blockchain analytics integration for wallet risk",
+          "Travel Rule compliant data sharing protocols",
+          "Ongoing transaction monitoring and alerting",
+        ],
+        result: "Full regulatory compliance",
+      },
+      {
+        title: "Crypto Fraud Prevention",
+        description: "Multi-layered fraud prevention for crypto platforms",
+        features: [
+          "Synthetic identity and deepfake detection",
+          "Account takeover prevention",
+          "Device intelligence and bot detection",
+          "Behavioural anomaly detection for trading patterns",
+        ],
+        result: "92% fraud prevention rate",
+      },
+    ],
+    regulations: [
+      { name: "FSCA Crypto Declaration", description: "FSCA declaration of crypto assets as financial products, requiring CASP licensing and conduct standards." },
+      { name: "FICA", description: "Extended to CASPs -- customer due diligence, record keeping, and suspicious transaction reporting for crypto operators." },
+      { name: "FATF Travel Rule", description: "FATF Recommendation 16 requiring originator and beneficiary information for virtual asset transfers." },
+      { name: "SARB", description: "South African Reserve Bank oversight of crypto-related cross-border transactions and exchange control implications." },
+    ],
+    useCases: [
+      {
+        title: "Exchange Account Opening",
+        description: "Compliant KYC for new crypto exchange account registrations",
+        benefits: [
+          "Tiered verification levels based on trading limits",
+          "Real-time identity verification via DHA",
+          "Sanctions and PEP screening at onboarding",
+          "Automated approval workflows with configurable rules",
+        ],
+      },
+      {
+        title: "High-Value Transaction Verification",
+        description: "Step-up verification for large crypto transactions and withdrawals",
+        benefits: [
+          "Enhanced due diligence triggers at configurable thresholds",
+          "Source of funds documentation collection",
+          "Biometric re-authentication for high-value transfers",
+          "Blockchain analytics for transaction risk scoring",
+        ],
+      },
+      {
+        title: "CASP Licence Application Support",
+        description: "Demonstrate KYC/AML readiness for FSCA CASP licence applications",
+        benefits: [
+          "FICA-compliant CDD and EDD workflows",
+          "Documented AML programme with screening evidence",
+          "Travel Rule compliance capability",
+          "Audit-ready compliance reporting",
+        ],
+      },
+      {
+        title: "DeFi On-Ramp Verification",
+        description: "Identity verification for fiat-to-crypto on-ramp services",
+        benefits: [
+          "Instant eIDV for low-value on-ramps",
+          "Document verification for higher tiers",
+          "Age verification for regulatory compliance",
+          "Risk-based transaction limits enforcement",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA crypto exchange processing 50,000 KYC verifications per month",
+      stats: [
+        { label: "KYC Completion Rate", value: "89%" },
+        { label: "Regulatory Compliance", value: "100%" },
+        { label: "Fraud Prevention", value: "R5.1M saved" },
+        { label: "Onboarding Time", value: "5 min avg" },
+      ],
+    },
+    ctaTitle: "Comply with Crypto Regulations",
+  },
+
+  // ──────────────────────────────────────────────
+  // 4. Gaming & Gambling
+  // ──────────────────────────────────────────────
+  {
+    slug: "gaming",
+    title: "Gaming & Gambling",
+    subtitle: "Age & Identity Verification for SA Gaming",
+    description:
+      "Meet National Gambling Act, provincial gambling board, and FICA requirements with automated identity verification, age checks, and responsible gambling compliance for both online and land-based gaming operations in South Africa.",
+    icon: "Dice5",
+    badgeText: "Gaming Compliance",
+    metrics: [
+      { metric: "Age Verification", before: "Manual", after: "Instant", improvement: "Automated" },
+      { metric: "Player Registration", before: "15 min", after: "2 min", improvement: "87% faster" },
+      { metric: "Self-Exclusion Check", before: "4 hrs", after: "Instant", improvement: "Real-time" },
+      { metric: "Compliance Coverage", before: "68%", after: "100%", improvement: "100%" },
+    ],
+    challenges: [
+      {
+        title: "Underage Gambling Prevention",
+        description:
+          "Strict obligation to prevent anyone under 18 from gambling, with severe penalties for non-compliance under the National Gambling Act.",
+        impact: "Licence revocation and criminal liability",
+      },
+      {
+        title: "Self-Exclusion Compliance",
+        description:
+          "Maintaining and checking the national and provincial self-exclusion registers in real time for every player interaction.",
+        impact: "Regulatory sanctions and player harm",
+      },
+      {
+        title: "Remote Gambling KYC",
+        description:
+          "Online gambling platforms must perform robust KYC without physical presence, meeting the same standards as land-based venues.",
+        impact: "Fraud exposure and licence compliance risk",
+      },
+      {
+        title: "Problem Gambling Detection",
+        description:
+          "Operators must identify problem gambling behaviours and intervene, requiring ongoing monitoring of player activity patterns.",
+        impact: "Regulatory sanctions and reputational harm",
+      },
+    ],
+    solutions: [
+      {
+        title: "Player Registration & KYC",
+        description: "Automated player registration with identity and age verification",
+        features: [
+          "Real-time age verification via SA ID number",
+          "DHA identity confirmation",
+          "Biometric face verification for online platforms",
+          "Self-exclusion register screening at registration",
+        ],
+        result: "100% age compliance",
+      },
+      {
+        title: "Responsible Gambling Compliance",
+        description: "Tools to support responsible gambling obligations and player protection",
+        features: [
+          "National and provincial exclusion register checks",
+          "Problem gambling indicator monitoring",
+          "Automated deposit and loss limit enforcement",
+          "Self-exclusion and cooling-off period management",
+        ],
+        result: "Real-time exclusion checking",
+      },
+      {
+        title: "AML for Gaming",
+        description: "FICA-compliant anti-money laundering for gambling operators",
+        features: [
+          "FICA CDD for casino and betting customers",
+          "Large cash transaction reporting (R24 999.99+)",
+          "Sanctions and PEP screening",
+          "Suspicious activity monitoring and STR filing",
+        ],
+        result: "Full FICA compliance",
+      },
+    ],
+    regulations: [
+      { name: "National Gambling Act", description: "Regulates gambling activities in South Africa, including licensing, player protection, age restrictions, and compliance." },
+      { name: "Provincial Gambling Boards", description: "Provincial-level regulation and licensing for casinos, betting shops, and gaming operations." },
+      { name: "FICA", description: "Casinos and gambling operators are accountable institutions under FICA with full CDD and STR obligations." },
+      { name: "POPIA", description: "Player personal information and biometric data must be processed in compliance with POPIA requirements." },
+    ],
+    useCases: [
+      {
+        title: "Online Betting Registration",
+        description: "Compliant player registration for online sports betting platforms",
+        benefits: [
+          "Instant age verification via SA ID",
+          "Identity confirmation through DHA",
+          "Self-exclusion register screening",
+          "Address verification for geo-compliance",
+        ],
+      },
+      {
+        title: "Casino Player Enrolment",
+        description: "Streamlined player card enrolment for land-based casinos",
+        benefits: [
+          "Biometric identity verification at the counter",
+          "Exclusion register screening in real time",
+          "Facial recognition for access control",
+          "Loyalty programme integration",
+        ],
+      },
+      {
+        title: "Online Casino Onboarding",
+        description: "Digital KYC for remote online casino platforms",
+        benefits: [
+          "Document capture and verification via SDK",
+          "Selfie-to-ID biometric matching",
+          "Device intelligence for fraud prevention",
+          "Responsible gambling limit configuration",
+        ],
+      },
+      {
+        title: "Sports Betting Account Upgrades",
+        description: "Step-up verification for high-value betting accounts",
+        benefits: [
+          "Enhanced due diligence for VIP players",
+          "Source of funds documentation",
+          "Ongoing AML transaction monitoring",
+          "FICA Section 28 cash threshold reporting",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA online gaming operator processing 30,000 registrations per month",
+      stats: [
+        { label: "Registration Time", value: "87% faster" },
+        { label: "Age Compliance", value: "100%" },
+        { label: "Fraud Prevention", value: "R1.4M saved" },
+        { label: "Licence Compliance", value: "100%" },
+      ],
+    },
+    ctaTitle: "Ensure Gaming Compliance",
+  },
+
+  // ──────────────────────────────────────────────
+  // 5. Healthcare & Pharmaceuticals
+  // ──────────────────────────────────────────────
+  {
+    slug: "healthcare",
+    title: "Healthcare & Pharmaceuticals",
+    subtitle: "Professional & Patient Verification",
+    description:
+      "Verify healthcare professionals, patients, and suppliers in compliance with HPCSA, SANC, NHA, and POPIA. VeriGate ensures that only qualified, registered professionals deliver care in South African healthcare facilities.",
+    icon: "Heart",
+    badgeText: "Healthcare Verification",
+    metrics: [
+      { metric: "Credential Verification", before: "10 days", after: "2 days", improvement: "80% faster" },
+      { metric: "HPCSA Check Time", before: "5 days", after: "4 hours", improvement: "97% faster" },
+      { metric: "Locum Verification", before: "3 days", after: "30 min", improvement: "99% faster" },
+      { metric: "Compliance Coverage", before: "72%", after: "100%", improvement: "100% coverage" },
+    ],
+    challenges: [
+      {
+        title: "Professional Registration Fraud",
+        description:
+          "Unregistered or deregistered individuals presenting fraudulent HPCSA or SANC registration documents to gain employment at healthcare facilities.",
+        impact: "Patient safety risk and institutional liability",
+      },
+      {
+        title: "Locum Tenens Verification",
+        description:
+          "High turnover of locum staff requires rapid verification without compromising on thoroughness or regulatory compliance.",
+        impact: "Delays in filling critical clinical positions",
+      },
+      {
+        title: "NHA Compliance Requirements",
+        description:
+          "The National Health Act and provincial health regulations impose strict requirements on practitioner credentialing and facility compliance.",
+        impact: "Facility licence revocation and legal liability",
+      },
+      {
+        title: "POPIA Health Data Protection",
+        description:
+          "Processing patient health information requires meeting POPIA's special conditions for special personal information, with heightened consent and security requirements.",
+        impact: "Information Regulator enforcement and R10M fines",
+      },
+    ],
+    solutions: [
+      {
+        title: "Professional Registration Verification",
+        description: "Automated HPCSA, SANC, and allied health board verification",
+        features: [
+          "HPCSA registration status and category checks",
+          "SANC practitioner and enrolment verification",
+          "Allied Health Professions Council checks",
+          "Practice number and dispensing licence validation",
+        ],
+        result: "97% faster credential checks",
+      },
+      {
+        title: "Healthcare Worker Screening",
+        description: "Comprehensive background screening for clinical and non-clinical staff",
+        features: [
+          "Criminal record checks via SAPS",
+          "Qualification verification through SAQA and institutions",
+          "Children's Act compliance screening",
+          "Drug and health screening coordination",
+        ],
+        result: "100% compliance coverage",
+      },
+      {
+        title: "Patient Identity Verification",
+        description: "Accurate patient identification for clinical safety and billing",
+        features: [
+          "DHA identity verification for patient registration",
+          "Medical aid membership and benefit confirmation",
+          "Biometric patient identification to prevent fraud",
+          "Duplicate patient record detection and merging",
+        ],
+        result: "95% reduction in ID errors",
+      },
+    ],
+    regulations: [
+      { name: "HPCSA", description: "Health Professions Council of SA -- Mandatory registration for doctors, dentists, and allied health professionals." },
+      { name: "SANC", description: "South African Nursing Council -- Registration and regulation of nurses, midwives, and enrolled nursing assistants." },
+      { name: "NHA", description: "National Health Act -- Governs healthcare delivery, patient rights, facility licensing, and practitioner requirements." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Special provisions for processing patient health information (special personal information)." },
+    ],
+    useCases: [
+      {
+        title: "Practitioner Credentialing",
+        description: "Verify healthcare professional credentials before appointment",
+        benefits: [
+          "HPCSA and SANC registration confirmation",
+          "Qualification verification via SAQA",
+          "Criminal record screening",
+          "Professional indemnity insurance confirmation",
+        ],
+      },
+      {
+        title: "Locum Rapid Verification",
+        description: "Fast-track verification for temporary clinical staff placement",
+        benefits: [
+          "Priority processing queues for urgent placements",
+          "Pre-verified practitioner database lookups",
+          "Automated re-verification on registration expiry",
+          "Real-time status notifications to placement agencies",
+        ],
+      },
+      {
+        title: "Patient Registration & ID",
+        description: "Verify patient identity at registration for safety and billing accuracy",
+        benefits: [
+          "DHA identity confirmation at admission",
+          "Medical aid membership verification",
+          "Biometric patient matching to prevent duplication",
+          "Digital consent capture for POPIA compliance",
+        ],
+      },
+      {
+        title: "Pharmaceutical Supply Chain",
+        description: "Verify suppliers and distributors in the pharmaceutical value chain",
+        benefits: [
+          "SAHPRA licence verification for pharmaceutical suppliers",
+          "CIPC business registration confirmation",
+          "BEE certificate validation for procurement",
+          "Director and ownership screening",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA private hospital group processing 5,000 verifications per month",
+      stats: [
+        { label: "Credentialing Time", value: "80% faster" },
+        { label: "Compliance Score", value: "100%" },
+        { label: "Locum Turnaround", value: "30 min avg" },
+        { label: "Annual Savings", value: "R1.8M" },
+      ],
+    },
+    ctaTitle: "Verify Healthcare Professionals",
+  },
+
+  // ──────────────────────────────────────────────
+  // 6. E-commerce & Retail
+  // ──────────────────────────────────────────────
+  {
+    slug: "ecommerce",
+    title: "E-commerce & Retail",
+    subtitle: "Fraud Prevention for Online Retail",
+    description:
+      "Protect your South African e-commerce platform against identity fraud, account takeovers, and fraudulent transactions. VeriGate provides real-time identity verification, age-gated product sales, and multi-layered fraud prevention for digital retail.",
+    icon: "ShoppingCart",
+    badgeText: "E-Commerce Security",
+    metrics: [
+      { metric: "Fraud Detection Rate", before: "62%", after: "94%", improvement: "52% increase" },
+      { metric: "Checkout Friction", before: "High", after: "Minimal", improvement: "Seamless UX" },
+      { metric: "Chargeback Rate", before: "2.8%", after: "0.4%", improvement: "86% reduction" },
+      { metric: "Account Takeover", before: "1,200/mo", after: "45/mo", improvement: "96% reduction" },
+    ],
+    challenges: [
+      {
+        title: "Payment & Transaction Fraud",
+        description:
+          "Fraudulent transactions using stolen card details, account takeovers, and synthetic identities targeting SA e-commerce platforms.",
+        impact: "Chargebacks and direct financial losses exceeding R3B/yr",
+      },
+      {
+        title: "Account Takeover Attacks",
+        description:
+          "Criminals gaining access to legitimate customer accounts through credential stuffing, phishing, SIM swap, and social engineering.",
+        impact: "Customer trust erosion and platform liability",
+      },
+      {
+        title: "Age-Restricted Sales Compliance",
+        description:
+          "Compliance with SA regulations on age-restricted products including alcohol, tobacco, and gambling-related merchandise.",
+        impact: "Regulatory fines and licence revocation risk",
+      },
+      {
+        title: "Marketplace Seller Fraud",
+        description:
+          "Fraudulent sellers using fake identities to list non-existent goods, collect payments, and disappear from the platform.",
+        impact: "Consumer trust damage and CPA liability",
+      },
+    ],
+    solutions: [
+      {
+        title: "Identity Verification at Checkout",
+        description: "Frictionless identity verification triggered by risk signals",
+        features: [
+          "Risk-based verification triggers for suspicious orders",
+          "eIDV for instant identity confirmation",
+          "Age verification for restricted products",
+          "Device intelligence scoring at checkout",
+        ],
+        result: "94% fraud detection rate",
+      },
+      {
+        title: "Account Protection",
+        description: "Prevent account takeovers and fraudulent registrations",
+        features: [
+          "Behavioural biometrics for session monitoring",
+          "Device fingerprinting across 200+ attributes",
+          "Login anomaly and credential stuffing detection",
+          "Step-up authentication for suspicious activity",
+        ],
+        result: "96% fewer account takeovers",
+      },
+      {
+        title: "Seller & Vendor Verification",
+        description: "Verify marketplace sellers and vendors before onboarding",
+        features: [
+          "Business registration verification via CIPC",
+          "Seller identity confirmation through DHA",
+          "Bank account ownership checks",
+          "BEE certificate and tax clearance validation",
+        ],
+        result: "Trusted marketplace ecosystem",
+      },
+    ],
+    regulations: [
+      { name: "ECT Act", description: "Electronic Communications and Transactions Act -- Governs e-commerce, electronic signatures, and consumer protection online." },
+      { name: "Consumer Protection Act", description: "Product safety, fair trading practices, return policies, and consumer rights in retail transactions." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Data protection for customer information collected during online transactions." },
+      { name: "Liquor Act", description: "Regulates the sale and delivery of alcohol including age verification requirements for online sales." },
+    ],
+    useCases: [
+      {
+        title: "High-Value Transaction Verification",
+        description: "Verify buyer identity for high-value purchases to prevent fraud",
+        benefits: [
+          "Risk-based verification triggers at configurable thresholds",
+          "Real-time identity confirmation via eIDV",
+          "Delivery address verification",
+          "Payment method ownership confirmation",
+        ],
+      },
+      {
+        title: "Age-Gated Product Sales",
+        description: "Compliant age verification for restricted product categories",
+        benefits: [
+          "Instant age verification via SA ID number",
+          "Document-based verification fallback",
+          "Delivery-time age confirmation workflows",
+          "Audit trail for regulatory compliance",
+        ],
+      },
+      {
+        title: "Seller Onboarding",
+        description: "Verify marketplace sellers before allowing them to list and sell",
+        benefits: [
+          "Identity and business registration verification",
+          "Bank account ownership confirmation",
+          "Fraud history screening via consortium database",
+          "Ongoing seller monitoring and re-verification",
+        ],
+      },
+      {
+        title: "Return & Refund Fraud Prevention",
+        description: "Detect and prevent fraudulent return and refund claims",
+        benefits: [
+          "Customer identity linking across transactions",
+          "Return pattern analysis and abuse detection",
+          "Device fingerprinting for repeat offender identification",
+          "Automated blocking of serial return abusers",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA e-commerce platform processing 200,000 transactions per month",
+      stats: [
+        { label: "Fraud Losses Prevented", value: "R3.2M/yr" },
+        { label: "Chargeback Reduction", value: "86%" },
+        { label: "Conversion Rate", value: "+12%" },
+        { label: "Compliance Score", value: "100%" },
+      ],
+    },
+    ctaTitle: "Protect Your E-Commerce Platform",
+  },
+
+  // ──────────────────────────────────────────────
+  // 7. Travel & Hospitality
+  // ──────────────────────────────────────────────
+  {
+    slug: "travel-hospitality",
+    title: "Travel & Hospitality",
+    subtitle: "Guest & Staff Verification for SA Tourism",
+    description:
+      "Verify guest identities, employee backgrounds, and supplier credentials in the South African travel and hospitality sector. Meet Tourism Act and Immigration Act requirements while delivering seamless guest experiences.",
+    icon: "Plane",
+    badgeText: "Tourism & Hospitality",
+    metrics: [
+      { metric: "Guest Check-In", before: "8 min", after: "45 sec", improvement: "94% faster" },
+      { metric: "Employee Screening", before: "10 days", after: "3 days", improvement: "70% faster" },
+      { metric: "ID Fraud Detection", before: "Low", after: "High", improvement: "92% detection" },
+      { metric: "Compliance Score", before: "61%", after: "98%", improvement: "61% increase" },
+    ],
+    challenges: [
+      {
+        title: "Guest Identity Verification",
+        description:
+          "Hotels, car rental companies, and tour operators must verify guest identities for safety, compliance, and liability purposes across diverse document types.",
+        impact: "Liability exposure and insurance claims risk",
+      },
+      {
+        title: "Seasonal Staff Screening",
+        description:
+          "High seasonal staff turnover requires fast but thorough background screening, especially for roles with guest access and handling of valuables.",
+        impact: "Guest safety risk and brand reputation damage",
+      },
+      {
+        title: "International Document Variety",
+        description:
+          "Processing identity documents from visitors across the globe, each with different formats, languages, and security features.",
+        impact: "Slow check-in and verification errors",
+      },
+      {
+        title: "Immigration & Visa Compliance",
+        description:
+          "Hospitality providers must verify foreign visitor visa status and record guest information as required by the Immigration Act.",
+        impact: "Fines for harbouring undocumented visitors",
+      },
+    ],
+    solutions: [
+      {
+        title: "Guest Identity Verification",
+        description: "Fast, multi-document guest identity verification for hospitality",
+        features: [
+          "200+ country identity document support",
+          "Passport MRZ scanning and verification",
+          "SA Smart ID and driver's licence verification",
+          "Biometric face matching for VIP recognition",
+        ],
+        result: "94% faster check-in",
+      },
+      {
+        title: "Hospitality Staff Screening",
+        description: "Background screening for seasonal and permanent hospitality staff",
+        features: [
+          "SAPS criminal record checks",
+          "Reference and employment verification",
+          "Qualification confirmation",
+          "Foreign national work permit validation",
+        ],
+        result: "70% faster screening",
+      },
+      {
+        title: "Supplier & Vendor Verification",
+        description: "Verify tourism suppliers and service providers in your value chain",
+        features: [
+          "CIPC business registration checks",
+          "BEE certificate validation for procurement",
+          "SARS tax clearance confirmation",
+          "Director and ownership screening",
+        ],
+        result: "Trusted supply chain",
+      },
+    ],
+    regulations: [
+      { name: "Tourism Act", description: "Regulates tourism services, tour operator licensing, and tourist guide registration in South Africa." },
+      { name: "FICA", description: "Hotels and hospitality businesses may be accountable institutions for FICA CDD requirements for certain transactions." },
+      { name: "Immigration Act", description: "Requirements for recording foreign visitor information and checking visa/permit status at accommodation establishments." },
+      { name: "POPIA", description: "Guest personal information and biometric data must be processed in compliance with POPIA requirements." },
+    ],
+    useCases: [
+      {
+        title: "Hotel Guest Check-In",
+        description: "Streamline guest identity verification at check-in with multi-document support",
+        benefits: [
+          "Multi-document ID scanning and OCR",
+          "Automated guest profile creation",
+          "PMS system integration",
+          "Foreign visitor visa status confirmation",
+        ],
+      },
+      {
+        title: "Car Rental Verification",
+        description: "Verify driver identity and licence validity for vehicle rentals",
+        benefits: [
+          "Driver identity confirmation via DHA",
+          "SA licence validity and endorsement checking",
+          "International driving permit verification",
+          "Deposit and insurance risk assessment",
+        ],
+      },
+      {
+        title: "Tour Operator Compliance",
+        description: "Verify tourist guides and tour operator staff credentials",
+        benefits: [
+          "Tourist guide registration confirmation",
+          "Criminal record screening for staff",
+          "First aid and safety qualification checks",
+          "Vehicle and operator licence validation",
+        ],
+      },
+      {
+        title: "Seasonal Staff Onboarding",
+        description: "Rapid background screening for seasonal hospitality staff",
+        benefits: [
+          "Fast-track criminal record checks",
+          "Identity and right-to-work verification",
+          "Previous employer reference checks",
+          "Children's Act compliance for family resorts",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA hotel group with 500 rooms across 5 properties",
+      stats: [
+        { label: "Check-In Time", value: "94% faster" },
+        { label: "Staff Screening", value: "70% faster" },
+        { label: "Fraud Prevention", value: "R640K saved" },
+        { label: "Guest Satisfaction", value: "+18%" },
+      ],
+    },
+    ctaTitle: "Verify for Hospitality Excellence",
+  },
+
+  // ──────────────────────────────────────────────
+  // 8. Real Estate & Property
+  // ──────────────────────────────────────────────
+  {
+    slug: "real-estate",
+    title: "Real Estate & Property",
+    subtitle: "Tenant, Buyer & Agent Verification",
+    description:
+      "Verify tenants, buyers, sellers, and estate agents in South African property transactions. VeriGate helps estate agencies, property managers, and conveyancers meet FICA requirements and reduce property-related fraud.",
+    icon: "Home",
+    badgeText: "Property Verification",
+    metrics: [
+      { metric: "Tenant Screening", before: "5 days", after: "24 hrs", improvement: "80% faster" },
+      { metric: "FICA Compliance", before: "Manual", after: "Automated", improvement: "100%" },
+      { metric: "Bad Tenant Risk", before: "18%", after: "4%", improvement: "78% reduction" },
+      { metric: "Fraud Detection", before: "Low", after: "High", improvement: "95% detection" },
+    ],
+    challenges: [
+      {
+        title: "Tenant Fraud",
+        description:
+          "Prospective tenants using fake IDs, forged payslips, and fabricated references to secure rental properties they cannot afford.",
+        impact: "Non-payment, property damage, and costly eviction processes",
+      },
+      {
+        title: "FICA for Estate Agents",
+        description:
+          "Estate agents are accountable institutions under FICA and must conduct CDD on both buyers and sellers in property transactions.",
+        impact: "Regulatory non-compliance and FIC penalties",
+      },
+      {
+        title: "Title Deed & Transfer Fraud",
+        description:
+          "Criminals using forged powers of attorney and identity documents to fraudulently transfer property ownership to themselves or accomplices.",
+        impact: "Loss of property and years-long legal disputes",
+      },
+      {
+        title: "Affordability Misrepresentation",
+        description:
+          "Tenants and buyers providing fraudulent income documentation to qualify for properties beyond their financial means.",
+        impact: "Default and vacancy losses for landlords",
+      },
+    ],
+    solutions: [
+      {
+        title: "Tenant Screening Package",
+        description: "Comprehensive tenant verification for property managers and landlords",
+        features: [
+          "Identity verification via DHA",
+          "Multi-bureau credit screening",
+          "Criminal record checks via SAPS",
+          "Employment and income verification",
+        ],
+        result: "78% fewer bad tenants",
+      },
+      {
+        title: "FICA Compliance for Agents",
+        description: "Automated FICA CDD for property sale and rental transactions",
+        features: [
+          "Buyer and seller identity verification",
+          "Proof of address validation",
+          "Source of funds verification",
+          "Sanctions and PEP screening",
+        ],
+        result: "Full FICA compliance",
+      },
+      {
+        title: "Property Fraud Prevention",
+        description: "Protect against title deed, transfer, and identity fraud",
+        features: [
+          "Document authentication for deeds and powers of attorney",
+          "Seller identity confirmation through DHA",
+          "Conveyancer due diligence checks",
+          "Cross-referencing with Deeds Office records",
+        ],
+        result: "95% fraud detection rate",
+      },
+    ],
+    regulations: [
+      { name: "Estate Agency Affairs Act", description: "Governs estate agent conduct and registration through the Property Practitioners Regulatory Authority (PPRA)." },
+      { name: "FICA", description: "Estate agents must perform CDD on buyers and sellers as accountable institutions under the Financial Intelligence Centre Act." },
+      { name: "NCA", description: "National Credit Act requirements for affordability assessments and credit checks in mortgage and rental applications." },
+      { name: "Rental Housing Act", description: "Regulates the landlord-tenant relationship, including tenant rights, deposits, and dispute resolution." },
+    ],
+    useCases: [
+      {
+        title: "Rental Application Screening",
+        description: "Screen prospective tenants before signing lease agreements",
+        benefits: [
+          "Identity and credit verification",
+          "Employment and income confirmation",
+          "Previous landlord reference checks",
+          "Criminal record screening",
+        ],
+      },
+      {
+        title: "Property Sale CDD",
+        description: "FICA-compliant due diligence for property sale transactions",
+        benefits: [
+          "Buyer and seller identity verification via DHA",
+          "Source of funds documentation and verification",
+          "Sanctions and PEP screening",
+          "Automated compliance reporting for PPRA audits",
+        ],
+      },
+      {
+        title: "Conveyancing Due Diligence",
+        description: "Verify all parties in the conveyancing process for fraud prevention",
+        benefits: [
+          "Seller and buyer identity confirmation",
+          "Power of attorney document authentication",
+          "Bond originator identity verification",
+          "Deeds Office record cross-referencing",
+        ],
+      },
+      {
+        title: "Commercial Property Leasing",
+        description: "Verify corporate tenants and their authorised representatives",
+        benefits: [
+          "CIPC company registration confirmation",
+          "Director and authorised signatory verification",
+          "Business credit and financial standing checks",
+          "BEE and tax clearance validation",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA property management company managing 2,000 rental units",
+      stats: [
+        { label: "Screening Time", value: "80% faster" },
+        { label: "Bad Debt Reduction", value: "R890K/yr" },
+        { label: "Eviction Costs Saved", value: "R420K/yr" },
+        { label: "FICA Compliance", value: "100%" },
+      ],
+    },
+    ctaTitle: "Streamline Property Verification",
+  },
+
+  // ──────────────────────────────────────────────
+  // 9. Forex Trading
+  // ──────────────────────────────────────────────
+  {
+    slug: "forex-trading",
+    title: "Forex Trading",
+    subtitle: "Compliant Verification for SA Forex Brokers",
+    description:
+      "Meet FSCA licensing requirements, FAIS fit-and-proper standards, SARB exchange control obligations, and FICA compliance for South African forex brokers and trading platforms. VeriGate automates client onboarding, KYC verification, and ongoing AML monitoring.",
+    icon: "TrendingUp",
+    badgeText: "Forex Compliance",
+    metrics: [
+      { metric: "Client Onboarding", before: "3 days", after: "10 min", improvement: "99% faster" },
+      { metric: "FICA CDD Completion", before: "65%", after: "96%", improvement: "48% increase" },
+      { metric: "False Positive Rate", before: "42%", after: "7%", improvement: "83% reduction" },
+      { metric: "Regulatory Reporting", before: "5 days", after: "4 hours", improvement: "97% faster" },
+    ],
+    challenges: [
+      {
+        title: "FSCA Licensing & Conduct",
+        description:
+          "Forex brokers must hold an FSCA licence as an ODP and meet strict fit-and-proper, capital adequacy, and conduct standards.",
+        impact: "Licence suspension and R10M+ regulatory penalties",
+      },
+      {
+        title: "SARB Cross-Border Reporting",
+        description:
+          "All cross-border forex transactions must comply with SARB Exchange Control Regulations, requiring accurate client identification and reporting.",
+        impact: "Exchange control violations and criminal liability",
+      },
+      {
+        title: "High-Risk Client Profiles",
+        description:
+          "Forex trading attracts PEPs, sanctioned individuals, and money laundering syndicates using leveraged products to layer illicit funds.",
+        impact: "AML enforcement actions and reputational damage",
+      },
+      {
+        title: "Onboarding Friction & Drop-off",
+        description:
+          "Traders expect instant account activation, but FICA CDD requires thorough identity verification, proof of address, and source-of-funds documentation.",
+        impact: "Client acquisition drop-off exceeding 35%",
+      },
+    ],
+    solutions: [
+      {
+        title: "Forex Client KYC Onboarding",
+        description: "Automated FICA-compliant client onboarding for forex trading accounts",
+        features: [
+          "DHA identity verification in real time",
+          "Automated FICA CDD and EDD workflows",
+          "Source of funds documentation collection and verification",
+          "Risk-based tiered verification levels",
+        ],
+        result: "99% faster onboarding",
+      },
+      {
+        title: "AML & Sanctions Screening",
+        description: "Continuous AML monitoring and sanctions screening for forex clients",
+        features: [
+          "Real-time sanctions and PEP screening",
+          "Transaction pattern monitoring for layering detection",
+          "Automated STR preparation for FIC via goAML",
+          "Cross-border transaction flagging for SARB compliance",
+        ],
+        result: "83% fewer false positives",
+      },
+      {
+        title: "SARB Regulatory Reporting",
+        description: "Automated exchange control reporting and compliance documentation",
+        features: [
+          "Client classification and allowance tracking",
+          "Cross-border transaction reporting automation",
+          "Authorised Dealer compliance workflows",
+          "Audit-ready compliance documentation generation",
+        ],
+        result: "97% faster reporting",
+      },
+    ],
+    regulations: [
+      { name: "FSCA", description: "Financial Sector Conduct Authority -- Licensing and regulation of Over-the-Counter Derivative Providers (ODPs) including forex brokers." },
+      { name: "FAIS Act", description: "Financial Advisory and Intermediary Services Act -- Fit-and-proper requirements for forex intermediaries and representatives." },
+      { name: "Exchange Control Regulations", description: "SARB exchange control regulations governing cross-border forex transactions and foreign currency allowances." },
+      { name: "FICA", description: "Financial Intelligence Centre Act -- CDD, record keeping, and suspicious transaction reporting for forex brokers." },
+    ],
+    useCases: [
+      {
+        title: "Retail Forex Account Opening",
+        description: "Compliant KYC onboarding for retail forex trading accounts",
+        benefits: [
+          "Instant SA ID verification via DHA",
+          "Automated FICA CDD workflow",
+          "Risk-based tiered account levels",
+          "Digital proof of address verification",
+        ],
+      },
+      {
+        title: "High-Net-Worth Client EDD",
+        description: "Enhanced due diligence for high-value forex trading clients",
+        benefits: [
+          "Source of wealth verification and documentation",
+          "PEP and sanctions screening with ongoing monitoring",
+          "SARB single discretionary allowance tracking",
+          "Video identification for enhanced assurance",
+        ],
+      },
+      {
+        title: "Introducing Broker Verification",
+        description: "Verify and onboard introducing brokers with FAIS compliance",
+        benefits: [
+          "FSCA licence verification",
+          "FAIS fit-and-proper checks",
+          "Business registration confirmation via CIPC",
+          "Ongoing compliance monitoring",
+        ],
+      },
+      {
+        title: "Cross-Border Transaction Monitoring",
+        description: "Monitor and flag cross-border forex transactions for exchange control compliance",
+        benefits: [
+          "Real-time transaction screening against SARB limits",
+          "Foreign investment allowance tracking per client",
+          "Automated SARB reporting triggers",
+          "Audit trail for exchange control compliance",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA forex broker processing 20,000 client verifications per month",
+      stats: [
+        { label: "Onboarding Time", value: "99% faster" },
+        { label: "Compliance Score", value: "99.5%" },
+        { label: "Fraud Prevention", value: "R3.8M saved" },
+        { label: "Annual Savings", value: "R2.6M" },
+      ],
+    },
+    ctaTitle: "Comply with Forex Regulations",
+  },
+
+  // ──────────────────────────────────────────────
+  // 10. Gig Economy & Staffing
+  // ──────────────────────────────────────────────
+  {
+    slug: "gig-economy",
+    title: "Gig Economy & Staffing",
+    subtitle: "Worker Verification for SA Gig Platforms",
+    description:
+      "Verify gig workers, independent contractors, and service providers on South African on-demand platforms. VeriGate ensures trust and safety while helping platforms navigate LRA, BCEA, and POPIA requirements.",
+    icon: "Bike",
+    badgeText: "Gig Platform Trust",
+    metrics: [
+      { metric: "Worker Onboarding", before: "7 days", after: "24 hrs", improvement: "86% faster" },
+      { metric: "Background Check Coverage", before: "45%", after: "100%", improvement: "100% coverage" },
+      { metric: "Incident Rate", before: "3.2%", after: "0.6%", improvement: "81% reduction" },
+      { metric: "Platform Trust Score", before: "62%", after: "94%", improvement: "52% increase" },
+    ],
+    challenges: [
+      {
+        title: "Worker Identity & Background Screening",
+        description:
+          "Gig platforms must verify every worker's identity and background before granting access, yet face pressure to onboard quickly in a competitive market.",
+        impact: "Safety incidents and platform liability",
+      },
+      {
+        title: "Labour Law Classification",
+        description:
+          "SA labour law including the LRA and BCEA creates uncertainty around gig worker classification, requiring careful management of the verification relationship.",
+        impact: "Legal exposure and regulatory scrutiny from CCMA",
+      },
+      {
+        title: "Document Fraud at Scale",
+        description:
+          "High volumes of worker applications make platforms vulnerable to fake IDs, forged driver licences, fraudulent PrDPs, and fabricated qualifications.",
+        impact: "Unvetted workers accessing consumers",
+      },
+      {
+        title: "Ongoing Credential Monitoring",
+        description:
+          "Worker credentials such as driver licences, PrDPs, and professional registrations expire and must be continuously monitored.",
+        impact: "Expired credentials creating compliance gaps",
+      },
+    ],
+    solutions: [
+      {
+        title: "Gig Worker Onboarding Suite",
+        description: "End-to-end worker identity and background verification",
+        features: [
+          "DHA identity verification",
+          "Criminal record screening via SAPS",
+          "Driver licence and PrDP validation",
+          "Vehicle registration and roadworthiness verification",
+        ],
+        result: "86% faster onboarding",
+      },
+      {
+        title: "Continuous Monitoring & Re-Verification",
+        description: "Automated credential monitoring and periodic re-verification",
+        features: [
+          "Licence expiry tracking and automated alerts",
+          "Periodic criminal record re-screening",
+          "Real-time deactivation triggers for expired credentials",
+          "Compliance dashboard for platform operators",
+        ],
+        result: "100% credential coverage",
+      },
+      {
+        title: "Consumer Trust & Safety",
+        description: "Build consumer confidence with verified worker profiles",
+        features: [
+          "Verified identity badges for worker profiles",
+          "Consumer-facing verification status display",
+          "Incident reporting and investigation integration",
+          "Rating and verification correlation analytics",
+        ],
+        result: "81% fewer safety incidents",
+      },
+    ],
+    regulations: [
+      { name: "LRA", description: "Labour Relations Act -- Framework for worker classification, unfair dismissal, and collective bargaining that impacts gig platforms." },
+      { name: "BCEA", description: "Basic Conditions of Employment Act -- Minimum employment conditions that may apply depending on worker classification." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Data protection for gig worker and consumer personal information." },
+      { name: "UIF Act", description: "Unemployment Insurance Fund Act -- UIF contribution requirements that may apply to classified employees on gig platforms." },
+    ],
+    useCases: [
+      {
+        title: "Ride-Hailing Driver Verification",
+        description: "Comprehensive driver screening for ride-hailing platforms",
+        benefits: [
+          "Identity verification via DHA",
+          "SAPS criminal record check",
+          "Driver licence and PrDP validation",
+          "Vehicle registration and roadworthiness confirmation",
+        ],
+      },
+      {
+        title: "Food Delivery Courier Screening",
+        description: "Fast-track verification for food delivery couriers and riders",
+        benefits: [
+          "Identity and right-to-work verification",
+          "Criminal background screening",
+          "Vehicle or bicycle courier classification",
+          "Rapid 24-hour onboarding workflow",
+        ],
+      },
+      {
+        title: "Domestic & Home Services Vetting",
+        description: "Thorough background checks for domestic workers and home service providers",
+        benefits: [
+          "Criminal record screening via SAPS",
+          "Reference and previous employer verification",
+          "Address and identity confirmation",
+          "Children's Act compliance where applicable",
+        ],
+      },
+      {
+        title: "Freelance Professional Verification",
+        description: "Credential verification for skilled freelancers on platforms",
+        benefits: [
+          "Professional registration checks (HPCSA, ECSA, etc.)",
+          "SAQA qualification verification",
+          "Identity and contact verification",
+          "Portfolio and reference validation",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA gig platform with 15,000 active workers",
+      stats: [
+        { label: "Onboarding Time", value: "86% faster" },
+        { label: "Incident Reduction", value: "81%" },
+        { label: "Compliance Coverage", value: "100%" },
+        { label: "Annual Savings", value: "R1.9M" },
+      ],
+    },
+    ctaTitle: "Build Trust on Your Gig Platform",
+  },
+
+  // ──────────────────────────────────────────────
+  // 11. Online Marketplaces
+  // ──────────────────────────────────────────────
+  {
+    slug: "marketplaces",
+    title: "Online Marketplaces",
+    subtitle: "Trust & Safety for SA Marketplaces",
+    description:
+      "Protect your South African marketplace with seller and buyer verification, fraud prevention, and ECT Act compliance. VeriGate enables trust and safety at scale for C2C, B2C, and B2B marketplace platforms.",
+    icon: "Store",
+    badgeText: "Marketplace Trust",
+    metrics: [
+      { metric: "Seller Verification", before: "5 days", after: "4 hrs", improvement: "97% faster" },
+      { metric: "Fraudulent Listings", before: "8.5%", after: "0.9%", improvement: "89% reduction" },
+      { metric: "Buyer Disputes", before: "4.2%", after: "1.1%", improvement: "74% reduction" },
+      { metric: "Platform Trust Score", before: "58%", after: "93%", improvement: "60% increase" },
+    ],
+    challenges: [
+      {
+        title: "Seller Fraud & Fake Listings",
+        description:
+          "Fraudulent sellers using fake identities to list non-existent goods, collect payments, and disappear from the platform.",
+        impact: "R2.2 billion annual online fraud losses in SA",
+      },
+      {
+        title: "ECT Act Compliance",
+        description:
+          "The ECT Act requires marketplace operators to verify seller identity, maintain records, and provide consumer protections for online transactions.",
+        impact: "Regulatory non-compliance and consumer liability",
+      },
+      {
+        title: "Buyer Identity Fraud",
+        description:
+          "Fraudulent buyers using stolen payment methods, fake delivery addresses, and chargeback fraud targeting marketplace sellers.",
+        impact: "Seller losses and platform reputation damage",
+      },
+      {
+        title: "Scaling Trust Operations",
+        description:
+          "As marketplaces grow, manually verifying sellers and investigating fraud becomes unsustainable, requiring automated trust infrastructure.",
+        impact: "Trust erosion and competitive disadvantage",
+      },
+    ],
+    solutions: [
+      {
+        title: "Seller Verification & Onboarding",
+        description: "Comprehensive seller identity and business verification",
+        features: [
+          "Individual seller identity verification via DHA",
+          "Business registration confirmation via CIPC",
+          "Bank account ownership verification",
+          "Tax clearance and BEE status checks",
+        ],
+        result: "97% faster seller onboarding",
+      },
+      {
+        title: "Fraud Detection & Prevention",
+        description: "Multi-layered fraud prevention for marketplace transactions",
+        features: [
+          "Listing fraud pattern detection via AI",
+          "Duplicate account and identity detection",
+          "Payment method risk scoring",
+          "Device fingerprinting and velocity checks",
+        ],
+        result: "89% fewer fraudulent listings",
+      },
+      {
+        title: "Buyer Verification & Protection",
+        description: "Risk-based buyer verification for high-value transactions",
+        features: [
+          "Step-up identity verification triggers",
+          "Delivery address verification",
+          "Payment method ownership confirmation",
+          "Chargeback risk scoring and prevention",
+        ],
+        result: "74% fewer buyer disputes",
+      },
+    ],
+    regulations: [
+      { name: "ECT Act", description: "Electronic Communications and Transactions Act -- Marketplace operator obligations for seller verification and consumer protection." },
+      { name: "Consumer Protection Act", description: "Product safety, fair trading, return policies, and consumer rights for goods sold through online marketplaces." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Data protection for buyer, seller, and transaction data processed by the platform." },
+      { name: "Tax Administration Act", description: "SARS reporting obligations for marketplace operators facilitating taxable transactions above prescribed thresholds." },
+    ],
+    useCases: [
+      {
+        title: "Individual Seller Onboarding",
+        description: "Verify individual sellers on C2C marketplace platforms",
+        benefits: [
+          "SA ID identity verification via DHA",
+          "Mobile number and address confirmation",
+          "Bank account ownership check",
+          "Fraud history screening via consortium database",
+        ],
+      },
+      {
+        title: "Business Seller Verification",
+        description: "Comprehensive verification for registered business sellers",
+        benefits: [
+          "CIPC company registration confirmation",
+          "Director and UBO identity verification",
+          "Tax compliance status check via SARS",
+          "BEE certificate validation",
+        ],
+      },
+      {
+        title: "High-Value Transaction Verification",
+        description: "Step-up verification for high-value marketplace transactions",
+        benefits: [
+          "Buyer identity confirmation",
+          "Payment method ownership verification",
+          "Seller identity re-verification",
+          "Escrow release authorisation checks",
+        ],
+      },
+      {
+        title: "Dispute Resolution Support",
+        description: "Identity-verified dispute resolution to protect buyers and sellers",
+        benefits: [
+          "Verified identity records for all parties",
+          "Transaction audit trail documentation",
+          "Automated evidence collection and packaging",
+          "Integration with platform dispute resolution workflows",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA marketplace processing 100,000 transactions per month",
+      stats: [
+        { label: "Fraud Losses Prevented", value: "R4.6M/yr" },
+        { label: "Seller Onboarding", value: "97% faster" },
+        { label: "Dispute Reduction", value: "74%" },
+        { label: "Annual Savings", value: "R3.1M" },
+      ],
+    },
+    ctaTitle: "Secure Your Marketplace",
+  },
+
+  // ──────────────────────────────────────────────
+  // 12. Social Networks & Dating
+  // ──────────────────────────────────────────────
+  {
+    slug: "social-networks",
+    title: "Social Networks & Dating",
+    subtitle: "Identity Verification for SA Social Platforms",
+    description:
+      "Protect users on South African social and dating platforms with age verification, identity confirmation, and account authenticity checks. VeriGate helps comply with POPIA minor protections, the Films and Publications Act, and the Cybercrimes Act.",
+    icon: "Users",
+    badgeText: "Social Platform Safety",
+    metrics: [
+      { metric: "Age Verification", before: "Self-declared", after: "Verified", improvement: "Confirmed" },
+      { metric: "Fake Account Detection", before: "12%", after: "1.4%", improvement: "88% reduction" },
+      { metric: "Impersonation Reports", before: "3,200/mo", after: "380/mo", improvement: "88% reduction" },
+      { metric: "Minor Protection", before: "Partial", after: "Full", improvement: "100% compliance" },
+    ],
+    challenges: [
+      {
+        title: "Underage User Protection",
+        description:
+          "POPIA imposes strict requirements for processing children's personal information, requiring verifiable parental consent for users under 18.",
+        impact: "POPIA penalties up to R10M and reputational harm",
+      },
+      {
+        title: "Fake Accounts & Impersonation",
+        description:
+          "Fake profiles, bot accounts, and identity impersonation undermine platform trust, enable scams, and create hostile environments for SA users.",
+        impact: "User trust erosion and platform abuse",
+      },
+      {
+        title: "Online Harassment & Safety",
+        description:
+          "Anonymity enables harassment, hate speech, and cyberbullying. The Cybercrimes Act requires platforms to assist law enforcement in identifying perpetrators.",
+        impact: "Legal liability and user safety risk",
+      },
+      {
+        title: "Content Regulation Compliance",
+        description:
+          "The Films and Publications Act requires platforms to restrict access to age-inappropriate content and prevent distribution of prohibited material.",
+        impact: "Criminal prosecution and platform blocking",
+      },
+    ],
+    solutions: [
+      {
+        title: "Age Verification Gateway",
+        description: "POPIA-compliant age verification for social platform registration",
+        features: [
+          "SA ID-based age confirmation",
+          "Parental consent workflows for minors",
+          "Age-gated content access controls",
+          "Privacy-preserving age attestation (no data stored)",
+        ],
+        result: "100% minor protection compliance",
+      },
+      {
+        title: "Identity Verification Badges",
+        description: "Verified identity badges for authentic accounts on the platform",
+        features: [
+          "DHA identity verification for badge assignment",
+          "Biometric face matching for authenticity",
+          "Verified account badges displayed on profiles",
+          "Impersonation detection and automated takedown",
+        ],
+        result: "88% fewer fake accounts",
+      },
+      {
+        title: "Account Authenticity Engine",
+        description: "Multi-signal account scoring to detect and remove fake profiles and bots",
+        features: [
+          "Behavioural pattern analysis for bot detection",
+          "Device and network intelligence signals",
+          "Coordinated inauthentic behaviour detection",
+          "Automated fake account suspension workflows",
+        ],
+        result: "88% reduction in impersonation",
+      },
+    ],
+    regulations: [
+      { name: "Films & Publications Act", description: "Regulates access to age-restricted content and requires platforms to prevent minors from accessing harmful material." },
+      { name: "POPIA", description: "Protection of Personal Information Act -- Special conditions for processing children's personal information with verifiable consent." },
+      { name: "Cybercrimes Act", description: "Criminalises cyber fraud, identity theft, and online harassment. Platforms must assist law enforcement on court order." },
+      { name: "ECT Act", description: "Electronic Communications and Transactions Act -- Platform operator obligations and liability for user-generated content." },
+    ],
+    useCases: [
+      {
+        title: "Age-Gated Registration",
+        description: "Verify user age at registration for POPIA minor protections",
+        benefits: [
+          "Instant age verification via SA ID number",
+          "Parental consent capture and verification for minors",
+          "Age-appropriate experience and content assignment",
+          "Compliance audit trail for Information Regulator",
+        ],
+      },
+      {
+        title: "Verified Account Programme",
+        description: "Offer verified identity badges to build authentic communities",
+        benefits: [
+          "Voluntary identity verification flow",
+          "Verified badge assignment for authentic accounts",
+          "Prioritised content visibility for verified users",
+          "Enhanced trust signals for content creators",
+        ],
+      },
+      {
+        title: "Dating App Safety Verification",
+        description: "Identity and photo verification for dating platform users",
+        benefits: [
+          "Selfie-to-profile photo matching",
+          "Age verification for legal compliance",
+          "Criminal background check option for premium users",
+          "Real person confirmation via liveness detection",
+        ],
+      },
+      {
+        title: "Harassment Investigation Support",
+        description: "Link verified identities to enable investigation of online abuse",
+        benefits: [
+          "Identity-linked account records for law enforcement",
+          "Cybercrimes Act compliance framework",
+          "Victim protection and rapid content takedown",
+          "Automated evidence packaging for SAPS referral",
+        ],
+      },
+    ],
+    roi: {
+      title: "ROI impact for a typical SA social platform with 2 million active users",
+      stats: [
+        { label: "Fake Account Reduction", value: "88%" },
+        { label: "Minor Protection", value: "100%" },
+        { label: "User Trust Score", value: "+41%" },
+        { label: "Moderation Cost Savings", value: "R2.4M/yr" },
+      ],
+    },
+    ctaTitle: "Build Safer Social Communities",
+  },
+];
+
+/** Look up a single industry by slug */
+export const getIndustry = (slug: string): IndustryData | undefined =>
+  industriesData.find((industry) => industry.slug === slug);
+
+/** Get related industries (excluding the current one) */
+export const getRelatedIndustries = (slug: string, limit = 3): IndustryData[] =>
+  industriesData
+    .filter((industry) => industry.slug !== slug)
+    .slice(0, limit);

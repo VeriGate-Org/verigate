@@ -1,30 +1,30 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, Zap, Globe, Award, Target, Heart, Lightbulb } from "lucide-react";
+import { Shield, Users, Zap, Heart, Award, Target } from "lucide-react";
+import { Link } from "react-router-dom";
+import { StatsBar } from "@/components/StatsBar";
 
 const About = () => {
   const values = [
     {
+      icon: Target,
+      title: "Accuracy",
+      description: "We are committed to delivering verification results you can trust, with a 99.2% accuracy rate across all check types.",
+    },
+    {
+      icon: Zap,
+      title: "Speed",
+      description: "Fast turnaround without compromising quality. Most verifications completed within 24 hours.",
+    },
+    {
       icon: Shield,
-      title: "Security First",
-      description: "We prioritize the security and privacy of our customers' data above all else, maintaining the highest industry standards.",
-    },
-    {
-      icon: Users,
-      title: "Customer Success",
-      description: "Our customers' success is our success. We're committed to providing exceptional support and innovative solutions.",
-    },
-    {
-      icon: Lightbulb,
-      title: "Innovation",
-      description: "We continuously invest in cutting-edge technology to stay ahead of evolving verification challenges.",
+      title: "Compliance",
+      description: "Full adherence to POPIA, FICA, and international standards including ISO 27001 and SOC 2 Type II.",
     },
     {
       icon: Heart,
       title: "Integrity",
-      description: "We operate with transparency and honesty, building trust through our actions and commitments.",
+      description: "We operate with transparency and honesty, building trust through our actions and long-term client relationships.",
     },
   ];
 
@@ -32,79 +32,82 @@ const About = () => {
     {
       year: "2020",
       title: "Company Founded",
-      description: "VeriGate was founded with a mission to make identity verification accessible and secure for businesses worldwide.",
+      description: "VeriGate was founded in Cape Town with a mission to modernise background screening in South Africa.",
     },
     {
       year: "2021",
-      title: "Series A Funding",
-      description: "Raised $10M to expand our platform and grow our team of verification experts.",
+      title: "Platform Launch",
+      description: "Launched our cloud-based verification platform with integrations to DHA, SAPS, and SAQA.",
     },
     {
       year: "2022",
-      title: "Global Expansion",
-      description: "Opened offices in London and Singapore, serving customers across 50+ countries.",
+      title: "100 Clients Milestone",
+      description: "Reached 100 active clients across banking, insurance, telecoms, and professional services.",
     },
     {
       year: "2023",
-      title: "1 Billion Verifications",
-      description: "Processed our billionth identity verification, serving 500+ enterprise customers.",
+      title: "API & Bulk Processing",
+      description: "Launched REST API and bulk upload capabilities, enabling enterprise-scale verification processing.",
     },
     {
       year: "2024",
-      title: "AI-Powered Platform",
-      description: "Launched next-generation AI verification engine with 99.8% accuracy rate.",
+      title: "ISO 27001 Certification",
+      description: "Achieved ISO 27001 certification and SOC 2 Type II compliance, reinforcing our security commitment.",
+    },
+    {
+      year: "2025",
+      title: "200+ Clients, 50K+ Verifications",
+      description: "Surpassed 200 clients and 50,000 verifications processed with 99.2% accuracy rate.",
     },
   ];
 
   const team = [
     {
-      name: "Sarah Johnson",
+      name: "Thabo Ndlovu",
       role: "Chief Executive Officer",
-      bio: "Former VP at Stripe, 15+ years in fintech and identity verification",
-      image: "/placeholder.svg",
+      bio: "15+ years in fintech and risk management. Former Head of Compliance at a leading SA bank.",
+      photo: "https://images.unsplash.com/photo-1659444003277-6cb0a5ffc8bd?w=200&h=200&fit=crop&crop=face",
     },
     {
-      name: "Michael Chen",
+      name: "Sarah van der Merwe",
       role: "Chief Technology Officer",
-      bio: "Ex-Google engineer, PhD in Computer Science from Stanford",
-      image: "/placeholder.svg",
+      bio: "Software architect with expertise in secure platforms. Previously led engineering at a Cape Town fintech startup.",
+      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     },
     {
-      name: "Emily Rodriguez",
-      role: "Chief Product Officer",
-      bio: "Previously led product at Onfido, expert in KYC compliance",
-      image: "/placeholder.svg",
+      name: "James Motsepe",
+      role: "Head of Compliance",
+      bio: "Regulatory expert specialising in FICA, POPIA, and financial services compliance across Southern Africa.",
+      photo: "https://images.unsplash.com/photo-1698885765700-77c5a9b5cc8a?w=200&h=200&fit=crop&crop=face",
     },
     {
-      name: "David Kim",
-      role: "Chief Security Officer",
-      bio: "20 years in cybersecurity, former CISO at major financial institutions",
-      image: "/placeholder.svg",
+      name: "Priya Naidoo",
+      role: "Head of Operations",
+      bio: "Operations leader with a track record of scaling verification teams and processes across multiple industries.",
+      photo: "https://images.unsplash.com/photo-1659355894139-ca46ea6fa67a?w=200&h=200&fit=crop&crop=face",
     },
   ];
 
   const stats = [
-    { value: "500+", label: "Enterprise Customers" },
-    { value: "190+", label: "Countries Supported" },
-    { value: "1B+", label: "Verifications Processed" },
-    { value: "99.8%", label: "Accuracy Rate" },
+    { value: "200+", label: "Clients Nationwide" },
+    { value: "50,000+", label: "Verifications Completed" },
+    { value: "99.2%", label: "Accuracy Rate" },
+    { value: "24hr", label: "Average Turnaround" },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <div className="bg-background">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-mesh opacity-50" />
         <div className="container relative z-10">
           <div className="container mx-auto max-w-6xl text-center space-y-6">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-              Building Trust Through
-              <span className="block text-accent mt-2">Verified Identity</span>
+              Modernising Background Screening
+              <span className="block text-accent mt-2">for South Africa</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl">
-              We're on a mission to make the digital world safer and more accessible through enterprise-grade identity verification.
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              We're on a mission to make background verification faster, more accurate, and fully compliant for South African organisations.
             </p>
           </div>
         </div>
@@ -113,18 +116,7 @@ const About = () => {
       {/* Stats Section */}
       <section className="py-12 bg-secondary/30">
         <div className="container mx-auto max-w-4xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
+          <StatsBar stats={stats} />
         </div>
       </section>
 
@@ -136,19 +128,19 @@ const About = () => {
               Our Story
             </h2>
           </div>
-          
+
           <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
             <p>
-              VeriGate was born from a simple observation: in an increasingly digital world, identity verification was becoming both more critical and more complex. Businesses needed a solution that was secure, compliant, and easy to implement.
+              VeriGate was founded in 2020 in Cape Town by a team of compliance professionals and technology experts who saw a critical gap in South Africa's background screening industry. Traditional verification processes were slow, manual, and fragmented — taking days or weeks to complete while businesses needed results in hours.
             </p>
             <p>
-              Founded in 2020 by a team of security experts and fintech veterans, we set out to build the identity verification platform we wished existed. One that combined cutting-edge AI technology with human expertise, regulatory compliance with user experience, and enterprise-grade security with developer-friendly APIs.
+              We built VeriGate to change that. Our cloud-based platform connects directly to South Africa's key data sources — the Department of Home Affairs, South African Police Service, South African Qualifications Authority, credit bureaus, and professional bodies — to deliver fast, accurate, and POPIA-compliant verification results.
             </p>
             <p>
-              Today, we serve over 500 enterprise customers across banking, fintech, gaming, healthcare, and e-commerce. We've processed over a billion identity verifications, helping businesses reduce fraud, ensure compliance, and build trust with their users.
+              Today, we serve over 200 organisations across banking, insurance, telecoms, healthcare, and professional services. We've processed more than 50,000 verifications with a 99.2% accuracy rate, helping our clients make confident hiring decisions while meeting their regulatory obligations.
             </p>
             <p>
-              But we're just getting started. As digital transformation accelerates and new regulations emerge, our mission remains the same: to make identity verification simple, secure, and accessible for everyone.
+              As South Africa's regulatory landscape continues to evolve, we remain committed to staying ahead — ensuring our platform meets every compliance requirement so our clients can focus on what they do best.
             </p>
           </div>
         </div>
@@ -165,7 +157,7 @@ const About = () => {
               The principles that guide everything we do
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value) => {
               const Icon = value.icon;
@@ -200,7 +192,7 @@ const About = () => {
               Key milestones in our growth story
             </p>
           </div>
-          
+
           <div className="space-y-8">
             {milestones.map((milestone, index) => (
               <div key={milestone.year} className="flex gap-6 items-start">
@@ -235,14 +227,18 @@ const About = () => {
               Meet the experienced leaders driving our vision forward
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member) => (
               <Card key={member.name} className="border-border text-center">
                 <CardHeader>
-                  <div className="mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent mb-4 flex items-center justify-center text-4xl font-bold text-white">
-                    {member.name.split(' ').map(n => n[0]).join('')}
-                  </div>
+                  {member.photo ? (
+                    <img src={member.photo} alt={member.name} className="mx-auto w-32 h-32 rounded-full object-cover mb-4 ring-4 ring-primary/10" loading="lazy" />
+                  ) : (
+                    <div className="mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent mb-4 flex items-center justify-center text-4xl font-bold text-white">
+                      {member.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                  )}
                   <CardTitle className="text-lg">{member.name}</CardTitle>
                   <CardDescription className="text-sm font-semibold text-accent">
                     {member.role}
@@ -267,16 +263,29 @@ const About = () => {
               Certifications & Compliance
             </h2>
             <p className="text-lg text-muted-foreground">
-              Trusted by enterprises worldwide
+              Meeting the highest standards for data security and regulatory compliance
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {['ISO 27001', 'SOC 2 Type II', 'GDPR', 'CCPA'].map((cert) => (
-              <div key={cert} className="flex flex-col items-center justify-center p-6 border border-border rounded-lg">
-                <Award className="w-12 h-12 text-accent mb-4" />
-                <span className="font-semibold text-center">{cert}</span>
-                <span className="text-xs text-muted-foreground mt-2">Certified</span>
+            {[
+              { name: "POPIA", logo: null },
+              { name: "ISO 27001", logo: "/logos/certifications/iso-27001.svg" },
+              { name: "SOC 2 Type II", logo: "/logos/certifications/soc2.svg" },
+              { name: "FICA", logo: null },
+            ].map((cert) => (
+              <div key={cert.name} className="flex flex-col items-center justify-center p-6 border border-border rounded-lg">
+                {cert.logo ? (
+                  <img
+                    src={cert.logo}
+                    alt={cert.name}
+                    className="h-12 w-auto object-contain mb-4"
+                  />
+                ) : (
+                  <Award className="w-12 h-12 text-accent mb-4" />
+                )}
+                <span className="font-semibold text-center">{cert.name}</span>
+                <span className="text-xs text-muted-foreground mt-2">Compliant</span>
               </div>
             ))}
           </div>
@@ -290,20 +299,18 @@ const About = () => {
             Join Our Team
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            We're always looking for talented individuals who share our passion for building secure, accessible digital experiences.
+            We're always looking for talented individuals who share our passion for building secure, compliant verification solutions for South Africa.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="default">
-              View Open Positions
+            <Button size="lg" variant="default" asChild>
+              <Link to="/careers">View Open Positions</Link>
             </Button>
-            <Button size="lg" variant="outline">
-              Learn About Our Culture
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/contact">Get in Touch</Link>
             </Button>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

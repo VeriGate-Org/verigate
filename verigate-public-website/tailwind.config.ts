@@ -4,6 +4,11 @@ export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
+  safelist: [
+    { pattern: /bg-category-(verification|compliance|fraud|industry|platform|company)\/(5|10|20)/ },
+    { pattern: /text-category-(verification|compliance|fraud|industry|platform|company)/ },
+    { pattern: /border-category-(verification|compliance|fraud|industry|platform|company)\/(20|30|50)/ },
+  ],
   theme: {
     container: {
       center: true,
@@ -17,6 +22,11 @@ export default {
       screens: {
         "2xl": "1280px",
       },
+    },
+    fontFamily: {
+      sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'monospace'],
+      logo: ['Manrope', 'sans-serif'],
     },
     extend: {
       colors: {
@@ -58,6 +68,15 @@ export default {
           cyan: "hsl(var(--brand-cyan))",
           "light-blue": "hsl(var(--brand-light-blue))",
           gray: "hsl(var(--brand-gray))",
+        },
+        rating: "hsl(var(--color-rating))",
+        category: {
+          verification: "hsl(var(--cat-verification))",
+          compliance: "hsl(var(--cat-compliance))",
+          fraud: "hsl(var(--cat-fraud))",
+          industry: "hsl(var(--cat-industry))",
+          platform: "hsl(var(--cat-platform))",
+          company: "hsl(var(--cat-company))",
         },
       },
       backgroundImage: {
@@ -134,13 +153,13 @@ export default {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "accordion-down": "accordion-down 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "accordion-up": "accordion-up 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "fade-in": "fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         "float": "float 6s ease-in-out infinite",
         "float-delayed": "float 8s ease-in-out infinite 1s",
         "pulse-slow": "pulse-slow 4s ease-in-out infinite",
-        "gradient": "gradient 3s ease infinite",
+        "gradient": "gradient 3s ease-in-out infinite",
       },
     },
   },

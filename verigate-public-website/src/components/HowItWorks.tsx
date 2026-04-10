@@ -1,25 +1,30 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Upload, ScanSearch, CheckCircle2 } from "lucide-react";
+import { Upload, ScanSearch, ShieldCheck, FileText, ArrowRight, ArrowDown } from "lucide-react";
 import { AnimatedSection, StaggeredList } from "@/components/AnimatedSection";
 
 const steps = [
   {
     icon: Upload,
     step: "01",
-    title: "Submit Information",
-    description: "Upload documents and provide necessary details through our secure API or dashboard interface.",
+    title: "Submit Request",
+    description: "Upload candidate details and consent forms through our secure dashboard or API. Select the verification checks required.",
   },
   {
     icon: ScanSearch,
     step: "02",
-    title: "AI-Powered Verification",
-    description: "Our advanced AI algorithms verify documents, check databases, and perform comprehensive risk assessments.",
+    title: "Processing & Verification",
+    description: "Our team cross-references information with DHA, SAPS, SAQA, credit bureaus, and previous employers across South Africa.",
   },
   {
-    icon: CheckCircle2,
+    icon: ShieldCheck,
     step: "03",
-    title: "Instant Results",
-    description: "Receive detailed verification reports and compliance scores in real-time, with full audit trails.",
+    title: "Quality Assurance",
+    description: "Every result undergoes rigorous QA review by our compliance team to ensure accuracy and regulatory adherence.",
+  },
+  {
+    icon: FileText,
+    step: "04",
+    title: "Report Delivered",
+    description: "Receive comprehensive, POPIA-compliant verification reports with clear findings, risk flags, and audit trails.",
   },
 ];
 
@@ -33,44 +38,54 @@ const HowItWorks = () => {
             How VeriGate Works
           </h2>
           <p className="text-lg text-muted-foreground">
-            Simple, secure, and seamless verification in three easy steps
+            Simple, secure, and thorough verification in four steps
           </p>
         </AnimatedSection>
-        
-        {/* Steps */}
-        <StaggeredList 
-          className="grid md:grid-cols-3 gap-8 relative"
+
+        {/* Steps — horizontal flow */}
+        <StaggeredList
+          className="flex flex-col lg:flex-row items-stretch gap-0"
           staggerDelay={0.15}
           containerDelay={0.2}
         >
-          {/* Connector lines - hidden on mobile */}
-          <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-accent/20 via-accent to-accent/20 -z-10" />
-          
           {steps.map((step, index) => (
-            <Card 
-              key={index} 
-              className="border-border/50 hover:border-accent/50 transition-all duration-300 hover:shadow-lg relative bg-card"
-            >
-              <CardContent className="p-8 space-y-6">
-                {/* Step Number Badge */}
-                <div className="absolute -top-4 left-8 w-12 h-12 rounded-full bg-gradient-hero flex items-center justify-center text-primary-foreground font-bold border-4 border-background">
-                  {step.step}
+            <div key={index} className="flex flex-col lg:flex-row items-center flex-1">
+              {/* Step card */}
+              <div className="flex flex-col items-center text-center flex-1 px-4">
+                {/* Step Number + Icon */}
+                <div className="relative mb-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-hero flex items-center justify-center text-primary-foreground shadow-lg">
+                    <step.icon className="w-7 h-7" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-accent text-primary-foreground text-xs font-bold flex items-center justify-center border-2 border-background">
+                    {step.step}
+                  </div>
                 </div>
-                
-                {/* Icon */}
-                <div className="w-16 h-16 rounded-lg bg-accent/10 flex items-center justify-center mt-4">
-                  <step.icon className="w-8 h-8 text-accent" />
-                </div>
-                
+
                 {/* Content */}
-                <h3 className="text-xl font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
                   {step.description}
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Arrow connector */}
+              {index < steps.length - 1 && (
+                <>
+                  {/* Horizontal arrow — desktop */}
+                  <div className="hidden lg:flex items-center justify-center flex-shrink-0 px-2">
+                    <div className="w-8 h-0.5 bg-border" />
+                    <ArrowRight className="w-4 h-4 text-accent -ml-1" />
+                  </div>
+                  {/* Vertical arrow — mobile */}
+                  <div className="flex lg:hidden items-center justify-center py-4">
+                    <ArrowDown className="w-5 h-5 text-accent" />
+                  </div>
+                </>
+              )}
+            </div>
           ))}
         </StaggeredList>
       </div>

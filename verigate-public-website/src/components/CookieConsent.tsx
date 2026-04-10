@@ -115,9 +115,9 @@ export function CookieConsent() {
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">We Value Your Privacy</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. 
-                      By clicking "Accept All", you consent to our use of cookies. You can customize your preferences or decline 
-                      non-essential cookies.
+                      We use cookies to enhance your browsing experience, serve personalised content, and analyse our traffic in accordance with POPIA.
+                      By clicking "Accept All", you consent to our use of cookies. You can customise your preferences or decline
+                      non-essential cookies. Read our <a href="/cookie-policy" className="text-accent hover:underline">Cookie Policy</a> for more information.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button onClick={acceptAll} size="sm">
@@ -134,11 +134,11 @@ export function CookieConsent() {
                         <Settings className="w-4 h-4 mr-2" />
                         Customize
                       </Button>
-                      <a 
-                        href="/privacy-policy" 
+                      <a
+                        href="/cookie-policy"
                         className="text-sm text-accent hover:underline self-center"
                       >
-                        Learn More
+                        Cookie Policy
                       </a>
                     </div>
                   </div>

@@ -1,0 +1,637 @@
+{
+    "key": "group_vg_industry",
+    "title": "Industry Solution Fields",
+    "fields": [
+        {
+            "key": "field_vg_industry_subtitle",
+            "label": "Subtitle",
+            "name": "subtitle",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_industry_badge_text",
+            "label": "Badge Text",
+            "name": "badge_text",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_vg_industry_icon",
+            "label": "Icon",
+            "name": "icon",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "shield-check": "Shield Check",
+                "user-check": "User Check",
+                "file-text": "File Text",
+                "credit-card": "Credit Card",
+                "building": "Building",
+                "search": "Search",
+                "fingerprint": "Fingerprint",
+                "lock": "Lock",
+                "globe": "Globe",
+                "zap": "Zap",
+                "users": "Users",
+                "target": "Target",
+                "activity": "Activity",
+                "mail": "Mail",
+                "phone": "Phone",
+                "map-pin": "Map Pin",
+                "clock": "Clock",
+                "check-circle": "Check Circle",
+                "alert-triangle": "Alert Triangle",
+                "bar-chart": "Bar Chart",
+                "eye": "Eye",
+                "key": "Key",
+                "database": "Database",
+                "server": "Server",
+                "award": "Award",
+                "briefcase": "Briefcase",
+                "heart": "Heart",
+                "layers": "Layers",
+                "trending-up": "Trending Up",
+                "circle-check": "Circle Check"
+            },
+            "default_value": "globe",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 1,
+            "ajax": 0
+        },
+        {
+            "key": "field_vg_industry_description",
+            "label": "Description",
+            "name": "description",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "rows": "",
+            "maxlength": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_vg_industry_challenges",
+            "label": "Industry Challenges",
+            "name": "challenges",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Challenge",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_industry_challenges_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_challenges"
+                },
+                {
+                    "key": "field_vg_industry_challenges_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "rows": "",
+                    "maxlength": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_industry_challenges"
+                },
+                {
+                    "key": "field_vg_industry_challenges_impact",
+                    "label": "Impact",
+                    "name": "impact",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "e.g. \"High\", \"Critical\"",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_challenges"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_industry_solutions",
+            "label": "Our Solutions",
+            "name": "solutions",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Solution",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_industry_solutions_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_solutions"
+                },
+                {
+                    "key": "field_vg_industry_solutions_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "rows": "",
+                    "maxlength": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_industry_solutions"
+                },
+                {
+                    "key": "field_vg_industry_solutions_features",
+                    "label": "Features",
+                    "name": "features",
+                    "aria-label": "",
+                    "type": "repeater",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "layout": "block",
+                    "pagination": 0,
+                    "min": 0,
+                    "max": 0,
+                    "collapsed": "",
+                    "button_label": "Add Feature",
+                    "rows_per_page": 20,
+                    "sub_fields": [
+                        {
+                            "key": "field_vg_industry_solutions_features_feature",
+                            "label": "Feature",
+                            "name": "feature",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "parent_repeater": "field_vg_industry_solutions_features"
+                        }
+                    ],
+                    "parent_repeater": "field_vg_industry_solutions"
+                },
+                {
+                    "key": "field_vg_industry_solutions_result",
+                    "label": "Result",
+                    "name": "result",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Summary outcome",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_solutions"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_industry_regulations",
+            "label": "Regulations",
+            "name": "regulations",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Regulation",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_industry_regulations_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_regulations"
+                },
+                {
+                    "key": "field_vg_industry_regulations_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "rows": "",
+                    "maxlength": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_industry_regulations"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_industry_use_cases",
+            "label": "Use Cases",
+            "name": "use_cases",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Use Case",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_industry_use_cases_title",
+                    "label": "Title",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_use_cases"
+                },
+                {
+                    "key": "field_vg_industry_use_cases_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "rows": "",
+                    "maxlength": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_vg_industry_use_cases"
+                },
+                {
+                    "key": "field_vg_industry_use_cases_benefits",
+                    "label": "Benefits",
+                    "name": "benefits",
+                    "aria-label": "",
+                    "type": "repeater",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "layout": "block",
+                    "pagination": 0,
+                    "min": 0,
+                    "max": 0,
+                    "collapsed": "",
+                    "button_label": "Add Benefit",
+                    "rows_per_page": 20,
+                    "sub_fields": [
+                        {
+                            "key": "field_vg_industry_use_cases_benefits_benefit",
+                            "label": "Benefit",
+                            "name": "benefit",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "parent_repeater": "field_vg_industry_use_cases_benefits"
+                        }
+                    ],
+                    "parent_repeater": "field_vg_industry_use_cases"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_industry_metrics",
+            "label": "Results & Metrics",
+            "name": "metrics",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Metric",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_vg_industry_metrics_metric",
+                    "label": "Metric Name",
+                    "name": "metric",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_metrics"
+                },
+                {
+                    "key": "field_vg_industry_metrics_before",
+                    "label": "Before",
+                    "name": "before",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "e.g. \"Manual process\"",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_metrics"
+                },
+                {
+                    "key": "field_vg_industry_metrics_after",
+                    "label": "After",
+                    "name": "after",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "e.g. \"Automated\"",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_metrics"
+                },
+                {
+                    "key": "field_vg_industry_metrics_improvement",
+                    "label": "Improvement",
+                    "name": "improvement",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "e.g. \"85% faster\"",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_vg_industry_metrics"
+                }
+            ]
+        },
+        {
+            "key": "field_vg_industry_related_industries",
+            "label": "Related Industries",
+            "name": "related_industries",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "industry"
+            ],
+            "taxonomy": "",
+            "filters": [
+                "search"
+            ],
+            "return_format": "object",
+            "min": "",
+            "max": 6,
+            "elements": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "industry"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1712534400
+}
