@@ -8,8 +8,11 @@ package verigate.adapter.document.infrastructure.services;
 
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import verigate.adapter.document.domain.models.DocumentType;
 import verigate.adapter.document.domain.models.DocumentVerificationRequest;
 import verigate.adapter.document.domain.models.DocumentVerificationResponse;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
@@ -109,8 +112,12 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
               request.subjectIdNumber(),
               request.documentType().name());
 
-      logger.info("AI document analysis: authenticityScore={}, anomalies={}",
-          aiResult.authenticityScore(), aiResult.anomalies().size());
+      logger.info("AI document analysis: authenticityScore={}, overallConfidence={}, anomalies={}",
+          aiResult.authenticityScore(), aiResult.overallConfidence(),
+          aiResult.anomalies().size());
+
+      // Run SA ID validation on identity documents
+      aiResult = applyPostExtractionValidation(aiResult, request.documentType());
 
       return aiResult;
 
@@ -118,5 +125,27 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
       logger.warn("AI document analysis failed (non-blocking): {}", e.getMessage());
       return null;
     }
+  }
+
+  private static final Set<DocumentType> SA_ID_DOCUMENT_TYPES = Set.of(
+      DocumentType.IDENTITY_DOCUMENT, DocumentType.PASSPORT, DocumentType.DRIVERS_LICENSE);
+
+  private AiDocumentAnalyzer.DocumentAnalysisResult applyPostExtractionValidation(
+      AiDocumentAnalyzer.DocumentAnalysisResult result, DocumentType documentType) {
+
+    if (!SA_ID_DOCUMENT_TYPES.contains(documentType)) {
+      return result;
+    }
+
+    AiDocumentAnalyzer.ExtractedField idField = result.extractedFields().get("idNumber");
+    if (idField == null || idField.value() == null) {
+      return result;
+    }
+
+    List<AiDocumentAnalyzer.ValidationCheck> checks = SaIdValidator.validate(idField.value());
+    logger.info("SA ID validation for extracted ID: {} checks, pass={}",
+        checks.size(), checks.stream().allMatch(c -> "PASS".equals(c.status())));
+
+    return result.withValidationChecks(checks);
   }
 }

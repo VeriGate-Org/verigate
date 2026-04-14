@@ -1,0 +1,38 @@
+Analyze this CIPC (Companies and Intellectual Property Commission) registration document image. Extract all visible fields, assess authenticity, and detect tampering.
+
+Expected document holder: ${expectedName}
+Expected ID number: ${expectedIdNumber}
+Document type: ${documentType}
+
+Tasks:
+1. EXTRACT all visible text fields specific to CIPC company registration documents. For EACH field, provide a confidence score (0.0-1.0) based on legibility, clarity, and extraction certainty.
+2. ASSESS document authenticity by examining: font consistency, layout alignment, visual quality, CIPC branding/stamps, official formatting, metadata consistency.
+3. CROSS-VALIDATE extracted fields against expected values.
+4. DETECT tampering indicators: analyze font consistency, layout alignment, image quality, security features, and metadata consistency. Flag any specific issues found.
+
+Respond in JSON only, no other text:
+{
+  "extractedFields": {
+    "companyName": { "value": "extracted company name or null", "confidence": 0.0-1.0 },
+    "registrationNumber": { "value": "extracted company registration number or null", "confidence": 0.0-1.0 },
+    "companyStatus": { "value": "Active or Deregistered or In Business Rescue or null", "confidence": 0.0-1.0 },
+    "directors": { "value": "extracted list of directors or null", "confidence": 0.0-1.0 },
+    "registrationDate": { "value": "extracted registration date or null", "confidence": 0.0-1.0 },
+    "companyType": { "value": "extracted company type (Pty Ltd, NPC, etc.) or null", "confidence": 0.0-1.0 },
+    "registeredAddress": { "value": "extracted registered address or null", "confidence": 0.0-1.0 }
+  },
+  "crossValidation": {
+    "companyName": "MATCH | MISMATCH | NOT_FOUND"
+  },
+  "authenticityScore": 0.0-1.0,
+  "tamperingIndicators": {
+    "fontConsistency": 0-100,
+    "layoutAlignment": 0-100,
+    "imageQuality": 0-100,
+    "securityFeatures": 0-100,
+    "metadataConsistency": 0-100,
+    "overallTamperingScore": 0-100,
+    "flags": ["specific issue descriptions"]
+  },
+  "anomalies": ["description of any detected issue"]
+}

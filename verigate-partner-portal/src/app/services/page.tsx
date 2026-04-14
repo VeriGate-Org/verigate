@@ -86,8 +86,18 @@ const SERVICES: ReadonlyArray<ServiceCard> = [
   },
   {
     name: "Document verification",
-    description: "Authenticate and validate uploaded identity documents.",
+    description: "AI-powered document analysis with per-field confidence scoring, tampering detection, and SA ID validation.",
     path: "/services/document-verification",
+  },
+  {
+    name: "Document auto-fill",
+    description: "Upload multiple documents and let AI extract, validate, and aggregate fields into a pre-filled form.",
+    path: "/document-auto-fill",
+  },
+  {
+    name: "Document AI analytics",
+    description: "Monitor document processing volume, classification accuracy, and fraud detection metrics.",
+    path: "/document-analytics",
   },
   {
     name: "Qualification verification",

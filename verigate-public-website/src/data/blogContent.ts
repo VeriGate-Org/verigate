@@ -28,7 +28,7 @@ const authors: Record<string, BlogAuthor> = {
     avatar: "TN",
     photo: "https://images.unsplash.com/photo-1659444003277-6cb0a5ffc8bd?w=200&h=200&fit=crop&crop=face",
     bio: "Thabo brings 15+ years in fintech and risk management to VeriGate. He previously led compliance at a major SA bank and is passionate about building trust through technology.",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
   },
   sarah: {
     name: "Sarah van der Merwe",
@@ -36,7 +36,7 @@ const authors: Record<string, BlogAuthor> = {
     avatar: "SvdM",
     photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     bio: "Sarah is a software architect with deep expertise in secure platforms. She previously led engineering at a Cape Town fintech startup and holds an MSc in Computer Science from UCT.",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
   },
   james: {
     name: "James Motsepe",
@@ -44,7 +44,7 @@ const authors: Record<string, BlogAuthor> = {
     avatar: "JM",
     photo: "https://images.unsplash.com/photo-1698885765700-77c5a9b5cc8a?w=200&h=200&fit=crop&crop=face",
     bio: "James is a regulatory expert specialising in FICA, POPIA, and financial services compliance across Southern Africa. He advises on compliance strategy for VeriGate's platform and clients.",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
   },
   priya: {
     name: "Priya Naidoo",
@@ -52,7 +52,7 @@ const authors: Record<string, BlogAuthor> = {
     avatar: "PN",
     photo: "https://images.unsplash.com/photo-1659355894139-ca46ea6fa67a?w=200&h=200&fit=crop&crop=face",
     bio: "Priya leads VeriGate's operations team with a track record of scaling verification processes across banking, insurance, and telecoms industries.",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
   },
 };
 

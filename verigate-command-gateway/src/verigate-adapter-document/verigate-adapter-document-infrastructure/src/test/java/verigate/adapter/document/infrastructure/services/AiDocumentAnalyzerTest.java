@@ -7,6 +7,7 @@ package verigate.adapter.document.infrastructure.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,7 +35,52 @@ class AiDocumentAnalyzerTest {
   }
 
   @Test
-  void shouldExtractFieldsAndCrossValidate() {
+  void shouldExtractFieldsWithConfidenceScores() {
+    String aiResponseJson = """
+        {
+          "extractedFields": {
+            "fullName": { "value": "John Doe", "confidence": 0.99 },
+            "idNumber": { "value": "8501015009087", "confidence": 0.98 },
+            "dateOfBirth": { "value": "1985-01-01", "confidence": 0.95 }
+          },
+          "crossValidation": {
+            "fullName": "MATCH",
+            "idNumber": "MATCH"
+          },
+          "authenticityScore": 0.92,
+          "tamperingIndicators": {
+            "fontConsistency": 95,
+            "layoutAlignment": 90,
+            "imageQuality": 88,
+            "securityFeatures": 85,
+            "metadataConsistency": 92,
+            "overallTamperingScore": 90,
+            "flags": []
+          },
+          "anomalies": []
+        }
+        """;
+
+    when(visionService.analyzeDocument(any(byte[].class), anyString(), anyString()))
+        .thenReturn(new AiResponse(aiResponseJson, "end_turn", 200, 100));
+
+    AiDocumentAnalyzer.DocumentAnalysisResult result =
+        analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg", "John Doe", "8501015009087",
+            "IDENTITY_DOCUMENT");
+
+    assertNotNull(result);
+    assertEquals("John Doe", result.extractedFields().get("fullName").value());
+    assertEquals(0.99, result.extractedFields().get("fullName").confidence(), 0.01);
+    assertEquals("MATCH", result.crossValidation().get("fullName"));
+    assertEquals(0.92, result.authenticityScore(), 0.01);
+    assertFalse(result.hasAnomalies());
+    assertTrue(result.overallConfidence() > 0.9);
+    assertNotNull(result.tamperingIndicators());
+    assertEquals(90, result.tamperingIndicators().overallTamperingScore());
+  }
+
+  @Test
+  void shouldHandleLegacyFlatFieldFormat() {
     String aiResponseJson = """
         {
           "extractedFields": {
@@ -58,25 +104,37 @@ class AiDocumentAnalyzerTest {
         analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg", "John Doe", "8501015009087", "ID");
 
     assertNotNull(result);
-    assertEquals("John Doe", result.extractedFields().get("name"));
-    assertEquals("MATCH", result.crossValidation().get("name"));
-    assertEquals(0.92, result.authenticityScore(), 0.01);
-    assertFalse(result.hasAnomalies());
+    assertEquals("John Doe", result.extractedFields().get("name").value());
+    assertEquals(0.0, result.extractedFields().get("name").confidence());
+    assertEquals("John Doe", result.extractedFieldsFlat().get("name"));
+    assertNull(result.tamperingIndicators());
   }
 
   @Test
-  void shouldDetectAnomalies() {
+  void shouldDetectAnomaliesAndTamperingFlags() {
     String aiResponseJson = """
         {
           "extractedFields": {
-            "name": "Jane Smith",
-            "idNumber": "9001015009082"
+            "fullName": { "value": "Jane Smith", "confidence": 0.70 },
+            "idNumber": { "value": "9001015009082", "confidence": 0.85 }
           },
           "crossValidation": {
-            "name": "MISMATCH",
+            "fullName": "MISMATCH",
             "idNumber": "MATCH"
           },
           "authenticityScore": 0.45,
+          "tamperingIndicators": {
+            "fontConsistency": 40,
+            "layoutAlignment": 55,
+            "imageQuality": 60,
+            "securityFeatures": 30,
+            "metadataConsistency": 45,
+            "overallTamperingScore": 46,
+            "flags": [
+              "Font inconsistency detected in name field",
+              "Document layout differs from standard template"
+            ]
+          },
           "anomalies": [
             "Font inconsistency detected in name field",
             "Document layout differs from standard template"
@@ -93,8 +151,11 @@ class AiDocumentAnalyzerTest {
     assertNotNull(result);
     assertTrue(result.hasAnomalies());
     assertEquals(2, result.anomalies().size());
-    assertEquals("MISMATCH", result.crossValidation().get("name"));
+    assertEquals("MISMATCH", result.crossValidation().get("fullName"));
     assertEquals(0.45, result.authenticityScore(), 0.01);
+    assertNotNull(result.tamperingIndicators());
+    assertEquals(46, result.tamperingIndicators().overallTamperingScore());
+    assertEquals(2, result.tamperingIndicators().flags().size());
   }
 
   @Test
@@ -102,8 +163,10 @@ class AiDocumentAnalyzerTest {
     String aiResponseJson = """
         ```json
         {
-          "extractedFields": {"name": "Test User"},
-          "crossValidation": {"name": "MATCH"},
+          "extractedFields": {
+            "fullName": { "value": "Test User", "confidence": 0.95 }
+          },
+          "crossValidation": {"fullName": "MATCH"},
           "authenticityScore": 0.88,
           "anomalies": []
         }
@@ -117,7 +180,7 @@ class AiDocumentAnalyzerTest {
         analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg", "Test User", "123", "PASSPORT");
 
     assertNotNull(result);
-    assertEquals("Test User", result.extractedFields().get("name"));
+    assertEquals("Test User", result.extractedFields().get("fullName").value());
     assertEquals(0.88, result.authenticityScore(), 0.01);
   }
 
@@ -133,13 +196,16 @@ class AiDocumentAnalyzerTest {
     assertTrue(result.hasAnomalies());
     assertTrue(result.anomalies().get(0).contains("AI analysis failed"));
     assertEquals(0.0, result.authenticityScore());
+    assertEquals(0.0, result.overallConfidence());
   }
 
   @Test
   void shouldHandleNullExpectedFields() {
     String aiResponseJson = """
         {
-          "extractedFields": {"name": "Some Name"},
+          "extractedFields": {
+            "fullName": { "value": "Some Name", "confidence": 0.90 }
+          },
           "crossValidation": {},
           "authenticityScore": 0.75,
           "anomalies": []
@@ -154,5 +220,43 @@ class AiDocumentAnalyzerTest {
 
     assertNotNull(result);
     assertEquals(0.75, result.authenticityScore(), 0.01);
+  }
+
+  @Test
+  void shouldComputeOverallConfidenceFromFieldScores() {
+    String aiResponseJson = """
+        {
+          "extractedFields": {
+            "fullName": { "value": "John Doe", "confidence": 0.99 },
+            "idNumber": { "value": "8501015009087", "confidence": 0.97 },
+            "dateOfBirth": { "value": null, "confidence": 0.0 }
+          },
+          "crossValidation": {},
+          "authenticityScore": 0.90,
+          "anomalies": []
+        }
+        """;
+
+    when(visionService.analyzeDocument(any(byte[].class), anyString(), anyString()))
+        .thenReturn(new AiResponse(aiResponseJson, "end_turn", 200, 100));
+
+    AiDocumentAnalyzer.DocumentAnalysisResult result =
+        analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg", "John Doe", "8501015009087", "ID");
+
+    // Only non-null fields contribute to overall confidence: (0.99 + 0.97) / 2 = 0.98
+    assertEquals(0.98, result.overallConfidence(), 0.01);
+  }
+
+  @Test
+  void shouldSupportValidationChecksViaWithMethod() {
+    var result = AiDocumentAnalyzer.DocumentAnalysisResult.error("test");
+    var checks = java.util.List.of(
+        new AiDocumentAnalyzer.ValidationCheck("LUHN_CHECK", "PASS", "Valid checksum"),
+        new AiDocumentAnalyzer.ValidationCheck("FORMAT_CHECK", "PASS", "Valid SA ID format")
+    );
+    var withChecks = result.withValidationChecks(checks);
+
+    assertEquals(2, withChecks.validationChecks().size());
+    assertEquals("LUHN_CHECK", withChecks.validationChecks().get(0).name());
   }
 }

@@ -1,0 +1,39 @@
+Analyze this financial statement or annual financial report image. Extract all visible fields, assess authenticity, and detect tampering.
+
+Expected document holder: ${expectedName}
+Expected ID number: ${expectedIdNumber}
+Document type: ${documentType}
+
+Tasks:
+1. EXTRACT all visible text fields specific to financial statements. For EACH field, provide a confidence score (0.0-1.0) based on legibility, clarity, and extraction certainty.
+2. ASSESS document authenticity by examining: font consistency, layout alignment, visual quality, auditor branding, official formatting, metadata consistency.
+3. CROSS-VALIDATE extracted fields against expected values.
+4. DETECT tampering indicators: analyze font consistency, layout alignment, image quality, security features, and metadata consistency. Flag any specific issues found.
+
+Respond in JSON only, no other text:
+{
+  "extractedFields": {
+    "companyName": { "value": "extracted company name or null", "confidence": 0.0-1.0 },
+    "annualRevenue": { "value": "extracted annual revenue or null", "confidence": 0.0-1.0 },
+    "financialYear": { "value": "extracted financial year end or null", "confidence": 0.0-1.0 },
+    "auditorName": { "value": "extracted auditor/accounting firm name or null", "confidence": 0.0-1.0 },
+    "totalAssets": { "value": "extracted total assets or null", "confidence": 0.0-1.0 },
+    "totalLiabilities": { "value": "extracted total liabilities or null", "confidence": 0.0-1.0 },
+    "netProfit": { "value": "extracted net profit or null", "confidence": 0.0-1.0 },
+    "auditOpinion": { "value": "extracted audit opinion or null", "confidence": 0.0-1.0 }
+  },
+  "crossValidation": {
+    "companyName": "MATCH | MISMATCH | NOT_FOUND"
+  },
+  "authenticityScore": 0.0-1.0,
+  "tamperingIndicators": {
+    "fontConsistency": 0-100,
+    "layoutAlignment": 0-100,
+    "imageQuality": 0-100,
+    "securityFeatures": 0-100,
+    "metadataConsistency": 0-100,
+    "overallTamperingScore": 0-100,
+    "flags": ["specific issue descriptions"]
+  },
+  "anomalies": ["description of any detected issue"]
+}

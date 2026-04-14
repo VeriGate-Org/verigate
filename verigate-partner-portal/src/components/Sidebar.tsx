@@ -8,6 +8,7 @@ import {
   ChevronRight, ChevronDown, Star, X, Settings, HelpCircle, FileText, GitBranch,
   Fingerprint, FileCheck, TrendingUp, DollarSign, Receipt, Briefcase,
   GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
+  BarChart3, FileStack,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
@@ -35,6 +36,7 @@ const NAV_SECTIONS: NavSection[] = [
       { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { name: "Verification Log", path: "/verifications", icon: Search },
       { name: "Cases", path: "/cases", icon: ClipboardList, badge: "NEW", feature: Feature.CASE_MANAGEMENT },
+      { name: "Document Analytics", path: "/document-analytics", icon: BarChart3, badge: "NEW" },
     ],
   },
   {
@@ -45,6 +47,7 @@ const NAV_SECTIONS: NavSection[] = [
       { name: "Identity Verification", path: "/services/identity", icon: Fingerprint },
       { name: "Bulk ID Verification", path: "/services/bulk-identity-verification", icon: Fingerprint, badge: "NEW" },
       { name: "Document Verification", path: "/services/document-verification", icon: FileCheck },
+      { name: "Document Auto-Fill", path: "/document-auto-fill", icon: FileStack, badge: "NEW" },
     ],
   },
   {

@@ -17,7 +17,10 @@ public enum DocumentType {
   PAYSLIP,
   UTILITY_BILL,
   TAX_CERTIFICATE,
-  PROOF_OF_RESIDENCE;
+  PROOF_OF_RESIDENCE,
+  B_BBEE_CERTIFICATE,
+  FINANCIAL_STATEMENT,
+  CIPC_REGISTRATION;
 
   /**
    * Parse a document type description to the corresponding enum value.
@@ -42,6 +45,9 @@ public enum DocumentType {
         case "UTILITY_BILL", "UTILITIES" -> UTILITY_BILL;
         case "TAX_CERTIFICATE", "TAX_CERT" -> TAX_CERTIFICATE;
         case "PROOF_OF_RESIDENCE", "POR", "PROOF_OF_ADDRESS" -> PROOF_OF_RESIDENCE;
+        case "B_BBEE_CERTIFICATE", "BBEE", "B_BBEE", "BBBEE", "B_BBEE_CERT" -> B_BBEE_CERTIFICATE;
+        case "FINANCIAL_STATEMENT", "FINANCIALS", "AFS", "ANNUAL_FINANCIAL_STATEMENT" -> FINANCIAL_STATEMENT;
+        case "CIPC_REGISTRATION", "CIPC", "COMPANY_REGISTRATION" -> CIPC_REGISTRATION;
         default -> IDENTITY_DOCUMENT;
       };
     }

@@ -1,0 +1,38 @@
+Analyze this South African Tax Clearance Certificate image. Extract all visible fields, assess authenticity, and detect tampering.
+
+Expected document holder: ${expectedName}
+Expected ID number: ${expectedIdNumber}
+Document type: ${documentType}
+
+Tasks:
+1. EXTRACT all visible text fields specific to SARS tax certificates. For EACH field, provide a confidence score (0.0-1.0) based on legibility, clarity, and extraction certainty.
+2. ASSESS document authenticity by examining: font consistency, layout alignment, visual quality, SARS branding/watermarks, official formatting, metadata consistency.
+3. CROSS-VALIDATE extracted fields against expected values.
+4. DETECT tampering indicators: analyze font consistency, layout alignment, image quality, security features, and metadata consistency. Flag any specific issues found.
+
+Respond in JSON only, no other text:
+{
+  "extractedFields": {
+    "taxNumber": { "value": "extracted tax reference number or null", "confidence": 0.0-1.0 },
+    "tcsPin": { "value": "extracted TCS PIN or null", "confidence": 0.0-1.0 },
+    "complianceStatus": { "value": "Compliant or Non-Compliant or null", "confidence": 0.0-1.0 },
+    "validUntil": { "value": "extracted expiry date or null", "confidence": 0.0-1.0 },
+    "taxpayerName": { "value": "extracted taxpayer name or null", "confidence": 0.0-1.0 },
+    "taxpayerType": { "value": "Individual or Company or Trust or null", "confidence": 0.0-1.0 },
+    "issueDate": { "value": "extracted issue date or null", "confidence": 0.0-1.0 }
+  },
+  "crossValidation": {
+    "taxpayerName": "MATCH | MISMATCH | NOT_FOUND"
+  },
+  "authenticityScore": 0.0-1.0,
+  "tamperingIndicators": {
+    "fontConsistency": 0-100,
+    "layoutAlignment": 0-100,
+    "imageQuality": 0-100,
+    "securityFeatures": 0-100,
+    "metadataConsistency": 0-100,
+    "overallTamperingScore": 0-100,
+    "flags": ["specific issue descriptions"]
+  },
+  "anomalies": ["description of any detected issue"]
+}

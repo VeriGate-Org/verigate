@@ -73,7 +73,7 @@ const EMAIL_TEMPLATES = {
             <p>Hi ${name},</p>
             <p>We've received your message and our team will get back to you within 24 hours.</p>
             <p>In the meantime, feel free to explore our resources:</p>
-            <a href="https://verigate.com/resources" class="button">Browse Resources</a>
+            <a href="https://verigate.co.za/resources" class="button">Browse Resources</a>
             <p>If you have urgent questions, you can also reach us via:</p>
             <ul>
               <li>Email: support@verigate.com</li>
@@ -82,7 +82,7 @@ const EMAIL_TEMPLATES = {
             </ul>
           </div>
           <div class="footer">
-            <p>&copy; 2025 VeriGate. All rights reserved.</p>
+            <p>&copy; 2026 VeriGate. All rights reserved.</p>
             <p>Enterprise-Grade Identity Verification</p>
           </div>
         </div>
@@ -129,7 +129,7 @@ const EMAIL_TEMPLATES = {
             </div>
 
             <p>To make the most of your demo, here are some resources:</p>
-            <a href="https://verigate.com/docs" class="button">View Documentation</a>
+            <a href="https://verigate.co.za/integrations" class="button">View Documentation</a>
             
             <p><strong>Typical demo agenda:</strong></p>
             <ul>
@@ -140,7 +140,7 @@ const EMAIL_TEMPLATES = {
             </ul>
           </div>
           <div class="footer">
-            <p>&copy; 2025 VeriGate. All rights reserved.</p>
+            <p>&copy; 2026 VeriGate. All rights reserved.</p>
             <p>Questions? Reply to this email or call us at +1 (555) 123-4567</p>
           </div>
         </div>
@@ -183,7 +183,7 @@ const EMAIL_TEMPLATES = {
             <p>We publish new content weekly, so stay tuned!</p>
           </div>
           <div class="footer">
-            <p>&copy; 2025 VeriGate. All rights reserved.</p>
+            <p>&copy; 2026 VeriGate. All rights reserved.</p>
             <div class="unsubscribe">
               <a href="{{unsubscribe_link}}">Unsubscribe</a> | <a href="{{preferences_link}}">Update Preferences</a>
             </div>
@@ -322,7 +322,7 @@ class EmailService {
   constructor() {
     // In production, load from environment variables
     this.apiKey = import.meta.env.VITE_EMAIL_API_KEY || 'mock-api-key';
-    this.fromEmail = import.meta.env.VITE_FROM_EMAIL || 'noreply@verigate.com';
+    this.fromEmail = import.meta.env.VITE_FROM_EMAIL || 'noreply@verigate.co.za';
     this.fromName = import.meta.env.VITE_FROM_NAME || 'VeriGate';
   }
 
@@ -387,7 +387,7 @@ class EmailService {
       // Send notification to sales team
       const notification = EMAIL_TEMPLATES.contactNotification(data);
       await this.sendEmail({
-        to: import.meta.env.VITE_SALES_EMAIL || 'sales@verigate.com',
+        to: import.meta.env.VITE_SALES_EMAIL || 'sales@verigate.co.za',
         from: this.fromEmail,
         subject: notification.subject,
         html: notification.html,
@@ -420,7 +420,7 @@ class EmailService {
       // Send notification to sales team
       const notification = EMAIL_TEMPLATES.demoNotification(data);
       await this.sendEmail({
-        to: import.meta.env.VITE_SALES_EMAIL || 'sales@verigate.com',
+        to: import.meta.env.VITE_SALES_EMAIL || 'sales@verigate.co.za',
         from: this.fromEmail,
         subject: notification.subject,
         html: notification.html,

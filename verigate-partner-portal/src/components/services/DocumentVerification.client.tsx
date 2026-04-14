@@ -13,21 +13,166 @@ import { RetryButton } from "@/components/verification/RetryButton";
 import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
 import { ServiceField } from "@/components/services/shared/ServiceField";
 import { useToast } from "@/components/ui/Toast";
-import { type DocumentVerificationResponse } from "@/lib/mock-services";
+import { type DocumentVerificationResponse, type ExtractedFieldWithConfidence, type TamperingIndicators, type ValidationCheck } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
 import { exportPdf } from "@/lib/utils/export-pdf";
 import {
   getDocumentPresignedUrl,
   uploadFileToS3,
 } from "@/lib/bff-client";
-import { FileCheck } from "lucide-react";
+import { FileCheck, CheckCircle2, XCircle, Shield, AlertTriangle } from "lucide-react";
 
 const DOCUMENT_TYPES = [
+  { value: "id_card", label: "SA ID Card" },
   { value: "passport", label: "Passport" },
   { value: "drivers_license", label: "Driver's License" },
-  { value: "id_card", label: "ID Card" },
-  { value: "work_permit", label: "Work Permit" },
+  { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
+  { value: "tax_certificate", label: "Tax Clearance Certificate" },
+  { value: "financial_statement", label: "Financial Statement" },
+  { value: "cipc_registration", label: "CIPC Registration" },
+  { value: "utility_bill", label: "Utility Bill" },
 ];
+
+function confidenceColor(confidence: number): string {
+  if (confidence >= 0.95) return "text-green-600";
+  if (confidence >= 0.80) return "text-amber-600";
+  return "text-red-600";
+}
+
+function confidenceBgColor(confidence: number): string {
+  if (confidence >= 0.95) return "bg-green-500";
+  if (confidence >= 0.80) return "bg-amber-500";
+  return "bg-red-500";
+}
+
+function tamperingScoreColor(score: number): string {
+  if (score >= 80) return "text-green-600";
+  if (score >= 50) return "text-amber-600";
+  return "text-red-600";
+}
+
+function tamperingScoreBg(score: number): string {
+  if (score >= 80) return "bg-green-500/10 border-green-500/20";
+  if (score >= 50) return "bg-amber-500/10 border-amber-500/20";
+  return "bg-red-500/10 border-red-500/20";
+}
+
+function formatFieldLabel(key: string): string {
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (s) => s.toUpperCase())
+    .replace(/_/g, " ");
+}
+
+function ExtractedFieldRow({ label, field }: { label: string; field: ExtractedFieldWithConfidence }) {
+  if (!field.value || field.value === "null") return null;
+  const pct = Math.round(field.confidence * 100);
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-border last:border-0">
+      <div className="flex-1 min-w-0">
+        <div className="text-xs text-text-muted uppercase tracking-wide">{label}</div>
+        <div className="text-sm font-medium text-text truncate">{field.value}</div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="w-16 h-1.5 rounded-full bg-border overflow-hidden">
+          <div
+            className={`h-full rounded-full ${confidenceBgColor(field.confidence)}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <span className={`text-xs font-medium tabular-nums ${confidenceColor(field.confidence)}`}>
+          {pct}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ValidationBadge({ check }: { check: ValidationCheck }) {
+  const pass = check.status === "PASS";
+  return (
+    <div
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+        pass ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
+      }`}
+      title={check.detail}
+    >
+      {pass ? (
+        <CheckCircle2 className="h-3 w-3" />
+      ) : (
+        <XCircle className="h-3 w-3" />
+      )}
+      {check.name.replace(/_/g, " ")}
+    </div>
+  );
+}
+
+function TamperingSection({ indicators }: { indicators: TamperingIndicators }) {
+  const checks = [
+    { label: "Font Consistency", score: indicators.fontConsistency },
+    { label: "Layout Alignment", score: indicators.layoutAlignment },
+    { label: "Image Quality", score: indicators.imageQuality },
+    { label: "Security Features", score: indicators.securityFeatures },
+    { label: "Metadata", score: indicators.metadataConsistency },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Shield className="h-4 w-4 text-text-muted" />
+        <span className="text-xs font-semibold text-text uppercase tracking-wide">
+          Tampering Analysis
+        </span>
+      </div>
+
+      <div className={`flex items-center gap-3 rounded border p-3 ${tamperingScoreBg(indicators.overallTamperingScore)}`}>
+        <div className={`text-2xl font-bold tabular-nums ${tamperingScoreColor(indicators.overallTamperingScore)}`}>
+          {indicators.overallTamperingScore}
+        </div>
+        <div>
+          <div className="text-sm font-medium text-text">
+            Integrity Score
+          </div>
+          <div className="text-xs text-text-muted">
+            {indicators.overallTamperingScore >= 80
+              ? "Document appears authentic"
+              : indicators.overallTamperingScore >= 50
+                ? "Some concerns detected"
+                : "Potential tampering detected"}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {checks.map((c) => (
+          <div key={c.label} className="rounded border border-border bg-background p-2">
+            <div className="text-[10px] text-text-muted uppercase tracking-wide">{c.label}</div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex-1 h-1 rounded-full bg-border overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${c.score >= 80 ? "bg-green-500" : c.score >= 50 ? "bg-amber-500" : "bg-red-500"}`}
+                  style={{ width: `${c.score}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium tabular-nums text-text-muted">{c.score}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {indicators.flags.length > 0 && (
+        <div className="space-y-1">
+          {indicators.flags.map((flag, i) => (
+            <div key={i} className="flex items-start gap-1.5 text-xs text-amber-600">
+              <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+              <span>{flag}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DocumentVerification() {
   const [documentType, setDocumentType] = useState<string>(
@@ -155,7 +300,7 @@ export default function DocumentVerification() {
           Document verification
         </h1>
         <p className="text-sm text-text-muted">
-          Verify the authenticity and validity of identity documents.
+          AI-powered document analysis with per-field confidence scoring and tampering detection.
         </p>
       </header>
 
@@ -178,7 +323,7 @@ export default function DocumentVerification() {
           >
             <ServiceField
               label="Document type"
-              description="Select the type of identity document."
+              description="Select the type of document to verify."
             >
               <select
                 id="documentType"
@@ -211,7 +356,7 @@ export default function DocumentVerification() {
 
             <ServiceField
               label="Document image (optional)"
-              description="Upload a scan or photo of the document for enhanced verification."
+              description="Upload a scan or photo for AI-powered extraction and tampering analysis."
             >
               <FileUpload
                 accept="image/*,.pdf"
@@ -226,7 +371,7 @@ export default function DocumentVerification() {
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
-                Documents are verified against issuing authority databases.
+                Documents are verified using AI vision with per-field confidence scoring.
               </p>
               <Button
                 type="submit"
@@ -247,7 +392,7 @@ export default function DocumentVerification() {
           </form>
         </div>
 
-        <div ref={resultRef} tabIndex={-1} className="outline-none">
+        <div ref={resultRef} tabIndex={-1} className="outline-none space-y-4">
           <AnimatedResult>
             {loading ? (
               <div className="console-card">
@@ -261,7 +406,7 @@ export default function DocumentVerification() {
                 <div className="console-card-body space-y-6 p-4">
                   <div className="border border-border rounded overflow-hidden">
                     <div className="divide-y divide-border">
-                      {[...Array(4)].map((_, i) => (
+                      {[...Array(6)].map((_, i) => (
                         <div key={i} className="flex items-center px-4 py-2.5">
                           <Skeleton className="h-4 w-32 bg-background/50" />
                           <Skeleton className="h-4 w-24 ml-auto" />
@@ -279,32 +424,91 @@ export default function DocumentVerification() {
                 </div>
               </div>
             ) : result ? (
-              <VerificationResultCard
-                ref={resultCardRef}
-                title="Document results"
-                reference={result.reference}
-                status={result.document.verified ? "verified" : "not_verified"}
-                onExport={handleExport}
-                fields={[
-                  { label: "Provider", value: result.provider },
-                  { label: "Status", value: result.document.status },
-                  {
-                    label: "Issued date",
-                    value: new Date(result.document.issuedDate).toLocaleDateString(),
-                  },
-                  {
-                    label: "Expiry date",
-                    value: result.document.expiryDate
-                      ? new Date(result.document.expiryDate).toLocaleDateString()
-                      : "No expiry",
-                  },
-                ]}
-              />
+              <>
+                <VerificationResultCard
+                  ref={resultCardRef}
+                  title="Document results"
+                  reference={result.reference}
+                  status={result.document.verified ? "verified" : "not_verified"}
+                  confidenceScore={Math.round(result.overallConfidence * 100)}
+                  onExport={handleExport}
+                  fields={[
+                    { label: "Provider", value: result.provider },
+                    { label: "Status", value: result.document.status },
+                    {
+                      label: "Issued date",
+                      value: new Date(result.document.issuedDate).toLocaleDateString(),
+                    },
+                    {
+                      label: "Expiry date",
+                      value: result.document.expiryDate
+                        ? new Date(result.document.expiryDate).toLocaleDateString()
+                        : "No expiry",
+                    },
+                  ]}
+                  matchFields={result.validationChecks.map((c) => ({
+                    label: c.name.replace(/_/g, " "),
+                    matched: c.status === "PASS",
+                  }))}
+                />
+
+                {/* Extracted Fields with Per-Field Confidence */}
+                {result.extractedFields && Object.keys(result.extractedFields).length > 0 && (
+                  <div className="console-card">
+                    <div className="console-card-header">
+                      <div className="text-sm font-semibold text-text">
+                        Extracted fields
+                      </div>
+                      <div className="text-xs text-text-muted">
+                        {Object.values(result.extractedFields).filter(f => f.value && f.value !== "null").length} fields extracted
+                      </div>
+                    </div>
+                    <div className="console-card-body p-0">
+                      <div className="divide-y divide-border">
+                        {Object.entries(result.extractedFields).map(([key, field]) => (
+                          <ExtractedFieldRow
+                            key={key}
+                            label={formatFieldLabel(key)}
+                            field={field}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Validation Checks */}
+                {result.validationChecks.length > 0 && (
+                  <div className="console-card">
+                    <div className="console-card-header">
+                      <span className="text-sm font-semibold text-text">
+                        Validation checks
+                      </span>
+                    </div>
+                    <div className="console-card-body">
+                      <div className="flex flex-wrap gap-2">
+                        {result.validationChecks.map((check) => (
+                          <ValidationBadge key={check.name} check={check} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tampering Indicators */}
+                {result.tamperingIndicators && (
+                  <div className="console-card">
+                    <div className="console-card-body">
+                      <TamperingSection indicators={result.tamperingIndicators} />
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <VerificationEmptyState
                 icon={FileCheck}
                 heading="No results yet"
-                description="Enter document details and click Verify to see results."
+                description="Enter document details and click Verify to see AI-powered extraction results with confidence scoring."
               />
             )}
           </AnimatedResult>
@@ -313,8 +517,8 @@ export default function DocumentVerification() {
 
       <ProcessingDialog
         open={loading}
-        title="Verifying document"
-        message="Checking document authenticity against issuing authority records."
+        title="Analyzing document"
+        message="Running AI-powered extraction, validation, and tampering detection."
       />
     </div>
   );

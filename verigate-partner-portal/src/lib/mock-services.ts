@@ -716,21 +716,123 @@ export function generateFraudWatchlistResponse({ firstName, lastName, idNumber }
 }
 
 export type DocumentVerificationRequest = { documentType: string; documentNumber: string };
+export type ExtractedFieldWithConfidence = { value: string | null; confidence: number };
+export type TamperingIndicators = {
+  fontConsistency: number;
+  layoutAlignment: number;
+  imageQuality: number;
+  securityFeatures: number;
+  metadataConsistency: number;
+  overallTamperingScore: number;
+  flags: string[];
+};
+export type ValidationCheck = { name: string; status: "PASS" | "FAIL"; detail: string };
 export type DocumentVerificationResponse = {
   reference: string;
   provider: string;
   document: { documentType: string; documentNumber: string; verified: boolean; status: string; issuedDate: string; expiryDate: string | null };
+  extractedFields: Record<string, ExtractedFieldWithConfidence>;
+  overallConfidence: number;
+  tamperingIndicators: TamperingIndicators | null;
+  validationChecks: ValidationCheck[];
   generatedAt: string;
 };
+
+function generateExtractedFieldsForType(documentType: string, documentNumber: string, rnd: () => number): Record<string, ExtractedFieldWithConfidence> {
+  const conf = () => 0.85 + rnd() * 0.15; // 85-100% confidence
+  switch (documentType) {
+    case "id_card":
+    case "passport":
+    case "drivers_license":
+      return {
+        fullName: { value: "Thabo J. Mokoena", confidence: conf() },
+        idNumber: { value: documentNumber, confidence: conf() },
+        dateOfBirth: { value: "1985-01-01", confidence: conf() },
+        gender: { value: "Male", confidence: conf() },
+        nationality: { value: "South African", confidence: conf() },
+        status: { value: "Citizen", confidence: conf() },
+        expiryDate: { value: "2030-01-15", confidence: conf() },
+        issueDate: { value: "2020-01-15", confidence: conf() },
+      };
+    case "b_bbee_certificate":
+      return {
+        companyName: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
+        bbeeLevel: { value: "1", confidence: conf() },
+        certificateNumber: { value: `BBEE-${Math.floor(10000 + rnd() * 90000)}`, confidence: conf() },
+        issuer: { value: "Empowerdex (Pty) Ltd", confidence: conf() },
+        validFrom: { value: "2024-03-01", confidence: conf() },
+        validUntil: { value: "2025-02-28", confidence: conf() },
+        blackOwnership: { value: "100%", confidence: conf() },
+        bbbeeStatus: { value: "EME", confidence: conf() },
+      };
+    case "tax_certificate":
+      return {
+        taxNumber: { value: `${Math.floor(1000000000 + rnd() * 9000000000)}`, confidence: conf() },
+        tcsPin: { value: `${Math.floor(10000000 + rnd() * 90000000)}`, confidence: conf() },
+        complianceStatus: { value: "Compliant", confidence: conf() },
+        validUntil: { value: "2025-12-31", confidence: conf() },
+        taxpayerName: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
+      };
+    case "financial_statement":
+      return {
+        companyName: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
+        annualRevenue: { value: "R 12,450,000", confidence: conf() },
+        financialYear: { value: "2024", confidence: conf() },
+        auditorName: { value: "KPMG South Africa", confidence: conf() },
+        totalAssets: { value: "R 8,200,000", confidence: conf() },
+        netProfit: { value: "R 2,100,000", confidence: conf() },
+      };
+    case "cipc_registration":
+      return {
+        companyName: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
+        registrationNumber: { value: "2019/123456/07", confidence: conf() },
+        companyStatus: { value: "Active", confidence: conf() },
+        directors: { value: "T.J. Mokoena, S.N. Dlamini", confidence: conf() },
+        registrationDate: { value: "2019-06-15", confidence: conf() },
+        companyType: { value: "Private Company (Pty) Ltd", confidence: conf() },
+      };
+    case "utility_bill":
+      return {
+        accountHolder: { value: "Thabo J. Mokoena", confidence: conf() },
+        address: { value: "42 Innovation Drive, Sandton, 2196", confidence: conf() },
+        municipality: { value: "City of Johannesburg", confidence: conf() },
+        accountNumber: { value: `ACC-${Math.floor(100000 + rnd() * 900000)}`, confidence: conf() },
+        billDate: { value: "2025-03-01", confidence: conf() },
+      };
+    default:
+      return {
+        fullName: { value: "Thabo J. Mokoena", confidence: conf() },
+        documentNumber: { value: documentNumber, confidence: conf() },
+      };
+  }
+}
+
+function generateValidationChecks(documentType: string, documentNumber: string, rnd: () => number): ValidationCheck[] {
+  if (!["id_card", "passport", "drivers_license"].includes(documentType)) return [];
+  const luhnValid = rnd() > 0.1;
+  return [
+    { name: "FORMAT_CHECK", status: "PASS", detail: "Valid 13-digit format" },
+    { name: "DOB_CHECK", status: "PASS", detail: "Date of birth: 1985-01-01" },
+    { name: "GENDER_CHECK", status: "PASS", detail: "Gender: Male" },
+    { name: "CITIZENSHIP_CHECK", status: "PASS", detail: "SA Citizen" },
+    { name: "LUHN_CHECK", status: luhnValid ? "PASS" : "FAIL", detail: luhnValid ? "Valid checksum" : "Invalid Luhn checksum" },
+  ];
+}
 
 export function generateDocumentVerificationResponse({ documentType, documentNumber }: DocumentVerificationRequest): DocumentVerificationResponse {
   if (!documentType || !documentNumber) throw new Error("Document type and number required");
   const seedVal = documentNumber.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const rnd = seeded(seedVal);
   const verified = rnd() > 0.1;
+  const extractedFields = generateExtractedFieldsForType(documentType, documentNumber, rnd);
+  const fieldValues = Object.values(extractedFields).filter(f => f.value != null);
+  const overallConfidence = fieldValues.length > 0
+    ? fieldValues.reduce((sum, f) => sum + f.confidence, 0) / fieldValues.length
+    : 0;
+  const tamperScore = Math.floor(70 + rnd() * 30);
   return {
     reference: `doc-${Date.now()}`,
-    provider: "DocumentVerify",
+    provider: "VeriGate Document AI",
     document: {
       documentType,
       documentNumber,
@@ -739,6 +841,18 @@ export function generateDocumentVerificationResponse({ documentType, documentNum
       issuedDate: new Date(Date.now() - Math.floor(365 + rnd() * 3650) * 24 * 60 * 60 * 1000).toISOString(),
       expiryDate: rnd() > 0.3 ? new Date(Date.now() + Math.floor(365 + rnd() * 1825) * 24 * 60 * 60 * 1000).toISOString() : null,
     },
+    extractedFields,
+    overallConfidence,
+    tamperingIndicators: {
+      fontConsistency: Math.floor(70 + rnd() * 30),
+      layoutAlignment: Math.floor(70 + rnd() * 30),
+      imageQuality: Math.floor(70 + rnd() * 30),
+      securityFeatures: Math.floor(60 + rnd() * 40),
+      metadataConsistency: Math.floor(70 + rnd() * 30),
+      overallTamperingScore: tamperScore,
+      flags: tamperScore < 80 ? ["Minor compression artifacts detected"] : [],
+    },
+    validationChecks: generateValidationChecks(documentType, documentNumber, rnd),
     generatedAt: new Date().toISOString(),
   };
 }

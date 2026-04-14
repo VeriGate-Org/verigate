@@ -1,0 +1,42 @@
+Analyze this South African identity document image. Extract all visible fields specific to SA ID documents or passports, assess authenticity, and detect tampering.
+
+Expected document holder: ${expectedName}
+Expected ID number: ${expectedIdNumber}
+Document type: ${documentType}
+
+Tasks:
+1. EXTRACT all visible text fields specific to SA identity documents. For EACH field, provide a confidence score (0.0-1.0) based on legibility, clarity, and extraction certainty.
+2. ASSESS document authenticity by examining: font consistency, layout alignment, visual quality, presence of security features (hologram, watermark, microprint), metadata consistency.
+3. CROSS-VALIDATE extracted fields against expected values.
+4. DETECT tampering indicators: analyze font consistency, layout alignment, image quality, security features, and metadata consistency. Flag any specific issues found.
+
+Respond in JSON only, no other text:
+{
+  "extractedFields": {
+    "fullName": { "value": "extracted full name or null", "confidence": 0.0-1.0 },
+    "idNumber": { "value": "extracted 13-digit SA ID number or null", "confidence": 0.0-1.0 },
+    "dateOfBirth": { "value": "extracted DOB (YYYY-MM-DD) or null", "confidence": 0.0-1.0 },
+    "gender": { "value": "Male or Female or null", "confidence": 0.0-1.0 },
+    "nationality": { "value": "extracted nationality or null", "confidence": 0.0-1.0 },
+    "status": { "value": "Citizen or Permanent Resident or null", "confidence": 0.0-1.0 },
+    "expiryDate": { "value": "extracted expiry date or null", "confidence": 0.0-1.0 },
+    "issueDate": { "value": "extracted issue date or null", "confidence": 0.0-1.0 },
+    "address": { "value": "extracted address or null", "confidence": 0.0-1.0 },
+    "documentNumber": { "value": "extracted document number or null", "confidence": 0.0-1.0 }
+  },
+  "crossValidation": {
+    "fullName": "MATCH | MISMATCH | NOT_FOUND",
+    "idNumber": "MATCH | MISMATCH | NOT_FOUND"
+  },
+  "authenticityScore": 0.0-1.0,
+  "tamperingIndicators": {
+    "fontConsistency": 0-100,
+    "layoutAlignment": 0-100,
+    "imageQuality": 0-100,
+    "securityFeatures": 0-100,
+    "metadataConsistency": 0-100,
+    "overallTamperingScore": 0-100,
+    "flags": ["specific issue descriptions"]
+  },
+  "anomalies": ["description of any detected issue"]
+}

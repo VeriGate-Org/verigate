@@ -25,7 +25,7 @@ export const testimonials = [
     rating: 5,
     metrics: "80% faster onboarding",
     industry: "Banking",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
     verified: true,
   },
   {
@@ -39,7 +39,7 @@ export const testimonials = [
     rating: 5,
     metrics: "100% POPIA compliance",
     industry: "Insurance",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
     verified: true,
   },
   {
@@ -53,7 +53,7 @@ export const testimonials = [
     rating: 4,
     metrics: "10x processing speed",
     industry: "Telecoms",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
     verified: true,
   },
   {
@@ -67,7 +67,7 @@ export const testimonials = [
     rating: 5,
     metrics: "60% reduction in bad hires",
     industry: "Financial Services",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
     verified: true,
   },
   {
@@ -81,7 +81,7 @@ export const testimonials = [
     rating: 4,
     metrics: "Scaled to 500+ verifications/month",
     industry: "Banking",
-    linkedin: "https://linkedin.com",
+    linkedin: "https://linkedin.com/company/verigate",
     verified: true,
   },
 ];
