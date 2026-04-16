@@ -9,7 +9,7 @@ package verigate.adapter.deedsweb.infrastructure.config;
 import java.util.Properties;
 import verigate.adapter.deedsweb.infrastructure.constants.EnvironmentConstants;
 
-/** Configuration class for DeedsWeb API settings. */
+/** Configuration class for DeedsWeb adapter settings. */
 public class DeedsWebApiConfiguration {
 
   private final Properties properties;
@@ -18,72 +18,76 @@ public class DeedsWebApiConfiguration {
     this.properties = properties;
   }
 
-  /** Gets the DeedsWeb API key. */
-  public String getApiKey() {
-    return getFirstDefined(
-        EnvironmentConstants.DEEDSWEB_API_KEY, EnvironmentConstants.PROPERTY_API_KEY);
+  /**
+   * Name of the AWS Secrets Manager secret holding the DeedsWeb SOAP credentials. The secret
+   * payload is JSON of the form {@code {"username":"...","password":"..."}}.
+   */
+  public String getCredentialsSecretName() {
+    return getOrDefault(
+        EnvironmentConstants.DEFAULT_CREDENTIALS_SECRET_NAME,
+        EnvironmentConstants.DEEDSWEB_CREDENTIALS_SECRET_NAME,
+        EnvironmentConstants.PROPERTY_CREDENTIALS_SECRET_NAME);
   }
 
-  /** Gets the DeedsWeb API base URL. */
+  /** SOAP endpoint base URL for the DeedsWeb registry. */
   public String getBaseUrl() {
-    return getFirstDefined(
+    return getOrDefault(
         EnvironmentConstants.DEFAULT_BASE_URL,
         EnvironmentConstants.DEEDSWEB_BASE_URL,
         EnvironmentConstants.PROPERTY_BASE_URL);
   }
 
-  /** Gets the connection timeout in milliseconds. */
+  /** Connection timeout in milliseconds. */
   public int getConnectionTimeoutMs() {
-    String timeout =
-        getFirstDefined(
+    return Integer.parseInt(
+        getOrDefault(
             EnvironmentConstants.DEFAULT_CONNECTION_TIMEOUT_MS,
             EnvironmentConstants.DEEDSWEB_CONNECTION_TIMEOUT_MS,
-            EnvironmentConstants.PROPERTY_CONNECTION_TIMEOUT_MS);
-    return Integer.parseInt(timeout);
+            EnvironmentConstants.PROPERTY_CONNECTION_TIMEOUT_MS));
   }
 
-  /** Gets the read timeout in milliseconds. */
+  /** Read timeout in milliseconds. */
   public int getReadTimeoutMs() {
-    String timeout =
-        getFirstDefined(
+    return Integer.parseInt(
+        getOrDefault(
             EnvironmentConstants.DEFAULT_READ_TIMEOUT_MS,
             EnvironmentConstants.DEEDSWEB_READ_TIMEOUT_MS,
-            EnvironmentConstants.PROPERTY_READ_TIMEOUT_MS);
-    return Integer.parseInt(timeout);
+            EnvironmentConstants.PROPERTY_READ_TIMEOUT_MS));
   }
 
-  /** Gets the number of retry attempts. */
+  /** Number of retry attempts for transient failures. */
   public int getRetryAttempts() {
-    String retries =
-        getFirstDefined(
+    return Integer.parseInt(
+        getOrDefault(
             EnvironmentConstants.DEFAULT_RETRY_ATTEMPTS,
             EnvironmentConstants.DEEDSWEB_RETRY_ATTEMPTS,
-            EnvironmentConstants.PROPERTY_RETRY_ATTEMPTS);
-    return Integer.parseInt(retries);
+            EnvironmentConstants.PROPERTY_RETRY_ATTEMPTS));
   }
 
-  /** Gets the retry delay in milliseconds. */
+  /** Delay between retries in milliseconds. */
   public int getRetryDelayMs() {
-    String delay =
-        getFirstDefined(
+    return Integer.parseInt(
+        getOrDefault(
             EnvironmentConstants.DEFAULT_RETRY_DELAY_MS,
             EnvironmentConstants.DEEDSWEB_RETRY_DELAY_MS,
-            EnvironmentConstants.PROPERTY_RETRY_DELAY_MS);
-    return Integer.parseInt(delay);
+            EnvironmentConstants.PROPERTY_RETRY_DELAY_MS));
   }
 
-  private String getFirstDefined(String... keys) {
+  /**
+   * Returns the first non-blank value found by checking environment variables and properties for
+   * the supplied keys (in order), falling back to {@code defaultValue} when none are set.
+   */
+  private String getOrDefault(String defaultValue, String... keys) {
     for (String key : keys) {
       String value = System.getenv(key);
       if (value != null && !value.isBlank()) {
         return value;
       }
-
       value = properties.getProperty(key);
       if (value != null && !value.isBlank()) {
         return value;
       }
     }
-    return null;
+    return defaultValue;
   }
 }

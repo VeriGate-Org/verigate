@@ -10,6 +10,7 @@ import java.util.List;
 import verigate.adapter.deedsweb.domain.models.OwnershipVerificationResult;
 import verigate.adapter.deedsweb.domain.models.PropertyDetails;
 import verigate.adapter.deedsweb.domain.models.PropertyOwnershipCheck;
+import verigate.adapter.deedsweb.domain.models.PropertySearchRequest;
 
 /**
  * Service interface for property ownership verification against DeedsWeb records. Provides
@@ -19,14 +20,14 @@ import verigate.adapter.deedsweb.domain.models.PropertyOwnershipCheck;
 public interface PropertyOwnershipVerificationService {
 
   /**
-   * Performs a provider-agnostic property search for the supplied criteria.
+   * Performs a property search for the supplied criteria. The {@link PropertySearchRequest}
+   * carries the search type, query, optional province filter, and optional office code. A
+   * blank or {@code "all"} office code indicates a fan-out across every deeds office.
    *
-   * @param searchType the search mode (ownerName, ownerId, erf/title details)
-   * @param query the user-supplied search query
-   * @param province optional province filter
+   * @param request the search request
    * @return matching property records
    */
-  List<PropertyDetails> searchProperties(String searchType, String query, String province);
+  List<PropertyDetails> searchProperties(PropertySearchRequest request);
 
   /**
    * Performs a full property ownership verification for a subject. Searches DeedsWeb for properties

@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import verigate.adapter.deedsweb.domain.models.PropertyDetails;
+import verigate.adapter.deedsweb.domain.models.PropertySearchRequest;
 import verigate.adapter.deedsweb.domain.services.PropertyOwnershipVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationResult;
@@ -29,7 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 class DefaultPropertyVerificationCommandHandlerTest {
@@ -80,7 +81,7 @@ class DefaultPropertyVerificationCommandHandlerTest {
                 .bondAmount(900000.0)
                 .build()
         );
-        when(propertyOwnershipVerificationService.searchProperties("ownerId", "8001015009087", "KwaZulu-Natal"))
+        when(propertyOwnershipVerificationService.searchProperties(any(PropertySearchRequest.class)))
             .thenReturn(properties);
 
         // Act
@@ -96,39 +97,42 @@ class DefaultPropertyVerificationCommandHandlerTest {
         assertTrue(result.get("searchResultJson").contains("\"ownerName\":\"Jane Doe\""));
 
         verify(propertyOwnershipVerificationService)
-            .searchProperties("ownerId", "8001015009087", "KwaZulu-Natal");
+            .searchProperties(argThat((PropertySearchRequest req) ->
+                "ownerId".equals(req.getSearchType())
+                    && "8001015009087".equals(req.getQuery())
+                    && "KwaZulu-Natal".equals(req.getProvince())));
     }
 
     @Test
     void handle_transientException_throwsAndPublishesEvent() throws Exception {
         // Arrange
         TransientException transientError = new TransientException("Service temporarily unavailable");
-        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+        when(propertyOwnershipVerificationService.searchProperties(any(PropertySearchRequest.class)))
             .thenThrow(transientError);
 
         // Act & Assert
         assertThrows(TransientException.class, () -> handler.handle(testCommand));
 
-        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
+        verify(propertyOwnershipVerificationService).searchProperties(any(PropertySearchRequest.class));
     }
 
     @Test
     void handle_permanentException_throwsAndPublishesEvent() throws Exception {
         // Arrange
         PermanentException permanentError = new PermanentException("Invalid request data");
-        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+        when(propertyOwnershipVerificationService.searchProperties(any(PropertySearchRequest.class)))
             .thenThrow(permanentError);
 
         // Act & Assert
         assertThrows(PermanentException.class, () -> handler.handle(testCommand));
 
-        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
+        verify(propertyOwnershipVerificationService).searchProperties(any(PropertySearchRequest.class));
     }
 
     @Test
     void handleAsync_validCommand_returnsCompletableFuture() throws Exception {
         // Arrange
-        when(propertyOwnershipVerificationService.searchProperties(any(), any(), any()))
+        when(propertyOwnershipVerificationService.searchProperties(any(PropertySearchRequest.class)))
             .thenReturn(List.of());
 
         // Act
@@ -140,6 +144,6 @@ class DefaultPropertyVerificationCommandHandlerTest {
         assertNotNull(result);
         assertEquals(VerificationOutcome.SUCCEEDED, result.outcome());
 
-        verify(propertyOwnershipVerificationService).searchProperties(any(), any(), any());
+        verify(propertyOwnershipVerificationService).searchProperties(any(PropertySearchRequest.class));
     }
 }

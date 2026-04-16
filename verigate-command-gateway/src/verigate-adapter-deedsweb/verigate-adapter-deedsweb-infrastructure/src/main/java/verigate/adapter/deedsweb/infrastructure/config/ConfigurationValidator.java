@@ -28,8 +28,8 @@ public class ConfigurationValidator {
     List<String> missingConfigurations = new ArrayList<>();
 
     // Check required configurations
-    if (isBlank(config.getApiKey())) {
-      missingConfigurations.add(EnvironmentConstants.DEEDSWEB_API_KEY);
+    if (isBlank(config.getCredentialsSecretName())) {
+      missingConfigurations.add(EnvironmentConstants.DEEDSWEB_CREDENTIALS_SECRET_NAME);
     }
 
     if (isBlank(config.getBaseUrl())) {

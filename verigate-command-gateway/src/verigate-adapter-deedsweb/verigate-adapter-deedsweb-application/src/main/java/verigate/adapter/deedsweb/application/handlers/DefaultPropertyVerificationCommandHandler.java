@@ -6,7 +6,6 @@
 
 package verigate.adapter.deedsweb.application.handlers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
@@ -22,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import verigate.adapter.deedsweb.domain.handlers.PropertyVerificationCommandHandler;
 import verigate.adapter.deedsweb.domain.models.PropertyDetails;
+import verigate.adapter.deedsweb.domain.models.PropertySearchRequest;
 import verigate.adapter.deedsweb.domain.services.PropertyOwnershipVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationOutcome;
@@ -95,13 +95,21 @@ public class DefaultPropertyVerificationCommandHandler
             metadataValue(command, "ownerIdNumber", null),
             metadataValue(command, "propertyDescription", null));
     String province = metadataValue(command, "province", null);
+    String officeCode = metadataValue(command, "officeCode", null);
 
     if (query == null || query.isBlank()) {
       throw new PermanentException("Property search requires a query value");
     }
 
+    PropertySearchRequest request =
+        PropertySearchRequest.builder()
+            .searchType(searchType)
+            .query(query)
+            .province(province)
+            .officeCode(officeCode)
+            .build();
     List<PropertyDetails> properties =
-        propertyOwnershipVerificationService.searchProperties(searchType, query, province);
+        propertyOwnershipVerificationService.searchProperties(request);
 
     PropertySearchResult payload = buildSearchPayload(searchType, query, province, properties);
     String payloadJson = serializePayload(payload);

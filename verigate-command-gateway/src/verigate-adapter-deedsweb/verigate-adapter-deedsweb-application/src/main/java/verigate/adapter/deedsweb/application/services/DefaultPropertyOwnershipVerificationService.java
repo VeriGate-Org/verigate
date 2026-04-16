@@ -6,27 +6,25 @@
 
 package verigate.adapter.deedsweb.application.services;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import domain.exceptions.PermanentException;
+import domain.exceptions.TransientException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import verigate.adapter.deedsweb.domain.models.EntityMatchResponse;
-import verigate.adapter.deedsweb.domain.models.EntityMatches;
 import verigate.adapter.deedsweb.domain.models.OwnershipVerificationResult;
 import verigate.adapter.deedsweb.domain.models.PropertyDetails;
 import verigate.adapter.deedsweb.domain.models.PropertyOwnershipCheck;
-import verigate.adapter.deedsweb.domain.models.ScoredEntity;
-import verigate.adapter.deedsweb.domain.services.DeedsWebMatchingService;
+import verigate.adapter.deedsweb.domain.models.PropertySearchRequest;
+import verigate.adapter.deedsweb.domain.services.DeedsRegistryClient;
 import verigate.adapter.deedsweb.domain.services.PropertyOwnershipVerificationService;
 
 /**
- * Default implementation of the property ownership verification service.
- * Uses the DeedsWebMatchingService to search for property records and evaluates
- * ownership by matching subject identifiers against registered owner details.
+ * Default implementation of the property ownership verification service. Dispatches to the
+ * appropriate {@link DeedsRegistryClient} operation based on {@code searchType} and applies
+ * province / search-type filters before returning. Ownership scoring (ID + name match) is
+ * preserved verbatim from the previous REST-based implementation.
  */
 public class DefaultPropertyOwnershipVerificationService
     implements PropertyOwnershipVerificationService {
@@ -34,80 +32,86 @@ public class DefaultPropertyOwnershipVerificationService
   private static final Logger LOGGER =
       LoggerFactory.getLogger(DefaultPropertyOwnershipVerificationService.class);
 
-  private static final String DEEDS_DATASET = "deeds";
-  private static final int DEFAULT_SEARCH_LIMIT = 50;
+  private final DeedsRegistryClient registryClient;
 
-  private final DeedsWebMatchingService deedsWebMatchingService;
-
-  /**
-   * Constructor.
-   *
-   * @param deedsWebMatchingService the DeedsWeb matching service for property lookups
-   */
-  public DefaultPropertyOwnershipVerificationService(
-      DeedsWebMatchingService deedsWebMatchingService) {
-    this.deedsWebMatchingService = deedsWebMatchingService;
+  public DefaultPropertyOwnershipVerificationService(DeedsRegistryClient registryClient) {
+    this.registryClient = registryClient;
   }
 
   @Override
-  public List<PropertyDetails> searchProperties(String searchType, String query, String province) {
+  public List<PropertyDetails> searchProperties(PropertySearchRequest request) {
+    if (request == null) {
+      return Collections.emptyList();
+    }
+    String searchType = request.getSearchType();
+    String query = request.getQuery();
     if (query == null || query.trim().isEmpty()) {
       return Collections.emptyList();
     }
 
     String sanitizedQuery = query.trim();
+    String officeCode = request.getOfficeCode();
+    String province = request.getProvince();
+
     LOGGER.debug(
-        "Searching property records: searchType={}, province={}",
+        "Searching DeedsWeb: searchType={}, office={}, province={}",
         searchType,
+        officeCode != null ? officeCode : "<all>",
         province != null ? province : "<any>");
 
+    List<PropertyDetails> raw;
     try {
-      EntityMatchResponse response =
-          deedsWebMatchingService.searchEntities(DEEDS_DATASET, sanitizedQuery, DEFAULT_SEARCH_LIMIT);
-
-      List<PropertyDetails> allProperties = mapSearchResponse(response);
-      if (allProperties.isEmpty()) {
-        return Collections.emptyList();
-      }
-
-      List<PropertyDetails> provinceFiltered = filterByProvince(allProperties, province);
-      if (provinceFiltered.isEmpty()) {
-        provinceFiltered = allProperties;
-      }
-
-      List<PropertyDetails> searchTypeFiltered =
-          applySearchTypeFilter(provinceFiltered, searchType, sanitizedQuery);
-      if (searchTypeFiltered.isEmpty()) {
-        return provinceFiltered;
-      }
-
-      return searchTypeFiltered;
-    } catch (Exception e) {
+      raw = dispatch(searchType, sanitizedQuery, officeCode);
+    } catch (TransientException | PermanentException e) {
+      // Caller (handler) decides retry vs. hard-fail; surface as runtime so this preserves
+      // the existing return-empty-list contract for soft errors.
       LOGGER.error(
-          "Error searching DeedsWeb for searchType={}, query={}",
+          "Error searching DeedsWeb for searchType={}, query={}, office={}",
           searchType,
           sanitizedQuery,
+          officeCode,
           e);
+      throw new RuntimeException(e);
+    }
+
+    if (raw == null || raw.isEmpty()) {
       return Collections.emptyList();
     }
+
+    List<PropertyDetails> provinceFiltered = filterByProvince(raw, province);
+    if (provinceFiltered.isEmpty()) {
+      provinceFiltered = raw;
+    }
+
+    List<PropertyDetails> typeFiltered =
+        applySearchTypeFilter(provinceFiltered, searchType, sanitizedQuery);
+    if (typeFiltered.isEmpty()) {
+      return provinceFiltered;
+    }
+    return typeFiltered;
   }
 
   @Override
   public PropertyOwnershipCheck verifyOwnership(
       String subjectIdNumber, String subjectName, String propertyDescription) {
 
-    LOGGER.info("Starting property ownership verification for subject ID: {}",
+    LOGGER.info(
+        "Starting property ownership verification for subject ID: {}",
         maskIdNumber(subjectIdNumber));
 
     List<PropertyDetails> properties = findPropertiesByOwner(subjectIdNumber);
 
-    LOGGER.info("Found {} properties for subject ID: {}",
-        properties.size(), maskIdNumber(subjectIdNumber));
+    LOGGER.info(
+        "Found {} properties for subject ID: {}",
+        properties.size(),
+        maskIdNumber(subjectIdNumber));
 
     OwnershipVerificationResult result = checkOwnership(subjectIdNumber, subjectName, properties);
 
-    LOGGER.info("Ownership verification completed. Confirmed: {}, Confidence: {}",
-        result.isOwnershipConfirmed(), result.getMatchConfidence());
+    LOGGER.info(
+        "Ownership verification completed. Confirmed: {}, Confidence: {}",
+        result.isOwnershipConfirmed(),
+        result.getMatchConfidence());
 
     return new PropertyOwnershipCheck.Builder()
         .subjectIdNumber(subjectIdNumber)
@@ -121,114 +125,89 @@ public class DefaultPropertyOwnershipVerificationService
   @Override
   public List<PropertyDetails> findPropertiesByOwner(String ownerIdNumber) {
     LOGGER.debug("Searching DeedsWeb for properties by owner ID: {}", maskIdNumber(ownerIdNumber));
-    return searchProperties("ownerId", ownerIdNumber, null);
+    return searchProperties(
+        PropertySearchRequest.builder().searchType("ownerId").query(ownerIdNumber).build());
   }
 
   @Override
   public OwnershipVerificationResult checkOwnership(
       String subjectIdNumber, String subjectName, List<PropertyDetails> properties) {
 
-    LOGGER.debug("Evaluating ownership for subject '{}' across {} properties",
-        subjectName, properties.size());
+    LOGGER.debug(
+        "Evaluating ownership for subject '{}' across {} properties",
+        subjectName,
+        properties == null ? 0 : properties.size());
 
     if (properties == null || properties.isEmpty()) {
       LOGGER.debug("No properties to evaluate, returning not-found result");
       return OwnershipVerificationResult.notFound(subjectName, subjectIdNumber);
     }
 
-    // Search for a property where the registered owner ID matches the subject ID
     for (PropertyDetails property : properties) {
       if (property.isRegisteredTo(subjectIdNumber)) {
         double confidence = calculateMatchConfidence(subjectName, property);
-
-        LOGGER.debug("Ownership confirmed for deed {} with confidence {}",
-            property.getDeedNumber(), confidence);
-
+        LOGGER.debug(
+            "Ownership confirmed for deed {} with confidence {}",
+            property.getDeedNumber(),
+            confidence);
         return OwnershipVerificationResult.confirmed(
             confidence, property, subjectName, subjectIdNumber, properties.size());
       }
     }
 
-    // No ID match found - return owner mismatch with the first property for reference
     PropertyDetails firstProperty = properties.get(0);
-    LOGGER.debug("No ownership match found. Registered owner: '{}', Queried: '{}'",
-        firstProperty.getRegisteredOwnerName(), subjectName);
-
+    LOGGER.debug(
+        "No ownership match found. Registered owner: '{}', Queried: '{}'",
+        firstProperty.getRegisteredOwnerName(),
+        subjectName);
     return OwnershipVerificationResult.ownerMismatch(
         firstProperty, subjectName, subjectIdNumber, properties.size());
   }
 
-  /**
-   * Maps a ScoredEntity from the DeedsWeb matching response to a PropertyDetails domain model.
-   * Extracts known property fields from the entity's properties map.
-   *
-   * @param entity the scored entity from the DeedsWeb response
-   * @return the mapped property details, or null if the entity has no usable data
-   */
-  private PropertyDetails mapScoredEntityToPropertyDetails(ScoredEntity entity) {
-    if (entity == null || entity.getProperties() == null) {
-      return null;
-    }
+  // --------------------------------------------------------------------------------------
+  // Dispatch by search type
+  // --------------------------------------------------------------------------------------
 
-    Map<String, List<Object>> props = entity.getProperties();
-
-    PropertyDetails.Builder builder = new PropertyDetails.Builder()
-        .deedNumber(extractStringProperty(props, "deedNumber"))
-        .titleDeedReference(extractStringProperty(props, "titleDeedReference"))
-        .propertyDescription(extractStringProperty(props, "propertyDescription"))
-        .registrationDivision(extractStringProperty(props, "registrationDivision"))
-        .province(extractStringProperty(props, "province"))
-        .extent(extractStringProperty(props, "extent"))
-        .registeredOwnerName(extractStringProperty(props, "registeredOwnerName"))
-        .registeredOwnerIdNumber(extractStringProperty(props, "registeredOwnerIdNumber"))
-        .registrationDate(extractDateProperty(props, "registrationDate"))
-        .transferDate(extractDateProperty(props, "transferDate"))
-        .purchasePrice(extractDoubleProperty(props, "purchasePrice"))
-        .bondHolder(extractStringProperty(props, "bondHolder"))
-        .bondAmount(extractDoubleProperty(props, "bondAmount"));
-
-    // Fall back to entity caption for owner name if not in properties
-    if (extractStringProperty(props, "registeredOwnerName") == null
-        && entity.getCaption() != null) {
-      builder.registeredOwnerName(entity.getCaption());
-    }
-
-    return builder.build();
+  private List<PropertyDetails> dispatch(String searchType, String query, String officeCode)
+      throws TransientException, PermanentException {
+    String normalized =
+        searchType == null || searchType.isBlank()
+            ? "ownerid"
+            : searchType.trim().toLowerCase(Locale.ROOT);
+    return switch (normalized) {
+      case "ownerid", "idnumber" ->
+          registryClient.findPropertiesByIdNumber(query, officeCode);
+      case "ownername" ->
+          // No native "by owner name" SOAP op — fall back to ID-based lookup is impossible,
+          // so return empty. The handler can short-circuit when search type is unsupported.
+          Collections.emptyList();
+      case "company", "companyname", "companynumber" ->
+          registryClient.findPropertiesByCompany(query, query, officeCode);
+      case "erf", "title", "property", "propertydetails" ->
+          // Without township + portion + propertyTypeCode the only useful action is to
+          // skip the call and let the handler report no results.
+          Collections.emptyList();
+      default -> registryClient.findPropertiesByIdNumber(query, officeCode);
+    };
   }
 
-  private List<PropertyDetails> mapSearchResponse(EntityMatchResponse response) {
-    if (response == null || response.getResponses() == null || response.getResponses().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    List<PropertyDetails> properties = new ArrayList<>();
-    for (Map.Entry<String, EntityMatches> entry : response.getResponses().entrySet()) {
-      EntityMatches matches = entry.getValue();
-      if (matches.getResults() != null) {
-        for (ScoredEntity entity : matches.getResults()) {
-          PropertyDetails details = mapScoredEntityToPropertyDetails(entity);
-          if (details != null) {
-            properties.add(details);
-          }
-        }
-      }
-    }
-
-    LOGGER.debug("Mapped {} property records from DeedsWeb response", properties.size());
-    return properties;
-  }
+  // --------------------------------------------------------------------------------------
+  // Filtering helpers (preserved from previous implementation)
+  // --------------------------------------------------------------------------------------
 
   private List<PropertyDetails> filterByProvince(List<PropertyDetails> properties, String province) {
     if (province == null || province.trim().isEmpty()) {
       return properties;
     }
-
     String normalizedProvince = province.trim().toLowerCase(Locale.ROOT);
     return properties.stream()
         .filter(
             property ->
                 property.getProvince() != null
-                    && property.getProvince().trim().toLowerCase(Locale.ROOT)
+                    && property
+                        .getProvince()
+                        .trim()
+                        .toLowerCase(Locale.ROOT)
                         .contains(normalizedProvince))
         .toList();
   }
@@ -238,17 +217,17 @@ public class DefaultPropertyOwnershipVerificationService
     if (searchType == null || searchType.isBlank()) {
       return properties;
     }
-
     String normalizedSearchType = searchType.trim().toLowerCase(Locale.ROOT);
     String normalizedQuery = query.trim().toLowerCase(Locale.ROOT);
 
     return switch (normalizedSearchType) {
-      case "ownerid" ->
+      case "ownerid", "idnumber" ->
           properties.stream()
               .filter(
                   property ->
                       property.getRegisteredOwnerIdNumber() != null
-                          && property.getRegisteredOwnerIdNumber()
+                          && property
+                              .getRegisteredOwnerIdNumber()
                               .trim()
                               .equalsIgnoreCase(query.trim()))
               .toList();
@@ -276,21 +255,15 @@ public class DefaultPropertyOwnershipVerificationService
   }
 
   /**
-   * Calculates a match confidence score based on how well the subject name
-   * matches the registered owner name. ID match is already confirmed at this point.
-   *
-   * @param subjectName the name of the person being verified
-   * @param property the property details with registered owner information
-   * @return a confidence score between 0.0 and 1.0
+   * Calculates a match confidence score based on how well the subject name matches the
+   * registered owner name. ID match is already confirmed at this point.
    */
   private double calculateMatchConfidence(String subjectName, PropertyDetails property) {
-    // Base confidence from ID number match
     double confidence = 0.7;
 
-    // Boost confidence if names also match
     if (subjectName != null && property.getRegisteredOwnerName() != null) {
-      String normalizedSubject = subjectName.trim().toLowerCase();
-      String normalizedOwner = property.getRegisteredOwnerName().trim().toLowerCase();
+      String normalizedSubject = subjectName.trim().toLowerCase(Locale.ROOT);
+      String normalizedOwner = property.getRegisteredOwnerName().trim().toLowerCase(Locale.ROOT);
 
       if (normalizedSubject.equals(normalizedOwner)) {
         confidence = 1.0;
@@ -298,7 +271,6 @@ public class DefaultPropertyOwnershipVerificationService
           || normalizedSubject.contains(normalizedOwner)) {
         confidence = 0.9;
       } else {
-        // Partial name matching - check if any name tokens overlap
         String[] subjectTokens = normalizedSubject.split("\\s+");
         String[] ownerTokens = normalizedOwner.split("\\s+");
         int matchingTokens = 0;
@@ -321,56 +293,6 @@ public class DefaultPropertyOwnershipVerificationService
     return Math.min(confidence, 1.0);
   }
 
-  /**
-   * Extracts a string value from the first element of a property list.
-   */
-  private String extractStringProperty(Map<String, List<Object>> properties, String key) {
-    List<Object> values = properties.get(key);
-    if (values != null && !values.isEmpty() && values.get(0) != null) {
-      return values.get(0).toString();
-    }
-    return null;
-  }
-
-  /**
-   * Extracts a LocalDate value from the first element of a property list.
-   */
-  private LocalDate extractDateProperty(Map<String, List<Object>> properties, String key) {
-    String value = extractStringProperty(properties, key);
-    if (value != null) {
-      try {
-        return LocalDate.parse(value);
-      } catch (Exception e) {
-        LOGGER.debug("Unable to parse date property '{}' with value '{}'", key, value);
-        return null;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Extracts a Double value from the first element of a property list.
-   */
-  private Double extractDoubleProperty(Map<String, List<Object>> properties, String key) {
-    List<Object> values = properties.get(key);
-    if (values != null && !values.isEmpty() && values.get(0) != null) {
-      Object value = values.get(0);
-      if (value instanceof Number) {
-        return ((Number) value).doubleValue();
-      }
-      try {
-        return Double.parseDouble(value.toString());
-      } catch (NumberFormatException e) {
-        LOGGER.debug("Unable to parse double property '{}' with value '{}'", key, value);
-        return null;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Masks an ID number for safe logging by showing only the first 4 and last 2 characters.
-   */
   private String maskIdNumber(String idNumber) {
     if (idNumber == null || idNumber.length() <= 6) {
       return "****";

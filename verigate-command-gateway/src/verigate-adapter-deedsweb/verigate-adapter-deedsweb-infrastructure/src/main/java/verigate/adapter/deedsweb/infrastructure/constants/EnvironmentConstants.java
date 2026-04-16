@@ -10,7 +10,7 @@ package verigate.adapter.deedsweb.infrastructure.constants;
 public class EnvironmentConstants {
 
   // DeedsWeb environment variables
-  public static final String DEEDSWEB_API_KEY = "DEEDSWEB_API_KEY";
+  public static final String DEEDSWEB_CREDENTIALS_SECRET_NAME = "DEEDSWEB_CREDENTIALS_SECRET_NAME";
   public static final String DEEDSWEB_BASE_URL = "DEEDSWEB_BASE_URL";
   public static final String DEEDSWEB_CONNECTION_TIMEOUT_MS = "DEEDSWEB_CONNECTION_TIMEOUT_MS";
   public static final String DEEDSWEB_READ_TIMEOUT_MS = "DEEDSWEB_READ_TIMEOUT_MS";
@@ -18,7 +18,7 @@ public class EnvironmentConstants {
   public static final String DEEDSWEB_RETRY_DELAY_MS = "DEEDSWEB_RETRY_DELAY_MS";
 
   // Property keys
-  public static final String PROPERTY_API_KEY = "deedsweb.api.key";
+  public static final String PROPERTY_CREDENTIALS_SECRET_NAME = "deedsweb.credentials.secret.name";
   public static final String PROPERTY_BASE_URL = "deedsweb.base.url";
   public static final String PROPERTY_CONNECTION_TIMEOUT_MS = "deedsweb.connection.timeout.ms";
   public static final String PROPERTY_READ_TIMEOUT_MS = "deedsweb.read.timeout.ms";
@@ -26,7 +26,9 @@ public class EnvironmentConstants {
   public static final String PROPERTY_RETRY_DELAY_MS = "deedsweb.retry.delay.ms";
 
   // Default values
-  public static final String DEFAULT_BASE_URL = "https://deedssoap.deeds.gov.za";
+  public static final String DEFAULT_BASE_URL =
+      "http://deedssoap.deeds.gov.za:80/deeds-registration-soap/";
+  public static final String DEFAULT_CREDENTIALS_SECRET_NAME = "verigate/deedsweb/credentials";
   public static final String DEFAULT_CONNECTION_TIMEOUT_MS = "30000";
   public static final String DEFAULT_READ_TIMEOUT_MS = "60000";
   public static final String DEFAULT_RETRY_ATTEMPTS = "3";

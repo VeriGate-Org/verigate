@@ -12,9 +12,13 @@
 
   <artifactId>verigate-adapter-deedsweb-infrastructure</artifactId>
 
+  <properties>
+    <cxf.version>4.0.5</cxf.version>
+  </properties>
+
   <repositories>
       <repository>
-          <id>github</id>            
+          <id>github</id>
           <url>https://maven.pkg.github.com/verigate-org/verigate-shared-kernel</url>
       </repository>
   </repositories>
@@ -37,6 +41,76 @@
       <version>1.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
+
+    <!-- Apache CXF (JAX-WS) for SOAP integration with DeedsWeb registry -->
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-databinding-jaxb</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-features-logging</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.2</version>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-codegen-plugin</artifactId>
+        <version>${cxf.version}</version>
+        <executions>
+          <execution>
+            <id>generate-deedsweb-soap</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wsdl2java</goal>
+            </goals>
+            <configuration>
+              <sourceRoot>${project.build.directory}/generated-sources/cxf</sourceRoot>
+              <wsdlOptions>
+                <wsdlOption>
+                  <wsdl>${project.basedir}/src/main/resources/wsdl/deeds-registration-soap.xml</wsdl>
+                  <extraargs>
+                    <extraarg>-p</extraarg>
+                    <extraarg>http://enquiry.service.registration.deeds.gov.za/=verigate.adapter.deedsweb.infrastructure.soap.generated</extraarg>
+                  </extraargs>
+                </wsdlOption>
+              </wsdlOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>**/generated/**/*,**/generated-sources/**/*</excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
