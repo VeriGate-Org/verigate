@@ -25,7 +25,7 @@ module "datadog_monitoring" {
 module "verification_dynamodb_commandstore" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "command-store-table"
   hash_key                 = {
                                  name = "commandId"
@@ -76,7 +76,7 @@ module "verification_dynamodb_commandstore" {
 module "partner_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "partner-table"
   hash_key                 = {
                                  name = "partnerId"
@@ -108,7 +108,7 @@ module "partner_dynamodb" {
 module "partner_configuration_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "partner-configuration-table"
   hash_key                 = {
                                  name = "partnerId"
@@ -136,7 +136,7 @@ module "partner_configuration_dynamodb" {
 module "api_keys_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "api-keys-table"
   hash_key                 = {
                                  name = "apiKeyHash"
@@ -172,7 +172,7 @@ module "api_keys_dynamodb" {
 module "usage_records_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "usage-records-table"
   hash_key                 = {
                                  name = "partnerId"
@@ -200,7 +200,7 @@ module "usage_records_dynamodb" {
 module "usage_summaries_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "usage-summaries-table"
   hash_key                 = {
                                  name = "partnerId"
@@ -228,7 +228,7 @@ module "usage_summaries_dynamodb" {
 module "billing_plans_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "billing-plans-table"
   hash_key                 = {
                                  name = "partnerId"
@@ -252,7 +252,7 @@ module "billing_plans_dynamodb" {
 module "verified_identities_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "verified-identities"
   hash_key                 = {
                                  name = "identityHash"
@@ -304,7 +304,7 @@ resource "aws_ssm_parameter" "verified_identities_table_name" {
 module "documents_s3" {
   source = "./modules/tf-s3"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   bucket_name         = "documents"
 
   lifecycle_rules = [
@@ -384,7 +384,7 @@ resource "aws_iam_role_policy_attachment" "lambda_bedrock" {
 module "ai_risk_enhancements_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "ai-risk-enhancements"
   hash_key            = {
                              name = "workflowId"
@@ -411,7 +411,7 @@ resource "aws_ssm_parameter" "ai_risk_enhancements_table_name" {
 module "fraud_velocity_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "fraud-velocity"
   hash_key            = {
                              name = "identifierHash"
@@ -446,7 +446,7 @@ resource "aws_ssm_parameter" "fraud_velocity_table_name" {
 module "fraud_patterns_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "fraud-patterns"
   hash_key            = {
                              name = "patternId"
@@ -473,7 +473,7 @@ resource "aws_ssm_parameter" "fraud_patterns_table_name" {
 module "ai_chat_history_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "ai-chat-history"
   hash_key            = {
                              name = "conversationId"
@@ -511,14 +511,14 @@ resource "aws_ssm_parameter" "ai_chat_history_table_name" {
 
 module "verify_party_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "verify-party"
   max_receive_count = 1
 }
 module "qlink_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-qlink"
   max_receive_count = 1
@@ -526,7 +526,7 @@ module "qlink_adapter_queue" {
 
 module "worldcheck_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-worldcheck"
   max_receive_count = 1
@@ -535,7 +535,7 @@ module "worldcheck_adapter_queue" {
 
 module "dha_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-dha"
   max_receive_count = 1
@@ -543,7 +543,7 @@ module "dha_adapter_queue" {
 
 module "cipc_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-cipc"
   max_receive_count = 1
@@ -551,7 +551,7 @@ module "cipc_adapter_queue" {
 
 module "deedsweb_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-deedsweb"
   max_receive_count = 1
@@ -559,7 +559,7 @@ module "deedsweb_adapter_queue" {
 
 module "employment_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-employment"
   max_receive_count = 1
@@ -567,7 +567,7 @@ module "employment_adapter_queue" {
 
 module "negativenews_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-negativenews"
   max_receive_count = 1
@@ -575,7 +575,7 @@ module "negativenews_adapter_queue" {
 
 module "fraudwatchlist_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-fraudwatchlist"
   max_receive_count = 1
@@ -583,7 +583,7 @@ module "fraudwatchlist_adapter_queue" {
 
 module "document_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-document"
   max_receive_count = 1
@@ -591,7 +591,7 @@ module "document_adapter_queue" {
 
 module "saqa_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-saqa"
   max_receive_count = 1
@@ -599,7 +599,7 @@ module "saqa_adapter_queue" {
 
 module "creditbureau_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-creditbureau"
   max_receive_count = 1
@@ -607,7 +607,7 @@ module "creditbureau_adapter_queue" {
 
 module "sars_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-sars"
   max_receive_count = 1
@@ -615,7 +615,7 @@ module "sars_adapter_queue" {
 
 module "sars_vat_adapter_queue" {
   source              = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name          = "adapter-sars-vat"
   max_receive_count   = 1
@@ -623,7 +623,7 @@ module "sars_vat_adapter_queue" {
 
 module "income_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-income"
   max_receive_count = 1
@@ -631,7 +631,7 @@ module "income_adapter_queue" {
 
 module "opensanctions_adapter_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "adapter-opensanctions"
   max_receive_count = 1
@@ -639,7 +639,7 @@ module "opensanctions_adapter_queue" {
 
 module "partner_create_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "partner-create"
   max_receive_count = 1
@@ -647,7 +647,7 @@ module "partner_create_queue" {
 
 module "partner_config_update_queue" {
   source = "./modules/tf-sqs"
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   queue_name = "partner-config-update"
   max_receive_count = 1
@@ -704,7 +704,7 @@ resource "aws_ssm_parameter" "billing_plans_table_name" {
 module "risk_scoring_config_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "risk-scoring-config"
   hash_key                 = {
                                  name = "partnerId"
@@ -724,7 +724,7 @@ module "risk_scoring_config_dynamodb" {
 module "risk_assessments_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "risk-assessments"
   hash_key                 = {
                                  name = "verificationId"
@@ -761,7 +761,7 @@ module "risk_assessments_dynamodb" {
 module "verification_workflows_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "verification-workflows"
   hash_key                 = {
                                  name = "workflowId"
@@ -798,7 +798,7 @@ module "verification_workflows_dynamodb" {
 module "policies_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "policies"
   hash_key                 = {
                                  name = "partnerPolicyId"
@@ -867,7 +867,7 @@ resource "aws_ssm_parameter" "policies_table_name" {
 module "cases_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name      = "${var.stack_name}-${var.project_name}"
+  complete_stack_name      = var.stack_name
   table_name               = "cases"
   hash_key                 = {
                                  name = "caseId"
@@ -914,7 +914,7 @@ resource "aws_ssm_parameter" "cases_table_name" {
 module "monitored_subjects_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "monitored-subjects"
   hash_key            = {
                              name = "subjectId"
@@ -951,7 +951,7 @@ module "monitored_subjects_dynamodb" {
 module "monitoring_alerts_dynamodb" {
   source = "./modules/tf-dynamodb"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   table_name          = "monitoring-alerts"
   hash_key            = {
                              name = "alertId"
@@ -1008,7 +1008,7 @@ resource "aws_ssm_parameter" "monitoring_alerts_table_name" {
 module "verification_stream" {
   source = "./modules/tf-events"
 
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   ssm_prefix          = local.ssm_prefix
   event_bus_name = "event-bus"
   event_stream_name = "event-stream"
@@ -1299,7 +1299,7 @@ resource "aws_ssm_parameter" "income_api_url" {
 module "worldcheck_lambda" {
   source = "./modules/tf-lambda"
   
-  complete_stack_name = "${var.stack_name}-${var.project_name}"
+  complete_stack_name = var.stack_name
   lambda_name = "worldcheck-verification"
   lambda_runtime = "java17"
   lambda_handler = "verigate.adapter.refinitiv.worldcheck.infrastructure.functions.lambda.handlers.WorldCheckVerificationLambdaHandler"

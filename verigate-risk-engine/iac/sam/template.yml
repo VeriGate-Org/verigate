@@ -12,7 +12,7 @@ Parameters:
   KinesisStreamArn:
     Type: String
     Description: "The kinesis stream arn"
-    Default: "{{resolve:ssm:/verigate-verification-cg/events/kinesis/stream-arn:1}}"
+    Default: "{{resolve:ssm:/verigate/events/kinesis/stream-arn:1}}"
 
 Globals:
   Function:

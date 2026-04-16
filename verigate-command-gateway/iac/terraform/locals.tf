@@ -1,13 +1,11 @@
 locals {
   complete_stack_name = join("-", compact([
     var.stack_name,
-    var.project_name,
     var.environment_shortname == "prod" ? "" : var.environment_shortname,
   ]))
 
   complete_stack_name_slash = join("/", compact([
     var.stack_name,
-    var.project_name,
     var.environment_shortname == "prod" ? "" : var.environment_shortname,
   ]))
 

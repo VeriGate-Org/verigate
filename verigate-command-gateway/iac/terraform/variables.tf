@@ -20,11 +20,6 @@ variable "stack_name" {
   type        = string
 }
 
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
-}
-
 variable "environment_shortname" {
   description = "Short name for the environment (dev, prod)"
   type        = string

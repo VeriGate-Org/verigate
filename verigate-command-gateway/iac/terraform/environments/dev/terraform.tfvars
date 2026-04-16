@@ -1,7 +1,6 @@
 environment_name      = "dev"
 environment_shortname = "dev"
 stack_name            = "verigate"
-project_name          = "verification-cg"
 
 # Non-secret API URLs (override per environment)
 qlink_api_url                  = "https://api.dev.qlink.co.za"
