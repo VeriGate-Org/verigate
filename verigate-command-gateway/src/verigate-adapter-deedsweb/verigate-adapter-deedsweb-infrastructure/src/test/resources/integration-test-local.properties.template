@@ -1,9 +1,13 @@
 # DeedsWeb Live Integration Test - Local Configuration
-# Copy this file to integration-test-local.properties and add your real API key
-# This file is gitignored for security - never commit real credentials!
+# Copy this file to integration-test-local.properties and fill in real values.
+# integration-test-local.properties is gitignored - never commit real credentials!
 
-# REQUIRED: Your DeedsWeb API key
-DEEDSWEB_API_KEY=PASTE_YOUR_API_KEY_HERE
+# REQUIRED: SOAP credentials issued by the Deeds Office.
+deedsweb.username=PASTE_YOUR_USERNAME_HERE
+deedsweb.password=PASTE_YOUR_PASSWORD_HERE
 
-# REQUIRED: Enable integration tests
+# OPTIONAL: Override the SOAP endpoint (defaults to the production registry).
+# deedsweb.base.url=http://deedssoap.deeds.gov.za:80/deeds-registration-soap/
+
+# REQUIRED: Enable the gated live tests.
 integration.test.enabled=true

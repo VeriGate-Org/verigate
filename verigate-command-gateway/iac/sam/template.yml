@@ -377,7 +377,8 @@ Resources:
         Variables:
           VERIFY_PROPERTY_OWNERSHIP_IMQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-imq"
           VERIFY_PROPERTY_OWNERSHIP_DLQ_NAME: !Sub "${AWS::StackName}-adapter-deedsweb-dlq"
-          DEEDSWEB_API_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/deedsweb/api_url}}"
+          DEEDSWEB_BASE_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/deedsweb/api_url}}"
+          DEEDSWEB_CREDENTIALS_SECRET_NAME: "verigate/deedsweb/credentials"
       Events:
         VerigateVerifyPropertyOwnershipQueueCommand:
           Type: SQS

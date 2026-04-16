@@ -73,6 +73,25 @@
       <artifactId>jakarta.xml.bind-api</artifactId>
       <version>4.0.2</version>
     </dependency>
+    <!-- Force jaxb-runtime 4.x to match jakarta.xml.bind-api 4.x.
+         CXF 4.x's transitive jaxb-runtime is being downgraded to 3.0.2
+         by an upstream POM, which lacks types like jakarta.xml.bind.Validator
+         removed in API 4.x and crashes CXF init at request time. -->
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>4.0.5</version>
+    </dependency>
+
+    <!-- Test scope: WireMock for SOAP-over-HTTP integration tests.
+         Non-standalone variant avoids shaded JAXB classes that conflict with
+         Jakarta XML 4.x used by CXF. -->
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>3.9.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

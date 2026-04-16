@@ -61,6 +61,10 @@ public final class CxfPortFactory {
     policy.setConnectionTimeout(config.getConnectionTimeoutMs());
     policy.setReceiveTimeout(config.getReadTimeoutMs());
     policy.setAllowChunking(false);
+    // The DeedsWeb endpoint is plain HTTP/1.1; CXF 4.x's HttpClient-based
+    // conduit otherwise tries HTTP/2 first which causes RST_STREAM errors
+    // against servers that don't support h2c.
+    policy.setVersion("1.1");
     conduit.setClient(policy);
 
     LOGGER.info(

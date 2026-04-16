@@ -6,178 +6,220 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ### Building the Project
 ```bash
-# Build the entire DeedsWeb adapter
-mvn clean compile
-
-# Build with all tests
-mvn clean install
+# Build the entire DeedsWeb adapter (from project root)
+mvn -pl src/verigate-adapter-deedsweb,\
+src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-domain,\
+src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-application,\
+src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure -am clean install
 
 # Build specific module (from adapter root)
-cd verigate-adapter-deedsweb-infrastructure && mvn clean compile
+cd src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure && mvn clean compile
 ```
+
+The `cxf-codegen-plugin` runs in the `generate-sources` phase of
+`verigate-adapter-deedsweb-infrastructure` and emits CXF stubs into
+`target/generated-sources/cxf/verigate/adapter/deedsweb/infrastructure/soap/generated/`.
+A clean build is required after WSDL changes.
 
 ### Running Tests
 ```bash
 # Run all tests in the adapter
-mvn test
+mvn -pl src/verigate-adapter-deedsweb/... -am test
 
-# Run specific test class
-mvn test -Dtest=DefaultDeedsWebMatchingServiceTest
+# Run a single test class
+mvn test -Dtest=CxfDeedsRegistryClientTest
 
-# Run tests with verbose output
-mvn test -X
+# Live (gated) integration test against the real DeedsWeb endpoint
+cp src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure/src/test/resources/integration-test-local.properties.template \
+   src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure/src/test/resources/integration-test-local.properties
+# (edit credentials, then:)
+mvn -pl src/verigate-adapter-deedsweb/verigate-adapter-deedsweb-infrastructure test \
+    -Dtest=DeedsWebLiveIntegrationTest \
+    -Dintegration.test.enabled=true
 ```
 
-### Code Quality
-```bash
-# Compile to check for compilation errors
-mvn clean compile
-
-# Check for dependency issues
-mvn dependency:analyze
-```
+The live test must run from inside the VPC (or via `scripts/test-deeds-soap.sh`)
+because DeedsWeb whitelists source IPs (NAT EIP `13.246.247.144`).
 
 ## High-Level Architecture
 
 ### DeedsWeb Adapter Overview
-This is the **DeedsWeb adapter** for the VeriGate verification platform. It is responsible for
-property-ownership verification by querying the South African DeedsWeb registry.
+This adapter wraps the South African DeedsWeb SOAP registry for property-ownership
+verification. It exposes 15 SOAP operations from the WSDL behind a single
+`DeedsRegistryClient` domain interface.
 
-**Status:** the adapter currently ships REST-over-JSON scaffolding (cloned from an earlier
-adapter). Live integration with the real DeedsWeb registry uses SOAP against
-`http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`. Replacing the REST scaffolding
-with a real SOAP client (JAX-WS / Apache CXF, against the WSDL in
-`docs/deeds-office/deeds-registration-soap.xml`) is a planned follow-up.
+**SOAP endpoint:** `http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`
+**WSDL (build input):** `verigate-adapter-deedsweb-infrastructure/src/main/resources/wsdl/deeds-registration-soap.xml`
 
 ### Clean Architecture Implementation
-The adapter follows hexagonal (clean) architecture with three distinct layers:
-
 ```
 verigate-adapter-deedsweb/
-├── verigate-adapter-deedsweb-domain/           # Core business logic
-├── verigate-adapter-deedsweb-application/      # Use cases & orchestration
-└── verigate-adapter-deedsweb-infrastructure/   # External integrations
+├── verigate-adapter-deedsweb-domain/           # Pure domain models + DeedsRegistryClient interface
+├── verigate-adapter-deedsweb-application/      # PropertyOwnershipVerificationService
+└── verigate-adapter-deedsweb-infrastructure/   # CXF SOAP client + Secrets Manager + Lambda handler
 ```
 
 ### Key Architectural Components
 
 #### 1. Domain Layer (`-domain/`)
-- **Services**: `DeedsWebMatchingService` (entity-match scaffolding) and
-  `PropertyOwnershipVerificationService` (live property-verification path)
-- **Models**: Property models (`PropertyDetails`, `PropertyOwnershipCheck`,
-  `OwnershipVerificationResult`) and entity-match models
-  (`EntityMatchRequest`, `EntityMatchResponse`, `ScoredEntity`, etc.)
-- **Handlers**: `PropertyVerificationCommandHandler` - command processing interface
-- **Mappers**: `VerificationResultMapper`, `VerifyPartyCommandMapper`
-- **Constants**: Domain-level constants and thresholds (`DomainConstants`)
+- **Services**: `DeedsRegistryClient` (15 SOAP-shaped operations) and
+  `PropertyOwnershipVerificationService` (verification orchestration)
+- **Models**:
+  - `PropertyDetails`, `PropertyOwnershipCheck`, `OwnershipVerificationResult`
+  - `PersonFullProperty`, `PersonDetails`, `PropertyEndorsement`,
+    `PropertyHistoryEntry`
+  - `OfficeRegistry`, `DeedsPropertyType`
+  - `PropertySearchRequest` — request value object including `officeCode`
+  - `DeedsWebCredentials` — record carrying SOAP username/password
+- **Handlers**: `PropertyVerificationCommandHandler`
+- **Mappers**: `VerificationResultMapper`
+- **Constants**: `DomainConstants`
 
 #### 2. Application Layer (`-application/`)
-- **Command Handlers**: `DefaultPropertyVerificationCommandHandler` - main entry point
-- **Services**: `DefaultPropertyOwnershipVerificationService` - orchestrates property
-  lookup and ownership matching; computes confidence in
-  `calculateMatchConfidence(...)`
+- **Command Handlers**: `DefaultPropertyVerificationCommandHandler` — extracts
+  `searchType`, `query`, `province`, `officeCode` from
+  `VerifyPartyCommand.metadata` and delegates to the service.
+- **Services**: `DefaultPropertyOwnershipVerificationService` — dispatches by
+  `searchType` to the right `DeedsRegistryClient` operation, applies province
+  and ID filters, and computes ownership confidence.
 
 #### 3. Infrastructure Layer (`-infrastructure/`)
-- **HTTP Adapters**: REST scaffolding (`DeedsWebHttpAdapter`, `DeedsWebApiAdapter`)
-- **Configuration**: Environment-driven config (`DeedsWebApiConfiguration`,
-  `ConfigurationValidator`)
-- **DTOs**: Data transfer objects for API communication
-- **Mappers**: DTO to domain model mapping (`DeedsWebDtoMapper`)
-- **Services**: Default service implementations (`DefaultDeedsWebMatchingService`)
+- **SOAP**:
+  - `CxfDeedsRegistryClient` — implements `DeedsRegistryClient` against the
+    CXF-generated `DeedsRegistrationEnquiryService` port. Resolves credentials
+    once per verification request and fans out across every office in parallel
+    when `officeCode` is null/blank/`"all"`.
+  - `SoapResponseMapper` — pure functions mapping CXF-generated response types
+    → domain models.
+  - `SoapErrorClassifier` — translates SOAP faults / transport errors into
+    `PermanentException` (auth) or `TransientException` (everything else).
+  - `CachingOfficeRegistry` — caches the office list for the Lambda's warm
+    lifetime; refreshed on cold start.
+  - `CxfPortFactory` — builds the JAX-WS port with timeouts pulled from
+    `DeedsWebApiConfiguration` and CXF logging hooked into SLF4J.
+- **Configuration**: `DeedsWebApiConfiguration`, `ConfigurationValidator`
+- **Secrets**: `SecretsManagerDeedsWebCredentialsProvider` — fetches the
+  username/password JSON from AWS Secrets Manager via `AwsSecretManager` on
+  every verification request (no in-process caching).
+- **Lambda**: `VerifyPropertyOwnershipLambdaHandler` (SQS-driven),
+  `ServiceModule` (Guice wiring).
 
-### DeedsWeb API Integration Architecture
+### CXF Codegen
+- Plugin: `org.apache.cxf:cxf-codegen-plugin` 4.0.5
+- Source WSDL: `src/main/resources/wsdl/deeds-registration-soap.xml`
+- Output package:
+  `verigate.adapter.deedsweb.infrastructure.soap.generated`
+- Output directory: `target/generated-sources/cxf` (excluded from checkstyle)
 
-#### API Authentication
-The current REST scaffolding uses Bearer Token authentication:
-- API key passed in `Authorization: Bearer <token>` header
-- All HTTP requests include proper authentication
-
-When the SOAP rewrite lands, authentication will follow whatever scheme the DeedsWeb
-SOAP service requires (likely WS-Security username/token plus a whitelisted source IP).
-
-#### HTTP Client Architecture
+### Authentication
+SOAP operations carry `username` and `password` parameters in their request
+bodies (per WSDL). Credentials live in AWS Secrets Manager under
+`verigate/deedsweb/credentials`, payload:
+```json
+{ "username": "<user>", "password": "<pass>" }
 ```
-DeedsWebHttpAdapter (base HTTP client)
-└── DeedsWebApiAdapter (entity matching endpoints)
-```
+`SecretsManagerDeedsWebCredentialsProvider.get()` fetches and parses the
+secret per verification request. The same `DeedsWebCredentials` instance is
+reused across any fan-out SOAP calls within that request.
 
-#### Service Implementation Pattern
-- Interface in domain layer defines business operations
-- Default implementation in infrastructure uses HTTP adapter
-- Mock implementation in test layer for testing
-- Dependency injection wires real vs. mock implementations
+### Office-Code Dispatch
+Per-request office targeting via `VerifyPartyCommand.metadata.officeCode`:
+- A specific code (`"T"`, `"J"`, ...) → single SOAP call against that office.
+- `null` / blank / `"all"` → fan out across every office returned by
+  `getOfficeRegistryList()`, merge results.
 
-### Configuration Architecture
+The office registry is cached at Lambda warm scope by `CachingOfficeRegistry`
+(one call per cold start). Fan-out uses a fixed thread pool sized for the
+4-vCPU Lambda memory tier.
 
-#### Environment-Driven Configuration
-Required environment variables:
-- `DEEDSWEB_API_KEY`
+### Configuration
 
-Optional environment variables:
-- `DEEDSWEB_BASE_URL`, `DEEDSWEB_CONNECTION_TIMEOUT_MS`,
-  `DEEDSWEB_READ_TIMEOUT_MS`, `DEEDSWEB_RETRY_ATTEMPTS`,
-  `DEEDSWEB_RETRY_DELAY_MS`
+#### Environment Variables (Lambda)
+- `DEEDSWEB_CREDENTIALS_SECRET_NAME` (required, default `verigate/deedsweb/credentials`)
+- `DEEDSWEB_BASE_URL` (default `http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`)
+- `DEEDSWEB_CONNECTION_TIMEOUT_MS` (default `30000`)
+- `DEEDSWEB_READ_TIMEOUT_MS` (default `60000`)
+- `DEEDSWEB_RETRY_ATTEMPTS` (default `3`)
+- `DEEDSWEB_RETRY_DELAY_MS` (default `1000`)
 
-#### Configuration Validation
-- `ConfigurationValidator` validates required settings on startup
-- `DeedsWebApiConfiguration` provides type-safe access to all settings
-- Comprehensive defaults in `DomainConstants` and `application.properties`
+See `src/main/resources/environment-variables.md` for full details.
 
-### Key Integration Points
+#### IAM
+The verification Lambda inherits the central role at
+`/application/iam-role/${stack-name}-${env}/arn`, which already grants
+`secretsmanager:GetSecretValue` on the account's secrets (scoped via principal
+account condition). No adapter-specific IAM policy is required.
 
-#### VeriGate Command Gateway Integration
-- Implements `PropertyVerificationCommandHandler` interface
-- Receives `VerifyPartyCommand` from the command gateway for property-verification
-  requests
-- Returns `VerificationResult` with standardized outcomes
+### Verification Workflow
+1. **Command Reception**: Gateway sends `VerifyPartyCommand` (type
+   `PROPERTY_OWNERSHIP_VERIFICATION`) with `metadata.{searchType, query,
+   province, officeCode}`.
+2. **Property Lookup**:
+   `DefaultPropertyOwnershipVerificationService.searchProperties(...)`
+   dispatches by `searchType` to `findPropertiesByIdNumber` /
+   `findPropertiesByCompany` etc.
+3. **Filtering**: Province + search-type filters reduce the result set.
+4. **Ownership Check**: `checkOwnership(...)` walks the returned properties
+   looking for an ID-number match.
+5. **Confidence Scoring**: `calculateMatchConfidence(...)` boosts confidence
+   based on subject-name vs registered-owner-name similarity (substring,
+   token overlap).
+6. **Response**: `VerificationResult` with property payload returned to gateway.
 
-#### Property Verification Workflow
-1. **Command Reception**: Gateway sends `VerifyPartyCommand` for property verification
-2. **Property Lookup**: `DefaultPropertyOwnershipVerificationService.findPropertiesByOwner(...)`
-   queries the DeedsWeb adapter for properties registered against the subject's ID number
-3. **Ownership Check**: `checkOwnership(...)` walks the returned properties looking
-   for an ID-number match
-4. **Confidence Scoring**: `calculateMatchConfidence(...)` boosts confidence based on
-   how closely the queried name matches the registered owner name
-5. **Response**: Return `VerificationResult` to gateway
-
-### Verification Outcome Logic
-Property-verification outcomes are derived from
-`DefaultPropertyOwnershipVerificationService.calculateMatchConfidence(...)`. The
-confidence score combines an exact ID-number match (base `0.7`) with name-similarity
-boosts up to `1.0`. The match-score thresholds in `DomainConstants` (`HIGH_/MEDIUM_/
-LOW_MATCH_THRESHOLD`) remain available for the entity-match scaffolding path.
+### Error Mapping
+| SOAP outcome                                          | Domain exception                       |
+|--------------------------------------------------------|----------------------------------------|
+| HTTP 5xx, socket timeout, connection refused           | `TransientException` (gateway retries) |
+| SOAP fault with auth-related faultstring               | `PermanentException`                   |
+| SOAP fault other                                       | `TransientException`                   |
+| HTTP 200, empty `propertySummaryResponseList`          | empty list (not an error)              |
+| Transport `WebServiceException` containing `401`       | `PermanentException`                   |
 
 ### Testing Strategy
 
-#### Mock Architecture
-- `MockDeedsWebMatchingService` for unit testing
-- Mock responses include realistic property records
-- Test configurations with reduced timeouts and retry settings
+#### Unit Tests
+- `CxfDeedsRegistryClientTest` — Mockito-mocked CXF port; covers single-office,
+  fan-out, partial-failure, auth-error, transport-error paths.
+- `SoapResponseMapperTest` — pure-function mapping from CXF types → domain.
+- `SoapErrorClassifierTest` — fault → exception classification.
+- `CachingOfficeRegistryTest` — caching + invalidation + fault propagation.
+- `SecretsManagerDeedsWebCredentialsProviderTest` — JSON parsing + missing-field handling.
+- `DefaultPropertyOwnershipVerificationServiceTest` — dispatch, filtering, confidence scoring.
+- `DefaultPropertyVerificationCommandHandlerTest` — command handler integration with the service.
 
-#### Test Coverage
-- Unit tests for service implementations and command handlers
-- Mock-based tests for all error scenarios
+#### Integration / Live Tests (planned in this module's roadmap)
+- `CxfDeedsRegistryClientWireMockIT` — captured-fixture SOAP responses against a WireMock endpoint.
+- `DeedsWebLiveIntegrationTest` — gated by `integration.test.enabled=true`,
+  exercises `getOfficeRegistryList()` (no creds) and a known-ID lookup against
+  Pretoria.
 
 ### Development Notes
 
-#### Adding New API Endpoints
-1. Add method to `DeedsWebMatchingService` interface
-2. Implement in `DefaultDeedsWebMatchingService`
-3. Add endpoint handling to `DeedsWebApiAdapter`
-4. Create corresponding DTOs if needed
-5. Add mock implementation for testing
+#### Adding a New SOAP Operation
+1. Confirm the operation exists in
+   `src/main/resources/wsdl/deeds-registration-soap.xml`.
+2. Add a method to `DeedsRegistryClient` (domain) returning a domain type.
+3. Implement it in `CxfDeedsRegistryClient`, using `fanOutOrSingle` /
+   `invokeList` helpers.
+4. Add a mapper in `SoapResponseMapper` for the response type.
+5. Wire into `DefaultPropertyOwnershipVerificationService.dispatch(...)` if it
+   should be reachable via `searchType`.
+6. Add a unit test in `CxfDeedsRegistryClientTest` and a mapper test in
+   `SoapResponseMapperTest`.
 
 #### Configuration Changes
-1. Add constants to `EnvironmentConstants` and `DomainConstants`
-2. Update `DeedsWebApiConfiguration` with getter methods
-3. Add properties to `application.properties` files
-4. Update validation in `ConfigurationValidator`
-5. Document in `environment-variables.md`
+1. Add constants to `EnvironmentConstants`.
+2. Add a getter to `DeedsWebApiConfiguration`.
+3. Add the property to `application.properties`.
+4. Update validation in `ConfigurationValidator`.
+5. Document in `src/main/resources/environment-variables.md`.
+6. Update SAM template (`iac/sam/template.yml`) — env vars on
+   `VerifyPropertyOwnershipLambdaHandler`.
 
 ### DeedsWeb API Reference
 - **SOAP endpoint**: `http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`
-- **WSDL**: see `docs/deeds-office/deeds-registration-soap.xml`
+- **WSDL**: `verigate-adapter-deedsweb-infrastructure/src/main/resources/wsdl/deeds-registration-soap.xml`
 - **Network**: requires source IP whitelisting (NAT EIP `13.246.247.144`)
-- **Note**: The REST scaffolding in this module does not yet talk to the real
-  DeedsWeb service — the SOAP client is a planned follow-up.
+- **Operations**: 15 (see `DeedsRegistryClient`); the two no-credential
+  operations (`getOfficeRegistryList`, `getDeedsPropertyTypeList`) are useful
+  for connectivity smoke tests.
