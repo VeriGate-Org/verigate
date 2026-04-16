@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
- * DTO for OpenSanctions entity match request.
+ * DTO for DeedsWeb entity match request.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EntityMatchRequestDto {

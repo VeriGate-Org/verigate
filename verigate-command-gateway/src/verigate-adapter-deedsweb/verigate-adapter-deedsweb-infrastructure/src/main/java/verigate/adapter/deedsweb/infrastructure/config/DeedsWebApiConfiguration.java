@@ -21,10 +21,7 @@ public class DeedsWebApiConfiguration {
   /** Gets the DeedsWeb API key. */
   public String getApiKey() {
     return getFirstDefined(
-        EnvironmentConstants.DEEDSWEB_API_KEY,
-        EnvironmentConstants.LEGACY_API_KEY,
-        EnvironmentConstants.PROPERTY_API_KEY,
-        EnvironmentConstants.LEGACY_PROPERTY_API_KEY);
+        EnvironmentConstants.DEEDSWEB_API_KEY, EnvironmentConstants.PROPERTY_API_KEY);
   }
 
   /** Gets the DeedsWeb API base URL. */
@@ -32,9 +29,7 @@ public class DeedsWebApiConfiguration {
     return getFirstDefined(
         EnvironmentConstants.DEFAULT_BASE_URL,
         EnvironmentConstants.DEEDSWEB_BASE_URL,
-        EnvironmentConstants.LEGACY_BASE_URL,
-        EnvironmentConstants.PROPERTY_BASE_URL,
-        EnvironmentConstants.LEGACY_PROPERTY_BASE_URL);
+        EnvironmentConstants.PROPERTY_BASE_URL);
   }
 
   /** Gets the connection timeout in milliseconds. */
@@ -43,9 +38,7 @@ public class DeedsWebApiConfiguration {
         getFirstDefined(
             EnvironmentConstants.DEFAULT_CONNECTION_TIMEOUT_MS,
             EnvironmentConstants.DEEDSWEB_CONNECTION_TIMEOUT_MS,
-            EnvironmentConstants.LEGACY_CONNECTION_TIMEOUT_MS,
-            EnvironmentConstants.PROPERTY_CONNECTION_TIMEOUT_MS,
-            EnvironmentConstants.LEGACY_PROPERTY_CONNECTION_TIMEOUT_MS);
+            EnvironmentConstants.PROPERTY_CONNECTION_TIMEOUT_MS);
     return Integer.parseInt(timeout);
   }
 
@@ -55,9 +48,7 @@ public class DeedsWebApiConfiguration {
         getFirstDefined(
             EnvironmentConstants.DEFAULT_READ_TIMEOUT_MS,
             EnvironmentConstants.DEEDSWEB_READ_TIMEOUT_MS,
-            EnvironmentConstants.LEGACY_READ_TIMEOUT_MS,
-            EnvironmentConstants.PROPERTY_READ_TIMEOUT_MS,
-            EnvironmentConstants.LEGACY_PROPERTY_READ_TIMEOUT_MS);
+            EnvironmentConstants.PROPERTY_READ_TIMEOUT_MS);
     return Integer.parseInt(timeout);
   }
 
@@ -67,9 +58,7 @@ public class DeedsWebApiConfiguration {
         getFirstDefined(
             EnvironmentConstants.DEFAULT_RETRY_ATTEMPTS,
             EnvironmentConstants.DEEDSWEB_RETRY_ATTEMPTS,
-            EnvironmentConstants.LEGACY_RETRY_ATTEMPTS,
-            EnvironmentConstants.PROPERTY_RETRY_ATTEMPTS,
-            EnvironmentConstants.LEGACY_PROPERTY_RETRY_ATTEMPTS);
+            EnvironmentConstants.PROPERTY_RETRY_ATTEMPTS);
     return Integer.parseInt(retries);
   }
 
@@ -79,9 +68,7 @@ public class DeedsWebApiConfiguration {
         getFirstDefined(
             EnvironmentConstants.DEFAULT_RETRY_DELAY_MS,
             EnvironmentConstants.DEEDSWEB_RETRY_DELAY_MS,
-            EnvironmentConstants.LEGACY_RETRY_DELAY_MS,
-            EnvironmentConstants.PROPERTY_RETRY_DELAY_MS,
-            EnvironmentConstants.LEGACY_PROPERTY_RETRY_DELAY_MS);
+            EnvironmentConstants.PROPERTY_RETRY_DELAY_MS);
     return Integer.parseInt(delay);
   }
 

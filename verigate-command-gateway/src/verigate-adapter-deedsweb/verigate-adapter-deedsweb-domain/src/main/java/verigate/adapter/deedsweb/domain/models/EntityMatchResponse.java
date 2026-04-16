@@ -9,7 +9,7 @@ package verigate.adapter.deedsweb.domain.models;
 import java.util.Map;
 
 /**
- * Response model for OpenSanctions entity matching.
+ * Response model for DeedsWeb entity matching.
  */
 public class EntityMatchResponse {
 

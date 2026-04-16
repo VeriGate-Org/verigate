@@ -9,7 +9,7 @@ package verigate.adapter.deedsweb.infrastructure.http.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO for OpenSanctions feature documentation.
+ * DTO for DeedsWeb feature documentation.
  */
 public class FeatureDocDto {
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Entity example for OpenSanctions matching requests.
+ * Entity example for DeedsWeb matching requests.
  */
 public class EntityExample {
 

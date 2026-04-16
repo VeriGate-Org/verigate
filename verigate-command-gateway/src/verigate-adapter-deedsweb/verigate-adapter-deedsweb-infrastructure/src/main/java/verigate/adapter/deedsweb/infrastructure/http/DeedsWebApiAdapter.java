@@ -17,7 +17,7 @@ import verigate.adapter.deedsweb.infrastructure.http.dto.EntityMatchResponseDto;
 import verigate.adapter.deedsweb.infrastructure.mappers.DeedsWebDtoMapper;
 
 /**
- * API adapter for OpenSanctions matching endpoints.
+ * API adapter for DeedsWeb matching endpoints.
  */
 public class DeedsWebApiAdapter extends DeedsWebHttpAdapter {
 
@@ -28,7 +28,7 @@ public class DeedsWebApiAdapter extends DeedsWebHttpAdapter {
   }
 
   /**
-   * Performs entity matching against the OpenSanctions API.
+   * Performs entity matching against the DeedsWeb API.
    *
    * @param request the entity match request
    * @return the entity match response
@@ -57,7 +57,7 @@ public class DeedsWebApiAdapter extends DeedsWebHttpAdapter {
   }
 
   /**
-   * Performs simple text search against the OpenSanctions API.
+   * Performs simple text search against the DeedsWeb API.
    *
    * @param dataset the dataset to search
    * @param query the search query text
@@ -86,14 +86,14 @@ public class DeedsWebApiAdapter extends DeedsWebHttpAdapter {
   }
 
   /**
-   * Checks if the OpenSanctions service is healthy.
+   * Checks if the DeedsWeb service is healthy.
    *
    * @return true if service is available
    * @throws TransientException for connectivity issues
    */
   public boolean checkServiceHealth() throws TransientException {
     try {
-      LOGGER.fine("Checking OpenSanctions service health");
+      LOGGER.fine("Checking DeedsWeb service health");
 
       // Use the healthz endpoint
       get("/healthz", String.class);

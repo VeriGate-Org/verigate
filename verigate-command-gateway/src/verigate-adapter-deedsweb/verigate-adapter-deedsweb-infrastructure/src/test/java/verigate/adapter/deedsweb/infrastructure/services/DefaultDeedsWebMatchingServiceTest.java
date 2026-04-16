@@ -48,7 +48,7 @@ class DefaultDeedsWebMatchingServiceTest {
             .build();
 
         EntityMatchRequest request = new EntityMatchRequest.Builder()
-            .dataset("sanctions")
+            .dataset("deeds")
             .queries(Map.of("entity1", entityExample))
             .limit(10)
             .threshold(0.7)
@@ -92,16 +92,16 @@ class DefaultDeedsWebMatchingServiceTest {
     void searchEntities_validParameters_returnsResponse() throws Exception {
         // Arrange
         EntityMatchResponse expectedResponse = new EntityMatchResponse(Map.of(), Map.of(), 5);
-        when(mockApiAdapter.searchEntities(eq("sanctions"), eq("John Doe"), eq(5)))
+        when(mockApiAdapter.searchEntities(eq("deeds"), eq("John Doe"), eq(5)))
             .thenReturn(expectedResponse);
 
         // Act
-        EntityMatchResponse result = service.searchEntities("sanctions", "John Doe", 5);
+        EntityMatchResponse result = service.searchEntities("deeds", "John Doe", 5);
 
         // Assert
         assertNotNull(result);
         assertEquals(expectedResponse, result);
-        verify(mockApiAdapter).searchEntities("sanctions", "John Doe", 5);
+        verify(mockApiAdapter).searchEntities("deeds", "John Doe", 5);
     }
 
     @Test
@@ -116,7 +116,7 @@ class DefaultDeedsWebMatchingServiceTest {
     void searchEntities_emptyQuery_throwsPermanentException() {
         // Act & Assert
         assertThrows(PermanentException.class, () -> 
-            service.searchEntities("sanctions", "", 5));
+            service.searchEntities("deeds", "", 5));
         verifyNoInteractions(mockApiAdapter);
     }
 

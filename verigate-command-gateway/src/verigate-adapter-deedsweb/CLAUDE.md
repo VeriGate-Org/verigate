@@ -1,19 +1,19 @@
-# OpenSanctions Adapter - CLAUDE.md
+# DeedsWeb Adapter - CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the OpenSanctions adapter.
+This file provides guidance to Claude Code (claude.ai/code) when working with the DeedsWeb adapter.
 
 ## Build and Test Commands
 
 ### Building the Project
 ```bash
-# Build the entire OpenSanctions adapter
+# Build the entire DeedsWeb adapter
 mvn clean compile
 
 # Build with all tests
 mvn clean install
 
 # Build specific module (from adapter root)
-cd verigate-adapter-opensanctions-infrastructure && mvn clean compile
+cd verigate-adapter-deedsweb-infrastructure && mvn clean compile
 ```
 
 ### Running Tests
@@ -22,20 +22,10 @@ cd verigate-adapter-opensanctions-infrastructure && mvn clean compile
 mvn test
 
 # Run specific test class
-mvn test -Dtest=DefaultOpenSanctionsMatchingServiceTest
+mvn test -Dtest=DefaultDeedsWebMatchingServiceTest
 
 # Run tests with verbose output
 mvn test -X
-```
-
-### Live Integration Testing
-```bash
-# OpenSanctions live API testing (requires credentials)
-cd src/verigate-adapter-opensanctions-infrastructure
-mvn test -Dtest=OpenSanctionsLiveIntegrationTest
-
-# Quick connectivity test
-java -cp target/test-classes:target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) verigate.adapter.opensanctions.infrastructure.integration.QuickLiveTest
 ```
 
 ### Code Quality
@@ -49,50 +39,66 @@ mvn dependency:analyze
 
 ## High-Level Architecture
 
-### OpenSanctions Adapter Overview
-This is the **OpenSanctions API adapter** for the VeriGate verification platform. It provides sanctions screening capabilities by integrating with the OpenSanctions entity matching API.
+### DeedsWeb Adapter Overview
+This is the **DeedsWeb adapter** for the VeriGate verification platform. It is responsible for
+property-ownership verification by querying the South African DeedsWeb registry.
+
+**Status:** the adapter currently ships REST-over-JSON scaffolding (cloned from an earlier
+adapter). Live integration with the real DeedsWeb registry uses SOAP against
+`http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`. Replacing the REST scaffolding
+with a real SOAP client (JAX-WS / Apache CXF, against the WSDL in
+`docs/deeds-office/deeds-registration-soap.xml`) is a planned follow-up.
 
 ### Clean Architecture Implementation
 The adapter follows hexagonal (clean) architecture with three distinct layers:
 
 ```
-verigate-adapter-opensanctions/
-├── verigate-adapter-opensanctions-domain/           # Core business logic
-├── verigate-adapter-opensanctions-application/      # Use cases & orchestration  
-└── verigate-adapter-opensanctions-infrastructure/   # External integrations
+verigate-adapter-deedsweb/
+├── verigate-adapter-deedsweb-domain/           # Core business logic
+├── verigate-adapter-deedsweb-application/      # Use cases & orchestration
+└── verigate-adapter-deedsweb-infrastructure/   # External integrations
 ```
 
 ### Key Architectural Components
 
 #### 1. Domain Layer (`-domain/`)
-- **Services**: `OpenSanctionsMatchingService` - Core service interface
-- **Models**: Entity matching models (`EntityMatchRequest`, `EntityMatchResponse`, `ScoredEntity`, etc.)
-- **Handlers**: `SanctionsScreeningCommandHandler` - Command processing interface
-- **Mappers**: Business logic for mapping between VeriGate and OpenSanctions formats
-- **Constants**: Domain-level constants and thresholds
+- **Services**: `DeedsWebMatchingService` (entity-match scaffolding) and
+  `PropertyOwnershipVerificationService` (live property-verification path)
+- **Models**: Property models (`PropertyDetails`, `PropertyOwnershipCheck`,
+  `OwnershipVerificationResult`) and entity-match models
+  (`EntityMatchRequest`, `EntityMatchResponse`, `ScoredEntity`, etc.)
+- **Handlers**: `PropertyVerificationCommandHandler` - command processing interface
+- **Mappers**: `VerificationResultMapper`, `VerifyPartyCommandMapper`
+- **Constants**: Domain-level constants and thresholds (`DomainConstants`)
 
 #### 2. Application Layer (`-application/`)
-- **Command Handlers**: `DefaultSanctionsScreeningCommandHandler` - Main entry point
-- **Orchestration**: Coordinates entity matching, result analysis, and event publishing
+- **Command Handlers**: `DefaultPropertyVerificationCommandHandler` - main entry point
+- **Services**: `DefaultPropertyOwnershipVerificationService` - orchestrates property
+  lookup and ownership matching; computes confidence in
+  `calculateMatchConfidence(...)`
 
 #### 3. Infrastructure Layer (`-infrastructure/`)
-- **HTTP Adapters**: Type-safe API clients (`OpenSanctionsHttpAdapter`, `OpenSanctionsApiAdapter`)
-- **Configuration**: Environment-driven config (`OpenSanctionsApiConfiguration`, `ConfigurationValidator`)
+- **HTTP Adapters**: REST scaffolding (`DeedsWebHttpAdapter`, `DeedsWebApiAdapter`)
+- **Configuration**: Environment-driven config (`DeedsWebApiConfiguration`,
+  `ConfigurationValidator`)
 - **DTOs**: Data transfer objects for API communication
-- **Mappers**: DTO to domain model mapping
-- **Services**: Default service implementations
+- **Mappers**: DTO to domain model mapping (`DeedsWebDtoMapper`)
+- **Services**: Default service implementations (`DefaultDeedsWebMatchingService`)
 
-### OpenSanctions API Integration Architecture
+### DeedsWeb API Integration Architecture
 
 #### API Authentication
-The adapter uses Bearer Token authentication:
+The current REST scaffolding uses Bearer Token authentication:
 - API key passed in `Authorization: Bearer <token>` header
 - All HTTP requests include proper authentication
 
+When the SOAP rewrite lands, authentication will follow whatever scheme the DeedsWeb
+SOAP service requires (likely WS-Security username/token plus a whitelisted source IP).
+
 #### HTTP Client Architecture
 ```
-OpenSanctionsHttpAdapter (base HTTP client)
-└── OpenSanctionsApiAdapter (entity matching endpoints)
+DeedsWebHttpAdapter (base HTTP client)
+└── DeedsWebApiAdapter (entity matching endpoints)
 ```
 
 #### Service Implementation Pattern
@@ -105,74 +111,73 @@ OpenSanctionsHttpAdapter (base HTTP client)
 
 #### Environment-Driven Configuration
 Required environment variables:
-- `OPENSANCTIONS_API_KEY`
+- `DEEDSWEB_API_KEY`
 
 Optional environment variables:
-- `OPENSANCTIONS_BASE_URL`, `OPENSANCTIONS_CONNECTION_TIMEOUT_MS`, etc.
+- `DEEDSWEB_BASE_URL`, `DEEDSWEB_CONNECTION_TIMEOUT_MS`,
+  `DEEDSWEB_READ_TIMEOUT_MS`, `DEEDSWEB_RETRY_ATTEMPTS`,
+  `DEEDSWEB_RETRY_DELAY_MS`
 
 #### Configuration Validation
 - `ConfigurationValidator` validates required settings on startup
-- `OpenSanctionsApiConfiguration` provides type-safe access to all settings
+- `DeedsWebApiConfiguration` provides type-safe access to all settings
 - Comprehensive defaults in `DomainConstants` and `application.properties`
 
 ### Key Integration Points
 
 #### VeriGate Command Gateway Integration
-- Implements `SanctionsScreeningCommandHandler` interface
-- Receives `VerifyPartyCommand` from command gateway for `SANCTIONS_SCREENING` type
+- Implements `PropertyVerificationCommandHandler` interface
+- Receives `VerifyPartyCommand` from the command gateway for property-verification
+  requests
 - Returns `VerificationResult` with standardized outcomes
 
-#### Entity Matching Workflow
-1. **Command Reception**: Gateway sends `VerifyPartyCommand` for sanctions screening
-2. **Entity Mapping**: Convert party details to OpenSanctions entity format
-3. **API Call**: Perform entity matching via OpenSanctions API
-4. **Result Analysis**: Analyze match scores to determine verification outcome
+#### Property Verification Workflow
+1. **Command Reception**: Gateway sends `VerifyPartyCommand` for property verification
+2. **Property Lookup**: `DefaultPropertyOwnershipVerificationService.findPropertiesByOwner(...)`
+   queries the DeedsWeb adapter for properties registered against the subject's ID number
+3. **Ownership Check**: `checkOwnership(...)` walks the returned properties looking
+   for an ID-number match
+4. **Confidence Scoring**: `calculateMatchConfidence(...)` boosts confidence based on
+   how closely the queried name matches the registered owner name
 5. **Response**: Return `VerificationResult` to gateway
 
 ### Verification Outcome Logic
-Based on match scores from OpenSanctions:
-- **High confidence match (≥0.9)**: `HARD_FAIL` - Likely sanctioned
-- **Medium confidence match (≥0.7)**: `SOFT_FAIL` - Requires review
-- **Low/no matches (<0.7)**: `SUCCEEDED` - Clean result
+Property-verification outcomes are derived from
+`DefaultPropertyOwnershipVerificationService.calculateMatchConfidence(...)`. The
+confidence score combines an exact ID-number match (base `0.7`) with name-similarity
+boosts up to `1.0`. The match-score thresholds in `DomainConstants` (`HIGH_/MEDIUM_/
+LOW_MATCH_THRESHOLD`) remain available for the entity-match scaffolding path.
 
 ### Testing Strategy
 
 #### Mock Architecture
-- `MockOpenSanctionsMatchingService` for unit testing
-- Mock responses include realistic scored entities and match data
+- `MockDeedsWebMatchingService` for unit testing
+- Mock responses include realistic property records
 - Test configurations with reduced timeouts and retry settings
 
 #### Test Coverage
 - Unit tests for service implementations and command handlers
-- Integration tests (when API credentials available)
 - Mock-based tests for all error scenarios
 
 ### Development Notes
 
 #### Adding New API Endpoints
-1. Add method to `OpenSanctionsMatchingService` interface
-2. Implement in `DefaultOpenSanctionsMatchingService`
-3. Add endpoint handling to `OpenSanctionsApiAdapter`
+1. Add method to `DeedsWebMatchingService` interface
+2. Implement in `DefaultDeedsWebMatchingService`
+3. Add endpoint handling to `DeedsWebApiAdapter`
 4. Create corresponding DTOs if needed
 5. Add mock implementation for testing
 
 #### Configuration Changes
 1. Add constants to `EnvironmentConstants` and `DomainConstants`
-2. Update `OpenSanctionsApiConfiguration` with getter methods
+2. Update `DeedsWebApiConfiguration` with getter methods
 3. Add properties to `application.properties` files
 4. Update validation in `ConfigurationValidator`
 5. Document in `environment-variables.md`
 
-#### Extending Entity Matching
-The system currently supports Person entities. To add Company/Organization support:
-1. Update `VerifyPartyCommandMapper` to detect entity type
-2. Add company-specific property mapping
-3. Update domain constants for company schemas
-4. Add corresponding test cases
-
-### OpenSanctions API Reference
-- **Base URL**: https://api.opensanctions.org
-- **Main Endpoint**: `/match/{dataset}` - Entity matching
-- **Search Endpoint**: `/search/{dataset}` - Text-based search  
-- **Health Check**: `/healthz` - Service health
-- **Documentation**: https://www.opensanctions.org/docs/api/
+### DeedsWeb API Reference
+- **SOAP endpoint**: `http://deedssoap.deeds.gov.za:80/deeds-registration-soap/`
+- **WSDL**: see `docs/deeds-office/deeds-registration-soap.xml`
+- **Network**: requires source IP whitelisting (NAT EIP `13.246.247.144`)
+- **Note**: The REST scaffolding in this module does not yet talk to the real
+  DeedsWeb service — the SOAP client is a planned follow-up.

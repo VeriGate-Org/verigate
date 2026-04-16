@@ -15,14 +15,14 @@ import verigate.verification.cg.domain.models.VerificationOutcome;
 import verigate.verification.cg.domain.models.VerificationResult;
 
 /**
- * Maps OpenSanctions API responses to VeriGate VerificationResult.
+ * Maps DeedsWeb API responses to VeriGate VerificationResult.
  */
 public class VerificationResultMapper {
 
   /**
-   * Maps an OpenSanctions EntityMatchResponse to a VeriGate VerificationResult.
+   * Maps a DeedsWeb EntityMatchResponse to a VeriGate VerificationResult.
    *
-   * @param response the OpenSanctions API response
+   * @param response the DeedsWeb API response
    * @param requestId the original request identifier
    * @return the VeriGate verification result
    */
@@ -53,7 +53,7 @@ public class VerificationResultMapper {
 
         // Determine outcome based on match score thresholds
         if (highestScore >= DomainConstants.HIGH_MATCH_THRESHOLD) {
-          return VerificationOutcome.HARD_FAIL; // High confidence match - likely sanctioned
+          return VerificationOutcome.HARD_FAIL; // High confidence match
         } else if (highestScore >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
           return VerificationOutcome.SOFT_FAIL; // Medium confidence - requires review
         }
@@ -71,7 +71,7 @@ public class VerificationResultMapper {
 
     // Create detailed failure reason for failed outcomes
     StringBuilder reason = new StringBuilder();
-    reason.append("OpenSanctions match found: ");
+    reason.append("DeedsWeb match found: ");
 
     if (response.getResponses() != null) {
       for (var entityMatches : response.getResponses().values()) {
@@ -102,7 +102,7 @@ public class VerificationResultMapper {
   private static Map<String, String> createResultDetails(EntityMatchResponse response) {
     Map<String, String> details = new HashMap<>();
 
-    details.put("provider", "OpenSanctions");
+    details.put("provider", "DeedsWeb");
     details.put("algorithm", "entity-matching");
 
     if (response.getResponses() != null) {

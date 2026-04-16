@@ -16,15 +16,19 @@ import verigate.adapter.deedsweb.domain.models.EntityMatchRequest;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 
 /**
- * Maps VeriGate VerifyPartyCommand to OpenSanctions EntityMatchRequest.
+ * Maps VeriGate VerifyPartyCommand to DeedsWeb EntityMatchRequest.
+ *
+ * <p>Retained for reference; the live DeedsWeb verification path uses
+ * {@code PropertyOwnershipVerificationService} directly. If this mapper is resurrected,
+ * replace the literal dataset below with whatever the DeedsWeb adapter requires.
  */
 public class VerifyPartyCommandMapper {
 
   /**
-   * Maps a VerifyPartyCommand to an EntityMatchRequest for OpenSanctions API.
+   * Maps a VerifyPartyCommand to an EntityMatchRequest for the DeedsWeb API.
    *
    * @param command the VeriGate verification command
-   * @return the OpenSanctions entity match request
+   * @return the DeedsWeb entity match request
    */
   public static EntityMatchRequest mapToEntityMatchRequest(VerifyPartyCommand command) {
 
@@ -36,13 +40,12 @@ public class VerifyPartyCommandMapper {
     queries.put("entity1", entityExample);
 
     return new EntityMatchRequest.Builder()
-        .dataset(DomainConstants.DEFAULT_DATASET)
+        .dataset("deeds")
         .queries(queries)
         .limit(DomainConstants.DEFAULT_LIMIT)
         .threshold(DomainConstants.DEFAULT_THRESHOLD)
         .cutoff(DomainConstants.DEFAULT_CUTOFF)
         .algorithm(DomainConstants.DEFAULT_ALGORITHM)
-        .topics(List.of(DomainConstants.SANCTIONS_TOPIC, DomainConstants.PEP_TOPIC))
         .build();
   }
 

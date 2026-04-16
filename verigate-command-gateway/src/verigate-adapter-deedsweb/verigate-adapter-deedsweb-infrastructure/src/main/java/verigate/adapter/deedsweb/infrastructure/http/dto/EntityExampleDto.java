@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DTO for OpenSanctions entity example.
+ * DTO for DeedsWeb entity example.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EntityExampleDto {

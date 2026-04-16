@@ -24,7 +24,7 @@ import verigate.adapter.deedsweb.infrastructure.http.dto.ScoredEntityDto;
 import verigate.adapter.deedsweb.infrastructure.http.dto.TotalSpecDto;
 
 /**
- * Maps between domain models and DTOs for OpenSanctions API.
+ * Maps between domain models and DTOs for the DeedsWeb API.
  */
 public class DeedsWebDtoMapper {
 

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * DTO for OpenSanctions entity matches.
+ * DTO for DeedsWeb entity matches.
  */
 public class EntityMatchesDto {
 

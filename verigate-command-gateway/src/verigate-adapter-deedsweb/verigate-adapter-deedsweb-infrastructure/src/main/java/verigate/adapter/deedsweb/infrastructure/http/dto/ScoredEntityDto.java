@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DTO for OpenSanctions scored entity.
+ * DTO for DeedsWeb scored entity.
  */
 public class ScoredEntityDto {
 

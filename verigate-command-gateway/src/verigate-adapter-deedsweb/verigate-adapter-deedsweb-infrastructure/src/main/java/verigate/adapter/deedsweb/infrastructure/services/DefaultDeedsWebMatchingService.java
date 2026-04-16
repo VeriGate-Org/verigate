@@ -16,7 +16,7 @@ import verigate.adapter.deedsweb.domain.services.DeedsWebMatchingService;
 import verigate.adapter.deedsweb.infrastructure.http.DeedsWebApiAdapter;
 
 /**
- * Default implementation of OpenSanctions matching service.
+ * Default implementation of DeedsWeb matching service.
  */
 public class DefaultDeedsWebMatchingService implements DeedsWebMatchingService {
 
@@ -83,7 +83,7 @@ public class DefaultDeedsWebMatchingService implements DeedsWebMatchingService {
 
   @Override
   public boolean isServiceHealthy() throws TransientException {
-    LOGGER.fine("Checking OpenSanctions service health");
+    LOGGER.fine("Checking DeedsWeb service health");
 
     try {
       return apiAdapter.checkServiceHealth();

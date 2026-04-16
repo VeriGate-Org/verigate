@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import verigate.adapter.deedsweb.infrastructure.config.DeedsWebApiConfiguration;
 
 /**
- * Base HTTP adapter for OpenSanctions API communication.
+ * Base HTTP adapter for DeedsWeb API communication.
  */
 public class DeedsWebHttpAdapter {
 
