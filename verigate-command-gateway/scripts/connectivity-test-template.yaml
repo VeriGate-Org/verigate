@@ -35,7 +35,7 @@ Resources:
       Handler: index.lambda_handler
       CodeUri: .
       MemorySize: 256
-      Timeout: 60
+      Timeout: 120
       Environment:
         Variables:
           TEST_URL: 'http://enquiry.service.registration.deeds.gov.za/'
@@ -55,16 +55,81 @@ Resources:
         import json
         import urllib3
         import socket
+        import struct
         import time
         import os
+        import subprocess
         from datetime import datetime
-        
+
+        def tcp_ttl_probe(target_ip, port, ttl, timeout=3):
+            """Probe a single hop using TCP with a specific TTL."""
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
+            start = time.time()
+            try:
+                result = sock.connect_ex((target_ip, port))
+                elapsed = round((time.time() - start) * 1000, 1)
+                sock.close()
+                if result == 0:
+                    return {"hop": ttl, "ip": target_ip, "rtt_ms": elapsed, "status": "REACHED", "note": "TCP connection succeeded"}
+                else:
+                    return {"hop": ttl, "ip": target_ip, "rtt_ms": elapsed, "status": "FILTERED", "note": f"connect_ex={result}, port filtered or host firewall"}
+            except socket.timeout:
+                sock.close()
+                return {"hop": ttl, "ip": "*", "rtt_ms": timeout * 1000, "status": "TIMEOUT", "note": "No response (filtered or dropped)"}
+            except OSError as e:
+                elapsed = round((time.time() - start) * 1000, 1)
+                sock.close()
+                err = str(e)
+                if "Network is unreachable" in err:
+                    return {"hop": ttl, "ip": "*", "rtt_ms": elapsed, "status": "TTL_EXPIRED", "note": "Intermediate hop (network unreachable = TTL expired)"}
+                elif "No route to host" in err:
+                    return {"hop": ttl, "ip": "*", "rtt_ms": elapsed, "status": "TTL_EXPIRED", "note": "Intermediate hop (no route = TTL expired)"}
+                elif "Connection refused" in err:
+                    return {"hop": ttl, "ip": target_ip, "rtt_ms": elapsed, "status": "REACHED_REFUSED", "note": "Reached target but port refused"}
+                else:
+                    return {"hop": ttl, "ip": "*", "rtt_ms": elapsed, "status": "ERROR", "note": err[:100]}
+
+        def run_traceroute(target_ip, port=80, max_hops=20):
+            """TCP-based traceroute using incrementing TTL values."""
+            hops = []
+            consecutive_timeouts = 0
+            for ttl in range(1, max_hops + 1):
+                result = tcp_ttl_probe(target_ip, port, ttl)
+                hops.append(result)
+                print(f"  TTL {ttl:2d}: {result['ip']:>15s}  {result['rtt_ms']:>8.1f}ms  {result['status']}  {result.get('note','')}")
+                if result["status"] in ("REACHED", "REACHED_REFUSED"):
+                    break
+                if result["status"] == "TIMEOUT":
+                    consecutive_timeouts += 1
+                    if consecutive_timeouts >= 5:
+                        hops.append({"hop": ttl + 1, "note": "Stopped after 5 consecutive timeouts"})
+                        break
+                else:
+                    consecutive_timeouts = 0
+            return hops
+
+        def try_system_traceroute(hostname):
+            """Try to run system traceroute if available."""
+            for cmd in [
+                ["traceroute", "-n", "-T", "-p", "80", "-m", "20", "-w", "3", hostname],
+                ["traceroute", "-n", "-m", "20", "-w", "3", hostname],
+            ]:
+                try:
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    if result.returncode == 0 and result.stdout:
+                        return {"tool": " ".join(cmd), "output": result.stdout[:3000]}
+                except (FileNotFoundError, subprocess.TimeoutExpired):
+                    continue
+            return None
+
         def lambda_handler(event, context):
             """Test connectivity to specified URL or default Deeds Office URL"""
-            
-            # Get URL from event, environment variable, or use default
+
             url = event.get('url', os.environ.get('TEST_URL', 'http://enquiry.service.registration.deeds.gov.za/'))
-            
+            run_trace = event.get('traceroute', False)
+
             results = {
                 "timestamp": datetime.utcnow().isoformat(),
                 "url": url,
@@ -76,13 +141,13 @@ Resources:
                     "vpc_enabled": bool(os.environ.get('AWS_LAMBDA_VPC_SUBNET_IDS'))
                 }
             }
-            
-            # Parse hostname from URL
+
             hostname = url.replace("http://", "").replace("https://", "").split("/")[0]
             port = 443 if url.startswith("https://") else 80
-            
+
             # Test 1: DNS Resolution
             print(f"[TEST 1] DNS Resolution for: {hostname}")
+            ip_address = None
             try:
                 ip_address = socket.gethostbyname(hostname)
                 results["tests"]["dns_resolution"] = {
@@ -90,15 +155,14 @@ Resources:
                     "hostname": hostname,
                     "ip_address": ip_address
                 }
-                print(f"✓ DNS Resolution SUCCESS: {hostname} -> {ip_address}")
+                print(f"  DNS: {hostname} -> {ip_address}")
             except socket.gaierror as e:
                 results["tests"]["dns_resolution"] = {
                     "status": "FAILED",
                     "hostname": hostname,
                     "error": str(e)
                 }
-                print(f"✗ DNS Resolution FAILED: {str(e)}")
-            
+
             # Test 2: Socket Connection
             print(f"[TEST 2] TCP Socket Connection to: {hostname}:{port}")
             try:
@@ -108,14 +172,13 @@ Resources:
                 result = sock.connect_ex((hostname, port))
                 elapsed_time = time.time() - start_time
                 sock.close()
-                
+
                 if result == 0:
                     results["tests"]["socket_connection"] = {
                         "status": "SUCCESS",
                         "port": port,
                         "connection_time_seconds": round(elapsed_time, 3)
                     }
-                    print(f"✓ Socket Connection SUCCESS: {elapsed_time:.3f}s")
                 else:
                     results["tests"]["socket_connection"] = {
                         "status": "FAILED",
@@ -123,29 +186,27 @@ Resources:
                         "error_code": result,
                         "details": "Socket connection refused or blocked"
                     }
-                    print(f"✗ Socket Connection FAILED: Error code {result}")
-                    
+
             except Exception as e:
                 results["tests"]["socket_connection"] = {
                     "status": "FAILED",
                     "error": str(e)
                 }
-                print(f"✗ Socket Connection FAILED: {str(e)}")
-            
+
             # Test 3: HTTP Request
             print(f"[TEST 3] HTTP Request to: {url}")
             http = urllib3.PoolManager(
                 timeout=urllib3.Timeout(connect=10.0, read=30.0),
                 retries=urllib3.Retry(total=3, connect=3, read=3)
             )
-            
+
             try:
                 start_time = time.time()
-                response = http.request('GET', url, 
+                response = http.request('GET', url,
                                        headers={'User-Agent': 'VeriGate-Connectivity-Test/1.0'},
                                        redirect=True)
                 elapsed_time = time.time() - start_time
-                
+
                 results["tests"]["http_request"] = {
                     "status": "SUCCESS",
                     "http_status": response.status,
@@ -153,16 +214,13 @@ Resources:
                     "content_length": len(response.data),
                     "headers": {k: v for k, v in response.headers.items()}
                 }
-                
-                # Response preview
+
                 try:
                     response_text = response.data.decode('utf-8')[:500]
                     results["tests"]["http_request"]["response_preview"] = response_text
                 except:
                     results["tests"]["http_request"]["response_preview"] = "Unable to decode"
-                
-                print(f"✓ HTTP Request SUCCESS: Status {response.status}, Time: {elapsed_time:.3f}s")
-                
+
             except urllib3.exceptions.MaxRetryError as e:
                 results["tests"]["http_request"] = {
                     "status": "FAILED",
@@ -170,33 +228,64 @@ Resources:
                     "error": str(e)[:500],
                     "details": "Connection failed - check network/firewall/security groups"
                 }
-                print(f"✗ HTTP Request FAILED (MaxRetryError)")
-                
+
             except Exception as e:
                 results["tests"]["http_request"] = {
                     "status": "FAILED",
                     "error_type": type(e).__name__,
                     "error": str(e)[:500]
                 }
-                print(f"✗ HTTP Request FAILED: {type(e).__name__}")
-            
+
+            # Test 4: Traceroute (TCP TTL-based)
+            if run_trace and ip_address:
+                print(f"[TEST 4] TCP Traceroute to: {ip_address}:{port}")
+
+                # Try system traceroute first
+                sys_trace = try_system_traceroute(ip_address)
+
+                # Always run Python TTL-based probe
+                hops = run_traceroute(ip_address, port)
+
+                last_responding = None
+                for h in hops:
+                    if h.get("status") not in ("TIMEOUT", None) and h.get("ip") != "*":
+                        last_responding = h
+
+                trace_result = {
+                    "target_ip": ip_address,
+                    "port": port,
+                    "hops": hops,
+                    "total_hops_probed": len(hops),
+                    "last_responding_hop": last_responding,
+                    "reached_target": any(h.get("status") in ("REACHED", "REACHED_REFUSED") for h in hops)
+                }
+
+                if sys_trace:
+                    trace_result["system_traceroute"] = sys_trace
+
+                results["tests"]["traceroute"] = trace_result
+
             # Overall Assessment
+            core_tests = {k: v for k, v in results["tests"].items() if k != "traceroute"}
             all_tests_passed = all(
-                test.get("status") == "SUCCESS" 
-                for test in results["tests"].values()
+                test.get("status") == "SUCCESS"
+                for test in core_tests.values()
             )
-            
+
             results["overall_status"] = "SUCCESS" if all_tests_passed else "FAILED"
-            
-            # Summary
+
             print("\n" + "="*70)
             print(f"CONNECTIVITY TEST SUMMARY: {results['overall_status']}")
             print("="*70)
             for test_name, test_result in results["tests"].items():
-                status_icon = "✓" if test_result["status"] == "SUCCESS" else "✗"
-                print(f"{status_icon} {test_name}: {test_result['status']}")
+                if test_name == "traceroute":
+                    reached = test_result.get("reached_target", False)
+                    print(f"{'✓' if reached else '✗'} traceroute: {'REACHED' if reached else 'NOT REACHED'} ({test_result['total_hops_probed']} hops probed)")
+                else:
+                    status_icon = "✓" if test_result["status"] == "SUCCESS" else "✗"
+                    print(f"{status_icon} {test_name}: {test_result['status']}")
             print("="*70)
-            
+
             return {
                 'statusCode': 200 if all_tests_passed else 500,
                 'body': json.dumps(results, indent=2)
