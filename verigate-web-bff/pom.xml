@@ -80,6 +80,16 @@
       <artifactId>bedrockruntime</artifactId>
       <version>${awssdk.version}</version>
     </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>kinesis</artifactId>
+      <version>${awssdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>bedrock</artifactId>
+      <version>${awssdk.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.amazonaws.serverless</groupId>

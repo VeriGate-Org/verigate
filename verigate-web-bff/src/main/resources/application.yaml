@@ -69,6 +69,74 @@ verigate:
       table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}
     scoring-config:
       table-name: ${VERIGATE_RISK_SCORING_CONFIG_TABLE:risk-scoring-config}
+  healthcheck:
+    overall-timeout-seconds: 25
+    snapshot-table-name: ${VERIGATE_HEALTH_SNAPSHOT_TABLE_NAME:health-snapshots}
+    connect-timeout-ms: 3000
+    read-timeout-ms: 5000
+    kinesis-stream-name: ${VERIGATE_KINESIS_STREAM_NAME:}
+    services:
+      deedsweb:
+        name: DeedsWeb SOAP
+        url: ${VERIGATE_HEALTH_DEEDSWEB_URL:}
+        protocol: SOAP
+        port: 80
+      dha:
+        name: Home Affairs (DHA)
+        url: ${VERIGATE_HEALTH_DHA_URL:}
+        protocol: REST
+      worldcheck:
+        name: WorldCheck One
+        url: ${VERIGATE_HEALTH_WORLDCHECK_URL:}
+        protocol: REST
+      experian:
+        name: Experian
+        url: ${VERIGATE_HEALTH_EXPERIAN_URL:}
+        protocol: REST
+      transunion:
+        name: TransUnion
+        url: ${VERIGATE_HEALTH_TRANSUNION_URL:}
+        protocol: REST
+      xds:
+        name: XDS
+        url: ${VERIGATE_HEALTH_XDS_URL:}
+        protocol: REST
+      cipc:
+        name: CIPC
+        url: ${VERIGATE_HEALTH_CIPC_URL:}
+        protocol: REST
+      sars:
+        name: SARS eFiling
+        url: ${VERIGATE_HEALTH_SARS_URL:}
+        protocol: REST
+      saqa:
+        name: SAQA
+        url: ${VERIGATE_HEALTH_SAQA_URL:}
+        protocol: REST
+      bankserv:
+        name: BankServ AVS
+        url: ${VERIGATE_HEALTH_BANKSERV_URL:}
+        protocol: REST
+      lightstone:
+        name: Lightstone Property
+        url: ${VERIGATE_HEALTH_LIGHTSTONE_URL:}
+        protocol: REST
+      opensanctions:
+        name: OpenSanctions
+        url: ${VERIGATE_HEALTH_OPENSANCTIONS_URL:}
+        protocol: REST
+      yoti:
+        name: Yoti Document AI
+        url: ${VERIGATE_HEALTH_YOTI_URL:}
+        protocol: REST
+      idenfy:
+        name: iDenfy
+        url: ${VERIGATE_HEALTH_IDENFY_URL:}
+        protocol: REST
+      newsapi:
+        name: NewsAPI
+        url: ${VERIGATE_HEALTH_NEWSAPI_URL:}
+        protocol: REST
   cache:
     enabled: ${VERIGATE_CACHE_ENABLED:true}
     policies:

@@ -74,6 +74,15 @@ Resources:
           VERIGATE_PARTNER_CREATE_QUEUE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/queues/partner-create/name}}"
           VERIGATE_PARTNER_TABLE: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/partner/name}}"
           VERIGATE_CORS_ALLOWED_ORIGINS: "https://*.verigate.co.za,http://localhost:3000"
+          VERIGATE_HEALTH_DEEDSWEB_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/deedsweb-url}}"
+          VERIGATE_HEALTH_DHA_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/dha-url}}"
+          VERIGATE_HEALTH_WORLDCHECK_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/worldcheck-url}}"
+          VERIGATE_HEALTH_EXPERIAN_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/experian-url}}"
+          VERIGATE_HEALTH_TRANSUNION_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/transunion-url}}"
+          VERIGATE_HEALTH_XDS_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/xds-url}}"
+          VERIGATE_HEALTH_CIPC_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/health/cipc-url}}"
+          VERIGATE_KINESIS_STREAM_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/kinesis/stream-name}}"
+          VERIGATE_HEALTH_SNAPSHOT_TABLE_NAME: !Sub "{{resolve:ssm:/${AWS::StackName}/tables/health-snapshots/name}}"
       Events:
         ApiProxy:
           Type: HttpApi
@@ -87,6 +96,12 @@ Resources:
             ApiId: !Ref WebBffApi
             Path: /
             Method: ANY
+        HealthSnapshotSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(15 minutes)
+            Description: "Capture health snapshot every 15 minutes"
+            Input: '{"httpMethod":"POST","path":"/api/admin/system-health/snapshot","body":"","headers":{"Content-Type":"application/json"}}'
 
   WebBffApiMapping:
     Type: AWS::ApiGatewayV2::ApiMapping

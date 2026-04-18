@@ -1210,6 +1210,146 @@ export async function acknowledgeAlert(alertId: string): Promise<MonitoringAlert
   return data;
 }
 
+// --- System Health ---
+
+export type HealthStatus = "HEALTHY" | "DEGRADED" | "DOWN" | "UNCONFIGURED";
+
+export interface ProbeResult {
+  success: boolean;
+  latencyMs: number;
+  detail: string;
+}
+
+export interface ExternalServiceHealth {
+  id: string;
+  name: string;
+  protocol: string;
+  url: string;
+  dns: ProbeResult;
+  tcp: ProbeResult;
+  http: ProbeResult;
+  overallStatus: HealthStatus;
+  totalLatencyMs: number;
+}
+
+export interface DynamoDbTableHealth {
+  tableName: string;
+  status: string;
+  itemCount: number | null;
+  tableSizeBytes: number | null;
+  latencyMs: number;
+  error: string | null;
+}
+
+export interface SqsQueueHealth {
+  queueName: string;
+  status: string;
+  approximateMessageCount: number | null;
+  dlqMessageCount: number | null;
+  latencyMs: number;
+  error: string | null;
+}
+
+export interface KinesisStreamHealth {
+  streamName: string;
+  status: string;
+  shardCount: number | null;
+  latencyMs: number;
+  error: string | null;
+}
+
+export interface BedrockHealth {
+  region: string;
+  status: string;
+  latencyMs: number;
+  error: string | null;
+}
+
+export interface InfrastructureHealth {
+  dynamoDbTables: DynamoDbTableHealth[];
+  sqsQueues: SqsQueueHealth[];
+  kinesisStream: KinesisStreamHealth | null;
+  bedrock: BedrockHealth | null;
+}
+
+export interface SystemHealthSummary {
+  total: number;
+  healthy: number;
+  degraded: number;
+  down: number;
+  unconfigured: number;
+}
+
+export interface SystemHealthResponse {
+  overallStatus: HealthStatus;
+  summary: SystemHealthSummary;
+  externalIntegrations: ExternalServiceHealth[];
+  infrastructure: InfrastructureHealth;
+  checkedAt: string;
+}
+
+export async function getSystemHealth(): Promise<SystemHealthResponse> {
+  const { data } = await bffApi.get<SystemHealthResponse>("/api/admin/system-health");
+  return data;
+}
+
+// --- Health History ---
+
+export interface HealthDataPoint {
+  checkedAt: string;
+  status: HealthStatus;
+  latencyMs: number;
+}
+
+export interface ServiceHistoryResponse {
+  serviceId: string;
+  dataPoints: HealthDataPoint[];
+}
+
+export interface UptimeResponse {
+  serviceId: string;
+  uptimePercentage: number;
+  totalChecks: number;
+  healthyChecks: number;
+  timeRange: string;
+}
+
+export interface IncidentResponse {
+  serviceId: string;
+  serviceName: string;
+  startedAt: string;
+  endedAt: string;
+  durationMinutes: number;
+  status: string;
+}
+
+export async function getServiceHistory(
+  serviceId: string,
+  range: string,
+): Promise<ServiceHistoryResponse> {
+  const { data } = await bffApi.get<ServiceHistoryResponse>(
+    `/api/admin/system-health/history`,
+    { params: { serviceId, range } },
+  );
+  return data;
+}
+
+export async function getServiceUptime(range: string): Promise<UptimeResponse[]> {
+  const { data } = await bffApi.get<UptimeResponse[]>(
+    `/api/admin/system-health/uptime`,
+    { params: { range } },
+  );
+  return data;
+}
+
+export async function getIncidents(range: string): Promise<IncidentResponse[]> {
+  const { data } = await bffApi.get<IncidentResponse[]>(
+    `/api/admin/system-health/incidents`,
+    { params: { range } },
+  );
+  return data;
+}
+
 // --- Sanctions Screening ---
 
 export interface SanctionsEntityResponse {

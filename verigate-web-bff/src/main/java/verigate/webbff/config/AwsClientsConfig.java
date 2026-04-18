@@ -9,6 +9,8 @@ import software.amazon.awssdk.core.retry.RetryPolicy;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.bedrock.BedrockClient;
+import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -16,6 +18,7 @@ import verigate.webbff.config.properties.AwsProperties;
 import verigate.webbff.config.properties.CaseProperties;
 import verigate.webbff.config.properties.CommandStoreProperties;
 import verigate.webbff.config.properties.DocumentProperties;
+import verigate.webbff.config.properties.HealthCheckProperties;
 import verigate.webbff.config.properties.PolicyProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.config.properties.RiskAssessmentProperties;
@@ -34,7 +37,8 @@ import verigate.webbff.config.properties.RiskScoringConfigProperties;
     RiskScoringConfigProperties.class,
     DocumentProperties.class,
     MonitoringProperties.class,
-    AiRiskEnhancementProperties.class
+    AiRiskEnhancementProperties.class,
+    HealthCheckProperties.class
 })
 public class AwsClientsConfig {
 
@@ -90,5 +94,21 @@ public class AwsClientsConfig {
         .region(region);
     properties.getS3Endpoint().ifPresent(builder::endpointOverride);
     return builder.build();
+  }
+
+  @Bean
+  KinesisClient kinesisClient(Region region) {
+    return KinesisClient.builder()
+        .region(region)
+        .overrideConfiguration(CLIENT_OVERRIDE)
+        .build();
+  }
+
+  @Bean
+  BedrockClient bedrockClient() {
+    return BedrockClient.builder()
+        .region(Region.US_EAST_1)
+        .overrideConfiguration(CLIENT_OVERRIDE)
+        .build();
   }
 }

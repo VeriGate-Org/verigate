@@ -43,6 +43,12 @@ public class CacheConfiguration {
             .expireAfterWrite(props.getCommandStatus().getTtlMinutes(), TimeUnit.MINUTES)
             .build());
 
+    manager.registerCustomCache("system-health",
+        Caffeine.newBuilder()
+            .maximumSize(1)
+            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .build());
+
     return manager;
   }
 }

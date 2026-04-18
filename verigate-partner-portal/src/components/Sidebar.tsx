@@ -8,7 +8,7 @@ import {
   ChevronRight, ChevronDown, Star, X, Settings, HelpCircle, FileText, GitBranch,
   Fingerprint, FileCheck, TrendingUp, DollarSign, Receipt, Briefcase,
   GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
-  BarChart3, FileStack,
+  BarChart3, FileStack, Activity,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
@@ -96,6 +96,13 @@ const NAV_SECTIONS: NavSection[] = [
       { name: "Policy Builder", path: "/policies", icon: GitBranch, badge: "NEW", feature: Feature.POLICY_BUILDER },
       { name: "Monitoring", path: "/monitoring", icon: Eye, badge: "NEW", feature: Feature.MONITORING },
       { name: "Reports & Analytics", path: "/reports", icon: FileText, badge: "NEW", feature: Feature.REPORTING },
+    ],
+  },
+  {
+    name: "Admin",
+    defaultExpanded: false,
+    items: [
+      { name: "System Health", path: "/system-health", icon: Activity },
     ],
   },
   {
