@@ -40,6 +40,8 @@ Globals:
     MemorySize: 2048
     Timeout: 30
     Runtime: java21
+    Architectures:
+      - arm64
     AutoPublishAlias: live
     # SnapStart disabled - GrowthBook feature flag initialization requires
     # network access which is unavailable during SnapStart snapshot phase.

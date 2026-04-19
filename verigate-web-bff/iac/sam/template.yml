@@ -31,7 +31,7 @@ Globals:
     MemorySize: 2048
     Timeout: 30
     Architectures:
-      - x86_64
+      - arm64
 
 Resources:
   WebBffFunction:

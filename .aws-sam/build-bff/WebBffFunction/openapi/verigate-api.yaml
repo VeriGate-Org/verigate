@@ -1,0 +1,440 @@
+openapi: 3.0.3
+info:
+  title: VeriGate Verification API
+  description: |
+    VeriGate is a federated verification platform that orchestrates identity,
+    business, and compliance verifications across South African government,
+    financial, and regulatory data sources.
+
+    ## Authentication
+    All API requests require authentication via one of:
+    - **API Key**: Include `X-API-Key` header with your partner API key
+    - **JWT Bearer Token**: Include `Authorization: Bearer <token>` header with a Cognito JWT
+
+    ## Rate Limiting
+    Requests are rate-limited per partner. Default: 100 requests/minute.
+    When rate-limited, you'll receive a `429 Too Many Requests` response with
+    a `Retry-After` header indicating when to retry.
+
+    ## Verification Flow
+    1. Submit a verification request via POST endpoint
+    2. Receive a `202 Accepted` with a `verificationId`
+    3. Poll the GET endpoint with the `verificationId` to check status
+    4. Final status will be one of: `SUCCEEDED`, `HARD_FAIL`, `SOFT_FAIL`, `SYSTEM_OUTAGE`
+  version: 1.0.0
+  contact:
+    name: VeriGate Engineering
+    email: engineering@verigate.co.za
+  license:
+    name: Proprietary
+    url: https://verigate.co.za/terms
+
+servers:
+  - url: https://api.verigate.co.za
+    description: Production
+  - url: https://api.dev.verigate.co.za
+    description: Development
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /api/verifications:
+    post:
+      summary: Submit a verification request
+      description: |
+        Submits a new verification request for processing. The request is
+        routed to the appropriate adapter based on the verification type.
+      operationId: submitVerification
+      tags:
+        - Verifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationRequest'
+            examples:
+              companyVerification:
+                summary: Company verification (CIPC)
+                value:
+                  verificationType: COMPANY_VERIFICATION
+                  subject:
+                    enterpriseNumber: "2020/939681/07"
+              bankVerification:
+                summary: Bank account verification (QLink)
+                value:
+                  verificationType: BANK_ACCOUNT_VERIFICATION
+                  subject:
+                    idNumber: "9001010000080"
+                    accountNumber: "1234567890"
+                    bankCode: "250655"
+              identityVerification:
+                summary: Identity verification (DHA)
+                value:
+                  verificationType: IDENTITY_VERIFICATION
+                  subject:
+                    idNumber: "9001010000080"
+                    firstName: "John"
+                    lastName: "Doe"
+                    dateOfBirth: "1990-01-01"
+              creditCheck:
+                summary: Credit check (Bureau)
+                value:
+                  verificationType: CREDIT_CHECK
+                  subject:
+                    idNumber: "9001010000080"
+                    firstName: "John"
+                    lastName: "Doe"
+      responses:
+        '202':
+          description: Verification request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationAccepted'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+        '403':
+          description: Insufficient permissions
+        '429':
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds until the rate limit resets
+    get:
+      summary: List verifications
+      description: |
+        Returns a paginated list of verifications for the authenticated partner.
+      operationId: listVerifications
+      tags:
+        - Verifications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, IN_PROGRESS, SUCCEEDED, HARD_FAIL, SOFT_FAIL, SYSTEM_OUTAGE]
+        - name: verificationType
+          in: query
+          schema:
+            $ref: '#/components/schemas/VerificationType'
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of verifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationList'
+
+  /api/verifications/{verificationId}:
+    get:
+      summary: Get verification status
+      description: Returns the current status and results of a verification request.
+      operationId: getVerification
+      tags:
+        - Verifications
+      parameters:
+        - name: verificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Verification status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationStatus'
+        '404':
+          description: Verification not found
+        '401':
+          description: Authentication required
+
+  /api/admin/partners:
+    post:
+      summary: Create a partner
+      description: Creates a new partner with default configuration.
+      operationId: createPartner
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePartnerRequest'
+      responses:
+        '201':
+          description: Partner created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
+        '403':
+          description: Admin access required
+
+  /api/admin/partners/{partnerId}/api-keys:
+    post:
+      summary: Generate API key for partner
+      description: Generates a new API key for the specified partner.
+      operationId: generateApiKey
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: partnerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: API key generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+              example:
+                apiKey: "vg_a1b2c3d4e5f6..."
+                partnerId: "partner-001"
+                keyPrefix: "vg_a1b2"
+                createdAt: "2025-01-15T10:30:00Z"
+        '403':
+          description: Admin access required
+
+  /actuator/health:
+    get:
+      summary: Health check
+      description: Returns the health status of the BFF service.
+      operationId: healthCheck
+      tags:
+        - Operations
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [UP, DOWN]
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Partner API key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Cognito JWT token
+
+  schemas:
+    VerificationType:
+      type: string
+      enum:
+        - COMPANY_VERIFICATION
+        - BANK_ACCOUNT_VERIFICATION
+        - IDENTITY_VERIFICATION
+        - WATCHLIST_SCREENING
+        - SANCTIONS_SCREENING
+        - PROPERTY_OWNERSHIP_VERIFICATION
+        - EMPLOYMENT_VERIFICATION
+        - NEGATIVE_NEWS_SCREENING
+        - FRAUD_WATCHLIST_SCREENING
+        - DOCUMENT_VERIFICATION
+        - QUALIFICATION_VERIFICATION
+        - CREDIT_CHECK
+        - TAX_COMPLIANCE_VERIFICATION
+        - INCOME_VERIFICATION
+
+    VerificationRequest:
+      type: object
+      required:
+        - verificationType
+        - subject
+      properties:
+        verificationType:
+          $ref: '#/components/schemas/VerificationType'
+        subject:
+          type: object
+          description: |
+            Verification-specific subject data. Required fields depend on
+            the verificationType.
+          additionalProperties:
+            type: string
+        callbackUrl:
+          type: string
+          format: uri
+          description: Optional webhook URL for async result notification
+
+    VerificationAccepted:
+      type: object
+      properties:
+        verificationId:
+          type: string
+          format: uuid
+        commandId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [ACCEPTED]
+        createdAt:
+          type: string
+          format: date-time
+
+    VerificationStatus:
+      type: object
+      properties:
+        verificationId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+        verificationType:
+          $ref: '#/components/schemas/VerificationType'
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, SUCCEEDED, HARD_FAIL, SOFT_FAIL, SYSTEM_OUTAGE]
+        outcome:
+          $ref: '#/components/schemas/VerificationOutcome'
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    VerificationOutcome:
+      type: object
+      nullable: true
+      properties:
+        result:
+          type: string
+          enum: [SUCCEEDED, HARD_FAIL, SOFT_FAIL, SYSTEM_OUTAGE]
+        details:
+          type: object
+          additionalProperties:
+            type: string
+        failureReason:
+          type: string
+          nullable: true
+
+    VerificationList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationStatus'
+        cursor:
+          type: string
+          nullable: true
+          description: Cursor for next page
+        totalCount:
+          type: integer
+
+    CreatePartnerRequest:
+      type: object
+      required:
+        - name
+        - contactEmail
+      properties:
+        name:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        billingPlan:
+          type: string
+          enum: [BASIC, STANDARD, ENTERPRISE]
+          default: BASIC
+
+    Partner:
+      type: object
+      properties:
+        partnerId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, SUSPENDED, PENDING]
+        contactEmail:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ApiKeyResponse:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          description: |
+            The raw API key. This is only shown once at creation time.
+            Store it securely.
+        partnerId:
+          type: string
+        keyPrefix:
+          type: string
+          description: First 8 characters of the key for identification
+        createdAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string

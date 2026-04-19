@@ -29,7 +29,11 @@ Globals:
     MemorySize: 2048
     Timeout: 30
     Runtime: java21
+    Architectures:
+      - arm64
     AutoPublishAlias: live
+    SnapStart:
+      ApplyOn: PublishedVersions
     DeploymentPreference:
       Type: AllAtOnce
     LoggingConfig:
