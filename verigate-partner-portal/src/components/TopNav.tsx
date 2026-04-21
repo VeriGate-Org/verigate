@@ -13,19 +13,6 @@ import * as React from "react";
 const ENV_LABEL = process.env.NEXT_PUBLIC_ENV || "Sandbox";
 const LOGO_SRC = process.env.NEXT_PUBLIC_LOGO || "/verigate-logo.svg";
 
-function DefaultShield({ isDark }: { isDark: boolean }) {
-  const shieldColor = isDark ? "#f37353" : "#E23D36";
-  const strokeColor = isDark ? "#1f2933" : "#FFFFFF";
-  return (
-    <span className="flex h-8 w-8 items-center justify-center" aria-hidden>
-      <svg width="32" height="32" viewBox="0 0 28 28" role="img" aria-label="VeriGate logo" shapeRendering="geometricPrecision">
-        <path fill={shieldColor} d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z" />
-        <path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke={strokeColor} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
-  );
-}
-
 function LogoMark({ src, isDark, brandingLogo, brandingLogoDark }: { src: string; isDark: boolean; brandingLogo?: string; brandingLogoDark?: string }) {
   // Prefer tenant branding logo
   const customLogo = isDark && brandingLogoDark ? brandingLogoDark : brandingLogo;
@@ -33,11 +20,7 @@ function LogoMark({ src, isDark, brandingLogo, brandingLogoDark }: { src: string
     return <Image src={customLogo} alt="Logo" className="h-8 w-auto" width={128} height={32} priority />;
   }
 
-  if (src === "/verigate-logo.svg") {
-    return <DefaultShield isDark={isDark} />;
-  }
-
-  return <Image src={src} alt="VeriGate" className="h-8 w-auto" width={128} height={128} priority />;
+  return <Image src={src} alt="VeriGate" className="h-8 w-auto" width={128} height={32} priority />;
 }
 
 // Enhanced breadcrumb mapping

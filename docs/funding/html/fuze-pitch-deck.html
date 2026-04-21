@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriGate — Fuze Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1A2E4B;
+      --dark-bg: #0F1A2E;
+      --cyan: #00B3D9;
+      --cyan-dim: rgba(0, 179, 217, 0.15);
+      --red: #E23D36;
+      --off-white: #F8FAFC;
+      --light-gray: #F1F5F9;
+      --border-gray: #E2E8F0;
+      --body-text: #334155;
+      --muted: #64748B;
+      --green: #22C55E;
+      --amber: #F59E0B;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0f1a;
+      color: var(--body-text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SLIDE SYSTEM ── */
+    .slide {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide + .slide { margin-top: 2rem; }
+
+    .slide-dark {
+      background: linear-gradient(160deg, #0F1A2E, #1A2E4B, #1a3a5c);
+      color: #fff;
+    }
+
+    .slide-light {
+      background: #fff;
+      color: var(--body-text);
+    }
+
+    .slide-accent {
+      background: linear-gradient(160deg, #0d2440, #1A2E4B, #0F1A2E);
+      color: #fff;
+    }
+
+    /* Starfield overlay for dark slides */
+    .slide-dark::before, .slide-accent::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 75% 25%, rgba(0, 179, 217, 0.08) 0%, transparent 55%),
+        radial-gradient(circle 1.5px at 10% 20%, rgba(255,255,255,0.10) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 25% 70%, rgba(255,255,255,0.07) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 40% 15%, rgba(255,255,255,0.09) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 55% 85%, rgba(255,255,255,0.06) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 70% 40%, rgba(255,255,255,0.08) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 85% 65%, rgba(255,255,255,0.10) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 15% 50%, rgba(255,255,255,0.07) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 60% 30%, rgba(255,255,255,0.06) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 90% 10%, rgba(255,255,255,0.09) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 35% 90%, rgba(255,255,255,0.07) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 48% 48%, rgba(255,255,255,0.08) 1px, transparent 1px),
+        radial-gradient(circle 1.5px at 78% 82%, rgba(255,255,255,0.06) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .slide-inner {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 3.5rem 4.5rem;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .slide-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-light .slide-number { color: var(--cyan); }
+
+    .slide-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 2.8rem;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    .slide-dark .slide-title, .slide-accent .slide-title { color: #fff; }
+    .slide-light .slide-title { color: var(--navy); }
+
+    .slide-title .hl { color: var(--cyan); }
+    .slide-title .hl-red { color: var(--red); }
+
+    .slide-subtitle {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      max-width: 680px;
+    }
+
+    .slide-dark .slide-subtitle { color: rgba(255,255,255,0.7); }
+    .slide-light .slide-subtitle { color: var(--muted); }
+
+    .body-text {
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .slide-dark .body-text { color: rgba(255,255,255,0.75); }
+    .slide-light .body-text { color: var(--body-text); }
+
+    /* ── LAYOUT HELPERS ── */
+    .flex-grow { flex: 1; }
+    .mt-auto { margin-top: auto; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mb-4 { margin-bottom: 2rem; }
+    .gap-3 { gap: 1.5rem; }
+    .gap-4 { gap: 2rem; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      flex: 1;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .four-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .card-dark {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .card-light {
+      background: var(--off-white);
+      border: 1px solid var(--border-gray);
+    }
+
+    .card-cyan {
+      background: rgba(0, 179, 217, 0.06);
+      border: 1px solid rgba(0, 179, 217, 0.2);
+    }
+
+    .card-red {
+      background: rgba(226, 61, 54, 0.06);
+      border: 1px solid rgba(226, 61, 54, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-dark .card-title { color: #fff; }
+    .slide-light .card-title { color: var(--navy); }
+
+    .card-body {
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    .slide-dark .card-body { color: rgba(255,255,255,0.65); }
+    .slide-light .card-body { color: var(--body-text); }
+
+    /* ── STAT BLOCKS ── */
+    .stat-value {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 2.8rem;
+      line-height: 1;
+      color: var(--cyan);
+    }
+
+    .stat-value.large { font-size: 3.5rem; }
+    .stat-value.red { color: var(--red); }
+    .stat-value.white { color: #fff; }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    .slide-dark .stat-label { color: rgba(255,255,255,0.5); }
+    .slide-light .stat-label { color: var(--muted); }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .tag-cyan {
+      background: rgba(0, 179, 217, 0.12);
+      border: 1px solid rgba(0, 179, 217, 0.3);
+      color: var(--cyan);
+    }
+
+    .tag-red {
+      background: rgba(226, 61, 54, 0.1);
+      border: 1px solid rgba(226, 61, 54, 0.3);
+      color: var(--red);
+    }
+
+    .tag-green {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--green);
+    }
+
+    /* ── TABLES ── */
+    table.deck-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .slide-light table.deck-table th {
+      background: var(--light-gray);
+      color: var(--navy);
+      font-weight: 700;
+      text-align: left;
+      padding: 0.55rem 0.8rem;
+      border: 1px solid var(--border-gray);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .slide-light table.deck-table td {
+      padding: 0.5rem 0.8rem;
+      border: 1px solid var(--border-gray);
+      vertical-align: top;
+    }
+
+    .slide-dark table.deck-table th {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.8);
+      font-weight: 700;
+      text-align: left;
+      padding: 0.55rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .slide-dark table.deck-table td {
+      padding: 0.5rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.75);
+      vertical-align: top;
+    }
+
+    .slide-dark table.deck-table td strong { color: #fff; }
+    .slide-light table.deck-table td strong { color: var(--navy); }
+
+    table.deck-table tr.row-highlight td {
+      background: rgba(0, 179, 217, 0.06);
+      font-weight: 600;
+    }
+
+    /* ── BULLET LISTS ── */
+    .bullet-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 1.3rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .bullet-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55rem;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .slide-dark .bullet-list li { color: rgba(255,255,255,0.75); }
+    .slide-light .bullet-list li { color: var(--body-text); }
+    .bullet-list li strong { color: var(--navy); }
+    .slide-dark .bullet-list li strong { color: #fff; }
+
+    .bullet-list.red li::before { background: var(--red); }
+
+    /* ── VERIFICATION GRID ── */
+    .verif-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.6rem;
+    }
+
+    .verif-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.6rem 0.3rem;
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.25;
+      transition: border-color 0.2s;
+    }
+
+    .verif-chip .v-icon {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+      line-height: 1;
+    }
+
+    .verif-chip.built { border-color: rgba(0, 179, 217, 0.3); }
+    .verif-chip.pending { border-color: rgba(245, 158, 11, 0.3); }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .flow-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0.8rem 1.2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      min-width: 120px;
+    }
+
+    .flow-box.highlight {
+      background: rgba(0, 179, 217, 0.1);
+      border-color: rgba(0, 179, 217, 0.35);
+      color: var(--cyan);
+    }
+
+    .flow-arrow {
+      color: rgba(255,255,255,0.25);
+      font-size: 1.4rem;
+      padding: 0 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* ── PIE CHART (CSS) ── */
+    .pie-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .pie-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    .pie-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .slide-dark .pie-legend-item { color: rgba(255,255,255,0.8); }
+
+    .pie-legend-item .pie-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      min-width: 32px;
+    }
+
+    /* ── FOOTER BAR ── */
+    .slide-footer {
+      padding: 0.8rem 4.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.68rem;
+      z-index: 1;
+      position: relative;
+    }
+
+    .slide-dark .slide-footer { color: rgba(255,255,255,0.35); }
+    .slide-accent .slide-footer { color: rgba(255,255,255,0.35); border-top-color: rgba(255,255,255,0.06); }
+
+    .slide-light .slide-footer {
+      color: var(--muted);
+      border-top: 1px solid var(--border-gray);
+    }
+
+    .footer-brand {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .slide-dark .footer-brand, .slide-accent .footer-brand { color: rgba(255,255,255,0.5); }
+    .slide-light .footer-brand { color: var(--navy); }
+    .footer-brand .fb-hl { color: var(--cyan); }
+
+    /* ── COMPETITIVE TABLE ── */
+    .comp-check { color: var(--green); font-weight: 700; font-size: 1rem; }
+    .comp-x { color: var(--red); font-weight: 700; font-size: 0.9rem; opacity: 0.6; }
+    .comp-partial { color: var(--amber); font-weight: 700; font-size: 0.9rem; }
+
+    /* ── STATUS BADGES ── */
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-done {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .badge-progress {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .badge-next {
+      background: rgba(0, 179, 217, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 179, 217, 0.25);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { size: landscape; margin: 0; }
+      html { font-size: 11px; }
+      body { background: #fff; }
+      .slide { page-break-after: always; margin: 0; box-shadow: none; aspect-ratio: auto; height: 100vh; }
+      .slide + .slide { margin-top: 0; }
+      .slide-dark, .slide-accent { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 1 — TITLE
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner" style="justify-content: center; align-items: flex-start;">
+    <div style="margin-bottom: 2rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="320" height="78" role="img" aria-label="VeriGate logo">
+        <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+          <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+          <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text>
+      </svg>
+    </div>
+    <div class="slide-title" style="font-size: 3rem; max-width: 700px;">
+      Real-Time <span class="hl">Risk Intelligence</span> for Africa
+    </div>
+    <div class="slide-subtitle" style="margin-bottom: 2rem;">
+      Cross-agency verification. AI-powered risk scoring. Conflict of interest detection. Fraud detection. Zero centralised data.
+    </div>
+    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+      <span class="tag tag-cyan">14 Verification Types</span>
+      <span class="tag tag-cyan">3 AI Modules</span>
+      <span class="tag tag-cyan">0 Centralised Databases</span>
+    </div>
+    <div style="position: absolute; bottom: 4.5rem; right: 4.5rem; text-align: right;">
+      <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 0.3rem;">Prepared for</div>
+      <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.6rem; color: #fff;">Fuz<span style="color: var(--cyan);">e</span></div>
+      <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">Digital Africa</div>
+      <div style="font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 0.5rem;">April 2026</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Arthmatic DevWorks (Pty) Ltd &bull; Cape Town, South Africa</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-light">
+  <div class="slide-inner">
+    <div class="slide-number">02 &mdash; The Problem</div>
+    <div class="slide-title" style="font-size: 2.4rem;">
+      Verification in Africa is <span class="hl-red">broken</span>.
+    </div>
+    <div class="two-col" style="margin-top: 1.5rem;">
+      <div>
+        <div class="card card-red" style="margin-bottom: 1rem;">
+          <div class="card-title" style="color: var(--red);">Fragmented Systems</div>
+          <ul class="bullet-list red">
+            <li>Onboarding a customer requires checks against <strong>6&ndash;10 disconnected agencies</strong> (DHA, CIPC, SARS, SAQA, Deeds Office, credit bureaus, sanctions lists)</li>
+            <li>Each agency has its own portal, credentials, data format, and downtime schedule</li>
+            <li>A single KYC/KYB check takes <strong>3&ndash;5 business days</strong> involving multiple teams</li>
+          </ul>
+        </div>
+        <div class="card card-red">
+          <div class="card-title" style="color: var(--red);">Invisible Corruption</div>
+          <ul class="bullet-list red">
+            <li>Conflicts of interest slip through when data lives in <strong>separate silos</strong></li>
+            <li>A procurement officer who is also a director of the bidding company is <strong>invisible</strong> without cross-source correlation</li>
+            <li>The Auditor-General flags this as a root cause of irregular expenditure <strong>every year</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom: 1.5rem;">
+          <div class="slide-number" style="color: var(--red);">The Cost of the Status Quo</div>
+        </div>
+        <div style="display: grid; gap: 1.2rem;">
+          <div>
+            <div class="stat-value red">R30B+</div>
+            <div class="stat-label">Lost annually to identity &amp; grant fraud in SA</div>
+          </div>
+          <div>
+            <div class="stat-value red">R7B+</div>
+            <div class="stat-label">Annual insurance fraud cost</div>
+          </div>
+          <div>
+            <div class="stat-value red">R1B+</div>
+            <div class="stat-label">Banks spend on fragmented KYC/AML compliance per year</div>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem; padding: 1rem; background: var(--off-white); border-left: 3px solid var(--red); border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--navy); font-weight: 600; line-height: 1.5;">
+          The root cause is architectural: there is no shared risk intelligence layer that respects data sovereignty while enabling real-time cross-agency verification.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Sources: National Treasury, SIU, SAIA, SABRIC, Auditor-General reports</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 3 — THE SOLUTION
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner">
+    <div class="slide-number">03 &mdash; The Solution</div>
+    <div class="slide-title" style="font-size: 2.4rem; margin-bottom: 1.5rem;">
+      One API. <span class="hl">14 sources.</span> Seconds, not days.
+    </div>
+    <div class="flow-row" style="margin-bottom: 2rem;">
+      <div class="flow-box">Partner<br><span style="font-size: 0.65rem; font-weight: 400; opacity: 0.6;">Bank / Govt / Law Firm</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-box highlight" style="min-width: 160px;">VeriGate API<br><span style="font-size: 0.65rem; font-weight: 400; opacity: 0.7;">Command Gateway</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+        <div class="flow-box" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; min-width: 100px;">DHA</div>
+        <div class="flow-box" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; min-width: 100px;">CIPC</div>
+        <div class="flow-box" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; min-width: 100px;">SARS</div>
+        <div class="flow-box" style="padding: 0.4rem 0.8rem; font-size: 0.7rem; min-width: 100px;">+ 11 more</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-box highlight" style="min-width: 160px;">AI Risk Engine<br><span style="font-size: 0.65rem; font-weight: 400; opacity: 0.7;">Score + Detect + Flag</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-box" style="border-color: rgba(34, 197, 94, 0.4);">Auditable<br>Response<br><span style="font-size: 0.65rem; font-weight: 400; opacity: 0.6; color: var(--green);">In seconds</span></div>
+    </div>
+    <div class="three-col">
+      <div class="card card-dark">
+        <div style="width: 32px; height: 32px; background: rgba(0,179,217,0.12); border: 1px solid rgba(0,179,217,0.25); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; color: var(--cyan); margin-bottom: 0.5rem;">RS</div>
+        <div class="card-title">Risk Signals Engine</div>
+        <div class="card-body">Aggregates results across all sources. Cross-references CIPC directorships, shareholding, property, PEP status, and sanctions to <strong style="color: var(--cyan);">automatically detect conflicts of interest</strong> and hidden relationships.</div>
+      </div>
+      <div class="card card-dark">
+        <div style="width: 32px; height: 32px; background: rgba(226,61,54,0.12); border: 1px solid rgba(226,61,54,0.25); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; color: var(--red); margin-bottom: 0.5rem;">FD</div>
+        <div class="card-title">Fraud Detector</div>
+        <div class="card-body">ML-powered detection of synthetic identities, document tampering, coordinated fraud rings, and multi-party abuse patterns across verification sources.</div>
+      </div>
+      <div class="card card-dark">
+        <div style="width: 32px; height: 32px; background: rgba(0,179,217,0.12); border: 1px solid rgba(0,179,217,0.25); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; color: var(--cyan); margin-bottom: 0.5rem;">AI</div>
+        <div class="card-title">Bedrock Common</div>
+        <div class="card-body">Shared AI infrastructure on AWS Bedrock for document OCR, entity extraction, and natural language processing of unstructured government records.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>3 AI Modules &bull; AWS Bedrock &bull; Real-Time Processing</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 4 — ARCHITECTURE
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-light">
+  <div class="slide-inner">
+    <div class="slide-number">04 &mdash; Architecture</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">
+      Data sovereignty <span class="hl">by design</span>, not by policy.
+    </div>
+    <div class="slide-subtitle mb-3">Each agency retains full control of its own data. VeriGate orchestrates, never centralises.</div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <div class="card card-cyan" style="margin-bottom: 1rem;">
+          <div class="card-title" style="color: var(--navy);">Adapter-Based Architecture</div>
+          <div class="card-body">Every verification source is a self-contained adapter module. Adding a new country means building adapters for local registries &mdash; <strong>not rebuilding the platform</strong>. This is how VeriGate scales across Africa without proportional engineering cost.</div>
+        </div>
+        <div class="card card-cyan" style="margin-bottom: 1rem;">
+          <div class="card-title" style="color: var(--navy);">Cross-Account AWS Model</div>
+          <div class="card-body">Each participating agency gets its own AWS account. VeriGate orchestrates verification across accounts without ever centralising raw data. This is a <strong>hard requirement for government adoption</strong> and extraordinarily difficult to retrofit.</div>
+        </div>
+        <div class="card card-cyan">
+          <div class="card-title" style="color: var(--navy);">Event-Driven Audit Trail</div>
+          <div class="card-body">Every verification is an immutable event &mdash; fully auditable, replayable, and analyzable. Meets POPIA, FICA, and NCR compliance requirements.</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.8rem;">Technology Stack</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.5rem;">
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">BACKEND</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">Java 21 + Spring Boot 3.3</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">COMPUTE</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">AWS Lambda (Serverless)</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">AI / ML</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">AWS Bedrock</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">MESSAGING</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">SQS FIFO + EventBridge</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">DATABASE</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">DynamoDB (Event Store)</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem 0.9rem;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cyan); font-weight: 500;">FRONTEND</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--navy);">Next.js 15.5 + React 19</div>
+          </div>
+        </div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.5rem;">Architecture Patterns</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <span class="tag tag-cyan">Clean Architecture</span>
+          <span class="tag tag-cyan">CQRS</span>
+          <span class="tag tag-cyan">Event-Driven</span>
+          <span class="tag tag-cyan">POPIA-Native</span>
+          <span class="tag tag-cyan">Serverless</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Enterprise-grade. Built for African government and financial services requirements.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 5 — CONFLICT OF INTEREST (FLAGSHIP)
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner">
+    <div class="slide-number">05 &mdash; Flagship Capability</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">
+      Automated <span class="hl">Conflict of Interest</span> Detection
+    </div>
+    <div class="slide-subtitle mb-3">No other platform in Africa cross-references CIPC directorships, shareholding, property, and PEP databases in real time to surface hidden relationships.</div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem;">Example: Procurement Fraud Detected</div>
+          <div style="display: grid; gap: 0.6rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="width: 40px; height: 40px; background: rgba(0,179,217,0.1); border: 1px solid rgba(0,179,217,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Manrope', sans-serif; font-size: 0.75rem; font-weight: 800; color: var(--cyan); flex-shrink: 0;">JD</div>
+              <div>
+                <div style="font-weight: 600; font-size: 0.85rem; color: #fff;">John Doe</div>
+                <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">Procurement Officer, Dept. of Public Works</div>
+              </div>
+            </div>
+            <div style="text-align: center; color: var(--red); font-family: 'Manrope', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">CONFLICT DETECTED</div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="width: 40px; height: 40px; background: rgba(226,61,54,0.1); border: 1px solid rgba(226,61,54,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Manrope', sans-serif; font-size: 0.65rem; font-weight: 800; color: var(--red); flex-shrink: 0;">ABC</div>
+              <div>
+                <div style="font-weight: 600; font-size: 0.85rem; color: #fff;">ABC Construction (Pty) Ltd</div>
+                <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">Bidding on R50M government tender</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; background: rgba(226,61,54,0.08); border: 1px solid rgba(226,61,54,0.2); border-radius: 8px; padding: 0.8rem; font-size: 0.78rem; color: rgba(255,255,255,0.8);">
+            <strong style="color: var(--red);">VeriGate detected:</strong> John Doe's spouse is a 35% shareholder in ABC Construction. CIPC directorship records + DeedsWeb property co-ownership confirmed shared address. Risk score: <strong style="color: var(--red);">DENY</strong>.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem;">Cross-Referenced Sources</div>
+        <div style="display: grid; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.8rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 6px;"></div>
+            <div style="font-size: 0.82rem;"><strong>CIPC</strong> &mdash; Directorships, shareholding percentages, beneficial ownership</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.8rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 6px;"></div>
+            <div style="font-size: 0.82rem;"><strong>DeedsWeb</strong> &mdash; Property co-ownership, shared addresses</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.8rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 6px;"></div>
+            <div style="font-size: 0.82rem;"><strong>Sanctions &amp; PEP</strong> &mdash; Politically Exposed Persons, watchlists</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.8rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 6px;"></div>
+            <div style="font-size: 0.82rem;"><strong>DHA</strong> &mdash; Identity, marital status, family connections</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.8rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); flex-shrink: 0; margin-top: 6px;"></div>
+            <div style="font-size: 0.82rem;"><strong>Media</strong> &mdash; Negative news, court records, public information</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>No competitor in Africa offers this capability.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 6 — MARKET OPPORTUNITY
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-light">
+  <div class="slide-inner">
+    <div class="slide-number">06 &mdash; Market Opportunity</div>
+    <div class="slide-title" style="font-size: 2.4rem; margin-bottom: 1.5rem;">
+      <span class="hl">$1.7B+</span> addressable market across Africa
+    </div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.6rem;">South Africa (Beachhead)</div>
+        <table class="deck-table" style="margin-bottom: 1.5rem;">
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Annual Spend</th>
+              <th>VeriGate Addressable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Banking &amp; Financial Services</td><td>R2&ndash;4B</td><td><strong>R800M&ndash;R1.5B</strong></td></tr>
+            <tr><td>Insurance</td><td>R1&ndash;2B</td><td><strong>R400M&ndash;R800M</strong></td></tr>
+            <tr><td>Government</td><td>R1&ndash;3B</td><td><strong>R500M&ndash;R1B</strong></td></tr>
+            <tr><td>Property &amp; Legal</td><td>R500M&ndash;R1B</td><td><strong>R200M&ndash;R400M</strong></td></tr>
+            <tr><td>Telecoms &amp; Retail</td><td>R500M&ndash;R1B</td><td><strong>R200M&ndash;R400M</strong></td></tr>
+            <tr class="row-highlight"><td><strong>Total SA TAM</strong></td><td><strong>R5&ndash;11B</strong></td><td><strong>R2.1&ndash;4.1B</strong></td></tr>
+          </tbody>
+        </table>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.6rem;">Africa (5-Year Horizon)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+          <div class="card card-light" style="padding: 0.7rem;">
+            <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--cyan);">$500M+</div>
+            <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Nigeria</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem;">
+            <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--cyan);">$400M+</div>
+            <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">East Africa</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem;">
+            <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--cyan);">$300M+</div>
+            <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">West Africa</div>
+          </div>
+          <div class="card card-light" style="padding: 0.7rem;">
+            <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--cyan);">$220M</div>
+            <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">South Africa</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.8rem;">Why Now</div>
+        <div style="display: grid; gap: 0.8rem;">
+          <div class="card card-light" style="padding: 1rem; border-left: 3px solid var(--cyan);">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 0.2rem;">POPIA Enforcement is Active</div>
+            <div style="font-size: 0.8rem; color: var(--body-text);">The Information Regulator is investigating and fining. Companies need compliant verification. VeriGate's data-sovereignty architecture is POPIA-native.</div>
+          </div>
+          <div class="card card-light" style="padding: 1rem; border-left: 3px solid var(--cyan);">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 0.2rem;">Government Digitisation Accelerating</div>
+            <div style="font-size: 0.8rem; color: var(--body-text);">DHA modernisation, SARS eFiling expansion, and integrated service delivery all create demand for cross-agency verification infrastructure.</div>
+          </div>
+          <div class="card card-light" style="padding: 1rem; border-left: 3px solid var(--cyan);">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 0.2rem;">AfCFTA Needs Cross-Border KYC</div>
+            <div style="font-size: 0.8rem; color: var(--body-text);">The African Continental Free Trade Area requires cross-border KYB/KYC for trade &mdash; VeriGate's adapter architecture is designed for this.</div>
+          </div>
+          <div class="card card-light" style="padding: 1rem; border-left: 3px solid var(--cyan);">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 0.2rem;">SARB Guidance Note 7</div>
+            <div style="font-size: 0.8rem; color: var(--body-text);">New AML/CFT guidance demands multi-source verification that manual processes cannot deliver at scale.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Global identity verification market projected to exceed $21B by 2028</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7 — BUSINESS MODEL
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner">
+    <div class="slide-number">07 &mdash; Business Model</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 1.5rem;">
+      Per-verification pricing. <span class="hl">65&ndash;80% gross margin.</span>
+    </div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.6rem;">Per-Verification Pricing</div>
+        <table class="deck-table" style="margin-bottom: 1.5rem;">
+          <thead>
+            <tr>
+              <th>Verification Type</th>
+              <th>Price / Check</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Identity (DHA)</td><td><strong>R8&ndash;R15</strong></td></tr>
+            <tr><td>Company (CIPC)</td><td><strong>R10&ndash;R20</strong></td></tr>
+            <tr><td>Sanctions Screening</td><td><strong>R5&ndash;R10</strong></td></tr>
+            <tr><td>Property (DeedsWeb)</td><td><strong>R15&ndash;R30</strong></td></tr>
+            <tr><td>Document Verification (AI)</td><td><strong>R15&ndash;R35</strong></td></tr>
+            <tr class="row-highlight"><td><strong>Full KYC Bundle</strong> (5+ checks)</td><td><strong>R40&ndash;R80</strong></td></tr>
+            <tr class="row-highlight"><td><strong>Full KYB Bundle</strong> (company + directors)</td><td><strong>R60&ndash;R120</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.6rem;">Subscription Tiers</div>
+        <table class="deck-table">
+          <thead>
+            <tr>
+              <th>Tier</th>
+              <th>Monthly</th>
+              <th>Included</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Starter</td><td>R5,000</td><td>500 verifications</td></tr>
+            <tr><td>Professional</td><td>R25,000</td><td>3,000 verifications</td></tr>
+            <tr><td>Enterprise</td><td>R75,000+</td><td>15,000+ verifications</td></tr>
+            <tr><td>Government</td><td>Custom</td><td>Custom + dedicated support</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="card card-dark" style="text-align: center; padding: 1.2rem;">
+            <div class="stat-value" style="font-size: 2.4rem;">65&ndash;80%</div>
+            <div class="stat-label">Gross margin per verification</div>
+            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.3rem;">Cost = API fees to source agencies + compute</div>
+          </div>
+          <div class="card card-dark" style="text-align: center; padding: 1.2rem;">
+            <div class="stat-value" style="font-size: 2.4rem;">5:1+</div>
+            <div class="stat-label">Target LTV:CAC ratio</div>
+            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.3rem;">Enterprise contracts are inherently sticky</div>
+          </div>
+        </div>
+        <div class="card card-dark" style="border-color: rgba(0,179,217,0.2);">
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--cyan); margin-bottom: 0.5rem;">Why It&rsquo;s Sticky</div>
+          <div class="card-body">Once an enterprise integrates VeriGate's API into its compliance or underwriting workflow, switching is expensive and risky. Verification is embedded in critical business processes &mdash; it is not a tool you swap out casually.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>SaaS &bull; Revenue scales directly with customer adoption</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8 — TRACTION
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-light">
+  <div class="slide-inner">
+    <div class="slide-number">08 &mdash; Traction</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 1.5rem;">
+      Working platform. <span class="hl">Not a prototype.</span>
+    </div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.8rem;">Milestones Achieved</div>
+        <div style="display: grid; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">Core platform architecture designed and built</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">10 of 14 verification adapters live</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">Cross-account AWS deployment validated</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">3 AI modules built and demonstrated</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">Partner portal with visual policy builder shipped</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-done">Done</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">Event-driven audit trail operational</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0; border-top: 1px solid var(--border-gray); padding-top: 0.7rem;">
+            <span class="badge badge-progress">In Progress</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">ISO 27001 certification</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-progress">In Progress</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">NCR registration</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0;">
+            <span class="badge badge-next">Next</span>
+            <span style="font-size: 0.85rem; color: var(--navy); font-weight: 500;">First pilot customers</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="card card-cyan" style="text-align: center; padding: 1.5rem;">
+            <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 3rem; color: var(--navy); line-height: 1;">TRL 6&ndash;7</div>
+            <div style="font-size: 0.8rem; color: var(--muted); font-weight: 600; margin-top: 0.3rem;">Technology Readiness Level</div>
+            <div style="font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem;">System demonstrated in relevant environment</div>
+          </div>
+        </div>
+
+        <div class="card card-light" style="margin-bottom: 1rem;">
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.5rem;">Co-Investment to Date</div>
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 2rem; color: var(--cyan); line-height: 1;">R800,000</div>
+          <div style="font-size: 0.72rem; color: var(--muted); margin-bottom: 0.6rem;">~&euro;40,000 self-funded &bull; Zero external funding</div>
+          <ul class="bullet-list" style="font-size: 0.78rem;">
+            <li>12+ months full-time engineering</li>
+            <li>AWS infrastructure &amp; testing</li>
+            <li>10 functional adapters + 3 AI modules</li>
+            <li>Partner portal design &amp; development</li>
+          </ul>
+        </div>
+
+        <div style="padding: 0.8rem; background: var(--off-white); border-left: 3px solid var(--cyan); border-radius: 0 8px 8px 0; font-size: 0.82rem; color: var(--navy); font-weight: 500; line-height: 1.5;">
+          We have done the hardest part &mdash; building a working, enterprise-grade platform with zero external funding.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Incorporated 21 December 2024 &bull; 16 months old</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 9 — REVENUE PROJECTIONS
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner">
+    <div class="slide-number">09 &mdash; Revenue Projections</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 1.5rem;">
+      Path to <span class="hl">R13.2M ARR</span> in 3 years
+    </div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <table class="deck-table" style="margin-bottom: 1.5rem;">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Customers</th>
+              <th>Monthly Verifications</th>
+              <th>MRR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Month 6</strong></td><td>2&ndash;3 pilots</td><td>20K&ndash;50K</td><td><strong>R80K&ndash;R200K</strong></td></tr>
+            <tr><td><strong>Month 12</strong></td><td>5&ndash;8 paying</td><td>100K&ndash;300K</td><td><strong>R400K&ndash;R1.2M</strong></td></tr>
+            <tr class="row-highlight"><td><strong>Month 24</strong></td><td>15&ndash;25</td><td>500K&ndash;1.5M</td><td><strong>R2M&ndash;R6M</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.6rem;">ARR Growth</div>
+        <!-- Simple bar chart -->
+        <div style="display: grid; gap: 0.8rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="font-size: 0.78rem; font-weight: 600; min-width: 50px;">Year 1</div>
+              <div style="flex: 1; height: 28px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+                <div style="width: 7%; height: 100%; background: linear-gradient(90deg, var(--cyan), #0097b8); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.7rem; font-weight: 700; color: #fff; min-width: 60px;">R900K</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="font-size: 0.78rem; font-weight: 600; min-width: 50px;">Year 2</div>
+              <div style="flex: 1; height: 28px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+                <div style="width: 32%; height: 100%; background: linear-gradient(90deg, var(--cyan), #0097b8); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.7rem; font-weight: 700; color: #fff; min-width: 60px;">R4.2M</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="font-size: 0.78rem; font-weight: 600; min-width: 50px;">Year 3</div>
+              <div style="flex: 1; height: 28px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background: linear-gradient(90deg, var(--cyan), #0097b8); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.7rem; font-weight: 700; color: #fff;">R13.2M</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.8rem;">Growth Phases</div>
+        <div style="display: grid; gap: 0.8rem;">
+          <div class="card card-dark" style="border-left: 3px solid var(--cyan);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--cyan); margin-bottom: 0.3rem;">PHASE 1 &mdash; MONTHS 1&ndash;4</div>
+            <div class="card-title">Certification &amp; First Revenue</div>
+            <div class="card-body">ISO 27001 certified. NCR registered. First 2 pilot customers onboarded. Unit economics validated.</div>
+          </div>
+          <div class="card card-dark" style="border-left: 3px solid var(--cyan);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--cyan); margin-bottom: 0.3rem;">PHASE 2 &mdash; MONTHS 4&ndash;8</div>
+            <div class="card-title">Commercial Traction</div>
+            <div class="card-body">Convert pilots to paid. Land 3&ndash;5 additional enterprise customers. Launch self-service API portal for SME market.</div>
+          </div>
+          <div class="card card-dark" style="border-left: 3px solid var(--cyan);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--cyan); margin-bottom: 0.3rem;">PHASE 3 &mdash; MONTHS 8&ndash;12</div>
+            <div class="card-title">Scale &amp; Expansion</div>
+            <div class="card-body">10+ paying customers. Nigeria/Kenya adapter scoping. Series A preparation. 2+ system integrator partnerships.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Conservative projections based on enterprise contract values</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 10 — COMPETITIVE ADVANTAGE
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-light">
+  <div class="slide-inner">
+    <div class="slide-number">10 &mdash; Competitive Advantage</div>
+    <div class="slide-title" style="font-size: 2.2rem; margin-bottom: 1.5rem;">
+      First mover in <span class="hl">unified risk intelligence</span> for Africa
+    </div>
+    <div style="flex: 1;">
+      <table class="deck-table" style="margin-bottom: 1.5rem;">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th style="text-align: center; color: var(--cyan);">VeriGate</th>
+            <th style="text-align: center;">XDS / Experian</th>
+            <th style="text-align: center;">Idenfo / Smile ID</th>
+            <th style="text-align: center;">WorldCheck</th>
+            <th style="text-align: center;">Manual (Status Quo)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Multi-source verification (14+ types)</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-partial">~</span></td></tr>
+          <tr><td><strong>Conflict of interest detection</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td></tr>
+          <tr><td><strong>AI-powered risk scoring</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-partial">~</span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-partial">~</span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td></tr>
+          <tr><td><strong>Data sovereignty (no central DB)</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td></tr>
+          <tr><td><strong>Real-time (seconds, not days)</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td></tr>
+          <tr><td><strong>Pan-African adapter architecture</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-partial">~</span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td></tr>
+          <tr><td><strong>Visual policy builder</strong></td><td style="text-align: center;"><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td><td style="text-align: center;"><span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span></td></tr>
+        </tbody>
+      </table>
+      <div class="three-col">
+        <div class="card card-cyan">
+          <div class="card-title" style="color: var(--navy);">Architecture Is the Moat</div>
+          <div class="card-body">Cross-account data sovereignty and adapter-based design are extraordinarily difficult to retrofit. VeriGate was designed for this from day one.</div>
+        </div>
+        <div class="card card-cyan">
+          <div class="card-title" style="color: var(--navy);">Network Effects</div>
+          <div class="card-body">Every new data source makes the platform more valuable for every existing customer. Customers naturally expand from 2 checks to 8+ checks.</div>
+        </div>
+        <div class="card card-cyan">
+          <div class="card-title" style="color: var(--navy);">Switching Costs</div>
+          <div class="card-body">Once integrated into compliance workflows, VeriGate becomes embedded in critical business processes. Switching is expensive and risky.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div><span class="comp-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align: middle;"><path d="M3 7.5L5.5 10L11 4" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> = Full &nbsp; <span class="comp-partial">~</span> = Partial &nbsp; <span class="comp-x"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align: middle;"><path d="M3 3L9 9M9 3L3 9" stroke="#E23D36" stroke-width="1.5" stroke-linecap="round"/></svg></span> = No</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 11 — USE OF FUNDS
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-inner">
+    <div class="slide-number">11 &mdash; Use of Funds</div>
+    <div class="slide-title" style="font-size: 2.4rem; margin-bottom: 1.5rem;">
+      <span class="hl">&euro;100,000</span> to reach market.
+    </div>
+    <div class="two-col" style="flex: 1;">
+      <div>
+        <!-- Stacked bar visual -->
+        <div style="display: grid; gap: 0.6rem;">
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">Go-to-Market</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;25,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 25%; height: 100%; background: var(--cyan); border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Enterprise sales capacity, events, collateral</div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">Production Hardening</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;20,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 20%; height: 100%; background: #0097b8; border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Tests, query-side, observability, security</div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">ISO 27001 Certification</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;15,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 15%; height: 100%; background: #007a99; border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Mandatory for government &amp; banking contracts</div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">Pilot Customer Support</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;15,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 15%; height: 100%; background: #005f78; border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Onboarding first 2&ndash;3 pilot customers</div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">Africa Expansion Research</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;10,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 10%; height: 100%; background: #004558; border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Nigeria &amp; Kenya adapter scoping</div>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+              <span style="font-size: 0.82rem; font-weight: 600;">NCR Registration + Operating</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan);">&euro;15,000</span>
+            </div>
+            <div style="height: 24px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden;">
+              <div style="width: 15%; height: 100%; background: #003040; border-radius: 6px;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.15rem;">Credit bureau access + AWS, legal, admin (12 months)</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-dark" style="border: 1px solid rgba(0,179,217,0.2); margin-bottom: 1.5rem;">
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--cyan); margin-bottom: 0.8rem;">What &euro;100K Unlocks</div>
+          <div style="display: grid; gap: 0.8rem;">
+            <div style="display: flex; gap: 0.6rem; align-items: flex-start;">
+              <div style="width: 18px; height: 18px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);"><strong style="color: #fff;">ISO 27001 certified</strong> &mdash; opens government and banking market</div>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: flex-start;">
+              <div style="width: 18px; height: 18px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);"><strong style="color: #fff;">NCR registered</strong> &mdash; unlocks credit bureau (14th adapter)</div>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: flex-start;">
+              <div style="width: 18px; height: 18px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);"><strong style="color: #fff;">Production-hardened</strong> &mdash; TRL 8&ndash;9</div>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: flex-start;">
+              <div style="width: 18px; height: 18px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);"><strong style="color: #fff;">2&ndash;3 pilot customers</strong> &mdash; first revenue</div>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: flex-start;">
+              <div style="width: 18px; height: 18px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);"><strong style="color: #fff;">Africa expansion groundwork</strong> &mdash; Nigeria &amp; Kenya ready</div>
+            </div>
+          </div>
+        </div>
+        <div class="card card-dark">
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem;">Capital Efficiency</div>
+          <div class="card-body">R800K (~&euro;40K) self-invested has produced a working TRL 6&ndash;7 platform with 10 adapters and 3 AI modules. &euro;100K from Fuze completes the journey to market. Total pre-revenue investment: ~&euro;140K for a platform targeting a $1.7B market.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>&euro;100,000 request &bull; 12-month deployment timeline</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 12 — THE ASK / CLOSE
+     ═══════════════════════════════════════════ -->
+<div class="slide slide-accent">
+  <div class="slide-inner" style="justify-content: center;">
+    <div style="max-width: 780px;">
+      <div style="margin-bottom: 2rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="280" height="68" role="img" aria-label="VeriGate logo">
+          <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+            <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+            <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2">VeriGate</text>
+        </svg>
+      </div>
+      <div class="slide-title" style="font-size: 2.6rem; margin-bottom: 1rem;">
+        The platform is built.<br>The market is ready.<br><span class="hl">We need the right partner.</span>
+      </div>
+      <div class="slide-subtitle" style="font-size: 1.05rem; margin-bottom: 2.5rem;">
+        VeriGate is infrastructure that makes every bank, insurer, law firm, and government department in Africa more secure, more compliant, and faster. It makes every startup in the ecosystem that depends on verification more viable.
+      </div>
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <div>
+          <div class="stat-value" style="font-size: 2.2rem;">&euro;100K</div>
+          <div class="stat-label">Funding Request</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size: 2.2rem;">14</div>
+          <div class="stat-label">Verification Types</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size: 2.2rem;">$1.7B+</div>
+          <div class="stat-label">Addressable Market</div>
+        </div>
+        <div>
+          <div class="stat-value" style="font-size: 2.2rem;">TRL 6&ndash;7</div>
+          <div class="stat-label">Working Platform</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 2rem; align-items: center;">
+        <div>
+          <div style="font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.1rem; color: #fff;">Arthur Manena &amp; Mhlonipheni Ntleko</div>
+          <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">Co-Founders &mdash; CEO &amp; CTO</div>
+        </div>
+        <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.15);"></div>
+        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+          info@arthmatic.co.za
+        </div>
+        <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+          arthmatic.co.za
+        </div>
+        <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+          Cape Town, South Africa
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="footer-brand">Veri<span class="fb-hl">Gate</span></div>
+    <div>Arthmatic DevWorks (Pty) Ltd &bull; Fuze Application &bull; April 2026</div>
+  </div>
+</div>
+
+</body>
+</html>
