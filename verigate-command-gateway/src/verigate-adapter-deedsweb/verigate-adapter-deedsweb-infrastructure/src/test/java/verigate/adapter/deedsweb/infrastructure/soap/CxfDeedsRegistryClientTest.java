@@ -159,6 +159,20 @@ class CxfDeedsRegistryClientTest {
         PermanentException.class, () -> client.findPropertiesByIdNumber("8001015009087", "T"));
   }
 
+  @Test
+  void findPropertiesByIdNumber_htmlResponse_throwsPermanent() {
+    when(port.getPropertySummaryInformationByIDNumber(
+            anyString(), eq("T"), anyString(), anyString()))
+        .thenThrow(
+            new WebServiceException("Unexpected Content-Type: text/html; charset=UTF-8"));
+
+    PermanentException ex =
+        assertThrows(
+            PermanentException.class,
+            () -> client.findPropertiesByIdNumber("8001015009087", "T"));
+    assertTrue(ex.getMessage().toLowerCase().contains("html"));
+  }
+
   // ---------------- Fan-out behaviour under partial failures ----------------
 
   @Test

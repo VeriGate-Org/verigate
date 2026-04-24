@@ -34,6 +34,21 @@ public final class SoapErrorClassifier {
         || lower.contains("login");
   }
 
+  /**
+   * Returns true if the transport error message indicates the server returned an HTML page
+   * instead of a SOAP XML response. This typically happens when the CXF server receives a
+   * request on the base service URL and responds with its service-listing page.
+   */
+  public static boolean isHtmlResponseError(String message) {
+    if (message == null) {
+      return false;
+    }
+    String lower = message.toLowerCase(Locale.ROOT);
+    return lower.contains("unexpected content type")
+        || lower.contains("text/html")
+        || (lower.contains("html") && lower.contains("content"));
+  }
+
   /** Maps a SOAP fault to a {@link TransientException} or {@link PermanentException}. */
   public static RuntimeException classifyFault(SOAPFaultException fault) {
     String reason = fault.getMessage();

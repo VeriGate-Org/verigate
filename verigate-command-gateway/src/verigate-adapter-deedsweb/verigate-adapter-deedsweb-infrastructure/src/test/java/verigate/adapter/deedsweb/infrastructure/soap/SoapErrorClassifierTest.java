@@ -57,4 +57,31 @@ class SoapErrorClassifierTest {
     assertInstanceOf(TransientException.class, result);
     assertTrue(result.getMessage().contains("SOAP fault"));
   }
+
+  // ---------------- HTML response detection ----------------
+
+  @Test
+  void isHtmlResponseError_detectsUnexpectedContentType() {
+    assertTrue(SoapErrorClassifier.isHtmlResponseError("Unexpected Content-Type: text/html"));
+    assertTrue(SoapErrorClassifier.isHtmlResponseError("UNEXPECTED CONTENT TYPE received"));
+  }
+
+  @Test
+  void isHtmlResponseError_detectsTextHtml() {
+    assertTrue(SoapErrorClassifier.isHtmlResponseError("Response content type was text/html"));
+    assertTrue(SoapErrorClassifier.isHtmlResponseError("text/html; charset=UTF-8"));
+  }
+
+  @Test
+  void isHtmlResponseError_detectsHtmlContent() {
+    assertTrue(SoapErrorClassifier.isHtmlResponseError("HTML content returned by server"));
+  }
+
+  @Test
+  void isHtmlResponseError_rejectsNonHtmlMessages() {
+    assertFalse(SoapErrorClassifier.isHtmlResponseError(null));
+    assertFalse(SoapErrorClassifier.isHtmlResponseError(""));
+    assertFalse(SoapErrorClassifier.isHtmlResponseError("connect timed out"));
+    assertFalse(SoapErrorClassifier.isHtmlResponseError("Internal service error"));
+  }
 }

@@ -9,14 +9,18 @@ package verigate.adapter.deedsweb.infrastructure.soap;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import domain.exceptions.PermanentException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -72,7 +76,9 @@ class CxfDeedsRegistryClientWireMockTest {
 
   @Test
   void getOfficeRegistryList_parsesSoapResponse() throws Exception {
-    UrlPattern path = urlMatching("/deeds-registration-soap.*");
+    // Stub the operation-specific path that OperationUrlInterceptor will target.
+    UrlPattern operationPath =
+        urlEqualTo("/deeds-registration-soap/getOfficeRegistryList");
     String body =
         """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -92,7 +98,7 @@ class CxfDeedsRegistryClientWireMockTest {
         </soap:Envelope>
         """;
     wireMock.stubFor(
-        post(path)
+        post(operationPath)
             .willReturn(
                 aResponse()
                     .withStatus(200)
@@ -106,11 +112,18 @@ class CxfDeedsRegistryClientWireMockTest {
     assertEquals("Pretoria", offices.get(0).fullDescription());
     assertEquals("J", offices.get(1).officeCode());
     assertEquals("Johannesburg", offices.get(1).fullDescription());
+
+    // Verify the request hit the operation-specific URL, not the base URL.
+    wireMock.verify(
+        postRequestedFor(
+            urlEqualTo("/deeds-registration-soap/getOfficeRegistryList")));
   }
 
   @Test
   void findPropertiesByIdNumber_parsesSoapResponseAndForwardsCredentials() throws Exception {
-    UrlPattern path = urlMatching("/deeds-registration-soap.*");
+    // Stub the operation-specific path for getPropertySummaryInformationByIDNumber.
+    UrlPattern operationPath =
+        urlEqualTo("/deeds-registration-soap/getPropertySummaryInformationByIDNumber");
     String body =
         """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -136,7 +149,7 @@ class CxfDeedsRegistryClientWireMockTest {
         </soap:Envelope>
         """;
     wireMock.stubFor(
-        post(path)
+        post(operationPath)
             // Verify credentials are forwarded in the SOAP body.
             .withRequestBody(containing("alice"))
             .withRequestBody(containing("s3cret"))
@@ -156,5 +169,36 @@ class CxfDeedsRegistryClientWireMockTest {
     assertEquals("Jane Doe", property.getRegisteredOwnerName());
     assertEquals("8001015009087", property.getRegisteredOwnerIdNumber());
     assertTrue(property.getPropertyDescription().contains("Erf 101"));
+
+    // Verify the request hit the operation-specific URL.
+    wireMock.verify(
+        postRequestedFor(
+            urlEqualTo(
+                "/deeds-registration-soap/getPropertySummaryInformationByIDNumber")));
+  }
+
+  @Test
+  void htmlResponse_throwsPermanentException() {
+    // Simulate the CXF server returning its HTML service-listing page when the
+    // request hits the base URL instead of an operation-specific path.
+    wireMock.stubFor(
+        post(urlMatching("/deeds-registration-soap.*"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/html; charset=UTF-8")
+                    .withBody(
+                        """
+                        <html>
+                        <body>
+                        <h1>Available SOAP services:</h1>
+                        <p>No services have been found.</p>
+                        </body>
+                        </html>
+                        """)));
+
+    assertThrows(
+        PermanentException.class,
+        () -> client.findPropertiesByIdNumber("8001015009087", "T"));
   }
 }

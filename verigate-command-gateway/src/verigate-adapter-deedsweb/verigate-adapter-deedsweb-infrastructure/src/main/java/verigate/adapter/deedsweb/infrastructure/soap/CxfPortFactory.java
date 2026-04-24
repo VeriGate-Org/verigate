@@ -8,7 +8,9 @@ package verigate.adapter.deedsweb.infrastructure.soap;
 
 import jakarta.xml.ws.BindingProvider;
 import java.util.Map;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -46,6 +48,12 @@ public final class CxfPortFactory {
     logging.setLimit(LOG_PAYLOAD_LIMIT_BYTES);
     factory.getFeatures().add(logging);
 
+    // Register the operation-URL interceptor so CXF appends the SOAP operation
+    // name to the endpoint path. DeedsWeb's CXF server uses URL-based dispatch
+    // (one path per operation); without this, requests hit the base URL and get
+    // the HTML service-listing page instead of a SOAP response.
+    factory.getOutInterceptors().add(new OperationUrlInterceptor());
+
     DeedsRegistrationEnquiryService port =
         (DeedsRegistrationEnquiryService) factory.create();
 
@@ -54,18 +62,25 @@ public final class CxfPortFactory {
     Map<String, Object> requestContext = bindingProvider.getRequestContext();
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
 
-    // Configure HTTP timeouts.
-    HTTPConduit conduit =
-        (HTTPConduit) org.apache.cxf.frontend.ClientProxy.getClient(port).getConduit();
+    // Configure HTTP timeouts and TLS.
+    HTTPConduit conduit = (HTTPConduit) ClientProxy.getClient(port).getConduit();
     HTTPClientPolicy policy = new HTTPClientPolicy();
     policy.setConnectionTimeout(config.getConnectionTimeoutMs());
     policy.setReceiveTimeout(config.getReadTimeoutMs());
     policy.setAllowChunking(false);
-    // The DeedsWeb endpoint is plain HTTP/1.1; CXF 4.x's HttpClient-based
-    // conduit otherwise tries HTTP/2 first which causes RST_STREAM errors
-    // against servers that don't support h2c.
+    // Force HTTP/1.1 — CXF 4.x's HttpClient-based conduit otherwise tries HTTP/2
+    // first which causes RST_STREAM errors against servers that don't support h2.
     policy.setVersion("1.1");
     conduit.setClient(policy);
+
+    // Explicitly configure TLS for HTTPS endpoints so CXF uses the JVM's default
+    // trust store rather than falling back to conduit-level defaults.
+    if (endpoint.toLowerCase().startsWith("https")) {
+      TLSClientParameters tls = new TLSClientParameters();
+      tls.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
+      tls.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
+      conduit.setTlsClientParameters(tls);
+    }
 
     LOGGER.info(
         "Built DeedsWeb SOAP proxy: endpoint={}, connectTimeoutMs={}, readTimeoutMs={}",
