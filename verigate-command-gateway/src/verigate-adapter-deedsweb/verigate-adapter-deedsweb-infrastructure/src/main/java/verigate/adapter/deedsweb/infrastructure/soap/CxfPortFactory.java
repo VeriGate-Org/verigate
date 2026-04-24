@@ -73,17 +73,14 @@ public final class CxfPortFactory {
     policy.setVersion("1.1");
     conduit.setClient(policy);
 
-    // Explicitly configure TLS for HTTPS endpoints so CXF uses the JVM's default
-    // trust store rather than falling back to conduit-level defaults.
+    // Configure TLS for HTTPS endpoints. CXF's X509TrustManagerWrapper does its
+    // own hostname verification that fails to match wildcard certificates (e.g.
+    // *.deeds.gov.za vs deedssoap.deeds.gov.za). Disabling the CN check lets CXF
+    // build its own SSLContext from the JVM's default trust store while skipping
+    // the broken hostname check in the trust manager wrapper. The JVM's SSL engine
+    // still performs standard certificate chain validation.
     if (endpoint.toLowerCase().startsWith("https")) {
       TLSClientParameters tls = new TLSClientParameters();
-      tls.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
-      tls.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
-      // Disable CXF's own CN check in its X509TrustManagerWrapper. CXF wraps the
-      // JVM trust manager and adds a redundant hostname verification pass that
-      // fails to match wildcard certificates (e.g. *.deeds.gov.za). The JVM's
-      // built-in hostname verifier handles wildcards correctly and is already
-      // active via setUseHttpsURLConnectionDefaultHostnameVerifier above.
       tls.setDisableCNCheck(true);
       conduit.setTlsClientParameters(tls);
     }
