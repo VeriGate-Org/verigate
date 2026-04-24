@@ -462,17 +462,29 @@ public class CxfDeedsRegistryClient implements DeedsRegistryClient {
       }
       throw (TransientException) mapped;
     } catch (WebServiceException e) {
-      throw classifyTransport(e);
+      RuntimeException classified = classifyTransport(e);
+      if (classified instanceof PermanentException pe) {
+        throw pe;
+      }
+      throw (TransientException) classified;
     }
   }
 
-  private static TransientException classifyTransport(WebServiceException e) {
-    String message = e.getMessage() == null ? "" : e.getMessage().toLowerCase(Locale.ROOT);
-    if (message.contains("401") || message.contains("unauthor")) {
-      // Surface as permanent by upgrading — auth issues should not be retried.
-      throw new PermanentException("DeedsWeb rejected the request: " + e.getMessage(), e);
+  private static RuntimeException classifyTransport(WebServiceException e) {
+    String message = e.getMessage() == null ? "" : e.getMessage();
+    String lower = message.toLowerCase(Locale.ROOT);
+    if (lower.contains("401") || lower.contains("unauthor")) {
+      // Surface as permanent — auth issues should not be retried.
+      return new PermanentException("DeedsWeb rejected the request: " + message, e);
     }
-    return new TransientException("DeedsWeb transport error: " + e.getMessage(), e);
+    if (SoapErrorClassifier.isHtmlResponseError(message)) {
+      // The server returned HTML instead of SOAP XML. This indicates a dispatch
+      // misconfiguration (e.g. request hit the base URL instead of an operation-
+      // specific path). Retrying will not help.
+      return new PermanentException(
+          "DeedsWeb returned HTML instead of SOAP XML (dispatch error): " + message, e);
+    }
+    return new TransientException("DeedsWeb transport error: " + message, e);
   }
 
   @FunctionalInterface

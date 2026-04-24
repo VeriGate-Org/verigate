@@ -270,8 +270,73 @@ Resources:
 
                 results["tests"]["traceroute"] = trace_result
 
+            # Test 5: Raw SOAP POST (diagnostic for URL-based dispatch)
+            if event.get('soap_test', False):
+                print(f"[TEST 5] Raw SOAP POST dispatch test")
+                soap_envelope = (
+                    '<?xml version="1.0" encoding="UTF-8"?>'
+                    '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
+                    ' xmlns:ns="http://enquiry.service.registration.deeds.gov.za/">'
+                    '<soap:Body><ns:getOfficeRegistryList/></soap:Body>'
+                    '</soap:Envelope>'
+                )
+                soap_headers = {
+                    'Content-Type': 'text/xml; charset=UTF-8',
+                    'SOAPAction': 'getOfficeRegistryList',
+                    'User-Agent': 'VeriGate-Connectivity-Test/1.0',
+                }
+
+                soap_results = {}
+                # 5a: POST to base URL (expected: HTML service listing)
+                base_soap_url = url.rstrip('/') + '/'
+                print(f"  5a: POST to base URL: {base_soap_url}")
+                try:
+                    start_time = time.time()
+                    resp = http.request('POST', base_soap_url,
+                                       body=soap_envelope.encode('utf-8'),
+                                       headers=soap_headers)
+                    elapsed_time = time.time() - start_time
+                    body_text = resp.data.decode('utf-8', errors='replace')[:1000]
+                    is_html = '<html' in body_text.lower() or '<!doctype' in body_text.lower()
+                    soap_results["base_url"] = {
+                        "url": base_soap_url,
+                        "status": "HTML_LISTING" if is_html else "SOAP_RESPONSE",
+                        "http_status": resp.status,
+                        "is_html": is_html,
+                        "response_time_seconds": round(elapsed_time, 3),
+                        "response_preview": body_text[:500],
+                    }
+                    print(f"    HTTP {resp.status}, is_html={is_html}")
+                except Exception as e:
+                    soap_results["base_url"] = {"status": "FAILED", "error": str(e)[:500]}
+
+                # 5b: POST to operation-specific URL (expected: SOAP XML)
+                op_soap_url = url.rstrip('/') + '/getOfficeRegistryList'
+                print(f"  5b: POST to operation URL: {op_soap_url}")
+                try:
+                    start_time = time.time()
+                    resp = http.request('POST', op_soap_url,
+                                       body=soap_envelope.encode('utf-8'),
+                                       headers=soap_headers)
+                    elapsed_time = time.time() - start_time
+                    body_text = resp.data.decode('utf-8', errors='replace')[:1000]
+                    is_soap = '<soap:Envelope' in body_text or '<soap:envelope' in body_text.lower()
+                    soap_results["operation_url"] = {
+                        "url": op_soap_url,
+                        "status": "SOAP_RESPONSE" if is_soap else "UNEXPECTED",
+                        "http_status": resp.status,
+                        "is_soap_xml": is_soap,
+                        "response_time_seconds": round(elapsed_time, 3),
+                        "response_preview": body_text[:500],
+                    }
+                    print(f"    HTTP {resp.status}, is_soap={is_soap}")
+                except Exception as e:
+                    soap_results["operation_url"] = {"status": "FAILED", "error": str(e)[:500]}
+
+                results["tests"]["soap_dispatch"] = soap_results
+
             # Overall Assessment
-            core_tests = {k: v for k, v in results["tests"].items() if k != "traceroute"}
+            core_tests = {k: v for k, v in results["tests"].items() if k not in ("traceroute", "soap_dispatch")}
             all_tests_passed = all(
                 test.get("status") == "SUCCESS"
                 for test in core_tests.values()
