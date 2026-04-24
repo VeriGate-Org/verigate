@@ -27,7 +27,7 @@ public class EnvironmentConstants {
 
   // Default values
   public static final String DEFAULT_BASE_URL =
-      "http://deedssoap.deeds.gov.za:80/deeds-registration-soap/";
+      "https://deedssoap.deeds.gov.za:443/deeds-registration-soap/";
   public static final String DEFAULT_CREDENTIALS_SECRET_NAME = "verigate/deedsweb/credentials";
   public static final String DEFAULT_CONNECTION_TIMEOUT_MS = "30000";
   public static final String DEFAULT_READ_TIMEOUT_MS = "60000";

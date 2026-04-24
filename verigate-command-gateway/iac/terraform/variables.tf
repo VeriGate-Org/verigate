@@ -217,7 +217,7 @@ variable "cipc_api_key" {
 variable "deedsweb_api_url" {
   description = "DeedsWeb SOAP endpoint base URL (read by the verify-property-ownership Lambda as DEEDSWEB_BASE_URL)"
   type        = string
-  default     = "http://deedssoap.deeds.gov.za:80/deeds-registration-soap/"
+  default     = "https://deedssoap.deeds.gov.za:443/deeds-registration-soap/"
 }
 
 variable "employment_api_url" {
