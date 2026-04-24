@@ -351,6 +351,10 @@ Resources:
                 if test_name == "traceroute":
                     reached = test_result.get("reached_target", False)
                     print(f"{'✓' if reached else '✗'} traceroute: {'REACHED' if reached else 'NOT REACHED'} ({test_result['total_hops_probed']} hops probed)")
+                elif test_name == "soap_dispatch":
+                    base = test_result.get("base_url", {}).get("status", "N/A")
+                    op = test_result.get("operation_url", {}).get("status", "N/A")
+                    print(f"  soap_dispatch: base_url={base}, operation_url={op}")
                 else:
                     status_icon = "✓" if test_result["status"] == "SUCCESS" else "✗"
                     print(f"{status_icon} {test_name}: {test_result['status']}")

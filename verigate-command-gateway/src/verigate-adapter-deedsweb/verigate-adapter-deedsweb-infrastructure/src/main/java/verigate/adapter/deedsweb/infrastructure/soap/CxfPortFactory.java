@@ -79,6 +79,12 @@ public final class CxfPortFactory {
       TLSClientParameters tls = new TLSClientParameters();
       tls.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
       tls.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
+      // Disable CXF's own CN check in its X509TrustManagerWrapper. CXF wraps the
+      // JVM trust manager and adds a redundant hostname verification pass that
+      // fails to match wildcard certificates (e.g. *.deeds.gov.za). The JVM's
+      // built-in hostname verifier handles wildcards correctly and is already
+      // active via setUseHttpsURLConnectionDefaultHostnameVerifier above.
+      tls.setDisableCNCheck(true);
       conduit.setTlsClientParameters(tls);
     }
 
