@@ -142,8 +142,13 @@ Resources:
                 }
             }
 
-            hostname = url.replace("http://", "").replace("https://", "").split("/")[0]
-            port = 443 if url.startswith("https://") else 80
+            host_port = url.replace("http://", "").replace("https://", "").split("/")[0]
+            if ":" in host_port:
+                hostname, port_str = host_port.rsplit(":", 1)
+                port = int(port_str)
+            else:
+                hostname = host_port
+                port = 443 if url.startswith("https://") else 80
 
             # Test 1: DNS Resolution
             print(f"[TEST 1] DNS Resolution for: {hostname}")

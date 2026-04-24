@@ -7,7 +7,7 @@ deedsweb.username=PASTE_YOUR_USERNAME_HERE
 deedsweb.password=PASTE_YOUR_PASSWORD_HERE
 
 # OPTIONAL: Override the SOAP endpoint (defaults to the production registry).
-# deedsweb.base.url=http://deedssoap.deeds.gov.za:80/deeds-registration-soap/
+# deedsweb.base.url=https://deedssoap.deeds.gov.za:443/deeds-registration-soap/
 
 # REQUIRED: Enable the gated live tests.
 integration.test.enabled=true
