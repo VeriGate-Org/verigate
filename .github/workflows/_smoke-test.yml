@@ -94,8 +94,8 @@ jobs:
           RESOURCE_PREFIX="${{ inputs.resource-prefix || vars.STACK_NAME }}"
           TABLES=(
             "${RESOURCE_PREFIX}-command-store-table"
-            "${RESOURCE_PREFIX}-partner-table"
-            "${RESOURCE_PREFIX}-partner-configuration-table"
+            "${RESOURCE_PREFIX}-partner-hub"
+            "${RESOURCE_PREFIX}-api-keys-table"
           )
 
           for T in "${TABLES[@]}"; do
