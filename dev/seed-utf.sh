@@ -71,8 +71,8 @@ $AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --it
 {
   "partnerId":  {"S": "$PARTNER_ID"},
   "entityType": {"S": "PROFILE"},
-  "data":       {"S": "{\"companyName\":\"Urban Task Force\",\"contactEmail\":\"hr@utf.co.za\",\"website\":\"https://urbantaskforce.co.za\",\"webhookUrl\":\"https://hooks.urbantaskforce.co.za/verigate\",\"industry\":\"Real Estate\",\"country\":\"ZA\"}"},
-  "slug":       {"S": "urbantaskforce"},
+  "data":       {"S": "{\"companyName\":\"Urban Task Force\",\"contactEmail\":\"hr@utf.co.za\",\"website\":\"https://urbantaskforce.co.za\",\"webhookUrl\":\"https://hooks.urbantaskforce.co.za/verigate\",\"industry\":\"Real Estate\",\"country\":\"ZA\",\"name\":\"Urban Task Force\",\"slug\":\"utf\",\"primaryColor\":\"#1a56db\",\"accentColor\":\"#e74c3c\",\"tagline\":\"Verify with confidence\"}"},
+  "slug":       {"S": "utf"},
   "updatedAt":  {"S": "2025-06-01T10:30:00Z"}
 }
 EOF
