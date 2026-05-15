@@ -37,9 +37,9 @@ $AWS dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region "$REGION"
 
-# 3. verification-command-store (PK: commandId, GSI: partner-index on partnerId + statusCreatedAt)
+# 3. verigate-command-store (PK: commandId, GSI: partner-index on partnerId + statusCreatedAt)
 $AWS dynamodb create-table \
-  --table-name verification-command-store \
+  --table-name verigate-command-store \
   --attribute-definitions \
     AttributeDefinition={AttributeName=commandId,AttributeType=S} \
     AttributeDefinition={AttributeName=partnerId,AttributeType=S} \
@@ -51,9 +51,9 @@ $AWS dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region "$REGION"
 
-# 4. cases (PK: caseId, GSI: partner-status-index on partnerId + statusCreatedAt)
+# 4. verigate-cases (PK: caseId, GSI: partner-status-index on partnerId + statusCreatedAt)
 $AWS dynamodb create-table \
-  --table-name cases \
+  --table-name verigate-cases \
   --attribute-definitions \
     AttributeDefinition={AttributeName=caseId,AttributeType=S} \
     AttributeDefinition={AttributeName=partnerId,AttributeType=S} \
@@ -66,9 +66,9 @@ $AWS dynamodb create-table \
   --region "$REGION"
 
 
-# 5. monitored-subjects (PK: subjectId, GSI: partner-status-index on partnerId + statusNextCheck)
+# 5. verigate-monitored-subjects (PK: subjectId, GSI: partner-status-index on partnerId + statusNextCheck)
 $AWS dynamodb create-table \
-  --table-name monitored-subjects \
+  --table-name verigate-monitored-subjects \
   --attribute-definitions \
     AttributeDefinition={AttributeName=subjectId,AttributeType=S} \
     AttributeDefinition={AttributeName=partnerId,AttributeType=S} \
@@ -80,9 +80,9 @@ $AWS dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region "$REGION"
 
-# 6. monitoring-alerts (PK: alertId, GSI: partner-subject-index on partnerId + subjectIdCreatedAt)
+# 6. verigate-monitoring-alerts (PK: alertId, GSI: partner-subject-index on partnerId + subjectIdCreatedAt)
 $AWS dynamodb create-table \
-  --table-name monitoring-alerts \
+  --table-name verigate-monitoring-alerts \
   --attribute-definitions \
     AttributeDefinition={AttributeName=alertId,AttributeType=S} \
     AttributeDefinition={AttributeName=partnerId,AttributeType=S} \
@@ -94,9 +94,9 @@ $AWS dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region "$REGION"
 
-# 7. risk-assessments (PK: verificationId — no GSI needed by BFF code)
+# 7. verigate-risk-assessments (PK: verificationId — no GSI needed by BFF code)
 $AWS dynamodb create-table \
-  --table-name risk-assessments \
+  --table-name verigate-risk-assessments \
   --attribute-definitions \
     AttributeDefinition={AttributeName=verificationId,AttributeType=S} \
   --key-schema \

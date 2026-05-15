@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
 @Testcontainers
 class VerificationApiIntegrationIT {
 
-  private static final String COMMAND_STORE_TABLE = "verification-command-store";
+  private static final String COMMAND_STORE_TABLE = "verigate-command-store";
   private static final String API_KEYS_TABLE = "verigate-api-keys";
   private static final String PARTNER_HUB_TABLE = "verigate-partner-hub";
   private static final String SQS_QUEUE_NAME = "verify-party";

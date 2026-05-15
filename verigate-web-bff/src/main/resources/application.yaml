@@ -50,21 +50,21 @@ verigate:
   verification:
     queue-name: ${VERIGATE_VERIFICATION_QUEUE_NAME:verify-party}
     command-store:
-      table-name: ${VERIGATE_COMMAND_STORE_TABLE:verification-command-store}
+      table-name: ${VERIGATE_COMMAND_STORE_TABLE:verigate-command-store}
     response:
       poll-timeout-ms: ${VERIGATE_RESPONSE_POLL_TIMEOUT_MS:50}
       poll-max-attempts: ${VERIGATE_RESPONSE_POLL_MAX_ATTEMPTS:1}
   cases:
-    table-name: ${VERIGATE_CASES_TABLE:cases}
+    table-name: ${VERIGATE_CASES_TABLE:verigate-cases}
   monitoring:
-    subjects-table-name: ${VERIGATE_MONITORING_SUBJECTS_TABLE:monitored-subjects}
-    alerts-table-name: ${VERIGATE_MONITORING_ALERTS_TABLE:monitoring-alerts}
+    subjects-table-name: ${VERIGATE_MONITORING_SUBJECTS_TABLE:verigate-monitored-subjects}
+    alerts-table-name: ${VERIGATE_MONITORING_ALERTS_TABLE:verigate-monitoring-alerts}
   ai:
     risk-enhancement:
       table-name: ${VERIGATE_AI_RISK_ENHANCEMENT_TABLE:ai-risk-enhancements}
   risk:
     assessment:
-      table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}
+      table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:verigate-risk-assessments}
   healthcheck:
     overall-timeout-seconds: 25
     snapshot-table-name: ${VERIGATE_HEALTH_SNAPSHOT_TABLE_NAME:health-snapshots}

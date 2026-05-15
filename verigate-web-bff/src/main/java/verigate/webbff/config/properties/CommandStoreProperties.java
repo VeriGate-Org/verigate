@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "verigate.verification.command-store")
 public class CommandStoreProperties {
 
-  private String tableName = "verification-command-store";
+  private String tableName = "verigate-command-store";
 
   public String getTableName() {
     return tableName;

@@ -5,8 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "verigate.monitoring")
 public class MonitoringProperties {
 
-  private String subjectsTableName = "monitored-subjects";
-  private String alertsTableName = "monitoring-alerts";
+  private String subjectsTableName = "verigate-monitored-subjects";
+  private String alertsTableName = "verigate-monitoring-alerts";
 
   public String getSubjectsTableName() {
     return subjectsTableName;

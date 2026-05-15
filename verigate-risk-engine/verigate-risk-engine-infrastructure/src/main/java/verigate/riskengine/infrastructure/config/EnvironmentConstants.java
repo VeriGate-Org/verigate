@@ -15,6 +15,6 @@ public final class EnvironmentConstants {
     public static final String VERIFICATION_WORKFLOWS_TABLE_NAME = "VERIFICATION_WORKFLOWS_TABLE_NAME";
 
     public static final String DEFAULT_PARTNER_HUB_TABLE = "verigate-partner-hub";
-    public static final String DEFAULT_RISK_ASSESSMENTS_TABLE = "risk-assessments";
-    public static final String DEFAULT_VERIFICATION_WORKFLOWS_TABLE = "verification-workflows";
+    public static final String DEFAULT_RISK_ASSESSMENTS_TABLE = "verigate-risk-assessments";
+    public static final String DEFAULT_VERIFICATION_WORKFLOWS_TABLE = "verigate-verification-workflows";
 }

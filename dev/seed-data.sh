@@ -152,7 +152,7 @@ echo "  3 policies seeded."
 # ─── Verifications ────────────────────────────────────────────────────
 
 # Verification 1: COMPLETED
-$AWS dynamodb put-item --table-name verification-command-store --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-command-store --region "$REGION" --item "$(cat <<EOF
 {
   "commandId":       {"S": "cmd-v001"},
   "commandName":     {"S": "VerifyParty"},
@@ -166,7 +166,7 @@ EOF
 )"
 
 # Verification 2: COMPLETED
-$AWS dynamodb put-item --table-name verification-command-store --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-command-store --region "$REGION" --item "$(cat <<EOF
 {
   "commandId":       {"S": "cmd-v002"},
   "commandName":     {"S": "VerifyParty"},
@@ -180,7 +180,7 @@ EOF
 )"
 
 # Verification 3: PENDING (in progress)
-$AWS dynamodb put-item --table-name verification-command-store --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-command-store --region "$REGION" --item "$(cat <<EOF
 {
   "commandId":       {"S": "cmd-v003"},
   "commandName":     {"S": "VerifyParty"},
@@ -194,7 +194,7 @@ EOF
 )"
 
 # Verification 4: PERMANENT_FAILURE (failed)
-$AWS dynamodb put-item --table-name verification-command-store --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-command-store --region "$REGION" --item "$(cat <<EOF
 {
   "commandId":       {"S": "cmd-v004"},
   "commandName":     {"S": "VerifyParty"},
@@ -209,7 +209,7 @@ EOF
 )"
 
 # Verification 5: COMPLETED
-$AWS dynamodb put-item --table-name verification-command-store --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-command-store --region "$REGION" --item "$(cat <<EOF
 {
   "commandId":       {"S": "cmd-v005"},
   "commandName":     {"S": "VerifyParty"},
@@ -226,7 +226,7 @@ echo "  5 verifications seeded."
 # ─── Risk Assessments ─────────────────────────────────────────────────
 
 # Assessment 1: APPROVE (score 85)
-$AWS dynamodb put-item --table-name risk-assessments --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-risk-assessments --region "$REGION" --item "$(cat <<EOF
 {
   "verificationId":       {"S": "cmd-v001"},
   "assessmentId":         {"S": "ra-001"},
@@ -243,7 +243,7 @@ EOF
 )"
 
 # Assessment 2: REJECT (score 42)
-$AWS dynamodb put-item --table-name risk-assessments --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-risk-assessments --region "$REGION" --item "$(cat <<EOF
 {
   "verificationId":       {"S": "cmd-v002"},
   "assessmentId":         {"S": "ra-002"},
@@ -260,7 +260,7 @@ EOF
 )"
 
 # Assessment 3: MANUAL_REVIEW (score 63)
-$AWS dynamodb put-item --table-name risk-assessments --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-risk-assessments --region "$REGION" --item "$(cat <<EOF
 {
   "verificationId":       {"S": "cmd-v005"},
   "assessmentId":         {"S": "ra-003"},
@@ -296,7 +296,7 @@ echo "  Risk scoring config seeded."
 # ─── Cases ────────────────────────────────────────────────────────────
 
 # Case 1: OPEN
-$AWS dynamodb put-item --table-name cases --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-cases --region "$REGION" --item "$(cat <<EOF
 {
   "caseId":              {"S": "case-001"},
   "verificationId":      {"S": "cmd-v002"},
@@ -318,7 +318,7 @@ EOF
 )"
 
 # Case 2: IN_REVIEW (assigned)
-$AWS dynamodb put-item --table-name cases --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-cases --region "$REGION" --item "$(cat <<EOF
 {
   "caseId":              {"S": "case-002"},
   "verificationId":      {"S": "cmd-v005"},
@@ -341,7 +341,7 @@ EOF
 )"
 
 # Case 3: RESOLVED
-$AWS dynamodb put-item --table-name cases --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-cases --region "$REGION" --item "$(cat <<EOF
 {
   "caseId":              {"S": "case-003"},
   "verificationId":      {"S": "cmd-v001"},
@@ -370,7 +370,7 @@ echo "  3 cases seeded."
 # ─── Monitored Subjects ──────────────────────────────────────────────
 
 # Subject 1: ACTIVE (weekly)
-$AWS dynamodb put-item --table-name monitored-subjects --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-monitored-subjects --region "$REGION" --item "$(cat <<EOF
 {
   "subjectId":            {"S": "subj-001"},
   "partnerId":            {"S": "$PARTNER_ID"},
@@ -393,7 +393,7 @@ EOF
 )"
 
 # Subject 2: PAUSED
-$AWS dynamodb put-item --table-name monitored-subjects --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-monitored-subjects --region "$REGION" --item "$(cat <<EOF
 {
   "subjectId":            {"S": "subj-002"},
   "partnerId":            {"S": "$PARTNER_ID"},
@@ -419,7 +419,7 @@ echo "  2 monitored subjects seeded."
 # ─── Monitoring Alerts ────────────────────────────────────────────────
 
 # Alert 1: HIGH severity — score drop
-$AWS dynamodb put-item --table-name monitoring-alerts --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-monitoring-alerts --region "$REGION" --item "$(cat <<EOF
 {
   "alertId":              {"S": "alert-001"},
   "subjectId":            {"S": "subj-002"},
@@ -440,7 +440,7 @@ EOF
 )"
 
 # Alert 2: MEDIUM severity — new sanctions match
-$AWS dynamodb put-item --table-name monitoring-alerts --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-monitoring-alerts --region "$REGION" --item "$(cat <<EOF
 {
   "alertId":              {"S": "alert-002"},
   "subjectId":            {"S": "subj-001"},
@@ -463,7 +463,7 @@ EOF
 )"
 
 # Alert 3: LOW severity — routine check
-$AWS dynamodb put-item --table-name monitoring-alerts --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-monitoring-alerts --region "$REGION" --item "$(cat <<EOF
 {
   "alertId":              {"S": "alert-003"},
   "subjectId":            {"S": "subj-001"},

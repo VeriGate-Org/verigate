@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "verigate.risk.assessment")
 public class RiskAssessmentProperties {
 
-  private String tableName = "risk-assessments";
+  private String tableName = "verigate-risk-assessments";
 
   public String getTableName() {
     return tableName;

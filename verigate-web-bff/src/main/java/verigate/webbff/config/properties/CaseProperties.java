@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "verigate.cases")
 public class CaseProperties {
 
-  private String tableName = "cases";
+  private String tableName = "verigate-cases";
 
   public String getTableName() {
     return tableName;
