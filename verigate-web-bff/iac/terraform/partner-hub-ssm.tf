@@ -9,7 +9,8 @@ data "aws_ssm_parameter" "partner_hub_table_name" {
 }
 
 resource "aws_ssm_parameter" "partner_hub_table_name" {
-  name  = "/${local.name_prefix}/dynamodb/partner-hub/name"
-  type  = "String"
-  value = data.aws_ssm_parameter.partner_hub_table_name.value
+  name      = "/${local.name_prefix}/dynamodb/partner-hub/name"
+  type      = "String"
+  value     = data.aws_ssm_parameter.partner_hub_table_name.value
+  overwrite = true
 }

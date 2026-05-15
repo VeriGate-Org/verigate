@@ -39,7 +39,8 @@ module "health_snapshots_table" {
 }
 
 resource "aws_ssm_parameter" "health_snapshots_table_name" {
-  name  = "/${local.name_prefix}/tables/health-snapshots/name"
-  type  = "String"
-  value = module.health_snapshots_table.table_name
+  name      = "/${local.name_prefix}/tables/health-snapshots/name"
+  type      = "String"
+  value     = module.health_snapshots_table.table_name
+  overwrite = true
 }
