@@ -51,6 +51,14 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform apply
+        run: |
+          terraform -chdir=./verigate-web-bff/iac/terraform init -backend-config=./environments/dev/config.s3.tfbackend
+          terraform -chdir=./verigate-web-bff/iac/terraform apply -var-file=./environments/dev/terraform.tfvars -auto-approve -input=false
+
       - name: SAM build
         run: MAVEN_OPTS="-Dmaven.test.skip=true" sam build -t verigate-web-bff/iac/sam/template.yaml
 
