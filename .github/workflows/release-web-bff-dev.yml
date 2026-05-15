@@ -1,6 +1,7 @@
 name: Release | Web BFF Develop
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "main"
