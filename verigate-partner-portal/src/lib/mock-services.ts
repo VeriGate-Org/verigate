@@ -754,6 +754,31 @@ function generateExtractedFieldsForType(documentType: string, documentNumber: st
         expiryDate: { value: "2030-01-15", confidence: conf() },
         issueDate: { value: "2020-01-15", confidence: conf() },
       };
+    case "asylum_seeker_permit":
+      return {
+        fullName: { value: "Jean-Pierre Mukendi", confidence: conf() },
+        permitNumber: { value: documentNumber, confidence: conf() },
+        dateOfBirth: { value: "1990-06-15", confidence: conf() },
+        gender: { value: "Male", confidence: conf() },
+        nationality: { value: "Congolese", confidence: conf() },
+        status: { value: "Asylum Seeker", confidence: conf() },
+        applicationDate: { value: "2023-08-10", confidence: conf() },
+        expiryDate: { value: "2026-08-10", confidence: conf() },
+        refugeeOffice: { value: "Pretoria Refugee Reception Office", confidence: conf() },
+      };
+    case "general_work_permit":
+      return {
+        fullName: { value: "Amara Okafor", confidence: conf() },
+        permitNumber: { value: documentNumber, confidence: conf() },
+        dateOfBirth: { value: "1988-03-22", confidence: conf() },
+        gender: { value: "Female", confidence: conf() },
+        nationality: { value: "Nigerian", confidence: conf() },
+        status: { value: "Work Permit Holder", confidence: conf() },
+        employer: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
+        issueDate: { value: "2024-01-15", confidence: conf() },
+        expiryDate: { value: "2027-01-15", confidence: conf() },
+        permitCategory: { value: "General Work Visa - Section 19(2)", confidence: conf() },
+      };
     case "b_bbee_certificate":
       return {
         companyName: { value: "Karisani Technologies (Pty) Ltd", confidence: conf() },
@@ -808,15 +833,32 @@ function generateExtractedFieldsForType(documentType: string, documentNumber: st
 }
 
 function generateValidationChecks(documentType: string, documentNumber: string, rnd: () => number): ValidationCheck[] {
-  if (!["id_card", "passport", "drivers_license"].includes(documentType)) return [];
-  const luhnValid = rnd() > 0.1;
-  return [
-    { name: "FORMAT_CHECK", status: "PASS", detail: "Valid 13-digit format" },
-    { name: "DOB_CHECK", status: "PASS", detail: "Date of birth: 1985-01-01" },
-    { name: "GENDER_CHECK", status: "PASS", detail: "Gender: Male" },
-    { name: "CITIZENSHIP_CHECK", status: "PASS", detail: "SA Citizen" },
-    { name: "LUHN_CHECK", status: luhnValid ? "PASS" : "FAIL", detail: luhnValid ? "Valid checksum" : "Invalid Luhn checksum" },
-  ];
+  if (["id_card", "passport", "drivers_license"].includes(documentType)) {
+    const luhnValid = rnd() > 0.1;
+    return [
+      { name: "FORMAT_CHECK", status: "PASS", detail: "Valid 13-digit format" },
+      { name: "DOB_CHECK", status: "PASS", detail: "Date of birth: 1985-01-01" },
+      { name: "GENDER_CHECK", status: "PASS", detail: "Gender: Male" },
+      { name: "CITIZENSHIP_CHECK", status: "PASS", detail: "SA Citizen" },
+      { name: "LUHN_CHECK", status: luhnValid ? "PASS" : "FAIL", detail: luhnValid ? "Valid checksum" : "Invalid Luhn checksum" },
+    ];
+  }
+  if (documentType === "asylum_seeker_permit") {
+    return [
+      { name: "FORMAT_CHECK", status: "PASS", detail: "Valid permit number format" },
+      { name: "EXPIRY_CHECK", status: "PASS", detail: "Permit not expired" },
+      { name: "DHA_REGISTRY_CHECK", status: "PASS", detail: "Permit found in DHA registry" },
+    ];
+  }
+  if (documentType === "general_work_permit") {
+    return [
+      { name: "FORMAT_CHECK", status: "PASS", detail: "Valid permit number format" },
+      { name: "EXPIRY_CHECK", status: "PASS", detail: "Permit not expired" },
+      { name: "DHA_REGISTRY_CHECK", status: "PASS", detail: "Permit found in DHA registry" },
+      { name: "EMPLOYER_CHECK", status: "PASS", detail: "Employer details verified" },
+    ];
+  }
+  return [];
 }
 
 export function generateDocumentVerificationResponse({ documentType, documentNumber }: DocumentVerificationRequest): DocumentVerificationResponse {

@@ -22,15 +22,42 @@ import {
 } from "@/lib/bff-client";
 import { FileCheck, CheckCircle2, XCircle, Shield, AlertTriangle } from "lucide-react";
 
-const DOCUMENT_TYPES = [
-  { value: "id_card", label: "SA ID Card" },
-  { value: "passport", label: "Passport" },
-  { value: "drivers_license", label: "Driver's License" },
-  { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
-  { value: "tax_certificate", label: "Tax Clearance Certificate" },
-  { value: "financial_statement", label: "Financial Statement" },
-  { value: "cipc_registration", label: "CIPC Registration" },
-  { value: "utility_bill", label: "Utility Bill" },
+const DOCUMENT_TYPE_GROUPS = [
+  {
+    label: "Identity Documents",
+    types: [
+      { value: "id_card", label: "SA ID Card" },
+      { value: "passport", label: "Passport" },
+      { value: "drivers_license", label: "Driver's License" },
+    ],
+  },
+  {
+    label: "Permits",
+    types: [
+      { value: "asylum_seeker_permit", label: "Asylum Seeker Permit" },
+      { value: "general_work_permit", label: "General Work Permit" },
+    ],
+  },
+  {
+    label: "Business Documents",
+    types: [
+      { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
+      { value: "cipc_registration", label: "CIPC Registration" },
+    ],
+  },
+  {
+    label: "Financial Documents",
+    types: [
+      { value: "tax_certificate", label: "Tax Clearance Certificate" },
+      { value: "financial_statement", label: "Financial Statement" },
+    ],
+  },
+  {
+    label: "Proof of Address",
+    types: [
+      { value: "utility_bill", label: "Utility Bill" },
+    ],
+  },
 ];
 
 function confidenceColor(confidence: number): string {
@@ -176,7 +203,7 @@ function TamperingSection({ indicators }: { indicators: TamperingIndicators }) {
 
 export default function DocumentVerification() {
   const [documentType, setDocumentType] = useState<string>(
-    DOCUMENT_TYPES[0]?.value ?? ""
+    DOCUMENT_TYPE_GROUPS[0]?.types[0]?.value ?? ""
   );
   const [documentNumber, setDocumentNumber] = useState("");
   const [result, setResult] = useState<DocumentVerificationResponse | null>(
@@ -332,10 +359,14 @@ export default function DocumentVerification() {
                 value={documentType}
                 onChange={(event) => setDocumentType(event.target.value)}
               >
-                {DOCUMENT_TYPES.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
+                {DOCUMENT_TYPE_GROUPS.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.types.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </ServiceField>
