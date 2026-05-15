@@ -46,7 +46,7 @@ Resources:
       CodeUri: ../../verigate-risk-engine-infrastructure
       Environment:
         Variables:
-          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
           RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
           VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
       Events:
@@ -67,7 +67,7 @@ Resources:
       CodeUri: ../../verigate-risk-engine-infrastructure
       Environment:
         Variables:
-          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
           RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
           VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
       Events:

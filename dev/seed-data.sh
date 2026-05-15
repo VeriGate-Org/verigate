@@ -49,11 +49,12 @@ EOF
 )"
 echo "  API key seeded."
 
-# ─── Partner ──────────────────────────────────────────────────────────
+# ─── Partner Metadata (partner-hub) ─────────────────────────────────
 
-$AWS dynamodb put-item --table-name verigate-partner-table --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
   "partnerId":     {"S": "$PARTNER_ID"},
+  "entityType":    {"S": "METADATA"},
   "name":          {"S": "Acme Financial Services"},
   "contactEmail":  {"S": "admin@acme-financial.co.za"},
   "billingPlan":   {"S": "PROFESSIONAL"},
@@ -62,29 +63,26 @@ $AWS dynamodb put-item --table-name verigate-partner-table --region "$REGION" --
 }
 EOF
 )"
-echo "  Partner seeded."
+echo "  Partner metadata seeded."
 
-# ─── Partner Profile (partner-data, single-table) ─────────────────────
+# ─── Partner Profile (partner-hub) ──────────────────────────────────
 
-$AWS dynamodb put-item --table-name verigate-partner-data --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
-  "PK":         {"S": "PARTNER#$PARTNER_ID"},
-  "SK":         {"S": "PROFILE"},
   "partnerId":  {"S": "$PARTNER_ID"},
   "entityType": {"S": "PROFILE"},
   "data":       {"S": "{\"companyName\":\"Acme Financial Services\",\"contactEmail\":\"admin@acme-financial.co.za\",\"website\":\"https://acme-financial.co.za\",\"webhookUrl\":\"https://hooks.acme-financial.co.za/verigate\",\"industry\":\"Financial Services\",\"country\":\"ZA\"}"},
+  "slug":       {"S": "acme-financial"},
   "updatedAt":  {"S": "2025-01-15T10:30:00Z"}
 }
 EOF
 )"
 echo "  Partner profile seeded."
 
-# ─── Notifications (partner-data) ─────────────────────────────────────
+# ─── Notifications (partner-hub) ────────────────────────────────────
 
-$AWS dynamodb put-item --table-name verigate-partner-data --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
-  "PK":         {"S": "PARTNER#$PARTNER_ID"},
-  "SK":         {"S": "NOTIFICATIONS"},
   "partnerId":  {"S": "$PARTNER_ID"},
   "entityType": {"S": "NOTIFICATIONS"},
   "data":       {"S": "{\"emailEnabled\":true,\"webhookEnabled\":true,\"emailRecipients\":[\"admin@acme-financial.co.za\",\"compliance@acme-financial.co.za\"],\"notifyOn\":[\"VERIFICATION_COMPLETED\",\"VERIFICATION_FAILED\",\"CASE_CREATED\",\"ALERT_HIGH\"]}"},
@@ -94,55 +92,58 @@ EOF
 )"
 echo "  Notifications seeded."
 
-# ─── Policies ─────────────────────────────────────────────────────────
+# ─── Policies (partner-hub) ─────────────────────────────────────────
 
 # Policy 1: PUBLISHED — ID + AVS + SANCTIONS
-$AWS dynamodb put-item --table-name policies --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
-  "partnerPolicyId": {"S": "pol-001"},
-  "partnerId":       {"S": "$PARTNER_ID"},
-  "name":            {"S": "Standard KYC"},
-  "description":     {"S": "Standard identity verification with address and sanctions screening"},
-  "stepsJson":       {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true},{\"type\":\"AVS\",\"provider\":\"default\",\"required\":true},{\"type\":\"SANCTIONS\",\"provider\":\"default\",\"required\":true}]"},
+  "partnerId":         {"S": "$PARTNER_ID"},
+  "entityType":        {"S": "POLICY#pol-001"},
+  "partnerPolicyId":   {"S": "pol-001"},
+  "name":              {"S": "Standard KYC"},
+  "description":       {"S": "Standard identity verification with address and sanctions screening"},
+  "stepsJson":         {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true},{\"type\":\"AVS\",\"provider\":\"default\",\"required\":true},{\"type\":\"SANCTIONS\",\"provider\":\"default\",\"required\":true}]"},
   "scoringConfigJson": {"S": "{\"weights\":{\"ID\":40,\"AVS\":30,\"SANCTIONS\":30},\"passThreshold\":70}"},
-  "status":          {"S": "PUBLISHED"},
-  "version":         {"N": "1"},
-  "createdAt":       {"S": "2025-02-01T09:00:00"},
-  "updatedAt":       {"S": "2025-02-01T09:00:00"}
+  "status":            {"S": "PUBLISHED"},
+  "version":           {"N": "1"},
+  "createdAt":         {"S": "2025-02-01T09:00:00"},
+  "updatedAt":         {"S": "2025-02-01T09:00:00"}
 }
 EOF
 )"
 
 # Policy 2: DRAFT — ID + CREDIT
-$AWS dynamodb put-item --table-name policies --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
-  "partnerPolicyId": {"S": "pol-002"},
-  "partnerId":       {"S": "$PARTNER_ID"},
-  "name":            {"S": "Credit Check Flow"},
-  "description":     {"S": "Identity verification with credit bureau check"},
-  "stepsJson":       {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true},{\"type\":\"CREDIT\",\"provider\":\"default\",\"required\":true}]"},
+  "partnerId":         {"S": "$PARTNER_ID"},
+  "entityType":        {"S": "POLICY#pol-002"},
+  "partnerPolicyId":   {"S": "pol-002"},
+  "name":              {"S": "Credit Check Flow"},
+  "description":       {"S": "Identity verification with credit bureau check"},
+  "stepsJson":         {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true},{\"type\":\"CREDIT\",\"provider\":\"default\",\"required\":true}]"},
   "scoringConfigJson": {"S": "{\"weights\":{\"ID\":50,\"CREDIT\":50},\"passThreshold\":65}"},
-  "status":          {"S": "DRAFT"},
-  "version":         {"N": "1"},
-  "createdAt":       {"S": "2025-03-01T14:00:00"},
-  "updatedAt":       {"S": "2025-03-01T14:00:00"}
+  "status":            {"S": "DRAFT"},
+  "version":           {"N": "1"},
+  "createdAt":         {"S": "2025-03-01T14:00:00"},
+  "updatedAt":         {"S": "2025-03-01T14:00:00"}
 }
 EOF
 )"
 
 # Policy 3: ARCHIVED
-$AWS dynamodb put-item --table-name policies --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
-  "partnerPolicyId": {"S": "pol-003"},
-  "partnerId":       {"S": "$PARTNER_ID"},
-  "name":            {"S": "Legacy Basic Check"},
-  "description":     {"S": "Deprecated: basic ID-only verification"},
-  "stepsJson":       {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true}]"},
+  "partnerId":         {"S": "$PARTNER_ID"},
+  "entityType":        {"S": "POLICY#pol-003"},
+  "partnerPolicyId":   {"S": "pol-003"},
+  "name":              {"S": "Legacy Basic Check"},
+  "description":       {"S": "Deprecated: basic ID-only verification"},
+  "stepsJson":         {"S": "[{\"type\":\"ID\",\"provider\":\"default\",\"required\":true}]"},
   "scoringConfigJson": {"S": "{\"weights\":{\"ID\":100},\"passThreshold\":60}"},
-  "status":          {"S": "ARCHIVED"},
-  "version":         {"N": "2"},
-  "createdAt":       {"S": "2024-06-15T08:00:00"},
-  "updatedAt":       {"S": "2025-01-20T16:00:00"}
+  "status":            {"S": "ARCHIVED"},
+  "version":           {"N": "2"},
+  "createdAt":         {"S": "2024-06-15T08:00:00"},
+  "updatedAt":         {"S": "2025-01-20T16:00:00"}
 }
 EOF
 )"
@@ -276,11 +277,12 @@ EOF
 )"
 echo "  3 risk assessments seeded."
 
-# ─── Risk Scoring Config ──────────────────────────────────────────────
+# ─── Risk Scoring Config (partner-hub) ──────────────────────────────
 
-$AWS dynamodb put-item --table-name risk-scoring-config --region "$REGION" --item "$(cat <<EOF
+$AWS dynamodb put-item --table-name verigate-partner-hub --region "$REGION" --item "$(cat <<EOF
 {
   "partnerId":         {"S": "$PARTNER_ID"},
+  "entityType":        {"S": "RISK_SCORING"},
   "strategy":          {"S": "WEIGHTED_AVERAGE"},
   "weightsJson":       {"S": "{\"ID\":35,\"AVS\":25,\"SANCTIONS\":20,\"CREDIT\":20}"},
   "tiersJson":         {"S": "[{\"tier\":\"LOW\",\"minScore\":75,\"maxScore\":100,\"decision\":\"APPROVE\"},{\"tier\":\"MEDIUM\",\"minScore\":50,\"maxScore\":74,\"decision\":\"MANUAL_REVIEW\"},{\"tier\":\"HIGH\",\"minScore\":0,\"maxScore\":49,\"decision\":\"REJECT\"}]"},

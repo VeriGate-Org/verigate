@@ -43,9 +43,10 @@ public class DynamoDbPartnerConfigurationRepository implements PartnerConfigurat
         try {
             QueryResponse response = dynamoDbClient.query(QueryRequest.builder()
                 .tableName(tableName)
-                .keyConditionExpression("partnerId = :pid")
+                .keyConditionExpression("partnerId = :pid AND begins_with(entityType, :prefix)")
                 .expressionAttributeValues(Map.of(
-                    ":pid", AttributeValue.builder().s(partnerId).build()))
+                    ":pid", AttributeValue.builder().s(partnerId).build(),
+                    ":prefix", AttributeValue.builder().s("CONFIG#").build()))
                 .build());
 
             if (!response.hasItems() || response.items().isEmpty()) {
@@ -90,9 +91,10 @@ public class DynamoDbPartnerConfigurationRepository implements PartnerConfigurat
         try {
             QueryResponse response = dynamoDbClient.query(QueryRequest.builder()
                 .tableName(tableName)
-                .keyConditionExpression("partnerId = :pid")
+                .keyConditionExpression("partnerId = :pid AND begins_with(entityType, :prefix)")
                 .expressionAttributeValues(Map.of(
-                    ":pid", AttributeValue.builder().s(partnerId).build()))
+                    ":pid", AttributeValue.builder().s(partnerId).build(),
+                    ":prefix", AttributeValue.builder().s("CONFIG#").build()))
                 .build());
 
             for (Map<String, AttributeValue> item : response.items()) {
@@ -100,7 +102,7 @@ public class DynamoDbPartnerConfigurationRepository implements PartnerConfigurat
                     .tableName(tableName)
                     .key(Map.of(
                         "partnerId", item.get("partnerId"),
-                        "configurationType", item.get("configurationType")))
+                        "entityType", item.get("entityType")))
                     .build());
             }
             return true;
@@ -113,7 +115,7 @@ public class DynamoDbPartnerConfigurationRepository implements PartnerConfigurat
     private void saveConfigItem(String partnerId, String configurationType, String json) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-        item.put("configurationType", AttributeValue.builder().s(configurationType).build());
+        item.put("entityType", AttributeValue.builder().s("CONFIG#" + configurationType).build());
         item.put("configurationJson", AttributeValue.builder().s(json).build());
         item.put("updatedAt", AttributeValue.builder().s(Instant.now().toString()).build());
 
@@ -130,7 +132,8 @@ public class DynamoDbPartnerConfigurationRepository implements PartnerConfigurat
         BillingConfiguration billingConfig = null;
 
         for (Map<String, AttributeValue> item : items) {
-            String type = item.get("configurationType").s();
+            String entityType = item.get("entityType").s();
+            String type = entityType.substring("CONFIG#".length());
             String json = item.get("configurationJson").s();
             try {
                 switch (type) {

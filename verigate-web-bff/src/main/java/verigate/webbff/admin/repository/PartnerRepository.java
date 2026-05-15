@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -17,6 +16,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 import verigate.webbff.admin.model.PartnerResponse;
 import verigate.webbff.admin.model.PartnerStatus;
+import verigate.webbff.config.properties.PartnerHubProperties;
 
 @Repository
 public class PartnerRepository {
@@ -29,17 +29,18 @@ public class PartnerRepository {
 
   public PartnerRepository(
       DynamoDbClient dynamoDbClient,
-      @Value("${verigate.partner.table-name}") String tableName) {
+      PartnerHubProperties partnerHubProperties) {
     this.dynamoDbClient = dynamoDbClient;
-    this.tableName = tableName;
+    this.tableName = partnerHubProperties.getTableName();
   }
 
   public Optional<PartnerResponse> findById(String partnerId) {
     GetItemResponse response = dynamoDbClient.getItem(
         GetItemRequest.builder()
             .tableName(tableName)
-            .key(Map.of("partnerId",
-                AttributeValue.builder().s(partnerId).build()))
+            .key(Map.of(
+                "partnerId", AttributeValue.builder().s(partnerId).build(),
+                "entityType", AttributeValue.builder().s("METADATA").build()))
             .build());
 
     if (!response.hasItem() || response.item().isEmpty()) {
@@ -54,7 +55,10 @@ public class PartnerRepository {
 
     do {
       ScanRequest.Builder scanBuilder = ScanRequest.builder()
-          .tableName(tableName);
+          .tableName(tableName)
+          .filterExpression("entityType = :et")
+          .expressionAttributeValues(Map.of(
+              ":et", AttributeValue.builder().s("METADATA").build()));
       if (lastKey != null) {
         scanBuilder.exclusiveStartKey(lastKey);
       }
@@ -72,8 +76,9 @@ public class PartnerRepository {
   public void updateStatus(String partnerId, PartnerStatus status) {
     dynamoDbClient.updateItem(UpdateItemRequest.builder()
         .tableName(tableName)
-        .key(Map.of("partnerId",
-            AttributeValue.builder().s(partnerId).build()))
+        .key(Map.of(
+            "partnerId", AttributeValue.builder().s(partnerId).build(),
+            "entityType", AttributeValue.builder().s("METADATA").build()))
         .updateExpression("SET partnerStatus = :status")
         .expressionAttributeValues(Map.of(
             ":status",
@@ -87,8 +92,9 @@ public class PartnerRepository {
     GetItemResponse response = dynamoDbClient.getItem(
         GetItemRequest.builder()
             .tableName(tableName)
-            .key(Map.of("partnerId",
-                AttributeValue.builder().s(partnerId).build()))
+            .key(Map.of(
+                "partnerId", AttributeValue.builder().s(partnerId).build(),
+                "entityType", AttributeValue.builder().s("METADATA").build()))
             .projectionExpression("partnerStatus")
             .build());
 

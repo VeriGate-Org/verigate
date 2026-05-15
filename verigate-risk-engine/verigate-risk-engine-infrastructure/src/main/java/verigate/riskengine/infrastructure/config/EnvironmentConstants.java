@@ -10,11 +10,11 @@ public final class EnvironmentConstants {
 
     private EnvironmentConstants() {}
 
-    public static final String RISK_SCORING_CONFIG_TABLE_NAME = "RISK_SCORING_CONFIG_TABLE_NAME";
+    public static final String PARTNER_HUB_TABLE_NAME = "VERIGATE_PARTNER_HUB_TABLE";
     public static final String RISK_ASSESSMENTS_TABLE_NAME = "RISK_ASSESSMENTS_TABLE_NAME";
     public static final String VERIFICATION_WORKFLOWS_TABLE_NAME = "VERIFICATION_WORKFLOWS_TABLE_NAME";
 
-    public static final String DEFAULT_RISK_SCORING_CONFIG_TABLE = "risk-scoring-config";
+    public static final String DEFAULT_PARTNER_HUB_TABLE = "verigate-partner-hub";
     public static final String DEFAULT_RISK_ASSESSMENTS_TABLE = "risk-assessments";
     public static final String DEFAULT_VERIFICATION_WORKFLOWS_TABLE = "verification-workflows";
 }

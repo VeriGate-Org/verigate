@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VeriGate -- Real-Time Risk Intelligence Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --navy: #1A2E4B;
@@ -20,7 +23,9 @@
       --dark-bg: #0F1A2E;
     }
 
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -43,7 +48,7 @@
       margin: 0 auto;
       background: #fff;
       border-top: 3px solid var(--red);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 30px rgba(0, 0, 0, 0.08);
     }
 
     /* ── HERO ── */
@@ -61,23 +66,23 @@
       inset: 0;
       background:
         radial-gradient(circle at 75% 25%, rgba(0, 179, 217, 0.12) 0%, transparent 55%),
-        radial-gradient(circle 1px at 10% 20%, rgba(255,255,255,0.12) 1px, transparent 1px),
-        radial-gradient(circle 1px at 20% 60%, rgba(255,255,255,0.08) 1px, transparent 1px),
-        radial-gradient(circle 1px at 35% 15%, rgba(255,255,255,0.10) 1px, transparent 1px),
-        radial-gradient(circle 1px at 50% 80%, rgba(255,255,255,0.07) 1px, transparent 1px),
-        radial-gradient(circle 1px at 65% 40%, rgba(255,255,255,0.09) 1px, transparent 1px),
-        radial-gradient(circle 1px at 80% 70%, rgba(255,255,255,0.11) 1px, transparent 1px),
-        radial-gradient(circle 1px at 90% 30%, rgba(255,255,255,0.08) 1px, transparent 1px),
-        radial-gradient(circle 1px at 15% 85%, rgba(255,255,255,0.06) 1px, transparent 1px),
-        radial-gradient(circle 1px at 45% 45%, rgba(255,255,255,0.10) 1px, transparent 1px),
-        radial-gradient(circle 1px at 72% 12%, rgba(255,255,255,0.09) 1px, transparent 1px),
-        radial-gradient(circle 1px at 55% 55%, rgba(255,255,255,0.07) 1px, transparent 1px),
-        radial-gradient(circle 1px at 30% 35%, rgba(255,255,255,0.08) 1px, transparent 1px),
-        radial-gradient(circle 1px at 85% 90%, rgba(255,255,255,0.06) 1px, transparent 1px),
-        radial-gradient(circle 1px at 5% 50%, rgba(255,255,255,0.09) 1px, transparent 1px),
-        radial-gradient(circle 1px at 60% 25%, rgba(255,255,255,0.07) 1px, transparent 1px),
-        radial-gradient(circle 1px at 40% 90%, rgba(255,255,255,0.08) 1px, transparent 1px),
-        radial-gradient(circle 1px at 95% 55%, rgba(255,255,255,0.10) 1px, transparent 1px);
+        radial-gradient(circle 1px at 10% 20%, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        radial-gradient(circle 1px at 20% 60%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle 1px at 35% 15%, rgba(255, 255, 255, 0.10) 1px, transparent 1px),
+        radial-gradient(circle 1px at 50% 80%, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        radial-gradient(circle 1px at 65% 40%, rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+        radial-gradient(circle 1px at 80% 70%, rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+        radial-gradient(circle 1px at 90% 30%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle 1px at 15% 85%, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        radial-gradient(circle 1px at 45% 45%, rgba(255, 255, 255, 0.10) 1px, transparent 1px),
+        radial-gradient(circle 1px at 72% 12%, rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+        radial-gradient(circle 1px at 55% 55%, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        radial-gradient(circle 1px at 30% 35%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle 1px at 85% 90%, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        radial-gradient(circle 1px at 5% 50%, rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+        radial-gradient(circle 1px at 60% 25%, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        radial-gradient(circle 1px at 40% 90%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle 1px at 95% 55%, rgba(255, 255, 255, 0.10) 1px, transparent 1px);
       pointer-events: none;
     }
 
@@ -103,13 +108,13 @@
       font-family: 'Manrope', sans-serif;
       font-weight: 600;
       font-size: 1.15rem;
-      color: rgba(255,255,255,0.92);
+      color: rgba(255, 255, 255, 0.92);
       margin-bottom: 0.5rem;
     }
 
     .hero-sub {
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255, 255, 255, 0.6);
       font-weight: 400;
       line-height: 1.5;
       max-width: 560px;
@@ -153,7 +158,7 @@
 
     .hero-stat-label {
       font-size: 0.65rem;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
       text-transform: uppercase;
       letter-spacing: 0.8px;
       font-weight: 500;
@@ -424,7 +429,7 @@
     .biz-model-text {
       font-size: 0.78rem;
       line-height: 1.5;
-      color: rgba(255,255,255,0.85);
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .biz-model-text strong {
@@ -492,19 +497,19 @@
     .footer-divider {
       width: 1px;
       height: 18px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .footer-company {
       font-size: 0.68rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       font-weight: 400;
     }
 
     .footer-right {
       text-align: right;
       font-size: 0.68rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .footer-right a {
@@ -524,7 +529,7 @@
       align-items: center;
       gap: 0.3rem;
       font-size: 0.68rem;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
     }
 
     .footer-contact-item .fc-icon {
@@ -574,7 +579,11 @@
         print-color-adjust: exact !important;
       }
 
-      .ps-card, .info-card, .verif-item, .diff-bullet, .tech-tag {
+      .ps-card,
+      .info-card,
+      .verif-item,
+      .diff-bullet,
+      .tech-tag {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -586,19 +595,33 @@
     }
   </style>
 </head>
+
 <body>
   <div class="page">
 
     <!-- ═══ HERO ═══ -->
     <header class="hero">
       <div class="hero-content">
-        <div style="margin-bottom: 16px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="280" height="68" role="img" aria-label="VeriGate logo"><defs><style>@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');</style></defs><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+        <div style="margin-bottom: 16px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="280"
+            height="68" role="img" aria-label="VeriGate logo">
+            <defs>
+              <style>
+                @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap');
+              </style>
+            </defs>
+            <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+              <path fill="#E23D36"
+                d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z" />
+              <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38"
+              fill="#FFFFFF" letter-spacing="-2" dominant-baseline="auto">VeriGate</text>
+          </svg></div>
         <div class="hero-tagline">Real-Time Risk Intelligence Platform</div>
         <div class="hero-sub">
           Cross-agency verification, AI-powered risk scoring, conflict of interest detection,
           and fraud detection for South Africa &mdash; without a centralised database.
         </div>
-        <div class="hero-badge">Built by Arthmatic DevWorks &bull; Cape Town, South Africa</div>
       </div>
       <div class="hero-right">
         <div class="hero-stat">
@@ -621,13 +644,22 @@
           <div class="ps-icon problem-icon">&times;</div>
           <div class="section-label">01 &mdash; The Problem</div>
           <h2>Fragmented, Manual Verification</h2>
-          <p>Verifying a person or company's identity, tax compliance, property ownership, qualifications, and creditworthiness in South Africa requires querying multiple disconnected government and private systems &mdash; DHA, CIPC, SARS, the Deeds Office, SAQA, credit bureaus, and more. The process is manual, slow, error-prone, and riddled with fraud vulnerabilities.</p>
+          <p>Verifying a person or company's identity, tax compliance, property ownership, qualifications, and
+            creditworthiness in South Africa requires querying multiple disconnected government and private systems
+            &mdash; DHA, CIPC, SARS, the Deeds Office, SAQA, credit bureaus, and more. The process is manual, slow,
+            error-prone, and riddled with fraud vulnerabilities.</p>
         </div>
         <div class="ps-card solution">
           <div class="ps-icon solution-icon">&#10003;</div>
           <div class="section-label">02 &mdash; The Solution</div>
           <h2>Orchestrated Risk Intelligence</h2>
-          <p>VeriGate routes verification requests to <strong>14+ authoritative sources</strong>, returning standardised results with built-in AI-powered risk scoring, fraud detection, and full audit trails. Each agency retains complete control of its own data &mdash; VeriGate orchestrates, never centralises. Data sovereignty is guaranteed by architecture, not by policy. By cross-referencing CIPC directorship records, shareholding data, sanctions watchlists, property ownership, and PEP databases in real time, VeriGate automatically surfaces hidden relationships &mdash; such as a procurement officer who is also a director of the bidding supplier, or an undisclosed beneficial ownership link between contracting parties.</p>
+          <p>VeriGate routes verification requests to <strong>14+ authoritative sources</strong>, returning standardised
+            results with built-in AI-powered risk scoring, fraud detection, and full audit trails. Each agency retains
+            complete control of its own data &mdash; VeriGate orchestrates, never centralises. Data sovereignty is
+            guaranteed by architecture, not by policy. By cross-referencing CIPC directorship records, shareholding
+            data, sanctions watchlists, property ownership, and PEP databases in real time, VeriGate automatically
+            surfaces hidden relationships &mdash; such as a procurement officer who is also a director of the bidding
+            supplier, or an undisclosed beneficial ownership link between contracting parties.</p>
         </div>
       </div>
 
@@ -660,31 +692,39 @@
         <div class="diff-grid">
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>Conflict of interest detection</strong> &mdash; automatically cross-references CIPC directorships, shareholding, property ownership, and PEP status to flag undisclosed relationships in procurement, onboarding, and due diligence</div>
+            <div class="diff-text"><strong>Conflict of interest detection</strong> &mdash; automatically
+              cross-references CIPC directorships, shareholding, property ownership, and PEP status to flag undisclosed
+              relationships in procurement, onboarding, and due diligence</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>No centralised database</strong> &mdash; data sovereignty by design; each agency owns its environment</div>
+            <div class="diff-text"><strong>No centralised database</strong> &mdash; data sovereignty by design; each
+              agency owns its environment</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>Adapter-based architecture</strong> &mdash; plug in any new authoritative source without re-engineering</div>
+            <div class="diff-text"><strong>Adapter-based architecture</strong> &mdash; plug in any new authoritative
+              source without re-engineering</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>AI/ML risk signals</strong> &mdash; Amazon Bedrock-powered fraud detection and composite risk scoring</div>
+            <div class="diff-text"><strong>AI/ML risk signals</strong> &mdash; Amazon Bedrock-powered fraud detection
+              and composite risk scoring</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>Visual policy builder</strong> &mdash; partners configure custom verification workflows, no code required</div>
+            <div class="diff-text"><strong>Visual policy builder</strong> &mdash; partners configure custom verification
+              workflows, no code required</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>Built for SA regulation</strong> &mdash; POPIA-compliant, designed for NCR, FICA, and sector-specific mandates</div>
+            <div class="diff-text"><strong>Built for SA regulation</strong> &mdash; POPIA-compliant, designed for NCR,
+              FICA, and sector-specific mandates</div>
           </div>
           <div class="diff-item">
             <div class="diff-bullet">&#9670;</div>
-            <div class="diff-text"><strong>Enterprise-grade stack</strong> &mdash; Java 21, Spring Boot 3.3, AWS serverless, Next.js partner portal</div>
+            <div class="diff-text"><strong>Enterprise-grade stack</strong> &mdash; Java 21, Spring Boot 3.3, AWS
+              serverless, Next.js partner portal</div>
           </div>
         </div>
       </div>
@@ -698,13 +738,17 @@
             <div style="margin-bottom: 0.35rem;"></div>
             <div class="market-figure">$21B+</div>
             <div class="market-figure-label">Global Identity Verification &amp; Risk Intelligence Market by 2028</div>
-            <p>South Africa's KYC, risk intelligence, and background screening market serves every bank, insurer, law firm, property group, and government agency. VeriGate is purpose-built for the South African regulatory landscape &mdash; a market with no equivalent real-time risk intelligence platform today.</p>
+            <p>South Africa's KYC, risk intelligence, and background screening market serves every bank, insurer, law
+              firm, property group, and government agency. VeriGate is purpose-built for the South African regulatory
+              landscape &mdash; a market with no equivalent real-time risk intelligence platform today.</p>
           </div>
           <div class="biz-model">
             <div class="biz-model-icon">&#x21C4;</div>
             <div>
-              <div class="section-label" style="color: var(--cyan); margin-bottom: 0.15rem;">06 &mdash; Business Model</div>
-              <div class="biz-model-text">SaaS: <strong>per-verification pricing</strong> with subscription tiers for the partner portal, scaling revenue directly with adoption.</div>
+              <div class="section-label" style="color: var(--cyan); margin-bottom: 0.15rem;">06 &mdash; Business Model
+              </div>
+              <div class="biz-model-text">SaaS: <strong>per-verification pricing</strong> with subscription tiers for
+                the partner portal, scaling revenue directly with adoption.</div>
             </div>
           </div>
         </div>
@@ -756,7 +800,16 @@
     <!-- ═══ FOOTER ═══ -->
     <footer class="footer">
       <div class="footer-left">
-        <div class="footer-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34" role="img" aria-label="VeriGate logo" style="vertical-align: middle;"><g transform="translate(76, 87) scale(0.42) translate(-76, -87)"><path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/><path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38" fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text></svg></div>
+        <div class="footer-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="45 58 245 60" width="140" height="34"
+            role="img" aria-label="VeriGate logo" style="vertical-align: middle;">
+            <g transform="translate(76, 87) scale(0.42) translate(-76, -87)">
+              <path fill="#E23D36"
+                d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z" />
+              <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </g><text x="108" y="101" font-family="'Manrope', sans-serif" font-weight="500" font-size="38"
+              fill="#1A1A2E" letter-spacing="-2" dominant-baseline="auto">VeriGate</text>
+          </svg></div>
         <div class="footer-divider"></div>
         <div class="footer-company">Arthmatic DevWorks (Pty) Ltd &mdash; Custom Cloud Software Development</div>
       </div>
@@ -778,4 +831,5 @@
 
   </div>
 </body>
+
 </html>

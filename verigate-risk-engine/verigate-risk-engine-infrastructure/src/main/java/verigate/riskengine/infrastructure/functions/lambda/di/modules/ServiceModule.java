@@ -75,11 +75,11 @@ public class ServiceModule extends AbstractModule {
     }
 
     @Provides
-    @Named("riskScoringConfigTableName")
-    String provideRiskScoringConfigTableName() {
+    @Named("partnerHubTableName")
+    String providePartnerHubTableName() {
         return getEnvOrDefault(
-            EnvironmentConstants.RISK_SCORING_CONFIG_TABLE_NAME,
-            EnvironmentConstants.DEFAULT_RISK_SCORING_CONFIG_TABLE);
+            EnvironmentConstants.PARTNER_HUB_TABLE_NAME,
+            EnvironmentConstants.DEFAULT_PARTNER_HUB_TABLE);
     }
 
     @Provides

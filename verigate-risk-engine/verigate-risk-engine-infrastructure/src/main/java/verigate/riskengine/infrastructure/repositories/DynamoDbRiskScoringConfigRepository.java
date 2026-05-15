@@ -11,46 +11,56 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import verigate.riskengine.domain.enums.AggregationStrategy;
 import verigate.riskengine.domain.enums.VerificationType;
 import verigate.riskengine.domain.models.OverrideRule;
 import verigate.riskengine.domain.models.RiskScoringConfig;
 import verigate.riskengine.domain.models.RiskTier;
 import verigate.riskengine.domain.services.RiskScoringConfigRepository;
-import verigate.riskengine.infrastructure.repositories.datamodels.RiskScoringConfigDataModel;
 
 public class DynamoDbRiskScoringConfigRepository implements RiskScoringConfigRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamoDbRiskScoringConfigRepository.class);
 
-    private final DynamoDbTable<RiskScoringConfigDataModel> table;
+    private final DynamoDbClient dynamoDbClient;
+    private final String tableName;
     private final ObjectMapper objectMapper;
 
     @Inject
     public DynamoDbRiskScoringConfigRepository(
-            DynamoDbEnhancedClient enhancedClient,
+            DynamoDbClient dynamoDbClient,
             ObjectMapper objectMapper,
-            @Named("riskScoringConfigTableName") String tableName) {
-        this.table = enhancedClient.table(tableName,
-            TableSchema.fromBean(RiskScoringConfigDataModel.class));
+            @Named("partnerHubTableName") String tableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.tableName = tableName;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public Optional<RiskScoringConfig> findByPartnerId(String partnerId) {
         try {
-            var item = table.getItem(Key.builder().partitionValue(partnerId).build());
-            if (item == null) return Optional.empty();
-            return Optional.of(toDomain(item));
+            GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder()
+                .tableName(tableName)
+                .key(Map.of(
+                    "partnerId", AttributeValue.builder().s(partnerId).build(),
+                    "entityType", AttributeValue.builder().s("RISK_SCORING").build()))
+                .build());
+
+            if (!response.hasItem() || response.item().isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(toDomain(response.item()));
         } catch (Exception e) {
             LOG.error("Failed to fetch risk scoring config for partnerId={}", partnerId, e);
             return Optional.empty();
@@ -60,49 +70,65 @@ public class DynamoDbRiskScoringConfigRepository implements RiskScoringConfigRep
     @Override
     public void save(RiskScoringConfig config) {
         try {
-            table.putItem(toDataModel(config));
+            dynamoDbClient.putItem(PutItemRequest.builder()
+                .tableName(tableName)
+                .item(toItem(config))
+                .build());
         } catch (Exception e) {
             LOG.error("Failed to save risk scoring config for partnerId={}", config.partnerId(), e);
             throw new RuntimeException("Failed to save risk scoring config", e);
         }
     }
 
-    private RiskScoringConfig toDomain(RiskScoringConfigDataModel model) {
+    private RiskScoringConfig toDomain(Map<String, AttributeValue> item) {
         try {
             Map<VerificationType, Double> weights = objectMapper.readValue(
-                model.getWeightsJson(), new TypeReference<>() {});
+                getStr(item, "weightsJson"), new TypeReference<>() {});
             List<RiskTier> tiers = objectMapper.readValue(
-                model.getTiersJson(), new TypeReference<>() {});
+                getStr(item, "tiersJson"), new TypeReference<>() {});
             List<OverrideRule> rules = objectMapper.readValue(
-                model.getOverrideRulesJson(), new TypeReference<>() {});
+                getStr(item, "overrideRulesJson"), new TypeReference<>() {});
 
             return new RiskScoringConfig(
-                model.getPartnerId(),
+                getStr(item, "partnerId"),
                 weights,
-                AggregationStrategy.valueOf(model.getStrategy()),
+                AggregationStrategy.valueOf(getStr(item, "strategy")),
                 tiers,
                 rules,
-                model.getVersion(),
-                Instant.parse(model.getUpdatedAt())
+                getStr(item, "version"),
+                Instant.parse(getStr(item, "updatedAt"))
             );
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize risk scoring config", e);
         }
     }
 
-    private RiskScoringConfigDataModel toDataModel(RiskScoringConfig config) {
+    private Map<String, AttributeValue> toItem(RiskScoringConfig config) {
         try {
-            return RiskScoringConfigDataModel.builder()
-                .partnerId(config.partnerId())
-                .weightsJson(objectMapper.writeValueAsString(config.weights()))
-                .strategy(config.strategy().name())
-                .tiersJson(objectMapper.writeValueAsString(config.tiers()))
-                .overrideRulesJson(objectMapper.writeValueAsString(config.overrideRules()))
-                .version(config.version())
-                .updatedAt(config.updatedAt().toString())
-                .build();
+            Map<String, AttributeValue> item = new HashMap<>();
+            item.put("partnerId", AttributeValue.builder().s(config.partnerId()).build());
+            item.put("entityType", AttributeValue.builder().s("RISK_SCORING").build());
+            item.put("weightsJson",
+                AttributeValue.builder().s(objectMapper.writeValueAsString(config.weights())).build());
+            item.put("strategy",
+                AttributeValue.builder().s(config.strategy().name()).build());
+            item.put("tiersJson",
+                AttributeValue.builder().s(objectMapper.writeValueAsString(config.tiers())).build());
+            item.put("overrideRulesJson",
+                AttributeValue.builder().s(objectMapper.writeValueAsString(config.overrideRules())).build());
+            if (config.version() != null) {
+                item.put("version", AttributeValue.builder().s(config.version()).build());
+            }
+            item.put("updatedAt",
+                AttributeValue.builder().s(config.updatedAt().toString()).build());
+            return item;
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize risk scoring config", e);
         }
+    }
+
+    private static String getStr(Map<String, AttributeValue> item, String key) {
+        AttributeValue val = item.get(key);
+        return (val != null && val.s() != null) ? val.s() : null;
     }
 }

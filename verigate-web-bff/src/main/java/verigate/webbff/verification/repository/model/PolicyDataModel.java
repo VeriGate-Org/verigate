@@ -1,12 +1,5 @@
 package verigate.webbff.verification.repository.model;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
-
-@DynamoDbBean
 public class PolicyDataModel {
 
   private String partnerPolicyId;
@@ -20,8 +13,6 @@ public class PolicyDataModel {
   private String createdAt;
   private String updatedAt;
 
-  @DynamoDbPartitionKey
-  @DynamoDbAttribute("partnerPolicyId")
   public String getPartnerPolicyId() {
     return partnerPolicyId;
   }
@@ -30,8 +21,6 @@ public class PolicyDataModel {
     this.partnerPolicyId = partnerPolicyId;
   }
 
-  @DynamoDbSecondaryPartitionKey(indexNames = "partner-status-index")
-  @DynamoDbAttribute("partnerId")
   public String getPartnerId() {
     return partnerId;
   }
@@ -40,7 +29,6 @@ public class PolicyDataModel {
     this.partnerId = partnerId;
   }
 
-  @DynamoDbAttribute("name")
   public String getName() {
     return name;
   }
@@ -49,7 +37,6 @@ public class PolicyDataModel {
     this.name = name;
   }
 
-  @DynamoDbAttribute("description")
   public String getDescription() {
     return description;
   }
@@ -58,7 +45,6 @@ public class PolicyDataModel {
     this.description = description;
   }
 
-  @DynamoDbAttribute("stepsJson")
   public String getStepsJson() {
     return stepsJson;
   }
@@ -67,7 +53,6 @@ public class PolicyDataModel {
     this.stepsJson = stepsJson;
   }
 
-  @DynamoDbAttribute("scoringConfigJson")
   public String getScoringConfigJson() {
     return scoringConfigJson;
   }
@@ -76,8 +61,6 @@ public class PolicyDataModel {
     this.scoringConfigJson = scoringConfigJson;
   }
 
-  @DynamoDbSecondarySortKey(indexNames = "partner-status-index")
-  @DynamoDbAttribute("status")
   public String getStatus() {
     return status;
   }
@@ -86,7 +69,6 @@ public class PolicyDataModel {
     this.status = status;
   }
 
-  @DynamoDbAttribute("version")
   public int getVersion() {
     return version;
   }
@@ -95,7 +77,6 @@ public class PolicyDataModel {
     this.version = version;
   }
 
-  @DynamoDbAttribute("createdAt")
   public String getCreatedAt() {
     return createdAt;
   }
@@ -104,7 +85,6 @@ public class PolicyDataModel {
     this.createdAt = createdAt;
   }
 
-  @DynamoDbAttribute("updatedAt")
   public String getUpdatedAt() {
     return updatedAt;
   }

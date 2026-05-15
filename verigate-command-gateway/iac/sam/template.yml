@@ -686,8 +686,7 @@ Resources:
         Variables:
           CREATE_PARTNER_IMQ_NAME: !Sub "${AWS::StackName}-partner-create-imq"
           CREATE_PARTNER_DLQ_NAME: !Sub "${AWS::StackName}-partner-create-dlq"
-          PARTNER_TABLE_NAME: !Sub "${AWS::StackName}-partner-table"
-          PARTNER_CONFIGURATION_TABLE_NAME: !Sub "${AWS::StackName}-partner-configuration-table"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
       Events:
         VerigateCreatePartnerQueueCommand:
           Type: SQS
@@ -714,8 +713,7 @@ Resources:
         Variables:
           UPDATE_PARTNER_CONFIG_IMQ_NAME: !Sub "${AWS::StackName}-partner-config-update-imq"
           UPDATE_PARTNER_CONFIG_DLQ_NAME: !Sub "${AWS::StackName}-partner-config-update-dlq"
-          PARTNER_TABLE_NAME: !Sub "${AWS::StackName}-partner-table"
-          PARTNER_CONFIGURATION_TABLE_NAME: !Sub "${AWS::StackName}-partner-configuration-table"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
       Events:
         VerigateUpdatePartnerConfigQueueCommand:
           Type: SQS
@@ -784,7 +782,7 @@ Resources:
       CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
       Environment:
         Variables:
-          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
           RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
           VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
       Events:
@@ -804,7 +802,7 @@ Resources:
       CodeUri: ../../../verigate-risk-engine/verigate-risk-engine-infrastructure
       Environment:
         Variables:
-          RISK_SCORING_CONFIG_TABLE_NAME: !Sub "${AWS::StackName}-risk-scoring-config"
+          VERIGATE_PARTNER_HUB_TABLE: !Sub "${AWS::StackName}-partner-hub"
           RISK_ASSESSMENTS_TABLE_NAME: !Sub "${AWS::StackName}-risk-assessments"
           VERIFICATION_WORKFLOWS_TABLE_NAME: !Sub "${AWS::StackName}-verification-workflows"
       Events:

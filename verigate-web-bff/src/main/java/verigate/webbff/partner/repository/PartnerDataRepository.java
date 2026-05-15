@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -20,11 +19,12 @@ import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import verigate.webbff.config.properties.PartnerHubProperties;
 
 /**
  * Repository for partner-scoped data stored in DynamoDB.
- * Uses a single-table design with composite keys:
- * PK = PARTNER#{partnerId}, SK = POLICY#{id} | REPORT#{id} | PROFILE | NOTIFICATIONS
+ * Uses the consolidated partner-hub table with composite keys:
+ * PK = partnerId, SK = entityType (PROFILE | NOTIFICATIONS | REPORT#{id} | custom)
  */
 @Repository
 public class PartnerDataRepository {
@@ -38,16 +38,16 @@ public class PartnerDataRepository {
   public PartnerDataRepository(
       DynamoDbClient dynamoDbClient,
       ObjectMapper objectMapper,
-      @Value("${verigate.partner.data-table:verigate-partner-data}") String tableName) {
+      PartnerHubProperties partnerHubProperties) {
     this.dynamoDbClient = dynamoDbClient;
     this.objectMapper = objectMapper;
-    this.tableName = tableName;
+    this.tableName = partnerHubProperties.getTableName();
   }
 
   private Map<String, AttributeValue> key(String partnerId, String sk) {
     return Map.of(
-        "PK", AttributeValue.builder().s("PARTNER#" + partnerId).build(),
-        "SK", AttributeValue.builder().s(sk).build());
+        "partnerId", AttributeValue.builder().s(partnerId).build(),
+        "entityType", AttributeValue.builder().s(sk).build());
   }
 
   // ── Policies ──────────────────────────────────────────────────────
@@ -59,7 +59,6 @@ public class PartnerDataRepository {
     Map<String, AttributeValue> item = new HashMap<>(key(partnerId, "POLICY#" + id));
     item.put("id", AttributeValue.builder().s(id).build());
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-    item.put("entityType", AttributeValue.builder().s("POLICY").build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("updatedAt", AttributeValue.builder().s(now).build());
     if (policyId == null) {
@@ -91,7 +90,6 @@ public class PartnerDataRepository {
     Map<String, AttributeValue> item = new HashMap<>(key(partnerId, "REPORT#" + id));
     item.put("id", AttributeValue.builder().s(id).build());
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-    item.put("entityType", AttributeValue.builder().s("REPORT").build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("createdAt", AttributeValue.builder().s(now).build());
 
@@ -112,7 +110,6 @@ public class PartnerDataRepository {
   public void saveProfile(String partnerId, Map<String, Object> data) {
     Map<String, AttributeValue> item = new HashMap<>(key(partnerId, "PROFILE"));
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-    item.put("entityType", AttributeValue.builder().s("PROFILE").build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("updatedAt", AttributeValue.builder().s(Instant.now().toString()).build());
     // Persist slug as top-level attribute for GSI querying
@@ -159,7 +156,6 @@ public class PartnerDataRepository {
   public void saveNotifications(String partnerId, Map<String, Object> data) {
     Map<String, AttributeValue> item = new HashMap<>(key(partnerId, "NOTIFICATIONS"));
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-    item.put("entityType", AttributeValue.builder().s("NOTIFICATIONS").build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("updatedAt", AttributeValue.builder().s(Instant.now().toString()).build());
     putItem(item);
@@ -187,7 +183,6 @@ public class PartnerDataRepository {
     Map<String, AttributeValue> item = new HashMap<>(key(partnerId, entityPrefix + id));
     item.put("id", AttributeValue.builder().s(id).build());
     item.put("partnerId", AttributeValue.builder().s(partnerId).build());
-    item.put("entityType", AttributeValue.builder().s(entityType).build());
     item.put("data", AttributeValue.builder().s(toJson(data)).build());
     item.put("createdAt", AttributeValue.builder().s(createdAt).build());
     item.put("updatedAt", AttributeValue.builder().s(now).build());
@@ -255,9 +250,9 @@ public class PartnerDataRepository {
     try {
       var response = dynamoDbClient.query(QueryRequest.builder()
           .tableName(tableName)
-          .keyConditionExpression("PK = :pk AND begins_with(SK, :skPrefix)")
+          .keyConditionExpression("partnerId = :pk AND begins_with(entityType, :skPrefix)")
           .expressionAttributeValues(Map.of(
-              ":pk", AttributeValue.builder().s("PARTNER#" + partnerId).build(),
+              ":pk", AttributeValue.builder().s(partnerId).build(),
               ":skPrefix", AttributeValue.builder().s(skPrefix).build()))
           .scanIndexForward(false)
           .build());

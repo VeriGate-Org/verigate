@@ -61,7 +61,7 @@ class VerificationApiIntegrationIT {
 
   private static final String COMMAND_STORE_TABLE = "verification-command-store";
   private static final String API_KEYS_TABLE = "verigate-api-keys";
-  private static final String PARTNER_TABLE = "verigate-partner-table";
+  private static final String PARTNER_HUB_TABLE = "verigate-partner-hub";
   private static final String SQS_QUEUE_NAME = "verify-party";
   private static final String TEST_API_KEY = "test-api-key-12345";
   private static final String TEST_PARTNER_ID = "partner-integration-test";
@@ -89,7 +89,7 @@ class VerificationApiIntegrationIT {
         () -> localStack.getEndpointOverride(Service.DYNAMODB).toString());
     registry.add("verigate.verification.command-store.table-name", () -> COMMAND_STORE_TABLE);
     registry.add("verigate.auth.api-keys-table", () -> API_KEYS_TABLE);
-    registry.add("verigate.partner.table-name", () -> PARTNER_TABLE);
+    registry.add("verigate.partner-hub.table-name", () -> PARTNER_HUB_TABLE);
     registry.add("verigate.verification.queue-name", () -> SQS_QUEUE_NAME);
     registry.add("verigate.verification.response.poll-max-attempts", () -> "1");
     registry.add("verigate.verification.response.poll-timeout-ms", () -> "10");
@@ -102,7 +102,7 @@ class VerificationApiIntegrationIT {
 
     createCommandStoreTable(dynamoDb);
     createApiKeysTable(dynamoDb);
-    createPartnerTable(dynamoDb);
+    createPartnerHubTable(dynamoDb);
     seedApiKey(dynamoDb);
     createSqsQueue(sqs);
 
@@ -326,25 +326,77 @@ class VerificationApiIntegrationIT {
             .build());
   }
 
-  private static void createPartnerTable(DynamoDbClient dynamoDb) {
+  private static void createPartnerHubTable(DynamoDbClient dynamoDb) {
+    var throughput =
+        ProvisionedThroughput.builder().readCapacityUnits(5L).writeCapacityUnits(5L).build();
     dynamoDb.createTable(
         CreateTableRequest.builder()
-            .tableName(PARTNER_TABLE)
+            .tableName(PARTNER_HUB_TABLE)
             .attributeDefinitions(
                 AttributeDefinition.builder()
                     .attributeName("partnerId")
+                    .attributeType(ScalarAttributeType.S)
+                    .build(),
+                AttributeDefinition.builder()
+                    .attributeName("entityType")
+                    .attributeType(ScalarAttributeType.S)
+                    .build(),
+                AttributeDefinition.builder()
+                    .attributeName("partnerStatus")
+                    .attributeType(ScalarAttributeType.S)
+                    .build(),
+                AttributeDefinition.builder()
+                    .attributeName("partnerPolicyId")
+                    .attributeType(ScalarAttributeType.S)
+                    .build(),
+                AttributeDefinition.builder()
+                    .attributeName("slug")
                     .attributeType(ScalarAttributeType.S)
                     .build())
             .keySchema(
                 KeySchemaElement.builder()
                     .attributeName("partnerId")
                     .keyType(KeyType.HASH)
+                    .build(),
+                KeySchemaElement.builder()
+                    .attributeName("entityType")
+                    .keyType(KeyType.RANGE)
                     .build())
-            .provisionedThroughput(
-                ProvisionedThroughput.builder()
-                    .readCapacityUnits(5L)
-                    .writeCapacityUnits(5L)
+            .globalSecondaryIndexes(
+                GlobalSecondaryIndex.builder()
+                    .indexName("status-index")
+                    .keySchema(
+                        KeySchemaElement.builder()
+                            .attributeName("partnerStatus")
+                            .keyType(KeyType.HASH)
+                            .build())
+                    .projection(
+                        Projection.builder().projectionType(ProjectionType.ALL).build())
+                    .provisionedThroughput(throughput)
+                    .build(),
+                GlobalSecondaryIndex.builder()
+                    .indexName("policy-id-index")
+                    .keySchema(
+                        KeySchemaElement.builder()
+                            .attributeName("partnerPolicyId")
+                            .keyType(KeyType.HASH)
+                            .build())
+                    .projection(
+                        Projection.builder().projectionType(ProjectionType.ALL).build())
+                    .provisionedThroughput(throughput)
+                    .build(),
+                GlobalSecondaryIndex.builder()
+                    .indexName("slug-index")
+                    .keySchema(
+                        KeySchemaElement.builder()
+                            .attributeName("slug")
+                            .keyType(KeyType.HASH)
+                            .build())
+                    .projection(
+                        Projection.builder().projectionType(ProjectionType.ALL).build())
+                    .provisionedThroughput(throughput)
                     .build())
+            .provisionedThroughput(throughput)
             .build());
   }
 
@@ -371,13 +423,14 @@ class VerificationApiIntegrationIT {
                     "status", AttributeValue.builder().s("ACTIVE").build()))
             .build());
 
-    // Seed partner record
+    // Seed partner record in hub table
     dynamoDb.putItem(
         PutItemRequest.builder()
-            .tableName(PARTNER_TABLE)
+            .tableName(PARTNER_HUB_TABLE)
             .item(
                 Map.of(
                     "partnerId", AttributeValue.builder().s(TEST_PARTNER_ID).build(),
+                    "entityType", AttributeValue.builder().s("METADATA").build(),
                     "partnerStatus", AttributeValue.builder().s("ACTIVE").build()))
             .build());
   }

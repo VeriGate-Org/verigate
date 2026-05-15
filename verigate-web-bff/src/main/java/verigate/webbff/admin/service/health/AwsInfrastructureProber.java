@@ -38,9 +38,8 @@ public class AwsInfrastructureProber {
       KinesisClient kinesisClient,
       @Value("${verigate.verification.command-store.table-name:verification-command-store}") String commandStoreTable,
       @Value("${verigate.auth.api-keys-table:verigate-api-keys}") String apiKeysTable,
-      @Value("${verigate.partner.table-name:verigate-partner-table}") String partnerTable,
+      @Value("${verigate.partner-hub.table-name:verigate-partner-hub}") String partnerHubTable,
       @Value("${verigate.cases.table-name:cases}") String casesTable,
-      @Value("${verigate.policy.table-name:policies}") String policiesTable,
       @Value("${verigate.monitoring.subjects-table-name:monitored-subjects}") String monitoringSubjectsTable,
       @Value("${verigate.verification.queue-name:verify-party}") String verificationQueueName,
       @Value("${verigate.partner.create-queue-name:partner-create}") String partnerCreateQueueName,
@@ -49,8 +48,8 @@ public class AwsInfrastructureProber {
     this.sqsClient = sqsClient;
     this.kinesisClient = kinesisClient;
     this.tableNames = List.of(
-        commandStoreTable, apiKeysTable, partnerTable,
-        casesTable, policiesTable, monitoringSubjectsTable
+        commandStoreTable, apiKeysTable, partnerHubTable,
+        casesTable, monitoringSubjectsTable
     );
     this.queuePairs = List.of(
         new QueuePair(verificationQueueName, verificationQueueName + "-dlq"),

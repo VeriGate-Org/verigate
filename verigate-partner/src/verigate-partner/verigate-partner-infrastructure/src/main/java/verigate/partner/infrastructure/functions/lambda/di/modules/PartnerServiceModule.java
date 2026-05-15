@@ -75,9 +75,9 @@ public class PartnerServiceModule extends AbstractModule {
     @Singleton
     private PartnerRepository providePartnerRepository(DynamoDbClient dynamoDbClient,
                                                        Environment environment) {
-        String tableName = environment.get("PARTNER_TABLE_NAME");
+        String tableName = environment.get("VERIGATE_PARTNER_HUB_TABLE");
         if (tableName == null || tableName.isBlank()) {
-            tableName = "verigate-partner";
+            tableName = "verigate-partner-hub";
         }
         return new DynamoDbPartnerRepository(dynamoDbClient, tableName);
     }
@@ -86,9 +86,9 @@ public class PartnerServiceModule extends AbstractModule {
     @Singleton
     private PartnerConfigurationRepository providePartnerConfigurationRepository(
             DynamoDbClient dynamoDbClient, ObjectMapper objectMapper, Environment environment) {
-        String tableName = environment.get("PARTNER_CONFIGURATION_TABLE_NAME");
+        String tableName = environment.get("VERIGATE_PARTNER_HUB_TABLE");
         if (tableName == null || tableName.isBlank()) {
-            tableName = "verigate-partner-configuration";
+            tableName = "verigate-partner-hub";
         }
         return new DynamoDbPartnerConfigurationRepository(dynamoDbClient, tableName, objectMapper);
     }

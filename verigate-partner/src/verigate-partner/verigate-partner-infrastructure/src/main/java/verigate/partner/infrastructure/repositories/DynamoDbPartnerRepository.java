@@ -36,7 +36,9 @@ public class DynamoDbPartnerRepository implements PartnerRepository {
         try {
             GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder()
                 .tableName(tableName)
-                .key(Map.of("partnerId", AttributeValue.builder().s(partnerId.toString()).build()))
+                .key(Map.of(
+                    "partnerId", AttributeValue.builder().s(partnerId.toString()).build(),
+                    "entityType", AttributeValue.builder().s("METADATA").build()))
                 .build());
 
             if (!response.hasItem() || response.item().isEmpty()) {
@@ -75,7 +77,9 @@ public class DynamoDbPartnerRepository implements PartnerRepository {
         try {
             dynamoDbClient.deleteItem(DeleteItemRequest.builder()
                 .tableName(tableName)
-                .key(Map.of("partnerId", AttributeValue.builder().s(partnerId.toString()).build()))
+                .key(Map.of(
+                    "partnerId", AttributeValue.builder().s(partnerId.toString()).build(),
+                    "entityType", AttributeValue.builder().s("METADATA").build()))
                 .build());
             return true;
         } catch (Exception e) {
@@ -87,6 +91,7 @@ public class DynamoDbPartnerRepository implements PartnerRepository {
     private Map<String, AttributeValue> mapToItem(PartnerAggregateRoot partner) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("partnerId", AttributeValue.builder().s(partner.getPartnerId().toString()).build());
+        item.put("entityType", AttributeValue.builder().s("METADATA").build());
         item.put("partnerName", AttributeValue.builder().s(partner.getPartnerName()).build());
         item.put("contactEmail", AttributeValue.builder().s(partner.getContactEmail()).build());
         item.put("partnerType", AttributeValue.builder().s(partner.getPartnerType().name()).build());

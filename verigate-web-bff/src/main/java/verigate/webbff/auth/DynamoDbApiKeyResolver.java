@@ -39,7 +39,7 @@ public class DynamoDbApiKeyResolver implements ApiKeyResolver {
       DynamoDbClient dynamoDbClient,
       @Value("${verigate.auth.api-keys-table:verigate-api-keys}")
       String apiKeysTable,
-      @Value("${verigate.partner.table-name:verigate-partner-table}")
+      @Value("${verigate.partner-hub.table-name:verigate-partner-hub}")
       String partnerTable) {
     this.dynamoDbClient = dynamoDbClient;
     this.apiKeysTable = apiKeysTable;
@@ -117,8 +117,9 @@ public class DynamoDbApiKeyResolver implements ApiKeyResolver {
       GetItemResponse response = dynamoDbClient.getItem(
           GetItemRequest.builder()
               .tableName(partnerTable)
-              .key(Map.of("partnerId",
-                  AttributeValue.builder().s(partnerId).build()))
+              .key(Map.of(
+                  "partnerId", AttributeValue.builder().s(partnerId).build(),
+                  "entityType", AttributeValue.builder().s("METADATA").build()))
               .projectionExpression("partnerStatus")
               .build());
 

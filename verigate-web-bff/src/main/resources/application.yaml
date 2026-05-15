@@ -43,10 +43,10 @@ verigate:
       enabled: ${VERIGATE_RATE_LIMIT_ENABLED:true}
       default-requests-per-minute: ${VERIGATE_RATE_LIMIT_DEFAULT:100}
     api-keys-table: ${VERIGATE_API_KEYS_TABLE:verigate-api-keys}
+  partner-hub:
+    table-name: ${VERIGATE_PARTNER_HUB_TABLE:verigate-partner-hub}
   partner:
     create-queue-name: ${VERIGATE_PARTNER_CREATE_QUEUE_NAME:partner-create}
-    table-name: ${VERIGATE_PARTNER_TABLE:verigate-partner-table}
-    data-table: ${VERIGATE_PARTNER_DATA_TABLE:verigate-partner-data}
   verification:
     queue-name: ${VERIGATE_VERIFICATION_QUEUE_NAME:verify-party}
     command-store:
@@ -56,8 +56,6 @@ verigate:
       poll-max-attempts: ${VERIGATE_RESPONSE_POLL_MAX_ATTEMPTS:1}
   cases:
     table-name: ${VERIGATE_CASES_TABLE:cases}
-  policy:
-    table-name: ${VERIGATE_POLICY_TABLE:policies}
   monitoring:
     subjects-table-name: ${VERIGATE_MONITORING_SUBJECTS_TABLE:monitored-subjects}
     alerts-table-name: ${VERIGATE_MONITORING_ALERTS_TABLE:monitoring-alerts}
@@ -67,8 +65,6 @@ verigate:
   risk:
     assessment:
       table-name: ${VERIGATE_RISK_ASSESSMENT_TABLE:risk-assessments}
-    scoring-config:
-      table-name: ${VERIGATE_RISK_SCORING_CONFIG_TABLE:risk-scoring-config}
   healthcheck:
     overall-timeout-seconds: 25
     snapshot-table-name: ${VERIGATE_HEALTH_SNAPSHOT_TABLE_NAME:health-snapshots}

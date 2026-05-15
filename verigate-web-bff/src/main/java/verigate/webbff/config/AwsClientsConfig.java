@@ -19,12 +19,11 @@ import verigate.webbff.config.properties.CaseProperties;
 import verigate.webbff.config.properties.CommandStoreProperties;
 import verigate.webbff.config.properties.DocumentProperties;
 import verigate.webbff.config.properties.HealthCheckProperties;
-import verigate.webbff.config.properties.PolicyProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.config.properties.RiskAssessmentProperties;
 import verigate.webbff.config.properties.AiRiskEnhancementProperties;
 import verigate.webbff.config.properties.MonitoringProperties;
-import verigate.webbff.config.properties.RiskScoringConfigProperties;
+import verigate.webbff.config.properties.PartnerHubProperties;
 
 @Configuration
 @EnableConfigurationProperties({
@@ -33,8 +32,7 @@ import verigate.webbff.config.properties.RiskScoringConfigProperties;
     CommandStoreProperties.class,
     ResponsePollingProperties.class,
     RiskAssessmentProperties.class,
-    PolicyProperties.class,
-    RiskScoringConfigProperties.class,
+    PartnerHubProperties.class,
     DocumentProperties.class,
     MonitoringProperties.class,
     AiRiskEnhancementProperties.class,

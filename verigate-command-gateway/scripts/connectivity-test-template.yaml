@@ -55,6 +55,7 @@ Resources:
         import json
         import urllib3
         import socket
+        import ssl
         import struct
         import time
         import os
@@ -200,9 +201,16 @@ Resources:
 
             # Test 3: HTTP Request
             print(f"[TEST 3] HTTP Request to: {url}")
+            # Create a custom SSL context that tolerates weak DH parameters
+            # (DeedsWeb server uses small DH keys rejected by default OpenSSL)
+            ctx = ssl.create_default_context()
+            ctx.set_ciphers('DEFAULT:@SECLEVEL=1')
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
             http = urllib3.PoolManager(
                 timeout=urllib3.Timeout(connect=10.0, read=30.0),
-                retries=urllib3.Retry(total=3, connect=3, read=3)
+                retries=urllib3.Retry(total=3, connect=3, read=3),
+                ssl_context=ctx
             )
 
             try:

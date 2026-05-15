@@ -70,16 +70,20 @@ module "verification_dynamodb_commandstore" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
-# Partner DynamoDB Tables
+# Partner Hub — consolidated single-table design
 #----------------------------------------------------------------------------------------------------------------
 
-module "partner_dynamodb" {
+module "partner_hub_dynamodb" {
   source = "./modules/tf-dynamodb"
 
   complete_stack_name      = var.stack_name
-  table_name               = "partner-table"
+  table_name               = "partner-hub"
   hash_key                 = {
                                  name = "partnerId"
+                                 type = "S"
+                             }
+  range_key                = {
+                                 name = "entityType"
                                  type = "S"
                              }
   attributes               = [
@@ -88,7 +92,19 @@ module "partner_dynamodb" {
       type = "S"
     },
     {
+      name = "entityType"
+      type = "S"
+    },
+    {
       name = "partnerStatus"
+      type = "S"
+    },
+    {
+      name = "partnerPolicyId"
+      type = "S"
+    },
+    {
+      name = "slug"
       type = "S"
     }
   ]
@@ -98,6 +114,16 @@ module "partner_dynamodb" {
       name               = "status-index"
       hash_key           = "partnerStatus"
       projection_type    = "ALL"
+    },
+    {
+      name               = "policy-id-index"
+      hash_key           = "partnerPolicyId"
+      projection_type    = "ALL"
+    },
+    {
+      name               = "slug-index"
+      hash_key           = "slug"
+      projection_type    = "ALL"
     }
   ]
 
@@ -105,32 +131,10 @@ module "partner_dynamodb" {
   default_tags = local.default_tags
 }
 
-module "partner_configuration_dynamodb" {
-  source = "./modules/tf-dynamodb"
-
-  complete_stack_name      = var.stack_name
-  table_name               = "partner-configuration-table"
-  hash_key                 = {
-                                 name = "partnerId"
-                                 type = "S"
-                             }
-  range_key                = {
-                                 name = "configurationType"
-                                 type = "S"
-                             }
-  attributes               = [
-    {
-      name = "partnerId"
-      type = "S"
-    },
-    {
-      name = "configurationType"
-      type = "S"
-    }
-  ]
-
-  fis_az_failure_ready = true
-  default_tags = local.default_tags
+resource "aws_ssm_parameter" "partner_hub_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/partner-hub/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-partner-hub"
 }
 
 module "api_keys_dynamodb" {
@@ -663,18 +667,6 @@ resource "aws_ssm_parameter" "api_keys_table_name" {
 # SSM Parameters - Partner & Billing Table Names
 #----------------------------------------------------------------------------------------------------------------
 
-resource "aws_ssm_parameter" "partner_table_name" {
-  name  = "/${local.ssm_prefix}/dynamodb/partner-table/name"
-  type  = "String"
-  value = "${local.complete_stack_name}-partner-table"
-}
-
-resource "aws_ssm_parameter" "partner_configuration_table_name" {
-  name  = "/${local.ssm_prefix}/dynamodb/partner-configuration-table/name"
-  type  = "String"
-  value = "${local.complete_stack_name}-partner-configuration-table"
-}
-
 resource "aws_ssm_parameter" "usage_records_table_name" {
   name  = "/${local.ssm_prefix}/dynamodb/usage-records-table/name"
   type  = "String"
@@ -700,26 +692,6 @@ resource "aws_ssm_parameter" "billing_plans_table_name" {
 #----------------------------------------------------------------------------------------------------------------
 # Risk Engine DynamoDB Tables
 #----------------------------------------------------------------------------------------------------------------
-
-module "risk_scoring_config_dynamodb" {
-  source = "./modules/tf-dynamodb"
-
-  complete_stack_name      = var.stack_name
-  table_name               = "risk-scoring-config"
-  hash_key                 = {
-                                 name = "partnerId"
-                                 type = "S"
-                             }
-  attributes               = [
-    {
-      name = "partnerId"
-      type = "S"
-    }
-  ]
-
-  fis_az_failure_ready = true
-  default_tags = local.default_tags
-}
 
 module "risk_assessments_dynamodb" {
   source = "./modules/tf-dynamodb"
@@ -795,52 +767,9 @@ module "verification_workflows_dynamodb" {
   default_tags = local.default_tags
 }
 
-module "policies_dynamodb" {
-  source = "./modules/tf-dynamodb"
-
-  complete_stack_name      = var.stack_name
-  table_name               = "policies"
-  hash_key                 = {
-                                 name = "partnerPolicyId"
-                                 type = "S"
-                             }
-  attributes               = [
-    {
-      name = "partnerPolicyId"
-      type = "S"
-    },
-    {
-      name = "partnerId"
-      type = "S"
-    },
-    {
-      name = "status"
-      type = "S"
-    }
-  ]
-
-  global_secondary_indexes = [
-    {
-      name               = "partner-status-index"
-      hash_key           = "partnerId"
-      range_key          = "status"
-      projection_type    = "ALL"
-    }
-  ]
-
-  fis_az_failure_ready = true
-  default_tags = local.default_tags
-}
-
 #----------------------------------------------------------------------------------------------------------------
 # SSM Parameters - Risk Engine Table Names
 #----------------------------------------------------------------------------------------------------------------
-
-resource "aws_ssm_parameter" "risk_scoring_config_table_name" {
-  name  = "/${local.ssm_prefix}/dynamodb/risk-scoring-config/name"
-  type  = "String"
-  value = "${local.complete_stack_name}-risk-scoring-config"
-}
 
 resource "aws_ssm_parameter" "risk_assessments_table_name" {
   name  = "/${local.ssm_prefix}/dynamodb/risk-assessments/name"
@@ -852,12 +781,6 @@ resource "aws_ssm_parameter" "verification_workflows_table_name" {
   name  = "/${local.ssm_prefix}/dynamodb/verification-workflows/name"
   type  = "String"
   value = "${local.complete_stack_name}-verification-workflows"
-}
-
-resource "aws_ssm_parameter" "policies_table_name" {
-  name  = "/${local.ssm_prefix}/dynamodb/policies/name"
-  type  = "String"
-  value = "${local.complete_stack_name}-policies"
 }
 
 #----------------------------------------------------------------------------------------------------------------
