@@ -21,44 +21,8 @@ import {
   uploadFileToS3,
 } from "@/lib/bff-client";
 import { FileCheck, CheckCircle2, XCircle, Shield, AlertTriangle } from "lucide-react";
-
-const DOCUMENT_TYPE_GROUPS = [
-  {
-    label: "Identity Documents",
-    types: [
-      { value: "id_card", label: "SA ID Card" },
-      { value: "passport", label: "Passport" },
-      { value: "drivers_license", label: "Driver's License" },
-    ],
-  },
-  {
-    label: "Permits",
-    types: [
-      { value: "asylum_seeker_permit", label: "Asylum Seeker Permit" },
-      { value: "general_work_permit", label: "General Work Permit" },
-    ],
-  },
-  {
-    label: "Business Documents",
-    types: [
-      { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
-      { value: "cipc_registration", label: "CIPC Registration" },
-    ],
-  },
-  {
-    label: "Financial Documents",
-    types: [
-      { value: "tax_certificate", label: "Tax Clearance Certificate" },
-      { value: "financial_statement", label: "Financial Statement" },
-    ],
-  },
-  {
-    label: "Proof of Address",
-    types: [
-      { value: "utility_bill", label: "Utility Bill" },
-    ],
-  },
-];
+import { DOCUMENT_TYPE_GROUPS, DOCUMENT_FIELD_CONFIGS } from "@/components/services/document-verification/documentFieldConfigs";
+import { validateField, validateAllFields } from "@/lib/validations/document-validation";
 
 function confidenceColor(confidence: number): string {
   if (confidence >= 0.95) return "text-green-600";
@@ -205,7 +169,8 @@ export default function DocumentVerification() {
   const [documentType, setDocumentType] = useState<string>(
     DOCUMENT_TYPE_GROUPS[0]?.types[0]?.value ?? ""
   );
-  const [documentNumber, setDocumentNumber] = useState("");
+  const [additionalFields, setAdditionalFields] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>({});
   const [result, setResult] = useState<DocumentVerificationResponse | null>(
     null
   );
@@ -221,6 +186,25 @@ export default function DocumentVerification() {
   const [s3BucketName, setS3BucketName] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const fieldConfigs = DOCUMENT_FIELD_CONFIGS[documentType] ?? [];
+  const primaryFieldName = fieldConfigs[0]?.name ?? "documentNumber";
+
+  const handleDocumentTypeChange = useCallback((newType: string) => {
+    setDocumentType(newType);
+    setAdditionalFields({});
+    setFieldErrors({});
+    setResult(null);
+  }, []);
+
+  const handleFieldChange = useCallback(
+    (fieldName: string, value: string) => {
+      setAdditionalFields((prev) => ({ ...prev, [fieldName]: value }));
+      const err = validateField(documentType, fieldName, value);
+      setFieldErrors((prev) => ({ ...prev, [fieldName]: err }));
+    },
+    [documentType]
+  );
 
   const handleExport = useCallback(async () => {
     if (resultCardRef.current) {
@@ -271,13 +255,23 @@ export default function DocumentVerification() {
   }, []);
 
   const doVerification = useCallback(async () => {
+    // Validate all fields before submission
+    const errors = validateAllFields(documentType, additionalFields);
+    const hasErrors = Object.values(errors).some((e) => e !== null);
+    if (hasErrors) {
+      setFieldErrors(errors);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
+      const documentNumber = additionalFields[primaryFieldName] ?? "";
       const metadata: Record<string, unknown> = {
         documentType,
         documentNumber,
+        additionalFields,
       };
 
       if (s3ObjectKey && s3BucketName) {
@@ -301,15 +295,16 @@ export default function DocumentVerification() {
     } finally {
       setLoading(false);
     }
-  }, [documentType, documentNumber, s3ObjectKey, s3BucketName, toast]);
+  }, [documentType, additionalFields, primaryFieldName, s3ObjectKey, s3BucketName, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await doVerification();
   };
 
+  const primaryValue = additionalFields[primaryFieldName] ?? "";
   const submitDisabled =
-    loading || documentNumber.trim().length < 1 || isUploading;
+    loading || primaryValue.trim().length < 1 || isUploading;
 
   const srMessage = loading
     ? "Loading verification results"
@@ -339,7 +334,7 @@ export default function DocumentVerification() {
                 Document details
               </div>
               <div className="text-xs text-text-muted">
-                Provide the document type and number to verify.
+                Provide the document type and details to verify.
               </div>
             </div>
           </div>
@@ -357,7 +352,7 @@ export default function DocumentVerification() {
                 name="documentType"
                 className="aws-select w-full select-input"
                 value={documentType}
-                onChange={(event) => setDocumentType(event.target.value)}
+                onChange={(event) => handleDocumentTypeChange(event.target.value)}
               >
                 {DOCUMENT_TYPE_GROUPS.map((group) => (
                   <optgroup key={group.label} label={group.label}>
@@ -371,19 +366,44 @@ export default function DocumentVerification() {
               </select>
             </ServiceField>
 
-            <ServiceField
-              label="Document number"
-              description="The unique number printed on the document."
-            >
-              <input
-                required
-                id="documentNumber"
-                name="documentNumber"
-                value={documentNumber}
-                onChange={(event) => setDocumentNumber(event.target.value)}
-                className="aws-input w-full"
-              />
-            </ServiceField>
+            {fieldConfigs.map((config) => (
+              <ServiceField
+                key={config.name}
+                label={config.label}
+                description={config.description}
+                error={fieldErrors[config.name]}
+              >
+                {config.type === "select" && config.options ? (
+                  <select
+                    id={config.name}
+                    name={config.name}
+                    className={`aws-select w-full select-input ${fieldErrors[config.name] ? "border-danger" : ""}`}
+                    value={additionalFields[config.name] ?? ""}
+                    onChange={(e) => handleFieldChange(config.name, e.target.value)}
+                    aria-invalid={!!fieldErrors[config.name]}
+                  >
+                    <option value="">Select...</option>
+                    {config.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={config.name}
+                    name={config.name}
+                    value={additionalFields[config.name] ?? ""}
+                    onChange={(e) => handleFieldChange(config.name, e.target.value)}
+                    className={`aws-input w-full ${fieldErrors[config.name] ? "border-danger" : ""}`}
+                    placeholder={config.placeholder}
+                    inputMode={config.inputMode}
+                    maxLength={config.maxLength}
+                    aria-invalid={!!fieldErrors[config.name]}
+                  />
+                )}
+              </ServiceField>
+            ))}
 
             <ServiceField
               label="Document image (optional)"

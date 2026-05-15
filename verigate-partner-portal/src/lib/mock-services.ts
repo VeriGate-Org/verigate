@@ -1491,6 +1491,153 @@ export async function mockFullVerification(request: any, delayMs?: number) {
 
 import type { TenantBranding } from "@/lib/types/tenant-branding";
 
+// --- Document Verification History ---
+
+export interface DocumentVerificationHistoryItem {
+  verificationId: string;
+  documentType: string;
+  documentTypeLabel: string;
+  documentNumber: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED";
+  overallConfidence: number;
+  verifiedAt: string;
+}
+
+export function generateDocumentVerificationHistory(): DocumentVerificationHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const docTypes = [
+    { value: "id_card", label: "SA ID Card" },
+    { value: "passport", label: "Passport" },
+    { value: "drivers_license", label: "Driver's License" },
+    { value: "asylum_seeker_permit", label: "Asylum Seeker Permit" },
+    { value: "general_work_permit", label: "General Work Permit" },
+    { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
+    { value: "cipc_registration", label: "CIPC Registration" },
+    { value: "tax_certificate", label: "Tax Clearance Certificate" },
+    { value: "financial_statement", label: "Financial Statement" },
+    { value: "utility_bill", label: "Utility Bill" },
+  ];
+
+  const docNumbers = [
+    "9001015009087", "A12345678", "DL12345678", "ASP12345678", "WP12345678",
+    "BBEE-12345", "2019/123456/07", "1234567890", "FS-2024-001", "ACC-123456",
+    "8502115009083", "B98765432", "DL87654321", "ASP87654321", "WP87654321",
+    "BBEE-67890", "2020/654321/08", "9876543210", "FS-2024-002", "ACC-654321",
+    "7803025009089", "C55443322", "DL55667788", "ASP55667788", "WP55667788",
+  ];
+
+  const outcomes: DocumentVerificationHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED",
+    "FAILED", "VERIFIED", "VERIFIED", "VERIFIED", "NOT_VERIFIED",
+    "VERIFIED", "VERIFIED", "VERIFIED", "FAILED", "VERIFIED",
+    "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED", "VERIFIED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 11); // 15-25
+  return Array.from({ length: Math.min(count, docNumbers.length) }).map((_, i) => {
+    const dt = docTypes[i % docTypes.length];
+    const outcome = outcomes[i % outcomes.length];
+    const confidence = outcome === "VERIFIED"
+      ? 0.85 + rnd() * 0.15
+      : outcome === "NOT_VERIFIED"
+        ? 0.4 + rnd() * 0.3
+        : 0.1 + rnd() * 0.3;
+
+    return {
+      verificationId: `docv-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+      documentType: dt.value,
+      documentTypeLabel: dt.label,
+      documentNumber: docNumbers[i % docNumbers.length],
+      outcome,
+      overallConfidence: Math.round(confidence * 100) / 100,
+      verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+    };
+  });
+}
+
+// --- Bulk Document Verification ---
+
+export type BulkDocumentPhase = "upload" | "processing" | "results";
+
+export interface BulkDocumentItem {
+  documentType: string;
+  documentNumber: string;
+}
+
+export interface BulkDocumentResult {
+  documentType: string;
+  documentTypeLabel: string;
+  documentNumber: string;
+  verified: boolean;
+  confidence: number;
+  status: string;
+}
+
+export interface BulkDocumentSummary {
+  total: number;
+  verified: number;
+  notVerified: number;
+  errors: number;
+}
+
+export function generateBulkDocumentResults(items: BulkDocumentItem[]): {
+  results: BulkDocumentResult[];
+  summary: BulkDocumentSummary;
+} {
+  const docTypeLabels: Record<string, string> = {
+    id_card: "SA ID Card",
+    passport: "Passport",
+    drivers_license: "Driver's License",
+    asylum_seeker_permit: "Asylum Seeker Permit",
+    general_work_permit: "General Work Permit",
+    b_bbee_certificate: "B-BBEE Certificate",
+    cipc_registration: "CIPC Registration",
+    tax_certificate: "Tax Clearance Certificate",
+    financial_statement: "Financial Statement",
+    utility_bill: "Utility Bill",
+  };
+
+  const results: BulkDocumentResult[] = items.map((item) => {
+    const seedVal = (item.documentType + item.documentNumber)
+      .split("")
+      .reduce((a, c) => a + c.charCodeAt(0), 0);
+    const rnd = seeded(seedVal);
+    const roll = rnd();
+    const verified = roll > 0.15;
+    const isError = roll < 0.05;
+    const confidence = isError ? 0 : verified ? 0.85 + rnd() * 0.15 : 0.3 + rnd() * 0.3;
+
+    return {
+      documentType: item.documentType,
+      documentTypeLabel: docTypeLabels[item.documentType] ?? item.documentType,
+      documentNumber: item.documentNumber,
+      verified: !isError && verified,
+      confidence: Math.round(confidence * 100) / 100,
+      status: isError ? "ERROR" : verified ? "VERIFIED" : "NOT_VERIFIED",
+    };
+  });
+
+  const summary: BulkDocumentSummary = {
+    total: results.length,
+    verified: results.filter((r) => r.status === "VERIFIED").length,
+    notVerified: results.filter((r) => r.status === "NOT_VERIFIED").length,
+    errors: results.filter((r) => r.status === "ERROR").length,
+  };
+
+  return { results, summary };
+}
+
+export async function mockBulkDocumentVerification(
+  items: BulkDocumentItem[],
+  delayMs?: number
+): Promise<{ results: BulkDocumentResult[]; summary: BulkDocumentSummary }> {
+  await wait(delayMs ?? 1500);
+  return generateBulkDocumentResults(items);
+}
+
 export const MOCK_TENANT_BRANDING: Record<string, TenantBranding> = {
   acme: {
     slug: "acme",
