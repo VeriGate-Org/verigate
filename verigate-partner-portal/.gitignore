@@ -36,7 +36,4 @@ coverage/
 # Others
 *.log
 
-# Public assets
-public/*.svg
-public/*.png
 node_modules
