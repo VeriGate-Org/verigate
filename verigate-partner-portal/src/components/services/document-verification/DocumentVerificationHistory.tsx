@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { generateDocumentVerificationHistory } from "@/lib/mock-services";
 import type { DocumentVerificationHistoryItem } from "@/lib/mock-services";
+import { config } from "@/lib/config";
+import { getDocumentVerificationHistory } from "@/lib/bff-client";
 import { DOCUMENT_TYPE_LABELS } from "@/components/services/document-verification/documentFieldConfigs";
-import { Search, Download, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { Search, Download, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle } from "lucide-react";
 
 export default function DocumentVerificationHistory() {
   const [history, setHistory] = useState<DocumentVerificationHistoryItem[]>([]);
@@ -13,10 +15,25 @@ export default function DocumentVerificationHistory() {
   const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
   const [docTypeFilter, setDocTypeFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const pageSize = 10;
 
+  const fetchHistory = () => {
+    if (config.useMockServices) {
+      setHistory(generateDocumentVerificationHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getDocumentVerificationHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as DocumentVerificationHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load document history"))
+      .finally(() => setIsLoading(false));
+  };
+
   useEffect(() => {
-    setHistory(generateDocumentVerificationHistory());
+    fetchHistory();
   }, []);
 
   useEffect(() => {
@@ -57,6 +74,33 @@ export default function DocumentVerificationHistory() {
         return <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">{outcome}</span>;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+        <span className="ml-2 text-sm text-gray-600">Loading verification history...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-red-800">Failed to load verification history</p>
+          <p className="text-sm text-red-700 mt-1">{error}</p>
+          <button
+            onClick={fetchHistory}
+            className="mt-3 px-3 py-1.5 text-sm bg-red-100 hover:bg-red-200 text-red-800 rounded-md border border-red-300"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

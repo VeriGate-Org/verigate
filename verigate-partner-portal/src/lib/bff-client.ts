@@ -1041,6 +1041,36 @@ export async function uploadFileToS3(
   });
 }
 
+// --- Document Verification History ---
+
+export interface DocumentHistoryResponse {
+  items: DocumentHistoryItem[];
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export interface DocumentHistoryItem {
+  verificationId: string;
+  documentType: string;
+  documentTypeLabel: string;
+  documentNumber: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED" | "PENDING";
+  overallConfidence: number;
+  verifiedAt: string;
+}
+
+export async function getDocumentVerificationHistory(params?: {
+  status?: string;
+  cursor?: string;
+  limit?: number;
+}): Promise<DocumentHistoryResponse> {
+  const { data } = await bffApi.get<DocumentHistoryResponse>(
+    "/api/partner/documents/history",
+    { params },
+  );
+  return data;
+}
+
 // --- DHA Permit Submission ---
 
 export interface DhaPermitSubmissionRequest {

@@ -68,6 +68,23 @@ public class CommandStatusRepository {
    */
   public PageResult<VerificationCommandStoreItem> findByPartnerId(
       String partnerId, String status, int limit, Map<String, AttributeValue> cursor) {
+    return findByPartnerId(partnerId, status, null, limit, cursor);
+  }
+
+  /**
+   * Queries verifications by partnerId with optional commandName filtering.
+   * Uses a DynamoDB FilterExpression for commandName (post-query filter on the GSI).
+   *
+   * @param partnerId   the partner to query for
+   * @param status      optional status filter (e.g. "COMPLETED")
+   * @param commandName optional commandName filter (e.g. "DOCUMENT_VERIFICATION")
+   * @param limit       max items to return
+   * @param cursor      exclusive start key for pagination (commandId from last page)
+   * @return page of results with last evaluated key for cursor-based pagination
+   */
+  public PageResult<VerificationCommandStoreItem> findByPartnerId(
+      String partnerId, String status, String commandName, int limit,
+      Map<String, AttributeValue> cursor) {
 
     Map<String, AttributeValue> expressionValues = new HashMap<>();
     expressionValues.put(":pid", AttributeValue.builder().s(partnerId).build());
@@ -86,6 +103,11 @@ public class CommandStatusRepository {
         .expressionAttributeValues(expressionValues)
         .scanIndexForward(false)
         .limit(limit);
+
+    if (commandName != null && !commandName.isBlank()) {
+      queryBuilder.filterExpression("commandName = :cmdName");
+      expressionValues.put(":cmdName", AttributeValue.builder().s(commandName).build());
+    }
 
     if (cursor != null && !cursor.isEmpty()) {
       queryBuilder.exclusiveStartKey(cursor);

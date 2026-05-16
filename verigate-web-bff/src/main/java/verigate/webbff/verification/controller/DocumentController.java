@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -180,6 +182,95 @@ public class DocumentController {
         return ResponseEntity.ok(new DhaPermitSubmissionResponse(commandId, "PENDING", emailSent));
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<DocumentHistoryResponse> getDocumentHistory(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "50") int limit) {
+
+        String partnerId = PartnerContextHolder.requirePartnerId();
+        int clampedLimit = Math.max(1, Math.min(limit, 200));
+
+        logger.debug("Listing document history: partnerId={}, status={}, cursor={}, limit={}",
+                partnerId, status, cursor, clampedLimit);
+
+        Map<String, AttributeValue> exclusiveStartKey = null;
+        if (cursor != null && !cursor.isBlank()) {
+            exclusiveStartKey = new HashMap<>();
+            exclusiveStartKey.put("commandId", AttributeValue.builder().s(cursor).build());
+            exclusiveStartKey.put("partnerId", AttributeValue.builder().s(partnerId).build());
+        }
+
+        var page = commandStatusRepository.findByPartnerId(
+                partnerId, status, "DOCUMENT_VERIFICATION", clampedLimit, exclusiveStartKey);
+
+        List<DocumentHistoryItem> items = page.items().stream()
+                .map(this::mapToHistoryItem)
+                .toList();
+
+        String nextCursor = null;
+        if (page.hasMore()) {
+            var lastKey = page.lastEvaluatedKey();
+            var cursorCommandId = lastKey.get("commandId");
+            nextCursor = cursorCommandId != null ? cursorCommandId.s() : null;
+        }
+
+        return ResponseEntity.ok(new DocumentHistoryResponse(items, nextCursor, page.hasMore()));
+    }
+
+    private DocumentHistoryItem mapToHistoryItem(
+            verigate.webbff.verification.repository.model.VerificationCommandStoreItem item) {
+        Map<String, String> aux = item.getAuxiliaryData() != null
+                ? item.getAuxiliaryData() : Map.of();
+
+        String documentType = aux.getOrDefault("documentType", "unknown");
+        String documentTypeLabel = DOCUMENT_TYPE_LABEL_MAP.getOrDefault(documentType, documentType);
+        String documentNumber = aux.containsKey("permitNumber")
+                ? aux.get("permitNumber")
+                : aux.getOrDefault("documentNumber", "");
+
+        String outcome;
+        if (item.getStatus() != null) {
+            switch (item.getStatus()) {
+                case COMPLETED -> outcome = aux.getOrDefault("outcome", "VERIFIED");
+                case PERMANENT_FAILURE, INVARIANT_FAILURE -> outcome = "FAILED";
+                default -> outcome = "PENDING";
+            }
+        } else {
+            outcome = "PENDING";
+        }
+
+        double overallConfidence;
+        try {
+            overallConfidence = Double.parseDouble(aux.getOrDefault("overallConfidence", "0.0"));
+        } catch (NumberFormatException e) {
+            overallConfidence = 0.0;
+        }
+
+        return new DocumentHistoryItem(
+                item.getCommandId(),
+                documentType,
+                documentTypeLabel,
+                documentNumber,
+                outcome,
+                overallConfidence,
+                item.getCreatedAt());
+    }
+
+    private static final Map<String, String> DOCUMENT_TYPE_LABEL_MAP = Map.ofEntries(
+            Map.entry("id_card", "SA ID Card"),
+            Map.entry("passport", "Passport"),
+            Map.entry("drivers_license", "Driver's License"),
+            Map.entry("asylum_seeker_permit", "Asylum Seeker Permit"),
+            Map.entry("general_work_permit", "General Work Permit"),
+            Map.entry("critical_skills_visa", "Critical Skills Visa"),
+            Map.entry("corporate_visa", "Corporate Visa"),
+            Map.entry("b_bbee_certificate", "B-BBEE Certificate"),
+            Map.entry("cipc_registration", "CIPC Registration"),
+            Map.entry("tax_certificate", "Tax Clearance Certificate"),
+            Map.entry("financial_statement", "Financial Statement"),
+            Map.entry("utility_bill", "Utility Bill"));
+
     public record PresignedUrlRequest(String fileName, String contentType, String documentType) {}
 
     public record PresignedUrlResponse(String uploadUrl, String s3BucketName, String s3ObjectKey) {}
@@ -195,4 +286,16 @@ public class DocumentController {
             String s3BucketName) {}
 
     public record DhaPermitSubmissionResponse(UUID commandId, String status, boolean emailSent) {}
+
+    public record DocumentHistoryResponse(
+            List<DocumentHistoryItem> items, String cursor, boolean hasMore) {}
+
+    public record DocumentHistoryItem(
+            String verificationId,
+            String documentType,
+            String documentTypeLabel,
+            String documentNumber,
+            String outcome,
+            double overallConfidence,
+            String verifiedAt) {}
 }
