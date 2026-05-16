@@ -1008,7 +1008,7 @@ export interface PresignedUrlResponse {
 export async function getDocumentPresignedUrl(
   request: PresignedUrlRequest
 ): Promise<PresignedUrlResponse> {
-  const { data } = await bffApi.post<PresignedUrlResponse>("/documents/presigned-url", request);
+  const { data } = await bffApi.post<PresignedUrlResponse>("/api/partner/documents/presigned-url", request);
   return data;
 }
 
