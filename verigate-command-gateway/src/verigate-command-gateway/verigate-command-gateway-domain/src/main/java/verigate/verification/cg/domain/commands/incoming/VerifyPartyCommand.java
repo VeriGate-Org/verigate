@@ -74,7 +74,13 @@ public class VerifyPartyCommand extends BaseCommand {
   }
 
   public String getPartnerId() {
-    return partnerId;
+    if (partnerId != null) {
+      return partnerId;
+    }
+    if (metadata != null && metadata.get("partnerId") instanceof String pid) {
+      return pid;
+    }
+    return null;
   }
 
   public VerificationType getVerificationType() {

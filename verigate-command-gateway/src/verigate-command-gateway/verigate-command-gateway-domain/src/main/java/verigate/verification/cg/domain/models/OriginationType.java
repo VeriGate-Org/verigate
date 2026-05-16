@@ -10,6 +10,7 @@ package verigate.verification.cg.domain.models;
  * Represents the location the verification request is being sent from.
  */
 public enum OriginationType {
+  ADHOC,
   CLAIMS,
   POLICY,
   QUOTE

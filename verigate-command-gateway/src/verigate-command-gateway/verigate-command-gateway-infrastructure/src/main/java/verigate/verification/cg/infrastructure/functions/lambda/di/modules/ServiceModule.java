@@ -85,7 +85,7 @@ public class ServiceModule extends AbstractModule {
     // Environment and Config
     bind(Environment.class).to(EnvironmentConfig.class);
     bind(Config.class).to(PropertiesFileConfig.class).asEagerSingleton();
-    bind(FeatureFlags.class).to(GrowthBookProvider.class);
+    // FeatureFlags - provided via @Provides method below
 
     // Exceptions
     bind(LambdaExceptionHandler.class).to(LambdaApiGatewayRetryExceptionHandler.class);
@@ -95,8 +95,7 @@ public class ServiceModule extends AbstractModule {
     bind(QueueDispatcherFactory.class).to(DefaultQueueDispatcherFactory.class).in(Singleton.class);
     bind(Mapper.class).to(PassthroughMapper.class).in(Singleton.class);
 
-    // Metrics
-    bind(Meter.class).to(DatadogMeter.class).in(Singleton.class);
+    // Metrics - provided via @Provides method below
 
     // Command handlers
     bind(VerifyPartyCommandHandler.class).to(DefaultVerifyPartyCommandHandler.class);
@@ -161,6 +160,23 @@ public class ServiceModule extends AbstractModule {
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     return mapper;
+  }
+
+  @Provides
+  @Singleton
+  private FeatureFlags provideFeatureFlags(Environment environment) {
+    try {
+      return new GrowthBookProvider(environment);
+    } catch (Exception e) {
+      // Fall back to no-op: always return the default value
+      return (featureName, defaultValue) -> defaultValue;
+    }
+  }
+
+  @Provides
+  @Singleton
+  private Meter provideMeter(Environment environment) {
+    return new DatadogMeter(environment);
   }
 
   protected DefaultRetry getDefaultRetry(Config config) {
