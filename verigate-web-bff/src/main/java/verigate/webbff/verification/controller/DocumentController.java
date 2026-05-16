@@ -202,7 +202,7 @@ public class DocumentController {
         }
 
         var page = commandStatusRepository.findByPartnerId(
-                partnerId, status, "DOCUMENT_VERIFICATION", clampedLimit, exclusiveStartKey);
+                partnerId, status, "VerifyPartyCommand", clampedLimit, exclusiveStartKey);
 
         List<DocumentHistoryItem> items = page.items().stream()
                 .map(this::mapToHistoryItem)
@@ -225,14 +225,20 @@ public class DocumentController {
 
         String documentType = aux.getOrDefault("documentType", "unknown");
         String documentTypeLabel = DOCUMENT_TYPE_LABEL_MAP.getOrDefault(documentType, documentType);
-        String documentNumber = aux.containsKey("permitNumber")
-                ? aux.get("permitNumber")
-                : aux.getOrDefault("documentNumber", "");
+        String documentNumber = aux.getOrDefault("documentNumber", "");
 
         String outcome;
         if (item.getStatus() != null) {
             switch (item.getStatus()) {
-                case COMPLETED -> outcome = aux.getOrDefault("outcome", "VERIFIED");
+                case COMPLETED -> {
+                    String rawOutcome = aux.getOrDefault("outcome", "SUCCEEDED");
+                    outcome = switch (rawOutcome) {
+                        case "SUCCEEDED" -> "VERIFIED";
+                        case "SOFT_FAIL" -> "NOT_VERIFIED";
+                        case "HARD_FAIL" -> "FAILED";
+                        default -> rawOutcome;
+                    };
+                }
                 case PERMANENT_FAILURE, INVARIANT_FAILURE -> outcome = "FAILED";
                 default -> outcome = "PENDING";
             }
@@ -242,7 +248,7 @@ public class DocumentController {
 
         double overallConfidence;
         try {
-            overallConfidence = Double.parseDouble(aux.getOrDefault("overallConfidence", "0.0"));
+            overallConfidence = Double.parseDouble(aux.getOrDefault("confidenceScore", "0.0"));
         } catch (NumberFormatException e) {
             overallConfidence = 0.0;
         }
@@ -259,17 +265,29 @@ public class DocumentController {
 
     private static final Map<String, String> DOCUMENT_TYPE_LABEL_MAP = Map.ofEntries(
             Map.entry("id_card", "SA ID Card"),
+            Map.entry("ID_CARD", "SA ID Card"),
             Map.entry("passport", "Passport"),
+            Map.entry("PASSPORT", "Passport"),
             Map.entry("drivers_license", "Driver's License"),
+            Map.entry("DRIVERS_LICENSE", "Driver's License"),
             Map.entry("asylum_seeker_permit", "Asylum Seeker Permit"),
+            Map.entry("ASYLUM_SEEKER_PERMIT", "Asylum Seeker Permit"),
             Map.entry("general_work_permit", "General Work Permit"),
+            Map.entry("GENERAL_WORK_PERMIT", "General Work Permit"),
             Map.entry("critical_skills_visa", "Critical Skills Visa"),
+            Map.entry("CRITICAL_SKILLS_VISA", "Critical Skills Visa"),
             Map.entry("corporate_visa", "Corporate Visa"),
+            Map.entry("CORPORATE_VISA", "Corporate Visa"),
             Map.entry("b_bbee_certificate", "B-BBEE Certificate"),
+            Map.entry("B_BBEE_CERTIFICATE", "B-BBEE Certificate"),
             Map.entry("cipc_registration", "CIPC Registration"),
+            Map.entry("CIPC_REGISTRATION", "CIPC Registration"),
             Map.entry("tax_certificate", "Tax Clearance Certificate"),
+            Map.entry("TAX_CERTIFICATE", "Tax Clearance Certificate"),
             Map.entry("financial_statement", "Financial Statement"),
-            Map.entry("utility_bill", "Utility Bill"));
+            Map.entry("FINANCIAL_STATEMENT", "Financial Statement"),
+            Map.entry("utility_bill", "Utility Bill"),
+            Map.entry("UTILITY_BILL", "Utility Bill"));
 
     public record PresignedUrlRequest(String fileName, String contentType, String documentType) {}
 
