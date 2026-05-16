@@ -19,6 +19,7 @@ import crosscutting.config.Config;
 import crosscutting.config.PropertiesFileConfig;
 import crosscutting.environment.Environment;
 import crosscutting.environment.EnvironmentConfig;
+import crosscutting.metrics.Meter;
 import crosscutting.resiliency.DefaultRetry;
 import domain.events.DefaultEventIdFactory;
 import domain.events.EventIdFactory;
@@ -216,6 +217,12 @@ public class ServiceModule extends AbstractModule {
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
       AiDocumentAnalyzer aiDocumentAnalyzer) {
     return new DefaultDocumentVerificationService(apiAdapter, dtoMapper, aiDocumentAnalyzer);
+  }
+
+  @Provides
+  @Singleton
+  private Meter provideMeter(Environment environment) {
+    return new crosscutting.metrics.DatadogMeter(environment);
   }
 
   @Provides
