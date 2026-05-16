@@ -84,6 +84,32 @@ resource "aws_acm_certificate_validation" "wildcard" {
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
 
+# ── CloudFront Function (SPA routing + index.html rewrite) ────────
+
+resource "aws_cloudfront_function" "rewrite" {
+  name    = "${local.bucket_name}-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Append index.html to subdirectory requests for Next.js static export"
+  publish = true
+  code    = <<-EOF
+function handler(event) {
+  var request = event.request;
+  var uri = request.uri;
+
+  // If URI ends with '/' append index.html
+  if (uri.endsWith('/')) {
+    request.uri += 'index.html';
+  }
+  // If URI doesn't have a file extension, append /index.html
+  else if (!uri.includes('.')) {
+    request.uri += '/index.html';
+  }
+
+  return request;
+}
+EOF
+}
+
 # ── CloudFront Distribution ───────────────────────────────────────
 
 resource "aws_cloudfront_distribution" "website" {
@@ -118,6 +144,11 @@ resource "aws_cloudfront_distribution" "website" {
     min_ttl     = 0
     default_ttl = 3600
     max_ttl     = 86400
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite.arn
+    }
   }
 
   # SPA fallback - redirect 404/403 to index.html for client-side routing
