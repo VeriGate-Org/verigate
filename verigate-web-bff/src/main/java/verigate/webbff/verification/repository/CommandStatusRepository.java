@@ -96,6 +96,12 @@ public class CommandStatusRepository {
       expressionValues.put(":statusPrefix", AttributeValue.builder().s(status + "#").build());
     }
 
+    String filterExpression = null;
+    if (commandName != null && !commandName.isBlank()) {
+      filterExpression = "commandName = :cmdName";
+      expressionValues.put(":cmdName", AttributeValue.builder().s(commandName).build());
+    }
+
     QueryRequest.Builder queryBuilder = QueryRequest.builder()
         .tableName(tableName)
         .indexName(PARTNER_INDEX)
@@ -104,9 +110,8 @@ public class CommandStatusRepository {
         .scanIndexForward(false)
         .limit(limit);
 
-    if (commandName != null && !commandName.isBlank()) {
-      queryBuilder.filterExpression("commandName = :cmdName");
-      expressionValues.put(":cmdName", AttributeValue.builder().s(commandName).build());
+    if (filterExpression != null) {
+      queryBuilder.filterExpression(filterExpression);
     }
 
     if (cursor != null && !cursor.isEmpty()) {
