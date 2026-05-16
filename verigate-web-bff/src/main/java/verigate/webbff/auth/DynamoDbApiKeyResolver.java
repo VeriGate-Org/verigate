@@ -54,7 +54,7 @@ public class DynamoDbApiKeyResolver implements ApiKeyResolver {
 
       GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder()
           .tableName(apiKeysTable)
-          .key(Map.of("lookupHash", AttributeValue.builder().s(lookupHash).build()))
+          .key(Map.of("apiKeyHash", AttributeValue.builder().s(lookupHash).build()))
           .build());
 
       if (!response.hasItem() || response.item().isEmpty()) {
