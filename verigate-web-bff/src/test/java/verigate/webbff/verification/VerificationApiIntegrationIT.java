@@ -310,12 +310,12 @@ class VerificationApiIntegrationIT {
             .tableName(API_KEYS_TABLE)
             .attributeDefinitions(
                 AttributeDefinition.builder()
-                    .attributeName("lookupHash")
+                    .attributeName("apiKeyHash")
                     .attributeType(ScalarAttributeType.S)
                     .build())
             .keySchema(
                 KeySchemaElement.builder()
-                    .attributeName("lookupHash")
+                    .attributeName("apiKeyHash")
                     .keyType(KeyType.HASH)
                     .build())
             .provisionedThroughput(
@@ -416,7 +416,7 @@ class VerificationApiIntegrationIT {
             .tableName(API_KEYS_TABLE)
             .item(
                 Map.of(
-                    "lookupHash", AttributeValue.builder().s(lookupHash).build(),
+                    "apiKeyHash", AttributeValue.builder().s(lookupHash).build(),
                     "salt", AttributeValue.builder().s(salt).build(),
                     "verificationHash", AttributeValue.builder().s(verificationHash).build(),
                     "partnerId", AttributeValue.builder().s(TEST_PARTNER_ID).build(),
