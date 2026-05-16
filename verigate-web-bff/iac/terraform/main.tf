@@ -65,6 +65,8 @@ resource "aws_iam_role_policy" "lambda" {
           "s3:GetObject",
           "s3:PutObject",
           "s3:ListBucket",
+          "ses:SendRawEmail",
+          "ses:SendEmail",
           "cognito-idp:*"
         ]
         Resource = "*"

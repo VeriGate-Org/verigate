@@ -62,3 +62,47 @@ variable "acm_certificate_arn" {
   type        = string
   default     = ""
 }
+
+# ── Health Check URLs ────────────────────────────────────────────────
+
+variable "health_deedsweb_url" {
+  description = "DeedsWeb health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_dha_url" {
+  description = "DHA health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_worldcheck_url" {
+  description = "World-Check health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_experian_url" {
+  description = "Experian health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_transunion_url" {
+  description = "TransUnion health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_xds_url" {
+  description = "XDS health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "health_cipc_url" {
+  description = "CIPC health check URL"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
