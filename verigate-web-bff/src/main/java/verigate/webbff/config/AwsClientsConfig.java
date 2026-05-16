@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.bedrock.BedrockClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.webbff.config.properties.AwsProperties;
 import verigate.webbff.config.properties.CaseProperties;
@@ -22,12 +23,14 @@ import verigate.webbff.config.properties.HealthCheckProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.config.properties.RiskAssessmentProperties;
 import verigate.webbff.config.properties.AiRiskEnhancementProperties;
+import verigate.webbff.config.properties.DhaVerificationProperties;
 import verigate.webbff.config.properties.MonitoringProperties;
 import verigate.webbff.config.properties.PartnerHubProperties;
 
 @Configuration
 @EnableConfigurationProperties({
     AwsProperties.class,
+    DhaVerificationProperties.class,
     CaseProperties.class,
     CommandStoreProperties.class,
     ResponsePollingProperties.class,
@@ -108,5 +111,14 @@ public class AwsClientsConfig {
         .region(Region.US_EAST_1)
         .overrideConfiguration(CLIENT_OVERRIDE)
         .build();
+  }
+
+  @Bean
+  SesClient sesClient(AwsProperties properties, Region region) {
+    var builder = SesClient.builder()
+        .region(region)
+        .overrideConfiguration(CLIENT_OVERRIDE);
+    properties.getSesEndpoint().ifPresent(builder::endpointOverride);
+    return builder.build();
   }
 }

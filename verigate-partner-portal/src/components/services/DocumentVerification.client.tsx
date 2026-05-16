@@ -13,14 +13,17 @@ import { RetryButton } from "@/components/verification/RetryButton";
 import { ScreenReaderAnnounce } from "@/components/ui/ScreenReaderAnnounce";
 import { ServiceField } from "@/components/services/shared/ServiceField";
 import { useToast } from "@/components/ui/Toast";
-import { type DocumentVerificationResponse, type ExtractedFieldWithConfidence, type TamperingIndicators, type ValidationCheck } from "@/lib/mock-services";
+import { type DocumentVerificationResponse, type ExtractedFieldWithConfidence, type TamperingIndicators, type ValidationCheck, mockDhaPermitSubmission } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
 import { exportPdf } from "@/lib/utils/export-pdf";
 import {
   getDocumentPresignedUrl,
   uploadFileToS3,
+  submitDhaPermitVerification,
+  type DhaPermitSubmissionResponse,
 } from "@/lib/bff-client";
-import { FileCheck, CheckCircle2, XCircle, Shield, AlertTriangle } from "lucide-react";
+import { config } from "@/lib/config";
+import { FileCheck, CheckCircle2, XCircle, Shield, AlertTriangle, Clock } from "lucide-react";
 import { DOCUMENT_TYPE_GROUPS, DOCUMENT_FIELD_CONFIGS } from "@/components/services/document-verification/documentFieldConfigs";
 import { validateField, validateAllFields } from "@/lib/validations/document-validation";
 
@@ -174,18 +177,27 @@ export default function DocumentVerification() {
   const [result, setResult] = useState<DocumentVerificationResponse | null>(
     null
   );
+  const [dhaResult, setDhaResult] = useState<DhaPermitSubmissionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const resultCardRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  // Single-file upload state (non-DHA permits)
   const [, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [s3ObjectKey, setS3ObjectKey] = useState<string>("");
   const [s3BucketName, setS3BucketName] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Multi-file upload state (DHA permits: permit doc + consent form)
+  interface UploadedFile { s3ObjectKey: string; s3BucketName: string; fileName: string }
+  const [dhaFiles, setDhaFiles] = useState<File[]>([]);
+  const [dhaUploadedFiles, setDhaUploadedFiles] = useState<UploadedFile[]>([]);
+  const [dhaUploadProgress, setDhaUploadProgress] = useState<number>(0);
+  const [isDhaUploading, setIsDhaUploading] = useState(false);
 
   const fieldConfigs = DOCUMENT_FIELD_CONFIGS[documentType] ?? [];
   const primaryFieldName = fieldConfigs[0]?.name ?? "documentNumber";
@@ -195,6 +207,10 @@ export default function DocumentVerification() {
     setAdditionalFields({});
     setFieldErrors({});
     setResult(null);
+    setDhaResult(null);
+    setDhaFiles([]);
+    setDhaUploadedFiles([]);
+    setUploadError(null);
   }, []);
 
   const handleFieldChange = useCallback(
@@ -254,6 +270,60 @@ export default function DocumentVerification() {
     setUploadError(null);
   }, []);
 
+  const handleDhaFilesSelect = useCallback(
+    async (files: File[]) => {
+      setUploadError(null);
+      const newFiles = [...dhaFiles, ...files];
+      setDhaFiles(newFiles);
+      setIsDhaUploading(true);
+
+      try {
+        const newUploaded: UploadedFile[] = [...dhaUploadedFiles];
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const presigned = await getDocumentPresignedUrl({
+            fileName: file.name,
+            contentType: file.type,
+            documentType,
+          });
+
+          await uploadFileToS3(presigned.uploadUrl, file, (percent) => {
+            const baseProgress = ((dhaUploadedFiles.length + i) / newFiles.length) * 100;
+            const fileContribution = (percent / newFiles.length);
+            setDhaUploadProgress(Math.round(baseProgress + fileContribution));
+          });
+
+          newUploaded.push({
+            s3ObjectKey: presigned.s3ObjectKey,
+            s3BucketName: presigned.s3BucketName,
+            fileName: file.name,
+          });
+        }
+        setDhaUploadedFiles(newUploaded);
+        setDhaUploadProgress(100);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "File upload failed";
+        setUploadError(message);
+      } finally {
+        setIsDhaUploading(false);
+      }
+    },
+    [documentType, dhaFiles, dhaUploadedFiles]
+  );
+
+  const handleDhaFileRemove = useCallback(
+    (index: number) => {
+      setDhaFiles((prev) => prev.filter((_, i) => i !== index));
+      setDhaUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+      setUploadError(null);
+    },
+    []
+  );
+
+  const DHA_PERMIT_TYPES = ["asylum_seeker_permit", "general_work_permit"];
+  const isDhaPermit = DHA_PERMIT_TYPES.includes(documentType);
+  const dhaFilesReady = dhaUploadedFiles.length >= 2;
+
   const doVerification = useCallback(async () => {
     // Validate all fields before submission
     const errors = validateAllFields(documentType, additionalFields);
@@ -263,39 +333,73 @@ export default function DocumentVerification() {
       return;
     }
 
+    // Require permit document + consent form for DHA permit types
+    if (isDhaPermit && dhaUploadedFiles.length < 2) {
+      setUploadError("Please upload both the permit document and consent form (at least 2 files required).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const documentNumber = additionalFields[primaryFieldName] ?? "";
-      const metadata: Record<string, unknown> = {
-        documentType,
-        documentNumber,
-        additionalFields,
-      };
+      if (isDhaPermit) {
+        // DHA permit: submit to DHA via email with documents attached
+        const permitNumber = additionalFields[primaryFieldName] ?? "";
+        const nationality = additionalFields["nationality"] ?? "";
+        const employerName = additionalFields["employerName"] || undefined;
 
-      if (s3ObjectKey && s3BucketName) {
-        metadata.s3BucketName = s3BucketName;
-        metadata.s3ObjectKey = s3ObjectKey;
+        let data: DhaPermitSubmissionResponse;
+        if (config.useMockServices) {
+          data = await mockDhaPermitSubmission({ documentType, permitNumber, nationality, employerName });
+        } else {
+          data = await submitDhaPermitVerification({
+            documentType,
+            permitNumber,
+            nationality,
+            employerName,
+            s3ObjectKeys: dhaUploadedFiles.map((f) => f.s3ObjectKey),
+            s3BucketName: dhaUploadedFiles[0].s3BucketName,
+          });
+        }
+        setDhaResult(data);
+        setResult(null);
+        toast({ title: "Submitted for verification", description: "Verification request sent to DHA with document attached", variant: "success" });
+        setTimeout(() => resultRef.current?.focus(), 100);
+      } else {
+        // Standard document verification flow
+        const documentNumber = additionalFields[primaryFieldName] ?? "";
+        const metadata: Record<string, unknown> = {
+          documentType,
+          documentNumber,
+          additionalFields,
+        };
+
+        if (s3ObjectKey && s3BucketName) {
+          metadata.s3BucketName = s3BucketName;
+          metadata.s3ObjectKey = s3ObjectKey;
+        }
+
+        const data = (await executeVerification(
+          "DOCUMENT_VERIFICATION",
+          metadata
+        )) as DocumentVerificationResponse;
+        setResult(data);
+        setDhaResult(null);
+        toast({ title: "Verification complete", variant: "success" });
+        setTimeout(() => resultRef.current?.focus(), 100);
       }
-
-      const data = (await executeVerification(
-        "DOCUMENT_VERIFICATION",
-        metadata
-      )) as DocumentVerificationResponse;
-      setResult(data);
-      toast({ title: "Verification complete", variant: "success" });
-      setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Verification failed";
       setError(message);
       setResult(null);
+      setDhaResult(null);
       toast({ title: "Verification failed", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [documentType, additionalFields, primaryFieldName, s3ObjectKey, s3BucketName, toast]);
+  }, [documentType, additionalFields, primaryFieldName, s3ObjectKey, s3BucketName, isDhaPermit, dhaUploadedFiles, toast]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -304,15 +408,18 @@ export default function DocumentVerification() {
 
   const primaryValue = additionalFields[primaryFieldName] ?? "";
   const submitDisabled =
-    loading || primaryValue.trim().length < 1 || isUploading;
+    loading || primaryValue.trim().length < 1 || isUploading || isDhaUploading
+    || (isDhaPermit && !dhaFilesReady);
 
   const srMessage = loading
     ? "Loading verification results"
     : error
       ? "Verification failed"
-      : result
-        ? "Verification complete"
-        : "";
+      : dhaResult
+        ? "Submitted for verification"
+        : result
+          ? "Verification complete"
+          : "";
 
   return (
     <div className="space-y-6">
@@ -406,18 +513,36 @@ export default function DocumentVerification() {
             ))}
 
             <ServiceField
-              label="Document image (optional)"
-              description="Upload a scan or photo for AI-powered extraction and tampering analysis."
+              label={isDhaPermit ? "Documents (required)" : "Document image (optional)"}
+              description={isDhaPermit
+                ? "Upload the permit document and consent form. Both files are required for submission to DHA."
+                : "Upload a scan or photo for AI-powered extraction and tampering analysis."}
+              error={uploadError ?? undefined}
             >
-              <FileUpload
-                accept="image/*,.pdf"
-                maxSize={10 * 1024 * 1024}
-                progress={uploadProgress}
-                uploading={isUploading}
-                error={uploadError ?? undefined}
-                onFileSelect={handleFileSelect}
-                onClear={handleFileClear}
-              />
+              {isDhaPermit ? (
+                <FileUpload
+                  accept="image/*,.pdf"
+                  maxSize={10 * 1024 * 1024}
+                  multiple
+                  selectedFiles={dhaFiles}
+                  progress={dhaUploadProgress}
+                  uploading={isDhaUploading}
+                  error={uploadError ?? undefined}
+                  onFilesSelect={handleDhaFilesSelect}
+                  onFileRemove={handleDhaFileRemove}
+                  hint="Upload the permit document and signed consent form"
+                />
+              ) : (
+                <FileUpload
+                  accept="image/*,.pdf"
+                  maxSize={10 * 1024 * 1024}
+                  progress={uploadProgress}
+                  uploading={isUploading}
+                  error={uploadError ?? undefined}
+                  onFileSelect={handleFileSelect}
+                  onClear={handleFileClear}
+                />
+              )}
             </ServiceField>
 
             <div className="flex items-center justify-between gap-3 pt-2">
@@ -467,11 +592,48 @@ export default function DocumentVerification() {
                   </div>
                 </div>
               </div>
-            ) : error && !result ? (
+            ) : error && !result && !dhaResult ? (
               <div className="console-card">
                 <div className="console-card-body flex items-center justify-between">
                   <span className="text-sm text-danger">{error}</span>
                   <RetryButton onRetry={doVerification} />
+                </div>
+              </div>
+            ) : dhaResult ? (
+              <div className="console-card border-amber-500/30">
+                <div className="console-card-header">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-amber-500" />
+                    <div>
+                      <div className="text-sm font-semibold text-text">
+                        Pending DHA Review
+                      </div>
+                      <div className="text-xs text-text-muted">
+                        Permit verification submission
+                      </div>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600">
+                    {dhaResult.status}
+                  </span>
+                </div>
+                <div className="console-card-body space-y-3">
+                  <div className="rounded border border-amber-500/20 bg-amber-500/5 p-3">
+                    <p className="text-sm text-text">
+                      Your permit document has been sent to the Department of Home Affairs for verification.
+                      DHA will review the document and confirm its authenticity. You will be notified when the review is complete.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-text-muted uppercase tracking-wide">Command ID</div>
+                      <div className="text-sm font-mono text-text mt-0.5">{dhaResult.commandId}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-text-muted uppercase tracking-wide">Email Sent</div>
+                      <div className="text-sm text-text mt-0.5">{dhaResult.emailSent ? "Yes" : "No"}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : result ? (

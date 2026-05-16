@@ -1335,6 +1335,19 @@ export async function mockBulkResults(idNumbers: string[], delayMs?: number): Pr
   return generateBulkResults(idNumbers);
 }
 
+// --- DHA Permit Submission Mock ---
+
+export async function mockDhaPermitSubmission(
+  _request: { documentType: string; permitNumber: string; nationality: string; employerName?: string },
+): Promise<{ commandId: string; status: string; emailSent: boolean }> {
+  await wait(1200);
+  return {
+    commandId: `dha-${Date.now()}`,
+    status: "PENDING",
+    emailSent: true,
+  };
+}
+
 export type VatVendorSearchRequest = { vatNumber: string; vendorDescription?: string };
 export type VatVendorSearchResponse = {
   reference: string;

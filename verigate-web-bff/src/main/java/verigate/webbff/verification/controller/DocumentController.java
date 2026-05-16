@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +25,12 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import verigate.webbff.auth.PartnerContextHolder;
 import verigate.webbff.config.properties.DocumentProperties;
+import verigate.webbff.verification.model.OriginationType;
+import verigate.webbff.verification.model.VerificationRequest;
+import verigate.webbff.verification.model.VerificationType;
 import verigate.webbff.verification.repository.CommandStatusRepository;
+import verigate.webbff.verification.service.DhaPermitNotificationService;
+import verigate.webbff.verification.service.VerificationService;
 
 @RestController
 @RequestMapping("/api/partner/documents")
@@ -39,16 +45,22 @@ public class DocumentController {
     private final DocumentProperties documentProperties;
     private final CommandStatusRepository commandStatusRepository;
     private final ObjectMapper objectMapper;
+    private final VerificationService verificationService;
+    private final DhaPermitNotificationService dhaPermitNotificationService;
 
     public DocumentController(
             S3Presigner s3Presigner,
             DocumentProperties documentProperties,
             CommandStatusRepository commandStatusRepository,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            VerificationService verificationService,
+            DhaPermitNotificationService dhaPermitNotificationService) {
         this.s3Presigner = s3Presigner;
         this.documentProperties = documentProperties;
         this.commandStatusRepository = commandStatusRepository;
         this.objectMapper = objectMapper;
+        this.verificationService = verificationService;
+        this.dhaPermitNotificationService = dhaPermitNotificationService;
     }
 
     @PostMapping("/presigned-url")
@@ -122,9 +134,65 @@ public class DocumentController {
         return ResponseEntity.ok(links);
     }
 
+    @PostMapping("/dha-permit-submission")
+    public ResponseEntity<DhaPermitSubmissionResponse> submitDhaPermitVerification(
+            @RequestBody DhaPermitSubmissionRequest request) {
+        String partnerId = PartnerContextHolder.requirePartnerId();
+
+        logger.info("DHA permit submission: partnerId={}, documentType={}, permitNumber={}",
+                partnerId, request.documentType(), request.permitNumber());
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("documentType", request.documentType());
+        metadata.put("permitNumber", request.permitNumber());
+        metadata.put("nationality", request.nationality());
+        if (request.employerName() != null) {
+            metadata.put("employerName", request.employerName());
+        }
+        metadata.put("s3ObjectKeys", request.s3ObjectKeys());
+        metadata.put("s3BucketName", request.s3BucketName());
+
+        VerificationRequest verificationRequest = new VerificationRequest(
+                VerificationType.DOCUMENT_VERIFICATION,
+                OriginationType.ADHOC,
+                UUID.randomUUID(),
+                partnerId,
+                metadata,
+                null,
+                request.s3ObjectKeys());
+
+        var response = verificationService.submitVerification(verificationRequest);
+        UUID commandId = response.commandId();
+
+        boolean emailSent = dhaPermitNotificationService.sendNotification(
+                request.documentType(),
+                partnerId,
+                request.permitNumber(),
+                request.nationality(),
+                request.employerName(),
+                request.s3ObjectKeys(),
+                request.s3BucketName(),
+                commandId);
+
+        logger.info("DHA permit submission complete: documentType={}, commandId={}, emailSent={}",
+                request.documentType(), commandId, emailSent);
+
+        return ResponseEntity.ok(new DhaPermitSubmissionResponse(commandId, "PENDING", emailSent));
+    }
+
     public record PresignedUrlRequest(String fileName, String contentType, String documentType) {}
 
     public record PresignedUrlResponse(String uploadUrl, String s3BucketName, String s3ObjectKey) {}
 
     public record DocumentLink(String s3Key, String downloadUrl) {}
+
+    public record DhaPermitSubmissionRequest(
+            String documentType,
+            String permitNumber,
+            String nationality,
+            String employerName,
+            List<String> s3ObjectKeys,
+            String s3BucketName) {}
+
+    public record DhaPermitSubmissionResponse(UUID commandId, String status, boolean emailSent) {}
 }

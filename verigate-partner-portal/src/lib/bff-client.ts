@@ -1041,6 +1041,33 @@ export async function uploadFileToS3(
   });
 }
 
+// --- DHA Permit Submission ---
+
+export interface DhaPermitSubmissionRequest {
+  documentType: string;
+  permitNumber: string;
+  nationality: string;
+  employerName?: string;
+  s3ObjectKeys: string[];
+  s3BucketName: string;
+}
+
+export interface DhaPermitSubmissionResponse {
+  commandId: string;
+  status: string;
+  emailSent: boolean;
+}
+
+export async function submitDhaPermitVerification(
+  request: DhaPermitSubmissionRequest,
+): Promise<DhaPermitSubmissionResponse> {
+  const { data } = await bffApi.post<DhaPermitSubmissionResponse>(
+    "/api/partner/documents/dha-permit-submission",
+    request,
+  );
+  return data;
+}
+
 // --- Cases ---
 
 export type CaseStatus = "OPEN" | "IN_REVIEW" | "RESOLVED" | "ESCALATED";

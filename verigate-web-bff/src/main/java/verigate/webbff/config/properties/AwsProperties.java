@@ -11,6 +11,7 @@ public class AwsProperties {
   private URI sqsEndpoint;
   private URI dynamodbEndpoint;
   private URI s3Endpoint;
+  private URI sesEndpoint;
 
   public String getRegion() {
     return region;
@@ -42,5 +43,13 @@ public class AwsProperties {
 
   public void setS3Endpoint(URI s3Endpoint) {
     this.s3Endpoint = s3Endpoint;
+  }
+
+  public Optional<URI> getSesEndpoint() {
+    return Optional.ofNullable(sesEndpoint);
+  }
+
+  public void setSesEndpoint(URI sesEndpoint) {
+    this.sesEndpoint = sesEndpoint;
   }
 }

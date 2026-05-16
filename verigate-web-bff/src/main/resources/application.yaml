@@ -31,6 +31,10 @@ verigate:
     sqs-endpoint: ${AWS_SQS_ENDPOINT:}
     dynamodb-endpoint: ${AWS_DYNAMODB_ENDPOINT:}
     s3-endpoint: ${AWS_S3_ENDPOINT:}
+    ses-endpoint: ${AWS_SES_ENDPOINT:}
+  dha-verification:
+    notification-email: ${VERIGATE_DHA_NOTIFICATION_EMAIL:asmverifications@dha.gov.za}
+    sender-email: ${VERIGATE_DHA_SENDER_EMAIL:noreply@verigate.co.za}
   documents:
     s3-bucket-name: ${VERIGATE_DOCUMENTS_BUCKET:verigate-documents}
   auth:

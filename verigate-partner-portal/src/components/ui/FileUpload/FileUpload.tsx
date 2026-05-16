@@ -17,10 +17,22 @@ export interface FileUploadProps {
   error?: string;
   /** Whether an upload is in progress */
   uploading?: boolean;
-  /** Called when a valid file is selected */
+  /** Called when a valid file is selected (single-file mode) */
   onFileSelect?: (file: File) => void;
-  /** Called when the file is cleared */
+  /** Called when the file is cleared (single-file mode) */
   onClear?: () => void;
+  /** Enable multi-file selection */
+  multiple?: boolean;
+  /** Called when files are selected (multi-file mode) */
+  onFilesSelect?: (files: File[]) => void;
+  /** Called when all files are cleared (multi-file mode) */
+  onAllClear?: () => void;
+  /** Called when a single file is removed by index (multi-file mode) */
+  onFileRemove?: (index: number) => void;
+  /** Selected files in multi-file mode (controlled by parent) */
+  selectedFiles?: File[];
+  /** Custom hint text below the drop zone */
+  hint?: string;
   /** Additional class names for the root element */
   className?: string;
 }
@@ -46,6 +58,12 @@ export default function FileUpload({
   uploading = false,
   onFileSelect,
   onClear,
+  multiple = false,
+  onFilesSelect,
+  onAllClear,
+  onFileRemove,
+  selectedFiles,
+  hint,
   className,
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +74,7 @@ export default function FileUpload({
 
   const displayError = externalError || validationError;
 
+  // --- Single-file handlers ---
   const clearFile = useCallback(() => {
     setSelectedFile(null);
     setPreviewUrl(null);
@@ -91,6 +110,31 @@ export default function FileUpload({
     [maxSize, onFileSelect]
   );
 
+  // --- Multi-file handlers ---
+  const handleMultipleFiles = useCallback(
+    (files: FileList) => {
+      setValidationError(null);
+      const validFiles: File[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > maxSize) {
+          setValidationError(
+            `"${file.name}" is too large. Maximum size is ${formatBytes(maxSize)}.`
+          );
+          return;
+        }
+        validFiles.push(file);
+      }
+
+      if (validFiles.length > 0) {
+        onFilesSelect?.(validFiles);
+      }
+    },
+    [maxSize, onFilesSelect]
+  );
+
+  // --- Shared handlers ---
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -109,30 +153,121 @@ export default function FileUpload({
       e.stopPropagation();
       setDragOver(false);
 
-      const file = e.dataTransfer.files[0];
-      if (file) {
-        handleFile(file);
+      if (multiple) {
+        handleMultipleFiles(e.dataTransfer.files);
+      } else {
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          handleFile(file);
+        }
       }
     },
-    [handleFile]
+    [multiple, handleFile, handleMultipleFiles]
   );
 
   const handleInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        handleFile(file);
+      if (!e.target.files || e.target.files.length === 0) return;
+
+      if (multiple) {
+        handleMultipleFiles(e.target.files);
+      } else {
+        const file = e.target.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      }
+
+      // Reset input so re-selecting the same files triggers onChange
+      if (inputRef.current) {
+        inputRef.current.value = "";
       }
     },
-    [handleFile]
+    [multiple, handleFile, handleMultipleFiles]
   );
 
   const openFilePicker = useCallback(() => {
     inputRef.current?.click();
   }, []);
 
-  // --- Render selected file state ---
-  if (selectedFile) {
+  // --- Multi-file mode: render file list ---
+  if (multiple && selectedFiles && selectedFiles.length > 0) {
+    return (
+      <div className={cn("space-y-2", className)}>
+        <div className="space-y-1.5">
+          {selectedFiles.map((file, idx) => (
+            <div key={`${file.name}-${idx}`} className="flex items-center gap-3 rounded border border-border bg-background/50 px-3 py-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-background text-text-muted">
+                <FileText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-text">
+                  {file.name}
+                </p>
+                <p className="text-xs text-text-muted">
+                  {formatBytes(file.size)}
+                </p>
+              </div>
+              {!uploading && (
+                <button
+                  type="button"
+                  onClick={() => onFileRemove?.(idx)}
+                  className="rounded p-1 text-text-muted hover:bg-background hover:text-text"
+                  aria-label={`Remove ${file.name}`}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        {uploading && typeof progress === "number" && (
+          <div className="space-y-1">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-300"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-text-muted">{progress}% uploaded</p>
+          </div>
+        )}
+
+        {/* Add more files button */}
+        {!uploading && (
+          <button
+            type="button"
+            onClick={openFilePicker}
+            className="text-xs text-accent hover:underline"
+          >
+            + Add more files
+          </button>
+        )}
+
+        {/* Error */}
+        {displayError && (
+          <div className="rounded border border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">
+            {displayError}
+          </div>
+        )}
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          onChange={handleInputChange}
+          className="hidden"
+          aria-label="File upload"
+        />
+      </div>
+    );
+  }
+
+  // --- Single-file mode: render selected file ---
+  if (!multiple && selectedFile) {
     return (
       <div className={cn("space-y-2", className)}>
         <div className="flex items-center gap-3 rounded border border-border bg-background/50 px-3 py-2.5">
@@ -224,16 +359,19 @@ export default function FileUpload({
 
         <div>
           <p className="text-sm font-medium text-text">
-            Drop a file here, or click to browse
+            {multiple ? "Drop files here, or click to browse" : "Drop a file here, or click to browse"}
           </p>
           <p className="mt-0.5 text-xs text-text-muted">
             Max {formatBytes(maxSize)}
             {accept && ` \u00b7 ${accept}`}
           </p>
+          {hint && (
+            <p className="mt-1 text-xs text-text-muted">{hint}</p>
+          )}
         </div>
 
         <Button type="button" variant="secondary" size="sm">
-          Choose file
+          {multiple ? "Choose files" : "Choose file"}
         </Button>
       </div>
 
@@ -241,6 +379,7 @@ export default function FileUpload({
         ref={inputRef}
         type="file"
         accept={accept}
+        multiple={multiple}
         onChange={handleInputChange}
         className="hidden"
         aria-label="File upload"
