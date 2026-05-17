@@ -250,6 +250,7 @@ export default function DocumentVerification() {
         const metadata: Record<string, unknown> = {
           documentType,
           documentNumber,
+          documentReference: documentNumber,
           additionalFields,
         };
 

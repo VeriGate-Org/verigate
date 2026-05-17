@@ -175,7 +175,6 @@ export default function DocumentVerificationHistory() {
               <th className="text-left px-4 py-3 font-medium text-gray-600">Document Type</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Document Number</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Outcome</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Confidence</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
             </tr>
@@ -199,9 +198,6 @@ export default function DocumentVerificationHistory() {
                 <td className="px-4 py-3 text-gray-600">{item.documentTypeLabel}</td>
                 <td className="px-4 py-3 font-mono text-xs">{item.documentNumber}</td>
                 <td className="px-4 py-3">{outcomeBadge(item.outcome)}</td>
-                <td className="px-4 py-3 text-gray-600 tabular-nums">
-                  {Math.round(item.overallConfidence * 100)}%
-                </td>
                 <td className="px-4 py-3 text-gray-600">
                   {new Date(item.verifiedAt).toLocaleDateString()}
                 </td>
@@ -271,7 +267,7 @@ export default function DocumentVerificationHistory() {
             ))}
             {paged.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                   No verification history found
                 </td>
               </tr>
