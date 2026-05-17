@@ -23,10 +23,6 @@ const bffApi = axios.create({
 
 // Request interceptor to attach auth headers and correlation ID
 bffApi.interceptors.request.use((reqConfig: InternalAxiosRequestConfig) => {
-  if (config.bffApiKey) {
-    reqConfig.headers["X-API-Key"] = config.bffApiKey;
-  }
-
   reqConfig.headers["X-Correlation-ID"] = crypto.randomUUID();
 
   // Attach access token from session storage if available

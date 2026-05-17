@@ -104,6 +104,22 @@ function fetchMockVerifications(params: VerificationListParams): VerificationLis
   };
 }
 
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  try {
+    const raw = sessionStorage.getItem("verigate-auth");
+    if (raw) {
+      const session = JSON.parse(raw);
+      if (session.accessToken) {
+        headers["Authorization"] = `Bearer ${session.accessToken}`;
+      }
+    }
+  } catch {
+    // sessionStorage may be unavailable during SSR/build
+  }
+  return headers;
+}
+
 async function fetchBffVerifications(params: VerificationListParams): Promise<VerificationListResponse> {
   const sp = new URLSearchParams();
   if (params.q) sp.set("q", params.q);
@@ -119,12 +135,7 @@ async function fetchBffVerifications(params: VerificationListParams): Promise<Ve
 
   const qs = sp.toString();
   const url = `${config.bffBaseUrl}/api/verifications${qs ? `?${qs}` : ""}`;
-  const resp = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(config.bffApiKey ? { "X-API-Key": config.bffApiKey } : {}),
-    },
-  });
+  const resp = await fetch(url, { headers: getAuthHeaders() });
   if (!resp.ok) {
     throw new Error(`BFF returned ${resp.status}`);
   }
@@ -214,12 +225,7 @@ function fetchMockVerification(correlationId: string): VerificationDetail | null
 
 async function fetchBffVerification(correlationId: string): Promise<VerificationDetail> {
   const url = `${config.bffBaseUrl}/api/verifications/${correlationId}`;
-  const resp = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(config.bffApiKey ? { "X-API-Key": config.bffApiKey } : {}),
-    },
-  });
+  const resp = await fetch(url, { headers: getAuthHeaders() });
   if (!resp.ok) {
     throw new Error(`BFF returned ${resp.status}`);
   }

@@ -124,10 +124,10 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
     if (!slug) return;
 
     const bffUrl = config.bffBaseUrl;
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (config.bffApiKey) headers["X-API-Key"] = config.bffApiKey;
 
-    fetch(`${bffUrl}/api/public/tenant/${slug}`, { headers })
+    fetch(`${bffUrl}/api/public/tenant/${slug}`, {
+      headers: { "Content-Type": "application/json" },
+    })
       .then((res) => (res.ok ? res.json() : null))
       .then((data: TenantBranding | null) => {
         if (data) {

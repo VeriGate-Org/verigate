@@ -38,10 +38,9 @@ jobs:
         working-directory: verigate-partner-portal
         env:
           NEXT_PUBLIC_BFF_BASE_URL: ${{ vars.BFF_BASE_URL }}
-          NEXT_PUBLIC_API_KEY: ${{ secrets.PORTAL_API_KEY }}
           NEXT_PUBLIC_USE_MOCK: ${{ vars.USE_MOCK }}
           NEXT_PUBLIC_ENV: ${{ vars.ENVIRONMENT_SHORTNAME }}
-          NEXT_PUBLIC_AUTH_DISABLED: ${{ vars.AUTH_DISABLED || 'true' }}
+          NEXT_PUBLIC_AUTH_DISABLED: 'false'
           NEXT_PUBLIC_COGNITO_REGION: ${{ vars.COGNITO_REGION || vars.AWS_REGION }}
           NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
         run: npm run build
