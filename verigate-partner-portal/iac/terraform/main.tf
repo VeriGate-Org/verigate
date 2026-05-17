@@ -89,19 +89,50 @@ resource "aws_acm_certificate_validation" "wildcard" {
 resource "aws_cloudfront_function" "rewrite" {
   name    = "${local.bucket_name}-rewrite"
   runtime = "cloudfront-js-2.0"
-  comment = "Append index.html to subdirectory requests for Next.js static export"
+  comment = "Rewrite dynamic routes to _ placeholder and append index.html for Next.js static export"
   publish = true
   code    = <<-EOF
 function handler(event) {
   var request = event.request;
   var uri = request.uri;
 
-  // If URI ends with '/' append index.html
+  // Strip trailing slash for consistent segment matching
+  var cleanUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
+  var segments = cleanUri.split('/').filter(function(s) { return s.length > 0; });
+
+  // Dynamic route definitions: prefix segments and total depth
+  // /verifications/[correlationId]                -> depth 2
+  // /cases/[caseId]                               -> depth 2
+  // /policies/[policyId]                          -> depth 2
+  // /monitoring/[subjectId]                       -> depth 2
+  // /services/document-verification/[verificationId] -> depth 3
+  var routes = [
+    { prefix: ['services', 'document-verification'], depth: 3 },
+    { prefix: ['verifications'], depth: 2 },
+    { prefix: ['cases'], depth: 2 },
+    { prefix: ['policies'], depth: 2 },
+    { prefix: ['monitoring'], depth: 2 }
+  ];
+
+  for (var i = 0; i < routes.length; i++) {
+    var route = routes[i];
+    if (segments.length === route.depth) {
+      var match = true;
+      for (var j = 0; j < route.prefix.length; j++) {
+        if (segments[j] !== route.prefix[j]) { match = false; break; }
+      }
+      if (match && segments[route.depth - 1] !== '_') {
+        segments[route.depth - 1] = '_';
+        request.uri = '/' + segments.join('/') + '/index.html';
+        return request;
+      }
+    }
+  }
+
+  // Standard rewrite: append index.html
   if (uri.endsWith('/')) {
     request.uri += 'index.html';
-  }
-  // If URI doesn't have a file extension, append /index.html
-  else if (!uri.includes('.')) {
+  } else if (!uri.includes('.')) {
     request.uri += '/index.html';
   }
 
