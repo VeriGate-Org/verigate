@@ -62,6 +62,10 @@ public class CognitoJwtAuthenticationFilter extends OncePerRequestFilter {
 
   public CognitoJwtAuthenticationFilter(CognitoJwtConfig cognitoConfig) {
     this.cognitoConfig = cognitoConfig;
+    logger.info("CognitoJwtAuthenticationFilter initialised: enabled={}, region={}, userPoolId={}, appClientId={}",
+        cognitoConfig.isEnabled(), cognitoConfig.getRegion(),
+        cognitoConfig.getUserPoolId(),
+        cognitoConfig.getAppClientId() != null ? cognitoConfig.getAppClientId().substring(0, Math.min(4, cognitoConfig.getAppClientId().length())) + "***" : "null");
   }
 
   @Override
@@ -70,6 +74,8 @@ public class CognitoJwtAuthenticationFilter extends OncePerRequestFilter {
 
     // If Cognito is not enabled, pass through immediately
     if (!cognitoConfig.isEnabled()) {
+      logger.warn("Cognito filter DISABLED — passing through. VERIGATE_COGNITO_ENABLED={}",
+          System.getenv("VERIGATE_COGNITO_ENABLED"));
       filterChain.doFilter(request, response);
       return;
     }
