@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { generateDocumentVerificationHistory } from "@/lib/mock-services";
 import type { DocumentVerificationHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
-import { getDocumentVerificationHistory } from "@/lib/bff-client";
+import { getDocumentVerificationHistory, getVerificationDocuments, getVerificationStatus } from "@/lib/bff-client";
 import { DOCUMENT_TYPE_LABELS } from "@/components/services/document-verification/documentFieldConfigs";
-import { Search, Download, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle } from "lucide-react";
+import { Search, Download, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, FileText } from "lucide-react";
 
 export default function DocumentVerificationHistory() {
   const [history, setHistory] = useState<DocumentVerificationHistoryItem[]>([]);
@@ -176,6 +176,7 @@ export default function DocumentVerificationHistory() {
               <th className="text-left px-4 py-3 font-medium text-gray-600">Outcome</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Confidence</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -203,11 +204,47 @@ export default function DocumentVerificationHistory() {
                 <td className="px-4 py-3 text-gray-600">
                   {new Date(item.verifiedAt).toLocaleDateString()}
                 </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <button
+                      title="Download Document"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        getVerificationDocuments(item.verificationId).then((docs) => {
+                          if (docs.length > 0) {
+                            window.open(docs[0].downloadUrl, "_blank");
+                          }
+                        });
+                      }}
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                    >
+                      <FileText className="w-4 h-4" />
+                    </button>
+                    <button
+                      title="Download Verification Results"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        getVerificationStatus(item.verificationId).then((status) => {
+                          const blob = new Blob([JSON.stringify(status, null, 2)], { type: "application/json" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `verification-${item.verificationId}.json`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        });
+                      }}
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
             {paged.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                   No verification history found
                 </td>
               </tr>

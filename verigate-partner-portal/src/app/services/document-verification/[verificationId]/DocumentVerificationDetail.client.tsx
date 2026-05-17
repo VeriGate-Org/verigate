@@ -125,6 +125,37 @@ export default function DocumentVerificationDetail() {
         <p className="text-sm text-gray-500 font-mono">{verificationId}</p>
       </div>
 
+      {/* Download action bar */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => {
+            if (documents.length > 0) {
+              window.open(documents[0].downloadUrl, "_blank");
+            }
+          }}
+          disabled={documents.length === 0}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <FileText className="w-4 h-4" />
+          Download Document
+        </button>
+        <button
+          onClick={() => {
+            const blob = new Blob([JSON.stringify(verification, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `verification-results-${verificationId}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200"
+        >
+          <Download className="w-4 h-4" />
+          Download Verification Results
+        </button>
+      </div>
+
       {/* Details grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: Core details */}
