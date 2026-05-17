@@ -1041,6 +1041,22 @@ export async function uploadFileToS3(
   });
 }
 
+// --- Document Verification Downloads ---
+
+export interface DocumentLink {
+  s3Key: string;
+  downloadUrl: string;
+}
+
+export async function getVerificationDocuments(
+  verificationId: string,
+): Promise<DocumentLink[]> {
+  const { data } = await bffApi.get<DocumentLink[]>(
+    `/api/partner/documents/verifications/${encodeURIComponent(verificationId)}`,
+  );
+  return data;
+}
+
 // --- Document Verification History ---
 
 export interface DocumentHistoryResponse {

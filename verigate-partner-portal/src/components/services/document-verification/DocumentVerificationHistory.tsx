@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { generateDocumentVerificationHistory } from "@/lib/mock-services";
 import type { DocumentVerificationHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
@@ -17,6 +19,7 @@ export default function DocumentVerificationHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const pageSize = 10;
 
   const fetchHistory = () => {
@@ -177,9 +180,19 @@ export default function DocumentVerificationHistory() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {paged.map((item) => (
-              <tr key={item.verificationId} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-mono text-xs text-gray-500">
-                  {item.verificationId.slice(0, 16)}...
+              <tr
+                key={item.verificationId}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => router.push(`/services/document-verification/${item.verificationId}`)}
+              >
+                <td className="px-4 py-3 font-mono text-xs">
+                  <Link
+                    href={`/services/document-verification/${item.verificationId}`}
+                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {item.verificationId.slice(0, 16)}...
+                  </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{item.documentTypeLabel}</td>
                 <td className="px-4 py-3 font-mono text-xs">{item.documentNumber}</td>

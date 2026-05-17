@@ -9,6 +9,7 @@ package verigate.adapter.document.application.handlers;
 import domain.exceptions.InvariantViolationException;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
@@ -78,23 +79,31 @@ public class DefaultVerifyDocumentCommandHandler
           ? String.valueOf(verificationResponse.extractedData().size()) + " fields"
           : "0 fields";
 
-      return Map.of(
-          DomainConstants.RESULT_OUTCOME,
-          outcome.toString(),
-          DomainConstants.RESULT_STATUS,
-          verificationResponse.status().toString(),
-          DomainConstants.RESULT_DOCUMENT_TYPE,
-          verificationResponse.documentType() != null
+      // Prefer the original metadata documentType (e.g. "passport") since the BFF
+      // label map expects these keys; fall back to the response's enum value.
+      String originalDocType = DocumentVerificationMapper.extractDocumentType(command);
+      String resolvedDocType = originalDocType != null
+          ? originalDocType
+          : (verificationResponse.documentType() != null
               ? verificationResponse.documentType().toString()
-              : "",
-          DomainConstants.RESULT_CONFIDENCE_SCORE,
-          String.valueOf(verificationResponse.confidenceScore()),
-          DomainConstants.RESULT_MATCH_DETAILS,
+              : "");
+
+      String documentNumber = DocumentVerificationMapper.extractDocumentReference(command);
+
+      Map<String, String> result = new HashMap<>();
+      result.put(DomainConstants.RESULT_OUTCOME, outcome.toString());
+      result.put(DomainConstants.RESULT_STATUS, verificationResponse.status().toString());
+      result.put(DomainConstants.RESULT_DOCUMENT_TYPE, resolvedDocType);
+      result.put(DomainConstants.RESULT_DOCUMENT_NUMBER,
+          documentNumber != null ? documentNumber : "");
+      result.put(DomainConstants.RESULT_CONFIDENCE_SCORE,
+          String.valueOf(verificationResponse.confidenceScore()));
+      result.put(DomainConstants.RESULT_MATCH_DETAILS,
           verificationResponse.matchDetails() != null
-              ? verificationResponse.matchDetails()
-              : "",
-          DomainConstants.RESULT_EXTRACTED_FIELDS,
-          extractedFieldsSummary);
+              ? verificationResponse.matchDetails() : "");
+      result.put(DomainConstants.RESULT_EXTRACTED_FIELDS, extractedFieldsSummary);
+
+      return result;
 
     } catch (TransientException | PermanentException e) {
       logger.error(

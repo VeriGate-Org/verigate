@@ -72,6 +72,7 @@ public class DomainConstants {
   public static final String RESULT_OUTCOME = "outcome";
   public static final String RESULT_STATUS = "status";
   public static final String RESULT_DOCUMENT_TYPE = "documentType";
+  public static final String RESULT_DOCUMENT_NUMBER = "documentNumber";
   public static final String RESULT_CONFIDENCE_SCORE = "confidenceScore";
   public static final String RESULT_MATCH_DETAILS = "matchDetails";
   public static final String RESULT_EXTRACTED_FIELDS = "extractedFields";
