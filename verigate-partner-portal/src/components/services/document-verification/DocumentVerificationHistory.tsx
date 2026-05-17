@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { generateDocumentVerificationHistory } from "@/lib/mock-services";
 import type { DocumentVerificationHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
-import { getDocumentVerificationHistory, getVerificationDocuments, getVerificationStatus } from "@/lib/bff-client";
+import { getDocumentVerificationHistory } from "@/lib/bff-client";
 import { DOCUMENT_TYPE_LABELS } from "@/components/services/document-verification/documentFieldConfigs";
-import { Search, Download, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, FileText } from "lucide-react";
-import { useToast } from "@/components/ui/Toast";
+import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
+import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
+
 
 export default function DocumentVerificationHistory() {
   const [history, setHistory] = useState<DocumentVerificationHistoryItem[]>([]);
@@ -20,10 +20,7 @@ export default function DocumentVerificationHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [docDownloading, setDocDownloading] = useState<string | null>(null);
-  const [resultsDownloading, setResultsDownloading] = useState<string | null>(null);
   const router = useRouter();
-  const { toast } = useToast();
   const pageSize = 10;
 
   const fetchHistory = () => {
@@ -72,35 +69,35 @@ export default function DocumentVerificationHistory() {
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
       case "VERIFIED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">Verified</span>;
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-success/10 text-success">Verified</span>;
       case "NOT_VERIFIED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-800">Not Verified</span>;
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-warning/10 text-warning">Not Verified</span>;
       case "FAILED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-800">Failed</span>;
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-danger/10 text-danger">Failed</span>;
       default:
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">{outcome}</span>;
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-base-200 text-text-muted">{outcome}</span>;
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-        <span className="ml-2 text-sm text-gray-600">Loading verification history...</span>
+        <Loader2 className="w-6 h-6 animate-spin text-accent" />
+        <span className="ml-2 text-sm text-text-muted">Loading verification history...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+      <div className="rounded-lg border border-danger/40 bg-danger/5 p-4 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-danger mt-0.5 flex-shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-red-800">Failed to load verification history</p>
-          <p className="text-sm text-red-700 mt-1">{error}</p>
+          <p className="text-sm font-medium text-danger">Failed to load verification history</p>
+          <p className="text-sm text-danger/80 mt-1">{error}</p>
           <button
             onClick={fetchHistory}
-            className="mt-3 px-3 py-1.5 text-sm bg-red-100 hover:bg-red-200 text-red-800 rounded-md border border-red-300"
+            className="mt-3 px-3 py-1.5 text-sm bg-danger/10 hover:bg-danger/20 text-danger rounded-md border border-danger/30"
           >
             Retry
           </button>
@@ -109,198 +106,140 @@ export default function DocumentVerificationHistory() {
     );
   }
 
+  if (history.length === 0) {
+    return (
+      <VerificationEmptyState
+        icon={Clock}
+        heading="No verification history"
+        description="Document verifications you perform will appear here."
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Summary chips */}
       <div className="flex gap-3 flex-wrap">
-        <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-          <span className="font-medium text-blue-800">Total:</span> {totalCount}
-        </div>
-        <div className="px-4 py-2 bg-green-50 border border-green-200 rounded-lg text-sm">
-          <span className="font-medium text-green-800">Verified:</span> {verifiedCount}
-        </div>
-        <div className="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-          <span className="font-medium text-amber-800">Not Verified:</span> {notVerifiedCount}
-        </div>
-        <div className="px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-sm">
-          <span className="font-medium text-red-800">Failed:</span> {failedCount}
-        </div>
+        <SummaryChip label="Total" count={totalCount} className="bg-accent/10 text-accent" />
+        <SummaryChip label="Verified" count={verifiedCount} className="bg-success/10 text-success" />
+        <SummaryChip label="Not Verified" count={notVerifiedCount} className="bg-warning/10 text-warning" />
+        <SummaryChip label="Failed" count={failedCount} className="bg-danger/10 text-danger" />
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by document number..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <select
-            value={outcomeFilter}
-            onChange={(e) => setOutcomeFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="all">All Outcomes</option>
-            <option value="VERIFIED">Verified</option>
-            <option value="NOT_VERIFIED">Not Verified</option>
-            <option value="FAILED">Failed</option>
-          </select>
-          <select
-            value={docTypeFilter}
-            onChange={(e) => setDocTypeFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="all">All Document Types</option>
-            {uniqueDocTypes.map((dt) => (
-              <option key={dt} value={dt}>
-                {DOCUMENT_TYPE_LABELS[dt] ?? dt}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Reference</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Document Type</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Document Number</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Outcome</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {paged.map((item) => (
-              <tr
-                key={item.verificationId}
-                className="hover:bg-gray-50 cursor-pointer"
-                onClick={() => router.push(`/services/document-verification/${item.verificationId}`)}
+      {/* Table card */}
+      <div className="console-card overflow-hidden">
+        {/* Card header — search & filters */}
+        <div className="console-card-header">
+          <div className="flex flex-wrap gap-3 items-center w-full">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Search by document number..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="aws-input w-full pl-10 pr-4 py-2 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-text-muted" />
+              <select
+                value={outcomeFilter}
+                onChange={(e) => setOutcomeFilter(e.target.value)}
+                className="aws-select text-sm"
               >
-                <td className="px-4 py-3 font-mono text-xs">
-                  <Link
-                    href={`/services/document-verification/${item.verificationId}`}
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {item.verificationId.slice(0, 16)}...
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-gray-600">{item.documentTypeLabel}</td>
-                <td className="px-4 py-3 font-mono text-xs">{item.documentNumber}</td>
-                <td className="px-4 py-3">{outcomeBadge(item.outcome)}</td>
-                <td className="px-4 py-3 text-gray-600">
-                  {new Date(item.verifiedAt).toLocaleDateString()}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button
-                      title="Download Document"
-                      disabled={docDownloading === item.verificationId}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        setDocDownloading(item.verificationId);
-                        try {
-                          const docs = await getVerificationDocuments(item.verificationId);
-                          if (docs.length === 0) {
-                            toast({ title: "No documents available", description: "This verification has no downloadable documents.", variant: "error" });
-                            return;
-                          }
-                          window.open(docs[0].downloadUrl, "_blank");
-                          toast({ title: "Document download started", variant: "success" });
-                        } catch {
-                          toast({ title: "Download failed", description: "Could not download the document. Please try again.", variant: "error" });
-                        } finally {
-                          setDocDownloading(null);
-                        }
-                      }}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50"
-                    >
-                      {docDownloading === item.verificationId ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <FileText className="w-4 h-4" />
-                      )}
-                    </button>
-                    <button
-                      title="Download Verification Results"
-                      disabled={resultsDownloading === item.verificationId}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        setResultsDownloading(item.verificationId);
-                        try {
-                          const status = await getVerificationStatus(item.verificationId);
-                          const blob = new Blob([JSON.stringify(status, null, 2)], { type: "application/json" });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = `verification-${item.verificationId}.json`;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                          toast({ title: "Results downloaded", variant: "success" });
-                        } catch {
-                          toast({ title: "Download failed", description: "Could not download verification results. Please try again.", variant: "error" });
-                        } finally {
-                          setResultsDownloading(null);
-                        }
-                      }}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50"
-                    >
-                      {resultsDownloading === item.verificationId ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Download className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {paged.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                  No verification history found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-sm text-gray-600">{currentPage} / {totalPages}</span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                <option value="all">All Outcomes</option>
+                <option value="VERIFIED">Verified</option>
+                <option value="NOT_VERIFIED">Not Verified</option>
+                <option value="FAILED">Failed</option>
+              </select>
+              <select
+                value={docTypeFilter}
+                onChange={(e) => setDocTypeFilter(e.target.value)}
+                className="aws-select text-sm"
+              >
+                <option value="all">All Document Types</option>
+                {uniqueDocTypes.map((dt) => (
+                  <option key={dt} value={dt}>
+                    {DOCUMENT_TYPE_LABELS[dt] ?? dt}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Table body */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-base-200/50">
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Document Type</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Document Number</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Outcome</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {paged.map((item) => (
+                <tr
+                  key={item.verificationId}
+                  className="hover:bg-hover/50 cursor-pointer"
+                  onClick={() => router.push(`/services/document-verification/${item.verificationId}`)}
+                >
+                  <td className="px-4 py-2.5 text-text">{item.documentTypeLabel}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-text-muted">{item.documentNumber}</td>
+                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
+                  <td className="px-4 py-2.5 text-text-muted">
+                    {new Date(item.verifiedAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+              {paged.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-text-muted">
+                    No results match the current filters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination footer */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+            <p className="text-xs text-text-muted">
+              Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs text-text-muted tabular-nums">{currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SummaryChip({ label, count, className }: { label: string; count: number; className: string }) {
+  return (
+    <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${className}`}>
+      {label}: {count}
     </div>
   );
 }

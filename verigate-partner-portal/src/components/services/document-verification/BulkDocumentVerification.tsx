@@ -359,7 +359,6 @@ export default function BulkDocumentVerification() {
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase">Document Type</th>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase">Document Number</th>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase">Status</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-muted uppercase">Confidence</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -371,9 +370,6 @@ export default function BulkDocumentVerification() {
                       <td className="px-4 py-2.5 font-mono text-xs">{r.documentNumber}</td>
                       <td className="px-4 py-2.5">
                         <StatusBadge status={r.status} />
-                      </td>
-                      <td className="px-4 py-2.5 tabular-nums text-gray-600">
-                        {r.status === "ERROR" ? "—" : `${Math.round(r.confidence * 100)}%`}
                       </td>
                     </tr>
                   ))}

@@ -21,8 +21,17 @@ export default function DocumentVerificationPage() {
 
   return (
     <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-xl font-semibold text-text">
+          Document verification
+        </h1>
+        <p className="text-sm text-text-muted">
+          Verify documents against official registries including DHA, SAQA, CIPC, and SARS.
+        </p>
+      </header>
+
       {/* Tab bar */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border">
         <nav className="flex gap-0 -mb-px">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -33,8 +42,8 @@ export default function DocumentVerificationPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   isActive
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-accent text-accent"
+                    : "border-transparent text-text-muted hover:text-text hover:border-border"
                 }`}
               >
                 <Icon className="w-4 h-4" />
