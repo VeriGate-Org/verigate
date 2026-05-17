@@ -205,6 +205,7 @@ public class DocumentController {
                 partnerId, status, "VerifyPartyCommand", clampedLimit, exclusiveStartKey);
 
         List<DocumentHistoryItem> items = page.items().stream()
+                .filter(this::isDocumentVerification)
                 .map(this::mapToHistoryItem)
                 .toList();
 
@@ -218,6 +219,16 @@ public class DocumentController {
         return ResponseEntity.ok(new DocumentHistoryResponse(items, nextCursor, page.hasMore()));
     }
 
+    private boolean isDocumentVerification(
+            verigate.webbff.verification.repository.model.VerificationCommandStoreItem item) {
+        Map<String, String> aux = item.getAuxiliaryData();
+        if (aux == null) {
+            return false;
+        }
+        // Items written by the document adapter always have a documentType key
+        return aux.containsKey("documentType");
+    }
+
     private DocumentHistoryItem mapToHistoryItem(
             verigate.webbff.verification.repository.model.VerificationCommandStoreItem item) {
         Map<String, String> aux = item.getAuxiliaryData() != null
@@ -225,7 +236,8 @@ public class DocumentController {
 
         String documentType = aux.getOrDefault("documentType", "unknown");
         String documentTypeLabel = DOCUMENT_TYPE_LABEL_MAP.getOrDefault(documentType, documentType);
-        String documentNumber = aux.getOrDefault("documentNumber", "");
+        String documentNumber = aux.getOrDefault("documentNumber",
+                aux.getOrDefault("documentReference", ""));
 
         String outcome;
         if (item.getStatus() != null) {
