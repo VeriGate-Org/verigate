@@ -9,6 +9,7 @@ import { config } from "@/lib/config";
 import { getDocumentVerificationHistory, getVerificationDocuments, getVerificationStatus } from "@/lib/bff-client";
 import { DOCUMENT_TYPE_LABELS } from "@/components/services/document-verification/documentFieldConfigs";
 import { Search, Download, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, FileText } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 export default function DocumentVerificationHistory() {
   const [history, setHistory] = useState<DocumentVerificationHistoryItem[]>([]);
@@ -19,7 +20,10 @@ export default function DocumentVerificationHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [docDownloading, setDocDownloading] = useState<string | null>(null);
+  const [resultsDownloading, setResultsDownloading] = useState<string | null>(null);
   const router = useRouter();
+  const { toast } = useToast();
   const pageSize = 10;
 
   const fetchHistory = () => {
@@ -160,9 +164,6 @@ export default function DocumentVerificationHistory() {
             ))}
           </select>
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
-          <Download className="w-4 h-4" /> Export
-        </button>
       </div>
 
       {/* Table */}
@@ -208,23 +209,40 @@ export default function DocumentVerificationHistory() {
                   <div className="flex items-center gap-1">
                     <button
                       title="Download Document"
-                      onClick={(e) => {
+                      disabled={docDownloading === item.verificationId}
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        getVerificationDocuments(item.verificationId).then((docs) => {
-                          if (docs.length > 0) {
-                            window.open(docs[0].downloadUrl, "_blank");
+                        setDocDownloading(item.verificationId);
+                        try {
+                          const docs = await getVerificationDocuments(item.verificationId);
+                          if (docs.length === 0) {
+                            toast({ title: "No documents available", description: "This verification has no downloadable documents.", variant: "error" });
+                            return;
                           }
-                        });
+                          window.open(docs[0].downloadUrl, "_blank");
+                          toast({ title: "Document download started", variant: "success" });
+                        } catch {
+                          toast({ title: "Download failed", description: "Could not download the document. Please try again.", variant: "error" });
+                        } finally {
+                          setDocDownloading(null);
+                        }
                       }}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50"
                     >
-                      <FileText className="w-4 h-4" />
+                      {docDownloading === item.verificationId ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <FileText className="w-4 h-4" />
+                      )}
                     </button>
                     <button
                       title="Download Verification Results"
-                      onClick={(e) => {
+                      disabled={resultsDownloading === item.verificationId}
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        getVerificationStatus(item.verificationId).then((status) => {
+                        setResultsDownloading(item.verificationId);
+                        try {
+                          const status = await getVerificationStatus(item.verificationId);
                           const blob = new Blob([JSON.stringify(status, null, 2)], { type: "application/json" });
                           const url = URL.createObjectURL(blob);
                           const a = document.createElement("a");
@@ -232,11 +250,20 @@ export default function DocumentVerificationHistory() {
                           a.download = `verification-${item.verificationId}.json`;
                           a.click();
                           URL.revokeObjectURL(url);
-                        });
+                          toast({ title: "Results downloaded", variant: "success" });
+                        } catch {
+                          toast({ title: "Download failed", description: "Could not download verification results. Please try again.", variant: "error" });
+                        } finally {
+                          setResultsDownloading(null);
+                        }
                       }}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50"
                     >
-                      <Download className="w-4 h-4" />
+                      {resultsDownloading === item.verificationId ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </td>

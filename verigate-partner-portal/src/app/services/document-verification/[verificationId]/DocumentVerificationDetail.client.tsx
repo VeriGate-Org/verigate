@@ -21,6 +21,7 @@ import {
   type BffVerificationStatusResponse,
   type DocumentLink,
 } from "@/lib/bff-client";
+import { useToast } from "@/components/ui/Toast";
 
 export default function DocumentVerificationDetail() {
   const { verificationId } = useParams<{ verificationId: string }>();
@@ -29,6 +30,9 @@ export default function DocumentVerificationDetail() {
   const [documents, setDocuments] = useState<DocumentLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resultsDownloading, setResultsDownloading] = useState(false);
+  const [downloadingDoc, setDownloadingDoc] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const fetchData = () => {
     setIsLoading(true);
@@ -126,32 +130,33 @@ export default function DocumentVerificationDetail() {
       </div>
 
       {/* Download action bar */}
-      <div className="flex items-center gap-3">
+      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 flex items-center gap-3">
         <button
+          disabled={resultsDownloading}
           onClick={() => {
-            if (documents.length > 0) {
-              window.open(documents[0].downloadUrl, "_blank");
+            setResultsDownloading(true);
+            try {
+              const blob = new Blob([JSON.stringify(verification, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `verification-results-${verificationId}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+              toast({ title: "Results downloaded", variant: "success" });
+            } catch {
+              toast({ title: "Download failed", description: "Could not export verification results.", variant: "error" });
+            } finally {
+              setResultsDownloading(false);
             }
           }}
-          disabled={documents.length === 0}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <FileText className="w-4 h-4" />
-          Download Document
-        </button>
-        <button
-          onClick={() => {
-            const blob = new Blob([JSON.stringify(verification, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `verification-results-${verificationId}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200"
-        >
-          <Download className="w-4 h-4" />
+          {resultsDownloading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
           Download Verification Results
         </button>
       </div>
@@ -239,15 +244,34 @@ export default function DocumentVerificationDetail() {
                       {doc.s3Key.split("/").pop() ?? doc.s3Key}
                     </span>
                   </div>
-                  <a
-                    href={doc.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200"
+                  <button
+                    disabled={downloadingDoc === i}
+                    onClick={async () => {
+                      setDownloadingDoc(i);
+                      try {
+                        const freshDocs = await getVerificationDocuments(verificationId);
+                        const freshDoc = freshDocs[i];
+                        if (!freshDoc) {
+                          toast({ title: "Download failed", description: "Document is no longer available.", variant: "error" });
+                          return;
+                        }
+                        window.open(freshDoc.downloadUrl, "_blank");
+                        toast({ title: "Document download started", variant: "success" });
+                      } catch {
+                        toast({ title: "Download failed", description: "Could not download the document. Please try again.", variant: "error" });
+                      } finally {
+                        setDownloadingDoc(null);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Download className="w-4 h-4" />
+                    {downloadingDoc === i ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
                     Download
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
