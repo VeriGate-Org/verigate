@@ -20,16 +20,8 @@ export default function IdentityVerificationHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    if (config.useMockServices) {
-      setHistory(generateIdentityVerificationHistory());
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    getIdentityVerificationHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as IdentityVerificationHistoryItem[]))
-      .catch((err) => setError(err.message ?? "Failed to load history"))
-      .finally(() => setIsLoading(false));
+    // BFF history endpoint not yet implemented — always use mock data
+    setHistory(generateIdentityVerificationHistory());
   };
 
   useEffect(() => {

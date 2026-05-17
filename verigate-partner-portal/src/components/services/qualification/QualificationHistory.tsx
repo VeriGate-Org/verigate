@@ -20,16 +20,8 @@ export default function QualificationHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    if (config.useMockServices) {
-      setHistory(generateQualificationHistory());
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    getQualificationHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as QualificationHistoryItem[]))
-      .catch((err) => setError(err.message ?? "Failed to load history"))
-      .finally(() => setIsLoading(false));
+    // BFF history endpoint not yet implemented — always use mock data
+    setHistory(generateQualificationHistory());
   };
 
   useEffect(() => {

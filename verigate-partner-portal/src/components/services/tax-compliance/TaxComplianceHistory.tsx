@@ -20,16 +20,8 @@ export default function TaxComplianceHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    if (config.useMockServices) {
-      setHistory(generateTaxComplianceHistory());
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    getTaxComplianceHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as TaxComplianceHistoryItem[]))
-      .catch((err) => setError(err.message ?? "Failed to load history"))
-      .finally(() => setIsLoading(false));
+    // BFF history endpoint not yet implemented — always use mock data
+    setHistory(generateTaxComplianceHistory());
   };
 
   useEffect(() => {
