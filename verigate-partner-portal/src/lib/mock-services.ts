@@ -1504,6 +1504,58 @@ export async function mockFullVerification(request: any, delayMs?: number) {
 
 import type { TenantBranding } from "@/lib/types/tenant-branding";
 
+// --- Identity Verification History ---
+
+export interface IdentityVerificationHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  outcome: "VERIFIED" | "NOT_FOUND" | "DECEASED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateIdentityVerificationHistory(): IdentityVerificationHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const idNumbers = [
+    "9001015009087", "8502115009083", "7803025009089", "8811175009081",
+    "9205235009085", "7506305009080", "8310145009082", "9108215009086",
+    "8004015009088", "7701125009084", "8609075009081", "9312285009083",
+    "8107195009087", "9506115009080", "7908235009086", "8803055009082",
+    "9411175009084", "8205065009089", "7604305009085", "9007095009081",
+    "8501225009083", "9209145009087", "7702035009080", "8406185009086",
+    "9110255009082",
+  ];
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+    "Peter Joubert", "Grace Mabena", "Robert Swanepoel", "Thembi Cele",
+    "William Fourie",
+  ];
+
+  const outcomes: IdentityVerificationHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_FOUND", "VERIFIED", "DECEASED",
+    "VERIFIED", "VERIFIED", "FAILED", "VERIFIED", "VERIFIED",
+    "NOT_FOUND", "VERIFIED", "VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "DECEASED", "VERIFIED", "VERIFIED",
+    "VERIFIED", "NOT_FOUND", "VERIFIED", "VERIFIED", "FAILED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 11); // 15-25
+  return Array.from({ length: Math.min(count, idNumbers.length) }).map((_, i) => ({
+    verificationId: `idv-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: idNumbers[i % idNumbers.length],
+    fullName: names[i % names.length],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
 // --- Document Verification History ---
 
 export interface DocumentVerificationHistoryItem {

@@ -1,6 +1,6 @@
 import type { VerificationType, BffVerificationType } from "./types";
 import {
-  Shield, CreditCard, ShieldAlert, Building2, Map, Briefcase,
+  CreditCard, ShieldAlert, Building2, Map, Briefcase,
   Newspaper, AlertTriangle, FileCheck, GraduationCap, TrendingUp,
   Receipt, DollarSign, Fingerprint, CheckSquare, Eye, ScanFace, Camera,
   Search,
@@ -25,8 +25,8 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     label: "Home Affairs ID Verification",
     shortLabel: "Home Affairs ID",
     provider: "DHA",
-    icon: Shield,
-    route: "/services/personal-details",
+    icon: Fingerprint,
+    route: "/services/identity",
     category: "identity",
   },
   IDENTITY: {

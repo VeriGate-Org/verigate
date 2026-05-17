@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Shield, Building2, Map, CreditCard, ShieldAlert, Search,
+  LayoutDashboard, Building2, Map, CreditCard, ShieldAlert, Search,
   ChevronRight, ChevronDown, Star, X, Settings, HelpCircle, FileText, GitBranch,
   Fingerprint, FileCheck, TrendingUp, DollarSign, Receipt, Briefcase,
   GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
@@ -43,9 +43,7 @@ const NAV_SECTIONS: NavSection[] = [
     name: "Identity & Personal",
     defaultExpanded: true,
     items: [
-      { name: "Home Affairs ID", path: "/services/personal-details", icon: Shield },
       { name: "Identity Verification", path: "/services/identity", icon: Fingerprint },
-      { name: "Bulk ID Verification", path: "/services/bulk-identity-verification", icon: Fingerprint, badge: "NEW" },
       { name: "Document Verification", path: "/services/document-verification", icon: FileCheck },
       { name: "Document Auto-Fill", path: "/document-auto-fill", icon: FileStack, badge: "NEW" },
     ],

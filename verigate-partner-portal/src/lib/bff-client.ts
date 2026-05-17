@@ -1087,6 +1087,34 @@ export async function getDocumentVerificationHistory(params?: {
   return data;
 }
 
+// --- Identity Verification History ---
+
+export interface IdentityHistoryResponse {
+  items: IdentityHistoryItem[];
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export interface IdentityHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  outcome: string;
+  verifiedAt: string;
+}
+
+export async function getIdentityVerificationHistory(params?: {
+  status?: string;
+  cursor?: string;
+  limit?: number;
+}): Promise<IdentityHistoryResponse> {
+  const { data } = await bffApi.get<IdentityHistoryResponse>(
+    "/api/partner/identity/history",
+    { params },
+  );
+  return data;
+}
+
 // --- DHA Permit Submission ---
 
 export interface DhaPermitSubmissionRequest {

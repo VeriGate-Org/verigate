@@ -14,11 +14,6 @@ type ServiceCard = {
 
 const SERVICES: ReadonlyArray<ServiceCard> = [
   {
-    name: "Home Affairs ID verification",
-    description: "Validate South African IDs directly against the DHA registry.",
-    path: "/services/personal-details",
-  },
-  {
     name: "CIPC company & director search",
     description: "Retrieve entity status, filings, and director appointments.",
     path: "/services/company",
@@ -86,7 +81,7 @@ const SERVICES: ReadonlyArray<ServiceCard> = [
   },
   {
     name: "Document verification",
-    description: "AI-powered document analysis with per-field confidence scoring, tampering detection, and SA ID validation.",
+    description: "Document analysis with per-field confidence scoring, tampering detection, and SA ID validation.",
     path: "/services/document-verification",
   },
   {

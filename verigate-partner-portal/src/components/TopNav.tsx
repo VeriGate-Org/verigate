@@ -31,10 +31,6 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
   "/verifications": [
     { label: "Verification Log", current: true },
   ],
-  "/services/personal-details": [
-    { label: "Services", href: "/dashboard" },
-    { label: "Home Affairs ID", current: true },
-  ],
   "/services/company": [
     { label: "Services", href: "/dashboard" },
     { label: "Company & Directors", current: true },
