@@ -175,9 +175,9 @@ export default function DocumentVerificationHistory() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-base-200/50">
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Outcome</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Document Type</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Document Number</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Outcome</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
               </tr>
             </thead>
@@ -188,9 +188,9 @@ export default function DocumentVerificationHistory() {
                   className="hover:bg-hover/50 cursor-pointer"
                   onClick={() => router.push(`/services/document-verification/${item.verificationId}`)}
                 >
+                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 text-text">{item.documentTypeLabel}</td>
                   <td className="px-4 py-2.5 font-mono text-xs text-text-muted">{item.documentNumber}</td>
-                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 text-text-muted">
                     {new Date(item.verifiedAt).toLocaleDateString()}
                   </td>

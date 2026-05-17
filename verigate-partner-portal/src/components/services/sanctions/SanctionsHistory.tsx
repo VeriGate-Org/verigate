@@ -124,10 +124,10 @@ export default function SanctionsHistory({ onViewScreening }: SanctionsHistoryPr
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Outcome</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Reference</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Subject</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Outcome</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Matches</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Disposition</th>
@@ -140,10 +140,10 @@ export default function SanctionsHistory({ onViewScreening }: SanctionsHistoryPr
                 className="hover:bg-gray-50 cursor-pointer"
                 onClick={() => onViewScreening?.(item.screeningId)}
               >
+                <td className="px-4 py-3">{outcomeBadge(item.outcome)}</td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{item.screeningId.slice(0, 12)}...</td>
                 <td className="px-4 py-3 font-medium">{item.subjectName}</td>
                 <td className="px-4 py-3 text-gray-600">{item.entityType}</td>
-                <td className="px-4 py-3">{outcomeBadge(item.outcome)}</td>
                 <td className="px-4 py-3 text-gray-600">{item.matchCount}</td>
                 <td className="px-4 py-3 text-gray-600">{new Date(item.screenedAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">

@@ -130,20 +130,20 @@ export default function QualificationHistory() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-base-200/50">
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">ID Number</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Name</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Institution</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {paged.map((item) => (
                 <tr key={item.verificationId} className="hover:bg-hover/50">
+                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 font-mono text-xs text-text">{item.idNumber}</td>
                   <td className="px-4 py-2.5 text-text">{item.fullName}</td>
                   <td className="px-4 py-2.5 text-text">{item.institution}</td>
-                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 text-text-muted">{new Date(item.verifiedAt).toLocaleDateString()}</td>
                 </tr>
               ))}
