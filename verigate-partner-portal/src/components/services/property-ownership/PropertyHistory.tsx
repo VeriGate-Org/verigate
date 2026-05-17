@@ -20,8 +20,16 @@ export default function PropertyHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generatePropertyHistory());
+    if (config.useMockServices) {
+      setHistory(generatePropertyHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getPropertyHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as PropertyHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {

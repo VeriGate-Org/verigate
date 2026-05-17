@@ -20,8 +20,16 @@ export default function IncomeVerificationHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generateIncomeHistory());
+    if (config.useMockServices) {
+      setHistory(generateIncomeHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getIncomeHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as IncomeHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {

@@ -20,8 +20,16 @@ export default function BankAccountHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generateBankAccountHistory());
+    if (config.useMockServices) {
+      setHistory(generateBankAccountHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getBankAccountHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as BankAccountHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {

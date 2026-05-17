@@ -20,8 +20,16 @@ export default function CompanyVerificationHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generateCompanyHistory());
+    if (config.useMockServices) {
+      setHistory(generateCompanyHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getCompanyHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as CompanyHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {

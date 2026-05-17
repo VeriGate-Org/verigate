@@ -20,8 +20,16 @@ export default function EmploymentHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generateEmploymentHistory());
+    if (config.useMockServices) {
+      setHistory(generateEmploymentHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getEmploymentHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as EmploymentHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {

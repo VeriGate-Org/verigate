@@ -20,8 +20,16 @@ export default function CreditCheckHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    // BFF history endpoint not yet implemented — always use mock data
-    setHistory(generateCreditCheckHistory());
+    if (config.useMockServices) {
+      setHistory(generateCreditCheckHistory());
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    getCreditCheckHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as CreditCheckHistoryItem[]))
+      .catch((err) => setError(err.message ?? "Failed to load history"))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
