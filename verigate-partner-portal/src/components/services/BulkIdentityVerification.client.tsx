@@ -125,12 +125,6 @@ export default function BulkIdentityVerification() {
     <div className="space-y-6">
       <ScreenReaderAnnounce message={srMessage} />
 
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Bulk identity verification</h1>
-        <p className="text-sm text-text-muted">
-          Upload a CSV file of South African ID numbers for bulk verification against the HANIS National Population Register.
-        </p>
-      </header>
 
       {phase === "upload" && (
         <UploadPhase

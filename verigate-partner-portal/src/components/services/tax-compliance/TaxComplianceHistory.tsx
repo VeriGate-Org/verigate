@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { generateIdentityVerificationHistory } from "@/lib/mock-services";
-import type { IdentityVerificationHistoryItem } from "@/lib/mock-services";
+import { generateTaxComplianceHistory } from "@/lib/mock-services";
+import type { TaxComplianceHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
-import { getIdentityVerificationHistory } from "@/lib/bff-client";
+import { getTaxComplianceHistory } from "@/lib/bff-client";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
 import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
 import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
 
-export default function IdentityVerificationHistory() {
-  const [history, setHistory] = useState<IdentityVerificationHistoryItem[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<IdentityVerificationHistoryItem[]>([]);
+export default function TaxComplianceHistory() {
+  const [history, setHistory] = useState<TaxComplianceHistoryItem[]>([]);
+  const [filteredHistory, setFilteredHistory] = useState<TaxComplianceHistoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,13 +21,13 @@ export default function IdentityVerificationHistory() {
 
   const fetchHistory = () => {
     if (config.useMockServices) {
-      setHistory(generateIdentityVerificationHistory());
+      setHistory(generateTaxComplianceHistory());
       return;
     }
     setIsLoading(true);
     setError(null);
-    getIdentityVerificationHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as IdentityVerificationHistoryItem[]))
+    getTaxComplianceHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as TaxComplianceHistoryItem[]))
       .catch((err) => setError(err.message ?? "Failed to load history"))
       .finally(() => setIsLoading(false));
   };
@@ -41,7 +41,7 @@ export default function IdentityVerificationHistory() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       items = items.filter(
-        (i) => i.idNumber.toLowerCase().includes(q) || i.fullName.toLowerCase().includes(q),
+        (i) => i.taxNumber.toLowerCase().includes(q) || i.entityName.toLowerCase().includes(q),
       );
     }
     if (outcomeFilter !== "all") {
@@ -55,19 +55,16 @@ export default function IdentityVerificationHistory() {
   const paged = filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalCount = history.length;
-  const verifiedCount = history.filter((h) => h.outcome === "VERIFIED").length;
-  const notFoundCount = history.filter((h) => h.outcome === "NOT_FOUND").length;
-  const deceasedCount = history.filter((h) => h.outcome === "DECEASED").length;
+  const compliantCount = history.filter((h) => h.outcome === "COMPLIANT").length;
+  const nonCompliantCount = history.filter((h) => h.outcome === "NON_COMPLIANT").length;
   const failedCount = history.filter((h) => h.outcome === "FAILED").length;
 
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
-      case "VERIFIED":
-        return <OutcomeBadge label="Verified" type="success" />;
-      case "NOT_FOUND":
-        return <OutcomeBadge label="Not Found" type="warning" />;
-      case "DECEASED":
-        return <OutcomeBadge label="Deceased" type="danger" />;
+      case "COMPLIANT":
+        return <OutcomeBadge label="Compliant" type="success" />;
+      case "NON_COMPLIANT":
+        return <OutcomeBadge label="Non-Compliant" type="warning" />;
       case "FAILED":
         return <OutcomeBadge label="Failed" type="danger" />;
       default:
@@ -107,7 +104,7 @@ export default function IdentityVerificationHistory() {
       <VerificationEmptyState
         icon={Clock}
         heading="No verification history"
-        description="Identity verifications you perform will appear here."
+        description="Tax compliance checks you perform will appear here."
       />
     );
   }
@@ -117,9 +114,8 @@ export default function IdentityVerificationHistory() {
       {/* Summary chips */}
       <div className="flex gap-3 flex-wrap">
         <SummaryChip label="Total" count={totalCount} className="bg-accent/10 text-accent" />
-        <SummaryChip label="Verified" count={verifiedCount} className="bg-success/10 text-success" />
-        <SummaryChip label="Not Found" count={notFoundCount} className="bg-warning/10 text-warning" />
-        <SummaryChip label="Deceased" count={deceasedCount} className="bg-danger/10 text-danger" />
+        <SummaryChip label="Compliant" count={compliantCount} className="bg-success/10 text-success" />
+        <SummaryChip label="Non-Compliant" count={nonCompliantCount} className="bg-warning/10 text-warning" />
         <SummaryChip label="Failed" count={failedCount} className="bg-danger/10 text-danger" />
       </div>
 
@@ -132,7 +128,7 @@ export default function IdentityVerificationHistory() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
               <input
                 type="text"
-                placeholder="Search by ID number or name..."
+                placeholder="Search by tax number or entity name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="aws-input w-full pl-10 pr-4 py-2 text-sm"
@@ -146,9 +142,8 @@ export default function IdentityVerificationHistory() {
                 className="aws-select text-sm"
               >
                 <option value="all">All Outcomes</option>
-                <option value="VERIFIED">Verified</option>
-                <option value="NOT_FOUND">Not Found</option>
-                <option value="DECEASED">Deceased</option>
+                <option value="COMPLIANT">Compliant</option>
+                <option value="NON_COMPLIANT">Non-Compliant</option>
                 <option value="FAILED">Failed</option>
               </select>
             </div>
@@ -160,8 +155,8 @@ export default function IdentityVerificationHistory() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-base-200/50">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">ID Number</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Name</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Tax Number</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Entity Name</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
               </tr>
@@ -169,8 +164,8 @@ export default function IdentityVerificationHistory() {
             <tbody className="divide-y divide-border">
               {paged.map((item) => (
                 <tr key={item.verificationId} className="hover:bg-hover/50">
-                  <td className="px-4 py-2.5 font-mono text-xs text-text">{item.idNumber}</td>
-                  <td className="px-4 py-2.5 text-text">{item.fullName}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-text">{item.taxNumber}</td>
+                  <td className="px-4 py-2.5 text-text">{item.entityName}</td>
                   <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 text-text-muted">
                     {new Date(item.verifiedAt).toLocaleDateString()}

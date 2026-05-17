@@ -101,12 +101,6 @@ export default function IncomeVerification() {
   return (
     <div className="space-y-6">
       <ScreenReaderAnnounce message={srMessage} />
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Income verification</h1>
-        <p className="text-sm text-text-muted">
-          Verify income details through payroll and employment records.
-        </p>
-      </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="console-card">

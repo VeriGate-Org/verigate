@@ -9,6 +9,7 @@ import { getDocumentVerificationHistory } from "@/lib/bff-client";
 import { DOCUMENT_TYPE_LABELS } from "@/components/services/document-verification/documentFieldConfigs";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
 import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
+import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
 
 
 export default function DocumentVerificationHistory() {
@@ -69,13 +70,13 @@ export default function DocumentVerificationHistory() {
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
       case "VERIFIED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-success/10 text-success">Verified</span>;
+        return <OutcomeBadge label="Verified" type="success" />;
       case "NOT_VERIFIED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-warning/10 text-warning">Not Verified</span>;
+        return <OutcomeBadge label="Not Verified" type="warning" />;
       case "FAILED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-danger/10 text-danger">Failed</span>;
+        return <OutcomeBadge label="Failed" type="danger" />;
       default:
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-base-200 text-text-muted">{outcome}</span>;
+        return <OutcomeBadge label={outcome} type="neutral" />;
     }
   };
 

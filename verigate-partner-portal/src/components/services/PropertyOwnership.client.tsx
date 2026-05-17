@@ -230,12 +230,6 @@ export default function PropertyOwnership() {
   return (
     <div className="space-y-6">
       <ScreenReaderAnnounce message={srMessage} />
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Deeds registry search</h1>
-        <p className="text-sm text-text-muted">
-          Search ownership, bonds, and municipal status from the national deeds registry.
-        </p>
-      </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)]">
         <div className="console-card">

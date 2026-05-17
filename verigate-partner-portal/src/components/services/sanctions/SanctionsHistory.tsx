@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { generateScreeningHistory } from "@/lib/mock-services";
 import type { ScreeningHistoryItem } from "@/lib/types/sanctions-screening";
 import { Search, Download, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
 
 interface SanctionsHistoryProps {
   onViewScreening?: (screeningId: string) => void;
@@ -49,13 +50,13 @@ export default function SanctionsHistory({ onViewScreening }: SanctionsHistoryPr
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
       case "SUCCEEDED":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">Clear</span>;
+        return <OutcomeBadge label="Clear" type="success" />;
       case "HARD_FAIL":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-800">Blocked</span>;
+        return <OutcomeBadge label="Blocked" type="danger" />;
       case "SOFT_FAIL":
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-800">Review</span>;
+        return <OutcomeBadge label="Review" type="warning" />;
       default:
-        return <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">{outcome}</span>;
+        return <OutcomeBadge label={outcome} type="neutral" />;
     }
   };
 

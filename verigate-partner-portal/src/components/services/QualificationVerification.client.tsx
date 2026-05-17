@@ -106,15 +106,6 @@ export default function QualificationVerification() {
   return (
     <div className="space-y-6">
       <ScreenReaderAnnounce message={srMessage} />
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">
-          Qualification verification
-        </h1>
-        <p className="text-sm text-text-muted">
-          Verify educational qualifications through SAQA and institutional
-          records.
-        </p>
-      </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="console-card">

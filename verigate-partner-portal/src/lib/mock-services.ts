@@ -1730,3 +1730,409 @@ export const MOCK_TENANT_BRANDING: Record<string, TenantBranding> = {
     accentColor: "#ec7211",
   },
 };
+
+// --- Bank Account History ---
+
+export interface BankAccountHistoryItem {
+  verificationId: string;
+  accountNumber: string;
+  bank: string;
+  accountHolder: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateBankAccountHistory(): BankAccountHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const banks = ["ABSA", "Standard Bank", "FNB", "Nedbank", "Capitec", "Investec"];
+  const holders = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const outcomes: BankAccountHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED",
+    "FAILED", "VERIFIED", "VERIFIED", "VERIFIED", "NOT_VERIFIED",
+    "VERIFIED", "VERIFIED", "VERIFIED", "FAILED", "VERIFIED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, holders.length) }).map((_, i) => ({
+    verificationId: `avs-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    accountNumber: `****${1000 + Math.floor(rnd() * 9000)}`,
+    bank: banks[Math.floor(rnd() * banks.length)],
+    accountHolder: holders[i % holders.length],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Credit Check History ---
+
+export interface CreditCheckHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  riskGrade: string;
+  outcome: "COMPLETED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateCreditCheckHistory(): CreditCheckHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const grades = ["A", "B", "C", "D", "E"];
+  const outcomes: CreditCheckHistoryItem["outcome"][] = [
+    "COMPLETED", "COMPLETED", "COMPLETED", "FAILED", "COMPLETED",
+    "COMPLETED", "COMPLETED", "COMPLETED", "COMPLETED", "FAILED",
+    "COMPLETED", "COMPLETED", "FAILED", "COMPLETED", "COMPLETED",
+    "COMPLETED", "COMPLETED", "COMPLETED", "COMPLETED", "FAILED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => ({
+    verificationId: `cred-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: `${70 + Math.floor(rnd() * 30)}0${Math.floor(rnd() * 10)}${Math.floor(1000000 + rnd() * 9000000)}08${Math.floor(rnd() * 10)}`,
+    fullName: names[i % names.length],
+    riskGrade: grades[Math.floor(rnd() * grades.length)],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Income History ---
+
+export interface IncomeHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  employer: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateIncomeHistory(): IncomeHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const employers = ["Acme Corp", "Blue Sky Ltd", "Delta Manufacturing", "Echo Services", "Foxtrot Solutions", "Global Tech", "Horizon Partners"];
+  const outcomes: IncomeHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED",
+    "FAILED", "VERIFIED", "VERIFIED", "VERIFIED", "NOT_VERIFIED",
+    "VERIFIED", "VERIFIED", "VERIFIED", "FAILED", "VERIFIED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => ({
+    verificationId: `inc-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: `${70 + Math.floor(rnd() * 30)}0${Math.floor(rnd() * 10)}${Math.floor(1000000 + rnd() * 9000000)}08${Math.floor(rnd() * 10)}`,
+    fullName: names[i % names.length],
+    employer: employers[Math.floor(rnd() * employers.length)],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Tax Compliance History ---
+
+export interface TaxComplianceHistoryItem {
+  verificationId: string;
+  taxNumber: string;
+  entityName: string;
+  outcome: "COMPLIANT" | "NON_COMPLIANT" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateTaxComplianceHistory(): TaxComplianceHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const entities = [
+    "Acme Trading (Pty) Ltd", "Blue Sky Investments", "Delta Manufacturing CC",
+    "Echo Services (Pty) Ltd", "Foxtrot Solutions", "Global Tech Holdings",
+    "Horizon Partners (Pty) Ltd", "Indigo Ventures", "Jupiter Mining CC",
+    "Kappa Logistics (Pty) Ltd", "Lambda Financial Services", "Metro Engineering",
+    "Nova Consulting", "Omega Retail Group", "Phoenix Construction",
+  ];
+  const outcomes: TaxComplianceHistoryItem["outcome"][] = [
+    "COMPLIANT", "COMPLIANT", "NON_COMPLIANT", "COMPLIANT", "FAILED",
+    "COMPLIANT", "COMPLIANT", "NON_COMPLIANT", "COMPLIANT", "COMPLIANT",
+    "FAILED", "COMPLIANT", "COMPLIANT", "COMPLIANT", "NON_COMPLIANT",
+  ];
+
+  const count = 12 + Math.floor(rnd() * 4);
+  return Array.from({ length: Math.min(count, entities.length) }).map((_, i) => ({
+    verificationId: `tax-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    taxNumber: `${Math.floor(1000000000 + rnd() * 9000000000)}`,
+    entityName: entities[i % entities.length],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Company History ---
+
+export interface CompanyHistoryItem {
+  verificationId: string;
+  registrationNumber: string;
+  companyName: string;
+  outcome: "FOUND" | "NOT_FOUND" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateCompanyHistory(): CompanyHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const companies = [
+    "Acme Trading (Pty) Ltd", "Blue Sky Investments", "Delta Manufacturing CC",
+    "Echo Services (Pty) Ltd", "Foxtrot Solutions", "Global Tech Holdings",
+    "Horizon Partners (Pty) Ltd", "Indigo Ventures", "Jupiter Mining CC",
+    "Kappa Logistics (Pty) Ltd", "Lambda Financial Services", "Metro Engineering",
+    "Nova Consulting", "Omega Retail Group", "Phoenix Construction",
+  ];
+  const outcomes: CompanyHistoryItem["outcome"][] = [
+    "FOUND", "FOUND", "NOT_FOUND", "FOUND", "FAILED",
+    "FOUND", "FOUND", "NOT_FOUND", "FOUND", "FOUND",
+    "FAILED", "FOUND", "FOUND", "FOUND", "NOT_FOUND",
+  ];
+
+  const count = 12 + Math.floor(rnd() * 4);
+  return Array.from({ length: Math.min(count, companies.length) }).map((_, i) => ({
+    verificationId: `cipc-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    registrationNumber: `20${10 + Math.floor(rnd() * 15)}/${Math.floor(100000 + rnd() * 900000)}/07`,
+    companyName: companies[i % companies.length],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Employment History ---
+
+export interface EmploymentHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  employer: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateEmploymentHistory(): EmploymentHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const employers = ["Acme Corp", "Blue Sky Ltd", "Delta Manufacturing", "Echo Services", "Foxtrot Solutions", "Global Tech", "Horizon Partners"];
+  const outcomes: EmploymentHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED",
+    "FAILED", "VERIFIED", "VERIFIED", "VERIFIED", "NOT_VERIFIED",
+    "VERIFIED", "VERIFIED", "VERIFIED", "FAILED", "VERIFIED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => ({
+    verificationId: `emp-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: `${70 + Math.floor(rnd() * 30)}0${Math.floor(rnd() * 10)}${Math.floor(1000000 + rnd() * 9000000)}08${Math.floor(rnd() * 10)}`,
+    fullName: names[i % names.length],
+    employer: employers[Math.floor(rnd() * employers.length)],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Qualification History ---
+
+export interface QualificationHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  institution: string;
+  outcome: "VERIFIED" | "NOT_VERIFIED" | "FAILED";
+  verifiedAt: string;
+}
+
+export function generateQualificationHistory(): QualificationHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const institutions = ["University of Cape Town", "University of Pretoria", "Wits University", "Stellenbosch University", "UNISA", "University of KwaZulu-Natal", "Rhodes University"];
+  const outcomes: QualificationHistoryItem["outcome"][] = [
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "FAILED",
+    "VERIFIED", "VERIFIED", "NOT_VERIFIED", "VERIFIED", "VERIFIED",
+    "FAILED", "VERIFIED", "VERIFIED", "VERIFIED", "NOT_VERIFIED",
+    "VERIFIED", "VERIFIED", "VERIFIED", "FAILED", "VERIFIED",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => ({
+    verificationId: `qual-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: `${70 + Math.floor(rnd() * 30)}0${Math.floor(rnd() * 10)}${Math.floor(1000000 + rnd() * 9000000)}08${Math.floor(rnd() * 10)}`,
+    fullName: names[i % names.length],
+    institution: institutions[Math.floor(rnd() * institutions.length)],
+    outcome: outcomes[i % outcomes.length],
+    verifiedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Negative News History ---
+
+export interface NegativeNewsHistoryItem {
+  verificationId: string;
+  subjectName: string;
+  entityType: string;
+  matchCount: number;
+  outcome: "CLEAR" | "MATCHES_FOUND" | "FAILED";
+  screenedAt: string;
+}
+
+export function generateNegativeNewsHistory(): NegativeNewsHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "John Smith", "Vladimir Kuznetsov", "Zanele Dlamini", "Ahmed Patel",
+    "Thabo Mokwena", "Olga Petrova", "Chen Wei", "Fatima Osman",
+    "Bongani Zulu", "Global Trade Corp", "Red Diamond Shipping", "Sipho Ndlovu",
+    "Lerato van Wyk", "Naledi Molefe", "David Botha",
+  ];
+  const entityTypes = ["Person", "Person", "Person", "Person", "Person", "Person", "Person", "Person", "Person", "Company", "Company", "Person", "Person", "Person", "Person"];
+  const outcomes: NegativeNewsHistoryItem["outcome"][] = [
+    "CLEAR", "MATCHES_FOUND", "CLEAR", "CLEAR", "MATCHES_FOUND",
+    "CLEAR", "CLEAR", "FAILED", "CLEAR", "MATCHES_FOUND",
+    "FAILED", "CLEAR", "CLEAR", "CLEAR", "MATCHES_FOUND",
+  ];
+
+  const count = 12 + Math.floor(rnd() * 4);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => {
+    const outcome = outcomes[i % outcomes.length];
+    return {
+      verificationId: `nn-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+      subjectName: names[i % names.length],
+      entityType: entityTypes[i % entityTypes.length],
+      matchCount: outcome === "MATCHES_FOUND" ? 1 + Math.floor(rnd() * 5) : outcome === "CLEAR" ? 0 : 0,
+      outcome,
+      screenedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+    };
+  });
+}
+
+// --- Fraud Watchlist History ---
+
+export interface FraudWatchlistHistoryItem {
+  verificationId: string;
+  idNumber: string;
+  fullName: string;
+  outcome: "CLEAR" | "LISTED" | "FAILED";
+  screenedAt: string;
+}
+
+export function generateFraudWatchlistHistory(): FraudWatchlistHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const names = [
+    "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+    "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+    "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+    "Chen Wei", "Olga Petrova", "David Botha", "Sarah Govender",
+    "Michael Pretorius", "Lindiwe Khumalo", "Jacques du Plessis", "Naledi Molefe",
+  ];
+  const outcomes: FraudWatchlistHistoryItem["outcome"][] = [
+    "CLEAR", "CLEAR", "LISTED", "CLEAR", "FAILED",
+    "CLEAR", "CLEAR", "CLEAR", "CLEAR", "LISTED",
+    "FAILED", "CLEAR", "CLEAR", "CLEAR", "CLEAR",
+    "CLEAR", "LISTED", "CLEAR", "FAILED", "CLEAR",
+  ];
+
+  const count = 15 + Math.floor(rnd() * 6);
+  return Array.from({ length: Math.min(count, names.length) }).map((_, i) => ({
+    verificationId: `fw-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+    idNumber: `${70 + Math.floor(rnd() * 30)}0${Math.floor(rnd() * 10)}${Math.floor(1000000 + rnd() * 9000000)}08${Math.floor(rnd() * 10)}`,
+    fullName: names[i % names.length],
+    outcome: outcomes[i % outcomes.length],
+    screenedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+  }));
+}
+
+// --- Property History ---
+
+export interface PropertyHistoryItem {
+  verificationId: string;
+  query: string;
+  searchType: string;
+  resultCount: number;
+  outcome: "FOUND" | "NOT_FOUND" | "FAILED";
+  searchedAt: string;
+}
+
+export function generatePropertyHistory(): PropertyHistoryItem[] {
+  const seedVal = Date.now() % 10000;
+  const rnd = seeded(seedVal);
+
+  const queries = [
+    "Thabo Mokwena", "ERF 1234 Sandton", "T45/67890", "8001015009087",
+    "Nomsa Ndlovu", "ERF 5678 Midrand", "T12/34567", "8502115009083",
+    "Sipho Mthembu", "ERF 9012 Centurion", "T89/01234", "7803025009089",
+    "Lerato van Wyk", "ERF 3456 Fourways", "T56/78901",
+  ];
+  const searchTypes = [
+    "ownerName", "erfNumber", "titleDeed", "ownerId",
+    "ownerName", "erfNumber", "titleDeed", "ownerId",
+    "ownerName", "erfNumber", "titleDeed", "ownerId",
+    "ownerName", "erfNumber", "titleDeed",
+  ];
+  const outcomes: PropertyHistoryItem["outcome"][] = [
+    "FOUND", "FOUND", "NOT_FOUND", "FOUND", "FAILED",
+    "FOUND", "FOUND", "NOT_FOUND", "FOUND", "FOUND",
+    "FAILED", "FOUND", "FOUND", "FOUND", "NOT_FOUND",
+  ];
+
+  const count = 12 + Math.floor(rnd() * 4);
+  return Array.from({ length: Math.min(count, queries.length) }).map((_, i) => {
+    const outcome = outcomes[i % outcomes.length];
+    return {
+      verificationId: `prop-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+      query: queries[i % queries.length],
+      searchType: searchTypes[i % searchTypes.length],
+      resultCount: outcome === "FOUND" ? 1 + Math.floor(rnd() * 4) : 0,
+      outcome,
+      searchedAt: new Date(Date.now() - Math.floor(i * 24 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+    };
+  });
+}

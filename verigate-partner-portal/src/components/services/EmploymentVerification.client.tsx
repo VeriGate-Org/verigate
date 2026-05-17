@@ -96,14 +96,6 @@ export default function EmploymentVerification() {
   return (
     <div className="space-y-6">
       <ScreenReaderAnnounce message={srMessage} />
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">
-          Employment verification
-        </h1>
-        <p className="text-sm text-text-muted">
-          Verify employment status and history for an individual.
-        </p>
-      </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="console-card">

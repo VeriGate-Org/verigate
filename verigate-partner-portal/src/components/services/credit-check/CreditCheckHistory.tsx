@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { generateIdentityVerificationHistory } from "@/lib/mock-services";
-import type { IdentityVerificationHistoryItem } from "@/lib/mock-services";
+import { generateCreditCheckHistory } from "@/lib/mock-services";
+import type { CreditCheckHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
-import { getIdentityVerificationHistory } from "@/lib/bff-client";
+import { getCreditCheckHistory } from "@/lib/bff-client";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
 import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
 import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
 
-export default function IdentityVerificationHistory() {
-  const [history, setHistory] = useState<IdentityVerificationHistoryItem[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<IdentityVerificationHistoryItem[]>([]);
+export default function CreditCheckHistory() {
+  const [history, setHistory] = useState<CreditCheckHistoryItem[]>([]);
+  const [filteredHistory, setFilteredHistory] = useState<CreditCheckHistoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,13 +21,13 @@ export default function IdentityVerificationHistory() {
 
   const fetchHistory = () => {
     if (config.useMockServices) {
-      setHistory(generateIdentityVerificationHistory());
+      setHistory(generateCreditCheckHistory());
       return;
     }
     setIsLoading(true);
     setError(null);
-    getIdentityVerificationHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as IdentityVerificationHistoryItem[]))
+    getCreditCheckHistory({ limit: 200 })
+      .then((res) => setHistory(res.items as unknown as CreditCheckHistoryItem[]))
       .catch((err) => setError(err.message ?? "Failed to load history"))
       .finally(() => setIsLoading(false));
   };
@@ -55,19 +55,13 @@ export default function IdentityVerificationHistory() {
   const paged = filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalCount = history.length;
-  const verifiedCount = history.filter((h) => h.outcome === "VERIFIED").length;
-  const notFoundCount = history.filter((h) => h.outcome === "NOT_FOUND").length;
-  const deceasedCount = history.filter((h) => h.outcome === "DECEASED").length;
+  const completedCount = history.filter((h) => h.outcome === "COMPLETED").length;
   const failedCount = history.filter((h) => h.outcome === "FAILED").length;
 
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
-      case "VERIFIED":
-        return <OutcomeBadge label="Verified" type="success" />;
-      case "NOT_FOUND":
-        return <OutcomeBadge label="Not Found" type="warning" />;
-      case "DECEASED":
-        return <OutcomeBadge label="Deceased" type="danger" />;
+      case "COMPLETED":
+        return <OutcomeBadge label="Completed" type="success" />;
       case "FAILED":
         return <OutcomeBadge label="Failed" type="danger" />;
       default:
@@ -107,7 +101,7 @@ export default function IdentityVerificationHistory() {
       <VerificationEmptyState
         icon={Clock}
         heading="No verification history"
-        description="Identity verifications you perform will appear here."
+        description="Credit checks you perform will appear here."
       />
     );
   }
@@ -117,9 +111,7 @@ export default function IdentityVerificationHistory() {
       {/* Summary chips */}
       <div className="flex gap-3 flex-wrap">
         <SummaryChip label="Total" count={totalCount} className="bg-accent/10 text-accent" />
-        <SummaryChip label="Verified" count={verifiedCount} className="bg-success/10 text-success" />
-        <SummaryChip label="Not Found" count={notFoundCount} className="bg-warning/10 text-warning" />
-        <SummaryChip label="Deceased" count={deceasedCount} className="bg-danger/10 text-danger" />
+        <SummaryChip label="Completed" count={completedCount} className="bg-success/10 text-success" />
         <SummaryChip label="Failed" count={failedCount} className="bg-danger/10 text-danger" />
       </div>
 
@@ -146,9 +138,7 @@ export default function IdentityVerificationHistory() {
                 className="aws-select text-sm"
               >
                 <option value="all">All Outcomes</option>
-                <option value="VERIFIED">Verified</option>
-                <option value="NOT_FOUND">Not Found</option>
-                <option value="DECEASED">Deceased</option>
+                <option value="COMPLETED">Completed</option>
                 <option value="FAILED">Failed</option>
               </select>
             </div>
@@ -162,6 +152,7 @@ export default function IdentityVerificationHistory() {
               <tr className="border-b border-border bg-base-200/50">
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">ID Number</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Name</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Risk Grade</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
               </tr>
@@ -171,6 +162,7 @@ export default function IdentityVerificationHistory() {
                 <tr key={item.verificationId} className="hover:bg-hover/50">
                   <td className="px-4 py-2.5 font-mono text-xs text-text">{item.idNumber}</td>
                   <td className="px-4 py-2.5 text-text">{item.fullName}</td>
+                  <td className="px-4 py-2.5 text-text">{item.riskGrade}</td>
                   <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
                   <td className="px-4 py-2.5 text-text-muted">
                     {new Date(item.verifiedAt).toLocaleDateString()}
@@ -179,7 +171,7 @@ export default function IdentityVerificationHistory() {
               ))}
               {paged.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-text-muted">
+                  <td colSpan={5} className="px-4 py-8 text-center text-text-muted">
                     No results match the current filters.
                   </td>
                 </tr>

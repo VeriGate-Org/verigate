@@ -1533,3 +1533,115 @@ export async function getScreeningHistory(params?: {
     provider: string;
   }>; total: number };
 }
+
+// ── Service History Stubs (not yet implemented in BFF) ──────────────
+
+export interface BankAccountHistoryResponse {
+  items: Array<{ verificationId: string; accountNumber: string; bank: string; accountHolder: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getBankAccountHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<BankAccountHistoryResponse> {
+  const { data } = await bffApi.get<BankAccountHistoryResponse>("/api/partner/bank-account/history", { params });
+  return data;
+}
+
+export interface CreditCheckHistoryResponse {
+  items: Array<{ verificationId: string; idNumber: string; fullName: string; riskGrade: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getCreditCheckHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<CreditCheckHistoryResponse> {
+  const { data } = await bffApi.get<CreditCheckHistoryResponse>("/api/partner/credit-check/history", { params });
+  return data;
+}
+
+export interface IncomeHistoryResponse {
+  items: Array<{ verificationId: string; idNumber: string; fullName: string; employer: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getIncomeHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<IncomeHistoryResponse> {
+  const { data } = await bffApi.get<IncomeHistoryResponse>("/api/partner/income/history", { params });
+  return data;
+}
+
+export interface TaxComplianceHistoryResponse {
+  items: Array<{ verificationId: string; taxNumber: string; entityName: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getTaxComplianceHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<TaxComplianceHistoryResponse> {
+  const { data } = await bffApi.get<TaxComplianceHistoryResponse>("/api/partner/tax-compliance/history", { params });
+  return data;
+}
+
+export interface CompanyHistoryResponse {
+  items: Array<{ verificationId: string; registrationNumber: string; companyName: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getCompanyHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<CompanyHistoryResponse> {
+  const { data } = await bffApi.get<CompanyHistoryResponse>("/api/partner/company/history", { params });
+  return data;
+}
+
+export interface EmploymentHistoryResponse {
+  items: Array<{ verificationId: string; idNumber: string; fullName: string; employer: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getEmploymentHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<EmploymentHistoryResponse> {
+  const { data } = await bffApi.get<EmploymentHistoryResponse>("/api/partner/employment/history", { params });
+  return data;
+}
+
+export interface QualificationHistoryResponse {
+  items: Array<{ verificationId: string; idNumber: string; fullName: string; institution: string; outcome: string; verifiedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getQualificationHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<QualificationHistoryResponse> {
+  const { data } = await bffApi.get<QualificationHistoryResponse>("/api/partner/qualification/history", { params });
+  return data;
+}
+
+export interface NegativeNewsHistoryResponse {
+  items: Array<{ verificationId: string; subjectName: string; entityType: string; matchCount: number; outcome: string; screenedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getNegativeNewsHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<NegativeNewsHistoryResponse> {
+  const { data } = await bffApi.get<NegativeNewsHistoryResponse>("/api/partner/negative-news/history", { params });
+  return data;
+}
+
+export interface FraudWatchlistHistoryResponse {
+  items: Array<{ verificationId: string; idNumber: string; fullName: string; outcome: string; screenedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getFraudWatchlistHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<FraudWatchlistHistoryResponse> {
+  const { data } = await bffApi.get<FraudWatchlistHistoryResponse>("/api/partner/fraud-watchlist/history", { params });
+  return data;
+}
+
+export interface PropertyHistoryResponse {
+  items: Array<{ verificationId: string; query: string; searchType: string; resultCount: number; outcome: string; searchedAt: string }>;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+export async function getPropertyHistory(params?: { status?: string; cursor?: string; limit?: number }): Promise<PropertyHistoryResponse> {
+  const { data } = await bffApi.get<PropertyHistoryResponse>("/api/partner/property/history", { params });
+  return data;
+}
