@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { generateIdentityVerificationHistory } from "@/lib/mock-services";
 import type { IdentityVerificationHistoryItem } from "@/lib/mock-services";
-import { config } from "@/lib/config";
-import { getIdentityVerificationHistory } from "@/lib/bff-client";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
 import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
 
@@ -19,16 +17,8 @@ export default function IdentityVerificationHistory() {
   const pageSize = 10;
 
   const fetchHistory = () => {
-    if (config.useMockServices) {
-      setHistory(generateIdentityVerificationHistory());
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    getIdentityVerificationHistory({ limit: 200 })
-      .then((res) => setHistory(res.items as unknown as IdentityVerificationHistoryItem[]))
-      .catch((err) => setError(err.message ?? "Failed to load identity verification history"))
-      .finally(() => setIsLoading(false));
+    // Always use mock data — BFF endpoint /api/partner/identity/history not yet implemented
+    setHistory(generateIdentityVerificationHistory());
   };
 
   useEffect(() => {
