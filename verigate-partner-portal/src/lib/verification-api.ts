@@ -110,8 +110,8 @@ function getAuthHeaders(): Record<string, string> {
     const raw = sessionStorage.getItem("verigate-auth");
     if (raw) {
       const session = JSON.parse(raw);
-      if (session.accessToken) {
-        headers["Authorization"] = `Bearer ${session.accessToken}`;
+      if (session.idToken) {
+        headers["Authorization"] = `Bearer ${session.idToken}`;
       }
     }
   } catch {

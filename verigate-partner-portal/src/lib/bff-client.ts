@@ -25,13 +25,14 @@ const bffApi = axios.create({
 bffApi.interceptors.request.use((reqConfig: InternalAxiosRequestConfig) => {
   reqConfig.headers["X-Correlation-ID"] = crypto.randomUUID();
 
-  // Attach access token from session storage if available
+  // Attach ID token from session storage if available
+  // ID tokens carry custom claims (e.g. custom:partnerId) that the BFF needs
   try {
     const raw = sessionStorage.getItem("verigate-auth");
     if (raw) {
       const session = JSON.parse(raw);
-      if (session.accessToken) {
-        reqConfig.headers["Authorization"] = `Bearer ${session.accessToken}`;
+      if (session.idToken) {
+        reqConfig.headers["Authorization"] = `Bearer ${session.idToken}`;
       }
     }
   } catch {
