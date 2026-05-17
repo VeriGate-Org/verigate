@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { CreditCard, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const AvsCheck = dynamic(() => import("@/components/services/AvsCheck.client"), { ssr: false });
 const BankAccountHistory = dynamic(() => import("@/components/services/bank-account/BankAccountHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function BankAccountServicePage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Bank account validation</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Bank account validation</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Validate account ownership across South African banks using AVS.
         </p>

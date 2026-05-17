@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { TrendingUp, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const CreditCheck = dynamic(() => import("@/components/services/CreditCheck.client"), { ssr: false });
 const CreditCheckHistory = dynamic(() => import("@/components/services/credit-check/CreditCheckHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function CreditCheckPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Credit check</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Credit check</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Run a credit bureau check to assess financial risk and credit history.
         </p>

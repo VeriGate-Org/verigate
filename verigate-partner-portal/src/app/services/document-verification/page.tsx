@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { FileCheck, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const DocumentVerification = dynamic(() => import("@/components/services/DocumentVerification.client"), { ssr: false });
 const DocumentVerificationHistory = dynamic(() => import("@/components/services/document-verification/DocumentVerificationHistory"), { ssr: false });
@@ -22,9 +23,12 @@ export default function DocumentVerificationPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">
-          Document verification
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">
+            Document verification
+          </h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Verify documents against official registries including DHA, SAQA, CIPC, and SARS.
         </p>

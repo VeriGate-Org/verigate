@@ -7,6 +7,7 @@ import { GraduationCap, Clock, Upload } from "lucide-react";
 const QualificationVerification = dynamic(() => import("@/components/services/QualificationVerification.client"), { ssr: false });
 const QualificationHistory = dynamic(() => import("@/components/services/qualification/QualificationHistory"), { ssr: false });
 const BatchUploadPlaceholder = dynamic(() => import("@/components/services/shared/BatchUploadPlaceholder"), { ssr: false });
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 type Tab = "verify" | "history" | "batch";
 
@@ -22,7 +23,10 @@ export default function QualificationPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Qualification verification</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Qualification verification</h1>
+          <SlaIndicator sla="5–21 business days" />
+        </div>
         <p className="text-sm text-text-muted">
           Verify educational qualifications through SAQA and institutional records.
         </p>

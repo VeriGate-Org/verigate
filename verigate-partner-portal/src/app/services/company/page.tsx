@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Building2, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const CompanyVerification = dynamic(() => import("@/components/services/CompanyVerification.client"), { ssr: false });
 const CompanyVerificationHistory = dynamic(() => import("@/components/services/company/CompanyVerificationHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function CompanyVerificationPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">CIPC company & director search</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">CIPC company & director search</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Pull registration details and current directors for a South African entity.
         </p>

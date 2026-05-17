@@ -8,6 +8,7 @@ const SanctionsCheck = dynamic(() => import("@/components/services/SanctionsChec
 const SanctionsHistory = dynamic(() => import("@/components/services/sanctions/SanctionsHistory"), { ssr: false });
 const SanctionsBatch = dynamic(() => import("@/components/services/sanctions/SanctionsBatch"), { ssr: false });
 const SanctionsMonitoring = dynamic(() => import("@/components/services/sanctions/SanctionsMonitoring"), { ssr: false });
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 type Tab = "screen" | "history" | "batch" | "monitoring";
 
@@ -23,6 +24,16 @@ export default function SanctionsServicePage() {
 
   return (
     <div className="space-y-6">
+      <header className="space-y-1">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Sanctions screening</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
+        <p className="text-sm text-text-muted">
+          Screen individuals and entities against global sanctions, PEP, and watchlists.
+        </p>
+      </header>
+
       {/* Tab bar */}
       <div className="border-b border-gray-200">
         <nav className="flex gap-0 -mb-px">

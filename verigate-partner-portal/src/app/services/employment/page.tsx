@@ -7,6 +7,7 @@ import { Briefcase, Clock, Upload } from "lucide-react";
 const EmploymentVerification = dynamic(() => import("@/components/services/EmploymentVerification.client"), { ssr: false });
 const EmploymentHistory = dynamic(() => import("@/components/services/employment/EmploymentHistory"), { ssr: false });
 const BatchUploadPlaceholder = dynamic(() => import("@/components/services/shared/BatchUploadPlaceholder"), { ssr: false });
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 type Tab = "verify" | "history" | "batch";
 
@@ -22,7 +23,10 @@ export default function EmploymentPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Employment verification</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Employment verification</h1>
+          <SlaIndicator sla="2 business days" />
+        </div>
         <p className="text-sm text-text-muted">
           Verify employment status and history for an individual.
         </p>

@@ -55,9 +55,8 @@ export default function TaxComplianceHistory() {
   const paged = filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalCount = history.length;
-  const compliantCount = history.filter((h) => h.outcome === "COMPLIANT").length;
-  const nonCompliantCount = history.filter((h) => h.outcome === "NON_COMPLIANT").length;
-  const failedCount = history.filter((h) => h.outcome === "FAILED").length;
+  const successCount = history.filter((h) => h.outcome === "COMPLIANT").length;
+  const successRate = totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0;
 
   const outcomeBadge = (outcome: string) => {
     switch (outcome) {
@@ -111,13 +110,15 @@ export default function TaxComplianceHistory() {
 
   return (
     <div className="space-y-4">
-      {/* Summary chips */}
-      <div className="flex gap-3 flex-wrap">
-        <SummaryChip label="Total" count={totalCount} className="bg-accent/10 text-accent" />
-        <SummaryChip label="Compliant" count={compliantCount} className="bg-success/10 text-success" />
-        <SummaryChip label="Non-Compliant" count={nonCompliantCount} className="bg-warning/10 text-warning" />
-        <SummaryChip label="Failed" count={failedCount} className="bg-danger/10 text-danger" />
-      </div>
+      <p className="text-sm text-text-muted">
+        <span className="font-medium text-text">{totalCount}</span> verifications
+        {totalCount > 0 && (
+          <>
+            <span className="mx-1.5 text-border">&middot;</span>
+            <span className="font-medium text-text">{successRate}%</span> success rate
+          </>
+        )}
+      </p>
 
       {/* Table card */}
       <div className="console-card overflow-hidden">
@@ -209,14 +210,6 @@ export default function TaxComplianceHistory() {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function SummaryChip({ label, count, className }: { label: string; count: number; className: string }) {
-  return (
-    <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${className}`}>
-      {label}: {count}
     </div>
   );
 }

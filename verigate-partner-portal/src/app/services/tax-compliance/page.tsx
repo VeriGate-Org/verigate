@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Receipt, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const TaxCompliance = dynamic(() => import("@/components/services/TaxCompliance.client"), { ssr: false });
 const TaxComplianceHistory = dynamic(() => import("@/components/services/tax-compliance/TaxComplianceHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function TaxCompliancePage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Tax compliance verification</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Tax compliance verification</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Verify tax compliance status with the South African Revenue Service.
         </p>

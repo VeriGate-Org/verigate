@@ -7,6 +7,7 @@ import { Map, Clock, Upload } from "lucide-react";
 const PropertyOwnership = dynamic(() => import("@/components/services/PropertyOwnership.client"), { ssr: false });
 const PropertyHistory = dynamic(() => import("@/components/services/property-ownership/PropertyHistory"), { ssr: false });
 const BatchUploadPlaceholder = dynamic(() => import("@/components/services/shared/BatchUploadPlaceholder"), { ssr: false });
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 type Tab = "verify" | "history" | "batch";
 
@@ -22,7 +23,10 @@ export default function PropertyOwnershipPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Deeds registry search</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Deeds registry search</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Search ownership, bonds, and municipal status from the national deeds registry.
         </p>

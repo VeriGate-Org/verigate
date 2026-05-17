@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Fingerprint, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const IdentityVerification = dynamic(() => import("@/components/services/IdentityVerification.client"), { ssr: false });
 const IdentityVerificationHistory = dynamic(() => import("@/components/services/identity-verification/IdentityVerificationHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function IdentityPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Identity verification</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Identity verification</h1>
+          <SlaIndicator sla="Real-time" realTime />
+        </div>
         <p className="text-sm text-text-muted">
           Verify identity against the DHA/HANIS National Population Register with photo and biometric data.
         </p>

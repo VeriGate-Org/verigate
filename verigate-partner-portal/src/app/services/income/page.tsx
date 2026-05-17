@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { DollarSign, Clock, Upload } from "lucide-react";
+import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
 
 const IncomeVerification = dynamic(() => import("@/components/services/IncomeVerification.client"), { ssr: false });
 const IncomeVerificationHistory = dynamic(() => import("@/components/services/income/IncomeVerificationHistory"), { ssr: false });
@@ -22,7 +23,10 @@ export default function IncomePage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold text-text">Income verification</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold text-text">Income verification</h1>
+          <SlaIndicator sla="2 business days" />
+        </div>
         <p className="text-sm text-text-muted">
           Verify income details through payroll and employment records.
         </p>
