@@ -67,7 +67,7 @@ export default function CaseSummaryCard({ caseId }: { caseId: string }) {
 
   if (error) {
     return (
-      <div className="console-card console-card--danger">
+      <div className="console-card border-danger/20">
         <div className="console-card-body text-center py-4">
           <p className="text-xs text-text-muted">{error}</p>
           <Button variant="ghost" size="sm" className="mt-2" onClick={fetchSummary}>

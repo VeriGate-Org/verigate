@@ -74,7 +74,7 @@ export default function ApiKeysTab() {
 
       {/* One-time key display */}
       {generatedKey && (
-        <div className="console-card console-card--success">
+        <div className="console-card border-success/40 bg-success/5">
           <div className="console-card-body space-y-2">
             <div className="text-sm font-semibold text-text">Your new API key</div>
             <p className="text-xs text-text-muted">

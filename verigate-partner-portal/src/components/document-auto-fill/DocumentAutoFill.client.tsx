@@ -310,7 +310,7 @@ export default function DocumentAutoFill() {
               const isUploaded = doc?.status === "complete";
 
               return (
-                <div key={dt.type} className={`console-card ${isUploaded ? "console-card--success" : ""}`}>
+                <div key={dt.type} className={`console-card ${isUploaded ? "border-success/40" : ""}`}>
                   <div className="console-card-header">
                     <div className="flex items-center gap-2">
                       <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${isUploaded ? "bg-success/10" : "bg-border"}`}>
@@ -395,7 +395,7 @@ export default function DocumentAutoFill() {
       {step === "results" && result && (
         <div ref={resultRef} className="space-y-4">
           {/* Summary banner */}
-          <div className="console-card console-card--success">
+          <div className="console-card border-success/40">
             <div className="console-card-body">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-4">

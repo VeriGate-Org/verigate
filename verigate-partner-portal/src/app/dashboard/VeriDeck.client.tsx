@@ -304,7 +304,7 @@ export default function VeriDeck() {
       </div>
 
       {error && (
-        <div className="console-card console-card--danger text-sm text-danger">
+        <div className="console-card border-danger/40 bg-danger/5 text-sm text-danger">
           <div className="console-card-body flex items-center justify-between">
             <span>{error instanceof Error ? error.message : "Failed to load dashboard"}</span>
             <button
