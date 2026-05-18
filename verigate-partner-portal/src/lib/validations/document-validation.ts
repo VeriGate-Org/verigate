@@ -50,39 +50,6 @@ function buildRules(documentType: string): Record<string, ValidationRule> {
         },
       };
 
-    case "asylum_seeker_permit":
-      return {
-        permitNumber: {
-          required: true,
-          pattern: /^[A-Za-z0-9]{8,15}$/,
-          message: "Permit number must be 8-15 alphanumeric characters.",
-        },
-        nationality: {
-          required: true,
-          minLength: 2,
-          message: "Nationality is required.",
-        },
-      };
-
-    case "general_work_permit":
-      return {
-        permitNumber: {
-          required: true,
-          pattern: /^[A-Za-z0-9]{8,15}$/,
-          message: "Permit number must be 8-15 alphanumeric characters.",
-        },
-        nationality: {
-          required: true,
-          minLength: 2,
-          message: "Nationality is required.",
-        },
-        employerName: {
-          required: true,
-          minLength: 2,
-          message: "Employer name is required (min 2 characters).",
-        },
-      };
-
     case "b_bbee_certificate":
       return {
         certificateNumber: {

@@ -20,13 +20,6 @@ export const DOCUMENT_TYPE_GROUPS = [
     ],
   },
   {
-    label: "Permits",
-    types: [
-      { value: "asylum_seeker_permit", label: "Asylum Seeker Permit" },
-      { value: "general_work_permit", label: "General Work Permit" },
-    ],
-  },
-  {
     label: "Business Documents",
     types: [
       { value: "b_bbee_certificate", label: "B-BBEE Certificate" },
@@ -142,60 +135,6 @@ export const DOCUMENT_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       type: "select",
       required: false,
       options: PROVINCE_OPTIONS,
-    },
-  ],
-
-  asylum_seeker_permit: [
-    {
-      name: "permitNumber",
-      label: "Permit Number",
-      description: "Asylum seeker permit number (8-15 characters).",
-      type: "text",
-      required: true,
-      placeholder: "e.g. ASP12345678",
-    },
-    {
-      name: "nationality",
-      label: "Nationality",
-      description: "Nationality of the permit holder.",
-      type: "text",
-      required: true,
-      placeholder: "e.g. Congolese",
-    },
-    {
-      name: "refugeeOffice",
-      label: "Refugee Office",
-      description: "Refugee Reception Office that issued the permit.",
-      type: "text",
-      required: false,
-      placeholder: "e.g. Pretoria Refugee Reception Office",
-    },
-  ],
-
-  general_work_permit: [
-    {
-      name: "permitNumber",
-      label: "Permit Number",
-      description: "Work permit number (8-15 characters).",
-      type: "text",
-      required: true,
-      placeholder: "e.g. WP12345678",
-    },
-    {
-      name: "nationality",
-      label: "Nationality",
-      description: "Nationality of the permit holder.",
-      type: "text",
-      required: true,
-      placeholder: "e.g. Nigerian",
-    },
-    {
-      name: "employerName",
-      label: "Employer Name",
-      description: "Name of the sponsoring employer.",
-      type: "text",
-      required: true,
-      placeholder: "e.g. Karisani Technologies (Pty) Ltd",
     },
   ],
 

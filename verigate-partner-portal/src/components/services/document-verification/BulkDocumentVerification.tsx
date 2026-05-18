@@ -232,8 +232,8 @@ export default function BulkDocumentVerification() {
                   drivers_license,DL12345678
                 </div>
                 <p className="text-xs text-text-muted">
-                  Valid document types: id_card, passport, drivers_license, asylum_seeker_permit,
-                  general_work_permit, b_bbee_certificate, cipc_registration, tax_certificate,
+                  Valid document types: id_card, passport, drivers_license,
+                  b_bbee_certificate, cipc_registration, tax_certificate,
                   financial_statement, utility_bill.
                 </p>
                 <button
