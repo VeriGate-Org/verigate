@@ -147,16 +147,14 @@ export function StatusIndicator({
   const displayLabel = labelOverride ?? config.label;
 
   if (iconOnly) {
-    const dotSizes = { sm: "w-5 h-5", md: "w-6 h-6" };
-    const iconSizesOnly = { sm: "w-3 h-3", md: "w-3.5 h-3.5" };
+    const iconOnlySizes = { sm: "w-4 h-4", md: "w-5 h-5" };
     return (
       <span title={displayLabel} className={cn("flex items-center justify-center w-full", className)}>
-        <span
-          className={cn("inline-flex items-center justify-center rounded-full", dotSizes[size])}
-          style={{ backgroundColor: ICON_ONLY_CSS_VARS[config.category] }}
-        >
-          <Icon className={cn(iconSizesOnly[size], "text-white")} strokeWidth={2.5} />
-        </span>
+        <Icon
+          className={iconOnlySizes[size]}
+          style={{ color: ICON_ONLY_CSS_VARS[config.category], fill: "currentColor", stroke: "currentColor" }}
+          strokeWidth={0.5}
+        />
       </span>
     );
   }
