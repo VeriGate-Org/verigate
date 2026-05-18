@@ -34,6 +34,7 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: true,
     items: [
       { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+      { name: "New Check", path: "/checks/new", icon: CheckSquare, badge: "NEW" },
       { name: "Verification Log", path: "/verifications", icon: Search },
       { name: "Cases", path: "/cases", icon: ClipboardList, badge: "NEW", feature: Feature.CASE_MANAGEMENT },
       { name: "Document Analytics", path: "/document-analytics", icon: BarChart3, badge: "NEW" },
