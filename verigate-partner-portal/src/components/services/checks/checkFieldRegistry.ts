@@ -58,10 +58,14 @@ export type CommonFields = {
 
 // ── Check definition ─────────────────────────────────────────────────
 
+export type VerificationMethod = "authority" | "document_ai";
+
 export interface CheckDefinition {
   type: BffVerificationType;
   label: string;
   description: string;
+  /** How the verification is performed */
+  verificationMethod: VerificationMethod;
   /** Which common subject fields this check sends to the BFF */
   usesCommonFields: ("idNumber" | "firstName" | "lastName")[];
   /** Extra fields shown when this check is selected */
@@ -84,6 +88,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "IDENTITY_VERIFICATION",
     label: "Identity Verification",
     description: "Verify identity via DHA or HANIS",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber", "firstName", "lastName"],
     additionalFields: [
       {
@@ -122,6 +127,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "FRAUD_WATCHLIST_SCREENING",
     label: "Fraud Watchlist",
     description: "Screen against known fraud watchlists",
+    verificationMethod: "authority",
     usesCommonFields: ["firstName", "lastName", "idNumber"],
     additionalFields: [],
     buildPayload: (c) => ({
@@ -137,6 +143,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "CREDIT_CHECK",
     label: "Credit Check",
     description: "Run a credit bureau enquiry",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber"],
     additionalFields: [
       {
@@ -164,6 +171,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "BANK_ACCOUNT_VERIFICATION",
     label: "Bank Account (AVS)",
     description: "Verify bank account details via AVS",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -211,6 +219,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "INCOME_VERIFICATION",
     label: "Income Verification",
     description: "Verify income via payroll data",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber"],
     additionalFields: [
       {
@@ -245,6 +254,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "TAX_COMPLIANCE_VERIFICATION",
     label: "Tax Compliance",
     description: "Verify tax compliance status with SARS",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -269,6 +279,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "EMPLOYMENT_VERIFICATION",
     label: "Employment Verification",
     description: "Verify current or past employment",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber"],
     additionalFields: [
       {
@@ -298,7 +309,8 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
   QUALIFICATION_VERIFICATION: {
     type: "QUALIFICATION_VERIFICATION",
     label: "Qualification Verification",
-    description: "Verify academic qualifications",
+    description: "Verify academic qualifications via SAQA",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber"],
     additionalFields: [
       {
@@ -335,6 +347,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "NEGATIVE_NEWS_SCREENING",
     label: "Negative News",
     description: "Screen for adverse media mentions",
+    verificationMethod: "authority",
     usesCommonFields: ["firstName", "lastName"],
     additionalFields: [],
     buildPayload: (c) => ({
@@ -349,6 +362,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "SANCTIONS_SCREENING",
     label: "Sanctions & PEP",
     description: "Screen sanctions lists and PEP databases",
+    verificationMethod: "authority",
     usesCommonFields: ["firstName", "lastName"],
     additionalFields: [
       {
@@ -385,6 +399,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "VERIFICATION_OF_PERSONAL_DETAILS",
     label: "Personal Details (DHA)",
     description: "Verify personal details against DHA records",
+    verificationMethod: "authority",
     usesCommonFields: ["idNumber", "firstName", "lastName"],
     additionalFields: [
       {
@@ -409,6 +424,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "COMPANY_VERIFICATION",
     label: "Company & Directors",
     description: "Verify company registration and directors via CIPC",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -438,6 +454,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "PROPERTY_OWNERSHIP_VERIFICATION",
     label: "Property / Deeds",
     description: "Search the deeds registry for property ownership",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -491,6 +508,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     type: "VAT_VENDOR_VERIFICATION",
     label: "VAT Vendor",
     description: "Verify VAT vendor registration with SARS",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -511,13 +529,16 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     realTime: true,
   },
 
-  // ── Immigration & Permits ──────────────────────────────────────────
-  // These route through DOCUMENT_VERIFICATION with a specific documentType.
+  // ── Immigration & Permits (Authority / Registry) ──────────────────
+  // These route through DOCUMENT_VERIFICATION with a specific documentType
+  // and verificationMode: "authority" to indicate DHA registry lookup
+  // (as opposed to AI document analysis).
 
   DOCUMENT_VERIFICATION__ASYLUM: {
     type: "DOCUMENT_VERIFICATION",
     label: "Asylum Seeker Permit",
-    description: "Verify asylum seeker permit against DHA records",
+    description: "Verify permit via DHA registry lookup",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -546,6 +567,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     ],
     buildPayload: (_c, a) => ({
       documentType: "asylum_seeker_permit",
+      verificationMode: "authority",
       documentNumber: a.permitNumber,
       permitNumber: a.permitNumber,
       nationality: a.nationality,
@@ -558,7 +580,8 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
   DOCUMENT_VERIFICATION__WORK_VISA: {
     type: "DOCUMENT_VERIFICATION",
     label: "General Work Visa",
-    description: "Verify general work visa / permit against DHA records",
+    description: "Verify work visa via DHA registry lookup",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -587,6 +610,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     ],
     buildPayload: (_c, a) => ({
       documentType: "general_work_permit",
+      verificationMode: "authority",
       documentNumber: a.permitNumber,
       permitNumber: a.permitNumber,
       nationality: a.nationality,
@@ -599,7 +623,8 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
   DOCUMENT_VERIFICATION__PASSPORT: {
     type: "DOCUMENT_VERIFICATION",
     label: "Passport Verification",
-    description: "Verify passport details",
+    description: "Verify passport via DHA registry lookup",
+    verificationMethod: "authority",
     usesCommonFields: [],
     additionalFields: [
       {
@@ -628,6 +653,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     ],
     buildPayload: (_c, a) => ({
       documentType: "passport",
+      verificationMode: "authority",
       documentNumber: a.passportNumber,
       passportNumber: a.passportNumber,
       nationality: a.nationality,
@@ -636,6 +662,13 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     servicePath: "/services/document-verification",
     realTime: false,
   },
+};
+
+// ── Verification method display helpers ──────────────────────────────
+
+export const VERIFICATION_METHOD_LABELS: Record<VerificationMethod, string> = {
+  authority: "Registry",
+  document_ai: "Document AI",
 };
 
 // ── Check category groups (for the selector panel) ───────────────────

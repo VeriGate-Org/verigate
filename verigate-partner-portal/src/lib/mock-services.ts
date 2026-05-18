@@ -2136,3 +2136,80 @@ export function generatePropertyHistory(): PropertyHistoryItem[] {
     };
   });
 }
+
+// --- Check Session History ---
+
+import type { CheckSession, CheckSessionResult } from "@/lib/types/check-session";
+
+const CHECK_SESSION_NAMES = [
+  "Thabo Mokwena", "Nomsa Ndlovu", "Sipho Mthembu", "Lerato van Wyk",
+  "Bongani Zulu", "Zanele Dlamini", "Tshepo Nkosi", "Palesa Mokoena",
+  "John Smith", "Fatima Osman", "Ahmed Al-Rashid", "Mpho Sithole",
+  "David Botha", "Sarah Govender", "Michael Pretorius", "Lindiwe Khumalo",
+  "Jacques du Plessis", "Naledi Molefe", "Peter Joubert", "Grace Mabena",
+];
+
+const CHECK_SESSION_IDS = [
+  "9001015009087", "8502115009083", "7803025009089", "8811175009081",
+  "9205235009085", "7506305009080", "8310145009082", "9108215009086",
+  "8004015009088", "7701125009084", "8609075009081", "9312285009083",
+  "8107195009087", "9506115009080", "7908235009086", "8803055009082",
+  "9411175009084", "8205065009089", "7604305009085", "9007095009081",
+];
+
+const CHECK_TYPES_POOL: { checkType: string; label: string }[] = [
+  { checkType: "IDENTITY_VERIFICATION", label: "Identity Verification" },
+  { checkType: "CREDIT_CHECK", label: "Credit Check" },
+  { checkType: "BANK_ACCOUNT_VERIFICATION", label: "Bank Account (AVS)" },
+  { checkType: "FRAUD_WATCHLIST_SCREENING", label: "Fraud Watchlist" },
+  { checkType: "NEGATIVE_NEWS_SCREENING", label: "Negative News" },
+  { checkType: "SANCTIONS_SCREENING", label: "Sanctions & PEP" },
+  { checkType: "EMPLOYMENT_VERIFICATION", label: "Employment Verification" },
+  { checkType: "QUALIFICATION_VERIFICATION", label: "Qualification Verification" },
+  { checkType: "INCOME_VERIFICATION", label: "Income Verification" },
+  { checkType: "TAX_COMPLIANCE_VERIFICATION", label: "Tax Compliance" },
+  { checkType: "COMPANY_VERIFICATION", label: "Company & Directors" },
+  { checkType: "PROPERTY_OWNERSHIP_VERIFICATION", label: "Property / Deeds" },
+  { checkType: "VERIFICATION_OF_PERSONAL_DETAILS", label: "Personal Details (DHA)" },
+];
+
+export function generateCheckSessionHistory(): CheckSession[] {
+  const seedVal = 42;
+  const rnd = seeded(seedVal);
+
+  return Array.from({ length: 20 }).map((_, i) => {
+    const nameIdx = i % CHECK_SESSION_NAMES.length;
+    const firstName = CHECK_SESSION_NAMES[nameIdx].split(" ")[0];
+    const lastName = CHECK_SESSION_NAMES[nameIdx].split(" ").slice(1).join(" ");
+    const idNumber = CHECK_SESSION_IDS[i % CHECK_SESSION_IDS.length];
+
+    // Pick 2-6 random checks per session
+    const checkCount = 2 + Math.floor(rnd() * 5);
+    const shuffled = [...CHECK_TYPES_POOL].sort(() => rnd() - 0.5);
+    const selectedChecks = shuffled.slice(0, checkCount);
+
+    const checks: CheckSessionResult[] = selectedChecks.map((c) => {
+      const isError = rnd() < 0.12;
+      return {
+        checkType: c.checkType,
+        label: c.label,
+        status: isError ? "error" : "success",
+        summary: isError ? [] : ["Completed"],
+        error: isError ? "Verification failed" : undefined,
+      };
+    });
+
+    const passed = checks.filter((c) => c.status === "success").length;
+    const failed = checks.filter((c) => c.status === "error").length;
+
+    return {
+      sessionId: `cs-seed-${1000 + i}-${Math.floor(rnd() * 99999)}`,
+      createdAt: new Date(Date.now() - Math.floor(i * 12 + rnd() * 48) * 60 * 60 * 1000).toISOString(),
+      subject: { idNumber, firstName, lastName },
+      checks,
+      totalChecks: checks.length,
+      passed,
+      failed,
+    };
+  });
+}

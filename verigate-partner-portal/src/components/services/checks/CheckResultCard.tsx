@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2, CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ArrowRight, RotateCcw, Building2, ScanSearch } from "lucide-react";
 import type { CheckDefinition } from "./checkFieldRegistry";
+import { VERIFICATION_METHOD_LABELS } from "./checkFieldRegistry";
 
 export type CheckState = {
   status: "pending" | "running" | "success" | "error";
@@ -241,6 +242,16 @@ export function CheckResultCard({ checkType, state, definition, onRetry }: Check
               Pending
             </span>
           )}
+        </div>
+
+        {/* Verification method */}
+        <div className="flex items-center gap-1 text-[10px] text-text-muted">
+          {definition.verificationMethod === "authority" ? (
+            <Building2 className="h-2.5 w-2.5" />
+          ) : (
+            <ScanSearch className="h-2.5 w-2.5" />
+          )}
+          {VERIFICATION_METHOD_LABELS[definition.verificationMethod]}
         </div>
 
         {/* Summary */}

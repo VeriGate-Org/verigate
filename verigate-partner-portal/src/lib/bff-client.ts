@@ -1642,3 +1642,23 @@ export async function getPropertyHistory(params?: { status?: string; cursor?: st
   const { data } = await bffApi.get<PropertyHistoryResponse>("/api/partner/property/history", { params });
   return data;
 }
+
+// ── Check Session Batch Endpoints ──────────────────────────────────
+
+import type { CheckSession, CheckSessionListResponse } from "@/lib/types/check-session";
+
+export async function saveCheckSessionBff(
+  session: CheckSession,
+): Promise<void> {
+  await bffApi.post("/api/partner/check-sessions", session);
+}
+
+export async function listCheckSessionsBff(
+  params?: { cursor?: string; limit?: number },
+): Promise<CheckSessionListResponse> {
+  const { data } = await bffApi.get<CheckSessionListResponse>(
+    "/api/partner/check-sessions",
+    { params },
+  );
+  return data;
+}

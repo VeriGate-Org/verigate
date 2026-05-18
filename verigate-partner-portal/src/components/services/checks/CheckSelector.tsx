@@ -1,7 +1,8 @@
 "use client";
 
-import { CHECK_CATEGORIES, CHECK_DEFINITIONS } from "./checkFieldRegistry";
+import { CHECK_CATEGORIES, CHECK_DEFINITIONS, VERIFICATION_METHOD_LABELS } from "./checkFieldRegistry";
 import { SlaIndicator } from "@/components/services/shared/SlaIndicator";
+import { Building2, ScanSearch } from "lucide-react";
 
 interface CheckSelectorProps {
   selectedChecks: Set<string>;
@@ -62,6 +63,25 @@ export function CheckSelector({ selectedChecks, onToggle }: CheckSelectorProps) 
                       className="h-3.5 w-3.5 rounded border-border text-accent accent-[color:var(--color-accent)] focus:ring-accent"
                     />
                     <span className="flex-1 text-[13px] text-text">{def.label}</span>
+                    <span
+                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded ${
+                        def.verificationMethod === "authority"
+                          ? "bg-[color:var(--color-base-200)] text-text-muted"
+                          : "bg-accent/10 text-accent"
+                      }`}
+                      title={
+                        def.verificationMethod === "authority"
+                          ? "Verified via official registry or authority"
+                          : "AI-powered document analysis"
+                      }
+                    >
+                      {def.verificationMethod === "authority" ? (
+                        <Building2 className="h-2.5 w-2.5" />
+                      ) : (
+                        <ScanSearch className="h-2.5 w-2.5" />
+                      )}
+                      {VERIFICATION_METHOD_LABELS[def.verificationMethod]}
+                    </span>
                     <SlaIndicator
                       sla={def.realTime ? "Real-time" : "Async"}
                       realTime={def.realTime}
