@@ -11,7 +11,7 @@ import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid
 import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid";
 
 const columns: DataGridColumn<IdentityVerificationHistoryItem>[] = [
-  { id: "outcome", header: "Status", cell: (row) => <StatusIndicator status={row.outcome} /> },
+  { id: "outcome", header: "Status", cell: (row) => <StatusIndicator status={row.outcome} iconOnly /> },
   { id: "idNumber", header: "ID Number", cell: (row) => <span className="font-mono text-xs">{row.idNumber}</span> },
   { id: "fullName", header: "Name", cell: (row) => row.fullName },
   { id: "verifiedAt", header: "Date", cell: (row) => new Date(row.verifiedAt).toLocaleDateString() },

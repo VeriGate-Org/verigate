@@ -11,7 +11,7 @@ import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid
 import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid";
 
 const columns: DataGridColumn<NegativeNewsHistoryItem>[] = [
-  { id: "outcome", header: "Status", cell: (row) => <StatusIndicator status={row.outcome} /> },
+  { id: "outcome", header: "Status", cell: (row) => <StatusIndicator status={row.outcome} iconOnly /> },
   { id: "subjectName", header: "Name", cell: (row) => row.subjectName },
   { id: "entityType", header: "Entity Type", cell: (row) => row.entityType },
   { id: "matchCount", header: "Matches", cell: (row) => row.matchCount },

@@ -14,7 +14,7 @@ const columns: DataGridColumn<PropertyHistoryItem>[] = [
   {
     id: "outcome",
     header: "Status",
-    cell: (row) => <StatusIndicator status={row.outcome} />,
+    cell: (row) => <StatusIndicator status={row.outcome} iconOnly />,
   },
   {
     id: "query",

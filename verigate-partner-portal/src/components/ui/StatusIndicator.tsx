@@ -121,19 +121,39 @@ interface StatusIndicatorProps {
   label?: string;
   size?: "sm" | "md";
   showIcon?: boolean;
+  iconOnly?: boolean;
   className?: string;
 }
+
+const ICON_ONLY_COLORS: Record<StatusCategory, string> = {
+  success: "text-success",
+  in_progress: "text-info",
+  warning: "text-warning",
+  error: "text-danger",
+  inactive: "text-text-muted",
+  awaiting: "text-info",
+};
 
 export function StatusIndicator({
   status,
   label: labelOverride,
   size = "sm",
   showIcon = true,
+  iconOnly = false,
   className,
 }: StatusIndicatorProps) {
   const config = getStatusConfig(status);
   const Icon = config.icon;
   const displayLabel = labelOverride ?? config.label;
+
+  if (iconOnly) {
+    const iconOnlySizes = { sm: "w-4 h-4", md: "w-5 h-5" };
+    return (
+      <span title={displayLabel} className={cn("inline-flex items-center", className)}>
+        <Icon className={cn(iconOnlySizes[size], ICON_ONLY_COLORS[config.category])} />
+      </span>
+    );
+  }
 
   const sizeStyles = {
     sm: "px-2 py-0.5 text-xs gap-1.5",

@@ -112,13 +112,14 @@ export const TableToolbar: React.FC<TableToolbarProps> = ({
         <div className="flex w-full items-center gap-aws-m">
           {onSearchChange && (
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-aws-s top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" />
               <input
                 type="text"
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="aws-input pl-10 w-full"
+                className="aws-input w-full"
+                style={{ paddingLeft: '2.25rem' }}
               />
             </div>
           )}

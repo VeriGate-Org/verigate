@@ -14,7 +14,7 @@ const columns: DataGridColumn<ScreeningHistoryItem>[] = [
   {
     id: "outcome",
     header: "Outcome",
-    cell: (row) => <StatusIndicator status={row.outcome} />,
+    cell: (row) => <StatusIndicator status={row.outcome} iconOnly />,
   },
   {
     id: "screeningId",

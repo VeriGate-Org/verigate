@@ -19,9 +19,9 @@ const columns: DataGridColumn<CheckSession>[] = [
     id: "outcome",
     header: "Status",
     cell: (session) => {
-      if (session.failed === 0) return <StatusIndicator status="Passed" />;
-      if (session.passed === 0) return <StatusIndicator status="FAILED" />;
-      return <StatusIndicator status="Mixed" />;
+      if (session.failed === 0) return <StatusIndicator status="Passed" iconOnly />;
+      if (session.passed === 0) return <StatusIndicator status="FAILED" iconOnly />;
+      return <StatusIndicator status="Mixed" iconOnly />;
     },
   },
   {
