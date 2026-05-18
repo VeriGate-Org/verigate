@@ -27,6 +27,7 @@
         <module>src/verigate-ai-common</module>
         <module>src/verigate-ai-risk-signal</module>
         <module>src/verigate-fraud-detector</module>
+        <module>src/verigate-adapter-dha-response</module>
     </modules>
 
     <properties>

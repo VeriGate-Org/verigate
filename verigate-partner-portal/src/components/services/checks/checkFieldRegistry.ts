@@ -39,13 +39,11 @@ const NATIONALITY_OPTIONS: { value: string; label: string }[] = [
 ];
 
 const REFUGEE_OFFICE_OPTIONS: { value: string; label: string }[] = [
-  { value: "Cape Town Refugee Reception Office", label: "Cape Town" },
   { value: "Desmond Tutu Refugee Reception Centre", label: "Desmond Tutu (Pretoria)" },
-  { value: "Durban Refugee Reception Office", label: "Durban" },
   { value: "Gqeberha Refugee Reception Office", label: "Gqeberha (Port Elizabeth)" },
-  { value: "Lebombo Refugee Reception Office", label: "Lebombo (Mpumalanga)" },
+  { value: "Durban Refugee Reception Office", label: "Durban" },
   { value: "Musina Refugee Reception Office", label: "Musina (Limpopo)" },
-  { value: "Pretoria Refugee Reception Office", label: "Pretoria (Marabastad)" },
+  { value: "Cape Town Refugee Reception Office", label: "Cape Town" },
 ];
 
 // ── Common fields shared across checks ───────────────────────────────
@@ -560,8 +558,9 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
       {
         name: "refugeeOffice",
         label: "Refugee reception office",
-        description: "Office that issued the permit (optional).",
+        description: "Office that issued the permit.",
         type: "select",
+        required: true,
         options: REFUGEE_OFFICE_OPTIONS,
       },
     ],
@@ -571,7 +570,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
       documentNumber: a.permitNumber,
       permitNumber: a.permitNumber,
       nationality: a.nationality,
-      refugeeOffice: a.refugeeOffice || undefined,
+      refugeeOffice: a.refugeeOffice,
     }),
     servicePath: "/services/document-verification",
     realTime: false,
@@ -607,6 +606,14 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
         type: "text",
         placeholder: "e.g. Karisani Technologies (Pty) Ltd",
       },
+      {
+        name: "refugeeOffice",
+        label: "Refugee reception office",
+        description: "Office that issued the permit.",
+        type: "select",
+        required: true,
+        options: REFUGEE_OFFICE_OPTIONS,
+      },
     ],
     buildPayload: (_c, a) => ({
       documentType: "general_work_permit",
@@ -615,6 +622,7 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
       permitNumber: a.permitNumber,
       nationality: a.nationality,
       employerName: a.employerName || undefined,
+      refugeeOffice: a.refugeeOffice,
     }),
     servicePath: "/services/document-verification",
     realTime: false,

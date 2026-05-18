@@ -151,6 +151,9 @@ public class DocumentController {
         if (request.employerName() != null) {
             metadata.put("employerName", request.employerName());
         }
+        if (request.refugeeOffice() != null) {
+            metadata.put("refugeeOffice", request.refugeeOffice());
+        }
         metadata.put("s3ObjectKeys", request.s3ObjectKeys());
         metadata.put("s3BucketName", request.s3BucketName());
 
@@ -172,6 +175,7 @@ public class DocumentController {
                 request.permitNumber(),
                 request.nationality(),
                 request.employerName(),
+                request.refugeeOffice(),
                 request.s3ObjectKeys(),
                 request.s3BucketName(),
                 commandId);
@@ -180,6 +184,48 @@ public class DocumentController {
                 request.documentType(), commandId, emailSent);
 
         return ResponseEntity.ok(new DhaPermitSubmissionResponse(commandId, "PENDING", emailSent));
+    }
+
+    @GetMapping("/verifications/{commandId}/report")
+    public ResponseEntity<ReportDownloadResponse> getVerificationReport(
+            @PathVariable UUID commandId) {
+        String partnerId = PartnerContextHolder.requirePartnerId();
+
+        var command = commandStatusRepository.findById(commandId).orElse(null);
+        if (command == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Verify partner ownership
+        if (!partnerId.equals(command.getPartnerId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Map<String, String> auxiliaryData = command.getAuxiliaryData();
+        if (auxiliaryData == null || !auxiliaryData.containsKey("reportDocumentId")) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String reportDocumentId = auxiliaryData.get("reportDocumentId");
+        String bucketName = documentProperties.getS3BucketName();
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(reportDocumentId)
+                .build();
+
+        Duration reportUrlExpiry = Duration.ofHours(1);
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(reportUrlExpiry)
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        String downloadUrl = s3Presigner.presignGetObject(presignRequest).url().toString();
+
+        logger.info("Generated report download URL: commandId={}, reportDocumentId={}",
+                commandId, reportDocumentId);
+
+        return ResponseEntity.ok(new ReportDownloadResponse(downloadUrl, reportDocumentId, 3600));
     }
 
     @GetMapping("/history")
@@ -312,10 +358,13 @@ public class DocumentController {
             String permitNumber,
             String nationality,
             String employerName,
+            String refugeeOffice,
             List<String> s3ObjectKeys,
             String s3BucketName) {}
 
     public record DhaPermitSubmissionResponse(UUID commandId, String status, boolean emailSent) {}
+
+    public record ReportDownloadResponse(String downloadUrl, String documentId, int expiresIn) {}
 
     public record DocumentHistoryResponse(
             List<DocumentHistoryItem> items, String cursor, boolean hasMore) {}

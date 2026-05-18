@@ -1119,6 +1119,7 @@ export interface DhaPermitSubmissionRequest {
   permitNumber: string;
   nationality: string;
   employerName?: string;
+  refugeeOffice?: string;
   s3ObjectKeys: string[];
   s3BucketName: string;
 }
@@ -1135,6 +1136,23 @@ export async function submitDhaPermitVerification(
   const { data } = await bffApi.post<DhaPermitSubmissionResponse>(
     "/api/partner/documents/dha-permit-submission",
     request,
+  );
+  return data;
+}
+
+// --- DHA Verification Report ---
+
+export interface ReportDownloadResponse {
+  downloadUrl: string;
+  documentId: string;
+  expiresIn: number;
+}
+
+export async function getVerificationReportUrl(
+  commandId: string,
+): Promise<ReportDownloadResponse> {
+  const { data } = await bffApi.get<ReportDownloadResponse>(
+    `/api/partner/documents/verifications/${commandId}/report`,
   );
   return data;
 }

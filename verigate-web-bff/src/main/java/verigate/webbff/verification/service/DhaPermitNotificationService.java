@@ -53,19 +53,20 @@ public class DhaPermitNotificationService {
      * @return true if the email was sent successfully, false otherwise
      */
     public boolean sendNotification(String documentType, String partnerId, String permitNumber,
-                                    String nationality, String employerName,
+                                    String nationality, String employerName, String refugeeOffice,
                                     List<String> s3ObjectKeys, String s3BucketName, UUID commandId) {
         try {
+            String recipientEmail = properties.resolveRecipientEmail(refugeeOffice);
             String timestamp = DATE_FMT.format(Instant.now());
             String permitLabel = PERMIT_TYPE_LABELS.getOrDefault(documentType, "Permit");
 
             String subject = "Request for " + permitLabel + " Verification - " + permitNumber;
             String bodyText = buildEmailBody(documentType, permitLabel, permitNumber, nationality,
-                    employerName, timestamp, partnerId, commandId, s3ObjectKeys.size());
+                    employerName, refugeeOffice, timestamp, partnerId, commandId, s3ObjectKeys.size());
 
             String rawEmail = buildRawMimeMessage(
                     properties.getSenderEmail(),
-                    properties.getNotificationEmail(),
+                    recipientEmail,
                     subject,
                     bodyText,
                     s3ObjectKeys,
@@ -79,8 +80,8 @@ public class DhaPermitNotificationService {
                     .build();
 
             sesClient.sendRawEmail(rawEmailRequest);
-            logger.info("DHA permit verification request sent: type={}, permitNumber={}, commandId={}, attachments={}, recipient={}",
-                    documentType, permitNumber, commandId, s3ObjectKeys.size(), properties.getNotificationEmail());
+            logger.info("DHA permit verification request sent: type={}, permitNumber={}, commandId={}, attachments={}, recipient={}, refugeeOffice={}",
+                    documentType, permitNumber, commandId, s3ObjectKeys.size(), recipientEmail, refugeeOffice);
             return true;
         } catch (Exception e) {
             logger.error("Failed to send DHA permit verification request: type={}, permitNumber={}, commandId={}",
@@ -90,8 +91,8 @@ public class DhaPermitNotificationService {
     }
 
     private String buildEmailBody(String documentType, String permitLabel, String permitNumber,
-                                  String nationality, String employerName, String timestamp,
-                                  String partnerId, UUID commandId, int attachmentCount) {
+                                  String nationality, String employerName, String refugeeOffice,
+                                  String timestamp, String partnerId, UUID commandId, int attachmentCount) {
         StringBuilder sb = new StringBuilder();
         sb.append("Dear Department of Home Affairs,\n\n");
         sb.append("We are writing to request verification of the following ").append(permitLabel.toLowerCase());
@@ -106,6 +107,10 @@ public class DhaPermitNotificationService {
         sb.append("Permit Type:       ").append(permitLabel).append("\n");
         sb.append("Permit Number:     ").append(permitNumber).append("\n");
         sb.append("Nationality:       ").append(nationality).append("\n");
+
+        if (refugeeOffice != null && !refugeeOffice.isBlank()) {
+            sb.append("Issuing RRO:       ").append(refugeeOffice).append("\n");
+        }
 
         if ("general_work_permit".equals(documentType) && employerName != null && !employerName.isBlank()) {
             sb.append("Employer:          ").append(employerName).append("\n");

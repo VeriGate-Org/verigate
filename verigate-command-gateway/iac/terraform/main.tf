@@ -1219,6 +1219,103 @@ resource "aws_ssm_parameter" "income_api_url" {
 # Lambda Functions
 #----------------------------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------------------------
+# DHA Inbound Email Response Pipeline
+#----------------------------------------------------------------------------------------------------------------
+
+# SQS queue for DHA email responses (S3 event notifications → Lambda)
+module "dha_response_adapter_queue" {
+  source              = "./modules/tf-sqs"
+  complete_stack_name = var.stack_name
+  ssm_prefix          = local.ssm_prefix
+  queue_name          = "adapter-dha-response"
+  max_receive_count   = 3
+}
+
+# SES Receipt Rule Set — receives replies to dhaverifications@verigate.co.za
+resource "aws_ses_receipt_rule_set" "dha_inbound" {
+  rule_set_name = "${local.complete_stack_name}-dha-inbound"
+}
+
+resource "aws_ses_active_receipt_rule_set" "dha_inbound" {
+  rule_set_name = aws_ses_receipt_rule_set.dha_inbound.rule_set_name
+}
+
+resource "aws_ses_receipt_rule" "dha_response" {
+  name          = "${local.complete_stack_name}-dha-response"
+  rule_set_name = aws_ses_receipt_rule_set.dha_inbound.rule_set_name
+  recipients    = ["dhaverifications@verigate.co.za"]
+  enabled       = true
+  scan_enabled  = true
+
+  s3_action {
+    bucket_name       = module.documents_s3.bucket_name
+    object_key_prefix = "inbound-emails/dha/"
+    position          = 1
+  }
+}
+
+# S3 bucket policy — allow SES to write inbound emails
+resource "aws_s3_bucket_policy" "ses_inbound_write" {
+  bucket = module.documents_s3.bucket_name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowSESPuts"
+        Effect    = "Allow"
+        Principal = { Service = "ses.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${module.documents_s3.bucket_arn}/inbound-emails/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
+}
+
+# SQS policy — allow S3 to send event notifications to the queue
+resource "aws_sqs_queue_policy" "dha_response_s3_notify" {
+  queue_url = module.dha_response_adapter_queue.queue_url
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowS3Notification"
+        Effect    = "Allow"
+        Principal = { Service = "s3.amazonaws.com" }
+        Action    = "sqs:SendMessage"
+        Resource  = module.dha_response_adapter_queue.queue_arn
+        Condition = {
+          ArnEquals = {
+            "aws:SourceArn" = module.documents_s3.bucket_arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+# S3 event notification — trigger on new objects in inbound-emails/dha/ → SQS
+resource "aws_s3_bucket_notification" "dha_inbound_email" {
+  bucket = module.documents_s3.bucket_name
+
+  queue {
+    queue_arn     = module.dha_response_adapter_queue.queue_arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_prefix = "inbound-emails/dha/"
+  }
+
+  depends_on = [aws_sqs_queue_policy.dha_response_s3_notify]
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Lambda Functions
+#----------------------------------------------------------------------------------------------------------------
+
 module "worldcheck_lambda" {
   source = "./modules/tf-lambda"
   
