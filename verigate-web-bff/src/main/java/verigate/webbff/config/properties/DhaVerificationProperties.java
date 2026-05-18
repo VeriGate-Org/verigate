@@ -10,10 +10,11 @@ public class DhaVerificationProperties {
 
   /**
    * Fallback recipient when no refugeeOffice is provided.
+   * Defaults to test address; production sets VERIGATE_DHA_NOTIFICATION_EMAIL.
    */
-  private String notificationEmail = "ASMverifications@dha.gov.za";
+  private String notificationEmail = "arthur@verigate.co.za";
 
-  private static final Map<String, String> RRO_EMAIL_MAP = Map.of(
+  private static final Map<String, String> PROD_RRO_EMAIL_MAP = Map.of(
       "Desmond Tutu Refugee Reception Centre", "ASMverifications@dha.gov.za",
       "Gqeberha Refugee Reception Office", "verification.perro@dha.gov.za",
       "Durban Refugee Reception Office", "verification.durban@dha.gov.za",
@@ -23,11 +24,17 @@ public class DhaVerificationProperties {
 
   /**
    * Resolves the DHA recipient email for the given refugee reception office.
-   * Falls back to the default notificationEmail if the office is unknown or null.
+   * In non-production (default notificationEmail), all emails route to the test
+   * address. In production the notificationEmail env var is overridden, so the
+   * real RRO map is used.
    */
   public String resolveRecipientEmail(String refugeeOffice) {
+    boolean isTestMode = "arthur@verigate.co.za".equals(notificationEmail);
+    if (isTestMode) {
+      return notificationEmail;
+    }
     if (refugeeOffice != null && !refugeeOffice.isBlank()) {
-      return RRO_EMAIL_MAP.getOrDefault(refugeeOffice, notificationEmail);
+      return PROD_RRO_EMAIL_MAP.getOrDefault(refugeeOffice, notificationEmail);
     }
     return notificationEmail;
   }
