@@ -142,7 +142,7 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
     return () => clearBrandingCssVars();
   }, []);
 
-  // ── Profile fetch (existing logic, unchanged) ──────────────────
+  // ── Profile fetch + branding sync ───────────────────────────────
   const refreshProfile = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -163,6 +163,24 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
               ),
             ),
       });
+
+      // Sync branding from profile so Settings saves take effect immediately
+      const hasColors = data.primaryColor || data.accentColor;
+      const hasAssets = data.logo || data.logoDark;
+      if (hasColors || hasAssets) {
+        const profileBranding: TenantBranding = {
+          slug: data.partnerId ?? "",
+          name: data.name ?? "",
+          logo: data.logo ?? undefined,
+          logoDark: data.logoDark ?? undefined,
+          primaryColor: data.primaryColor ?? undefined,
+          accentColor: data.accentColor ?? undefined,
+          faviconUrl: data.faviconUrl ?? undefined,
+          tagline: data.tagline ?? undefined,
+        };
+        setBranding(profileBranding);
+        applyBrandingCssVars(profileBranding);
+      }
     } catch {
       setProfile(defaultProfile);
     } finally {
