@@ -88,12 +88,43 @@ function applyBrandingCssVars(branding: TenantBranding) {
   const root = document.documentElement;
   if (branding.primaryColor) {
     root.style.setProperty("--color-accent", branding.primaryColor);
-    root.style.setProperty("--color-accent-strong", darken(branding.primaryColor, 15));
+    root.style.setProperty(
+      "--color-accent-strong",
+      branding.secondaryColor ? branding.secondaryColor : darken(branding.primaryColor, 15),
+    );
     root.style.setProperty("--color-accent-border", lighten(branding.primaryColor, 10));
     root.style.setProperty("--color-accent-soft", withOpacity(branding.primaryColor, 0.1));
+    root.style.setProperty("--color-accent-muted", withOpacity(branding.primaryColor, 0.15));
   }
   if (branding.accentColor) {
     root.style.setProperty("--color-cta", branding.accentColor);
+    root.style.setProperty("--color-cta-hover", darken(branding.accentColor, 10));
+  }
+}
+
+/** Generate a shield SVG string for use as a dynamic favicon. */
+function shieldFaviconSvg(primary: string, check: string): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 28 28"><path fill="${primary}" d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z"/><path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke="${check}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/** Inject a branded favicon into the document head. */
+function applyBrandingFavicon(branding: TenantBranding) {
+  if (typeof document === "undefined") return;
+
+  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+
+  if (branding.faviconUrl) {
+    link.type = "image/x-icon";
+    link.href = branding.faviconUrl;
+  } else {
+    const svg = shieldFaviconSvg(branding.primaryColor || "#0972d3", "#ffffff");
+    link.type = "image/svg+xml";
+    link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }
 }
 
@@ -105,7 +136,9 @@ function clearBrandingCssVars() {
     "--color-accent-strong",
     "--color-accent-border",
     "--color-accent-soft",
+    "--color-accent-muted",
     "--color-cta",
+    "--color-cta-hover",
   ];
   vars.forEach((v) => root.style.removeProperty(v));
 }
@@ -133,6 +166,7 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
         if (data) {
           setBranding(data);
           applyBrandingCssVars(data);
+          applyBrandingFavicon(data);
         }
       })
       .catch(() => {
@@ -174,12 +208,16 @@ export function PartnerTenantProvider({ children }: { children: React.ReactNode 
           logo: data.logo ?? undefined,
           logoDark: data.logoDark ?? undefined,
           primaryColor: data.primaryColor ?? undefined,
+          secondaryColor: data.secondaryColor ?? undefined,
           accentColor: data.accentColor ?? undefined,
           faviconUrl: data.faviconUrl ?? undefined,
           tagline: data.tagline ?? undefined,
+          loginBackgroundUrl: data.loginBackgroundUrl ?? undefined,
+          supportEmail: data.supportEmail ?? undefined,
         };
         setBranding(profileBranding);
         applyBrandingCssVars(profileBranding);
+        applyBrandingFavicon(profileBranding);
       }
     } catch {
       setProfile(defaultProfile);

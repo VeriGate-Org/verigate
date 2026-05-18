@@ -734,9 +734,12 @@ export interface BffProfileResponse {
   logo?: string | null;
   logoDark?: string | null;
   primaryColor?: string | null;
+  secondaryColor?: string | null;
   accentColor?: string | null;
   faviconUrl?: string | null;
   tagline?: string | null;
+  loginBackgroundUrl?: string | null;
+  supportEmail?: string | null;
 }
 
 export async function getProfile(): Promise<BffProfileResponse> {
@@ -752,9 +755,12 @@ export async function updateProfile(payload: {
   logo?: string;
   logoDark?: string;
   primaryColor?: string;
+  secondaryColor?: string;
   accentColor?: string;
   faviconUrl?: string;
   tagline?: string;
+  loginBackgroundUrl?: string;
+  supportEmail?: string;
 }): Promise<BffProfileResponse> {
   const { data } = await bffApi.put<BffProfileResponse>("/api/partner/profile", payload);
   return data;

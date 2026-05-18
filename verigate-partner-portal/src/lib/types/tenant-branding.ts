@@ -4,7 +4,10 @@ export interface TenantBranding {
   logo?: string;
   logoDark?: string;
   primaryColor?: string;
+  secondaryColor?: string;
   accentColor?: string;
   faviconUrl?: string;
   tagline?: string;
+  loginBackgroundUrl?: string;
+  supportEmail?: string;
 }

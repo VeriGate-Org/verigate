@@ -16,9 +16,12 @@ export default function BrandingTab() {
     logo: "",
     logoDark: "",
     primaryColor: "#0972d3",
+    secondaryColor: "#0b5cab",
     accentColor: "#ec7211",
     faviconUrl: "",
     tagline: "",
+    supportEmail: "",
+    loginBackgroundUrl: "",
   });
 
   useEffect(() => {
@@ -28,9 +31,12 @@ export default function BrandingTab() {
           logo: profile.logo ?? "",
           logoDark: profile.logoDark ?? "",
           primaryColor: profile.primaryColor ?? "#0972d3",
+          secondaryColor: profile.secondaryColor ?? "#0b5cab",
           accentColor: profile.accentColor ?? "#ec7211",
           faviconUrl: profile.faviconUrl ?? "",
           tagline: profile.tagline ?? "",
+          supportEmail: profile.supportEmail ?? "",
+          loginBackgroundUrl: profile.loginBackgroundUrl ?? "",
         });
       })
       .catch(() => {})
@@ -44,9 +50,12 @@ export default function BrandingTab() {
         logo: form.logo || undefined,
         logoDark: form.logoDark || undefined,
         primaryColor: form.primaryColor || undefined,
+        secondaryColor: form.secondaryColor || undefined,
         accentColor: form.accentColor || undefined,
         faviconUrl: form.faviconUrl || undefined,
         tagline: form.tagline || undefined,
+        supportEmail: form.supportEmail || undefined,
+        loginBackgroundUrl: form.loginBackgroundUrl || undefined,
       });
       await refreshProfile();
       toast({ title: "Branding saved", variant: "success" });
@@ -110,7 +119,7 @@ export default function BrandingTab() {
           </div>
 
           {/* Color Pickers */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <label className="block space-y-1 text-sm">
               <span className="font-medium text-text">Primary colour</span>
               <div className="flex items-center gap-2">
@@ -130,6 +139,26 @@ export default function BrandingTab() {
                 />
               </div>
               <span className="text-xs text-text-muted">Used for buttons, links, and accent elements.</span>
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span className="font-medium text-text">Secondary colour</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  className="h-9 w-12 cursor-pointer rounded border border-border"
+                  value={form.secondaryColor}
+                  onChange={(e) => update("secondaryColor", e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="aws-input flex-1"
+                  value={form.secondaryColor}
+                  onChange={(e) => update("secondaryColor", e.target.value)}
+                  pattern="^#[0-9a-fA-F]{6}$"
+                  placeholder="#0b5cab"
+                />
+              </div>
+              <span className="text-xs text-text-muted">Used for darker accents and hover states.</span>
             </label>
             <label className="block space-y-1 text-sm">
               <span className="font-medium text-text">Accent colour</span>
@@ -178,6 +207,35 @@ export default function BrandingTab() {
               <span className="text-xs text-text-muted">Short slogan shown alongside your brand name.</span>
             </label>
           </div>
+
+          {/* Additional settings */}
+          <div className="border-t border-border pt-5">
+            <div className="text-sm font-semibold text-text mb-3">Additional settings</div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block space-y-1 text-sm">
+                <span className="font-medium text-text">Support email</span>
+                <input
+                  type="email"
+                  className="aws-input w-full"
+                  placeholder="support@yourcompany.com"
+                  value={form.supportEmail}
+                  onChange={(e) => update("supportEmail", e.target.value)}
+                />
+                <span className="text-xs text-text-muted">Displayed on error pages and in support links.</span>
+              </label>
+              <label className="block space-y-1 text-sm">
+                <span className="font-medium text-text">Login background URL</span>
+                <input
+                  type="url"
+                  className="aws-input w-full"
+                  placeholder="https://example.com/bg.jpg"
+                  value={form.loginBackgroundUrl}
+                  onChange={(e) => update("loginBackgroundUrl", e.target.value)}
+                />
+                <span className="text-xs text-text-muted">Background image shown on the sign-in page.</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -213,6 +271,12 @@ export default function BrandingTab() {
                 </button>
                 <button
                   className="rounded px-3 py-1.5 text-xs font-medium text-white"
+                  style={{ backgroundColor: form.secondaryColor }}
+                >
+                  Secondary Button
+                </button>
+                <button
+                  className="rounded px-3 py-1.5 text-xs font-medium text-white"
                   style={{ backgroundColor: form.accentColor }}
                 >
                   CTA Button
@@ -221,6 +285,9 @@ export default function BrandingTab() {
               <div className="flex gap-3 text-xs">
                 <div className="rounded border p-2" style={{ borderColor: lighten(form.primaryColor, 10), backgroundColor: withOpacity(form.primaryColor, 0.1) }}>
                   <span style={{ color: darken(form.primaryColor, 15) }}>Accent soft</span>
+                </div>
+                <div className="rounded border p-2" style={{ borderColor: lighten(form.primaryColor, 10), color: form.secondaryColor }}>
+                  Secondary text
                 </div>
                 <div className="rounded border p-2" style={{ borderColor: lighten(form.primaryColor, 10), color: darken(form.primaryColor, 15) }}>
                   Link text

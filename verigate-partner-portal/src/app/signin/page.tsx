@@ -7,12 +7,14 @@ import {
   forgotPassword,
   confirmForgotPassword,
 } from "@/lib/auth/cognito-client";
+import { useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
 
 type View = "signin" | "forgot" | "reset";
 
 export default function SignInPage() {
   const router = useRouter();
   const { signIn, isAuthenticated } = useAuth();
+  const { branding, isWhiteLabelled } = useTenantFeatures();
   const [view, setView] = useState<View>("signin");
 
   // Sign-in form
@@ -33,6 +35,9 @@ export default function SignInPage() {
     router.replace("/dashboard");
     return null;
   }
+
+  const brandColor = branding?.primaryColor ?? "#E23D36";
+  const brandName = branding?.name ?? "VeriGate Partner Portal";
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -117,15 +122,30 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+      style={
+        branding?.loginBackgroundUrl
+          ? { backgroundImage: `url(${branding.loginBackgroundUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+          : undefined
+      }
+    >
       <div className="w-full max-w-sm space-y-6">
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
-          <svg width="40" height="40" viewBox="0 0 28 28" shapeRendering="geometricPrecision">
-            <path fill="#E23D36" d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z" />
-            <path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke="#FFFFFF" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <h1 className="text-lg font-semibold text-text">VeriGate Partner Portal</h1>
+          {isWhiteLabelled && branding?.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={branding.logo} alt={brandName} className="h-10 w-auto" />
+          ) : (
+            <svg width="40" height="40" viewBox="0 0 28 28" shapeRendering="geometricPrecision">
+              <path fill={brandColor} d="M14 2c-3.8 0-7 1.33-7 1.33v7.7c0 5.2 3.4 10.03 7 12.24 3.6-2.21 7-7.04 7-12.24V3.33C21 3.33 17.8 2 14 2Z" />
+              <path d="M8.5 14.5l3.5 3.5 7.5-7.5" fill="none" stroke="#FFFFFF" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          <h1 className="text-lg font-semibold text-text">{brandName}</h1>
+          {branding?.tagline && (
+            <p className="text-xs text-text-muted">{branding.tagline}</p>
+          )}
         </div>
 
         {error && (
@@ -305,6 +325,13 @@ export default function SignInPage() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* Powered by VeriGate footer for white-labelled tenants */}
+        {isWhiteLabelled && (
+          <p className="text-center text-xs text-text-muted">
+            Powered by VeriGate
+          </p>
         )}
       </div>
     </div>
