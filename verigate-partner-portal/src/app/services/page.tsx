@@ -115,11 +115,6 @@ const SERVICES: ReadonlyArray<ServiceCard> = [
     path: "/services/income",
   },
   {
-    name: "Full verification",
-    description: "Run a comprehensive multi-check verification suite across all available sources.",
-    path: "/services/full-verification",
-  },
-  {
     name: "Watchlist screening",
     description: "Consolidated screening across global sanctions and watchlist databases.",
     path: "/services/sanctions",

@@ -13,8 +13,10 @@ import software.amazon.awssdk.services.bedrock.BedrockClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import verigate.webbff.auth.CognitoJwtConfig;
 import verigate.webbff.config.properties.AwsProperties;
 import verigate.webbff.config.properties.CaseProperties;
 import verigate.webbff.config.properties.CommandStoreProperties;
@@ -120,5 +122,13 @@ public class AwsClientsConfig {
         .overrideConfiguration(CLIENT_OVERRIDE);
     properties.getSesEndpoint().ifPresent(builder::endpointOverride);
     return builder.build();
+  }
+
+  @Bean
+  CognitoIdentityProviderClient cognitoIdentityProviderClient(CognitoJwtConfig cognitoConfig) {
+    return CognitoIdentityProviderClient.builder()
+        .region(Region.of(cognitoConfig.getRegion()))
+        .overrideConfiguration(CLIENT_OVERRIDE)
+        .build();
   }
 }

@@ -8,7 +8,7 @@ import {
   ChevronRight, ChevronDown, Star, X, Settings, HelpCircle, FileText, GitBranch,
   Fingerprint, FileCheck, TrendingUp, DollarSign, Receipt, Briefcase,
   GraduationCap, Newspaper, AlertTriangle, CheckSquare, ClipboardList, Eye,
-  BarChart3, FileStack, Activity,
+  BarChart3, FileStack, Activity, Users,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PLAN_LABELS, useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
@@ -82,13 +82,6 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    name: "Composite",
-    defaultExpanded: false,
-    items: [
-      { name: "Full Verification", path: "/services/full-verification", icon: CheckSquare, badge: "NEW" },
-    ],
-  },
-  {
     name: "Enterprise Features",
     defaultExpanded: false,
     items: [
@@ -102,6 +95,7 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     items: [
       { name: "System Health", path: "/system-health", icon: Activity },
+      { name: "User Management", path: "/admin/users", icon: Users },
     ],
   },
   {
@@ -109,6 +103,7 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     items: [
       { name: "Settings", path: "/settings", icon: Settings },
+      { name: "Team", path: "/settings?tab=team", icon: Users },
       { name: "Help & Support", path: "/help", icon: HelpCircle },
     ],
   },

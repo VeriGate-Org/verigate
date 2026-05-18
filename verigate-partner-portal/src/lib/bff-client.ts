@@ -1661,6 +1661,90 @@ export async function getPropertyHistory(params?: { status?: string; cursor?: st
   return data;
 }
 
+// ── Team Management APIs ───────────────────────────────────────────
+
+export interface BffTeamMember {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  status: string;
+  invitedBy: string;
+  createdAt: string;
+  lastLoginAt: string | null;
+}
+
+export interface BffTeamMemberListResponse {
+  members: BffTeamMember[];
+  total: number;
+  maxAllowed: number;
+}
+
+export interface BffInviteTeamMemberRequest {
+  email: string;
+  name: string;
+  role: string;
+}
+
+export async function listTeamMembers(): Promise<BffTeamMemberListResponse> {
+  const { data } = await bffApi.get<BffTeamMemberListResponse>("/api/partner/team");
+  return data;
+}
+
+export async function inviteTeamMember(payload: BffInviteTeamMemberRequest): Promise<BffTeamMember> {
+  const { data } = await bffApi.post<BffTeamMember>("/api/partner/team/invite", payload);
+  return data;
+}
+
+export async function updateTeamMemberRole(memberId: string, role: string): Promise<BffTeamMember> {
+  const { data } = await bffApi.put<BffTeamMember>(`/api/partner/team/${memberId}/role`, { role });
+  return data;
+}
+
+export async function deactivateTeamMember(memberId: string): Promise<void> {
+  await bffApi.put(`/api/partner/team/${memberId}/deactivate`);
+}
+
+export async function reactivateTeamMember(memberId: string): Promise<void> {
+  await bffApi.put(`/api/partner/team/${memberId}/reactivate`);
+}
+
+export async function removeTeamMember(memberId: string): Promise<void> {
+  await bffApi.delete(`/api/partner/team/${memberId}`);
+}
+
+// ── Admin User Management APIs ─────────────────────────────────────
+
+export interface BffAdminUser {
+  id: string;
+  email: string;
+  name: string;
+  status: string;
+  createdAt: string | null;
+}
+
+export async function listAdminUsers(): Promise<BffAdminUser[]> {
+  const { data } = await bffApi.get<BffAdminUser[]>("/api/admin/users");
+  return data;
+}
+
+export async function inviteAdminUser(payload: { email: string; name: string }): Promise<BffAdminUser> {
+  const { data } = await bffApi.post<BffAdminUser>("/api/admin/users/invite", payload);
+  return data;
+}
+
+export async function deactivateAdminUser(userId: string): Promise<void> {
+  await bffApi.put(`/api/admin/users/${userId}/deactivate`);
+}
+
+export async function reactivateAdminUser(userId: string): Promise<void> {
+  await bffApi.put(`/api/admin/users/${userId}/reactivate`);
+}
+
+export async function removeAdminUser(userId: string): Promise<void> {
+  await bffApi.delete(`/api/admin/users/${userId}`);
+}
+
 // ── Check Session Batch Endpoints ──────────────────────────────────
 
 import type { CheckSession, CheckSessionListResponse } from "@/lib/types/check-session";

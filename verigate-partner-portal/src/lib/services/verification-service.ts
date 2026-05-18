@@ -20,7 +20,6 @@ import {
   mockTaxCompliance,
   mockIncome,
   mockIdentity,
-  mockFullVerification,
   mockVatVendorSearch,
   mockHanisIdentity,
   type PersonalDetailsRequest,
@@ -132,8 +131,6 @@ async function executeMockVerification(bffType: BffVerificationType, params: Rec
         return mockHanisIdentity(params as HanisIdentityRequest);
       }
       return mockIdentity(params);
-    case "FULL_VERIFICATION":
-      return mockFullVerification(params);
     default:
       throw new Error(`Unsupported verification type: ${bffType}`);
   }

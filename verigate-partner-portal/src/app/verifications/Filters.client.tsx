@@ -92,7 +92,6 @@ export default function Filters() {
             <option value="NEGATIVE_NEWS">Negative News</option>
             <option value="FRAUD_WATCHLIST">Fraud Watchlist</option>
             <option value="DOCUMENT">Document</option>
-            <option value="FULL_VERIFICATION">Full Verification</option>
             <option value="WATCHLIST">Watchlist</option>
             <option value="BIOMETRIC">Biometric</option>
             <option value="LIVENESS">Liveness</option>

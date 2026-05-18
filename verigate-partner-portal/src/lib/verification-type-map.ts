@@ -179,16 +179,6 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     route: "/services/vat-vendor-search",
     category: "financial",
   },
-  FULL_VERIFICATION: {
-    portalType: "FULL_VERIFICATION",
-    bffType: "FULL_VERIFICATION",
-    label: "Full Verification",
-    shortLabel: "Full Verification",
-    provider: "VeriGate",
-    icon: CheckSquare,
-    route: "/services/full-verification",
-    category: "composite",
-  },
   BIOMETRIC: {
     portalType: "BIOMETRIC",
     bffType: "BIOMETRIC_VERIFICATION",

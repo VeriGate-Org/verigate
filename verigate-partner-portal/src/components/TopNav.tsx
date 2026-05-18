@@ -83,10 +83,6 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
     { label: "Services", href: "/dashboard" },
     { label: "Fraud Watchlist Screening", current: true },
   ],
-  "/services/full-verification": [
-    { label: "Services", href: "/dashboard" },
-    { label: "Full Verification", current: true },
-  ],
   "/checks/new": [
     { label: "Screening", current: true },
   ],
@@ -103,6 +99,10 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
   "/reports": [
     { label: "Enterprise", href: "/policies" },
     { label: "Reports & Analytics", current: true },
+  ],
+  "/admin/users": [
+    { label: "Admin", href: "/dashboard" },
+    { label: "User Management", current: true },
   ],
 };
 

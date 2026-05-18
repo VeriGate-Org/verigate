@@ -23,7 +23,7 @@ const VALID_TYPES = new Set<VerificationType>([
   "ID", "CIPC", "DEEDS", "AVS", "SANCTIONS",
   "EMPLOYMENT", "NEGATIVE_NEWS", "FRAUD_WATCHLIST",
   "DOCUMENT", "QUALIFICATION", "CREDIT",
-  "TAX", "INCOME", "IDENTITY", "FULL_VERIFICATION", "WATCHLIST",
+  "TAX", "INCOME", "IDENTITY", "WATCHLIST",
 ]);
 
 function generateMockVerifications(): Verification[] {
@@ -32,12 +32,12 @@ function generateMockVerifications(): Verification[] {
   const types: VerificationType[] = [
     "ID", "CIPC", "DEEDS", "AVS", "SANCTIONS",
     "EMPLOYMENT", "CREDIT", "INCOME", "TAX", "IDENTITY",
-    "DOCUMENT", "QUALIFICATION", "NEGATIVE_NEWS", "FRAUD_WATCHLIST", "FULL_VERIFICATION", "WATCHLIST",
+    "DOCUMENT", "QUALIFICATION", "NEGATIVE_NEWS", "FRAUD_WATCHLIST", "WATCHLIST",
   ];
   const providers = [
     "DHA", "CIPC", "Deeds Registry", "Qlink", "World-Check",
     "EmployVerify", "TransUnion", "PayrollVerify", "SARS", "DHA",
-    "DocumentVerify", "SAQA", "MediaScreen", "SAFPS", "VeriGate", "World-Check",
+    "DocumentVerify", "SAQA", "MediaScreen", "SAFPS", "World-Check",
   ];
   return Array.from({ length: 32 }).map((_, i) => {
     const status = statuses[i % statuses.length];

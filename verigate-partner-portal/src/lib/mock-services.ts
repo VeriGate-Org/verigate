@@ -1424,42 +1424,6 @@ export function generateVatVendorSearchResponse({ vatNumber }: VatVendorSearchRe
   };
 }
 
-export type FullVerificationRequest = { idNumber: string; firstName?: string; lastName?: string; subTypes?: string[] };
-export type FullVerificationResponse = {
-  reference: string;
-  provider: string;
-  subject: { idNumber: string; firstName: string; lastName: string };
-  results: Array<{ type: string; status: string; provider: string; durationMs: number }>;
-  overallStatus: string;
-  generatedAt: string;
-};
-
-export function generateFullVerificationResponse({ idNumber, firstName = "", lastName = "", subTypes = [] }: FullVerificationRequest): FullVerificationResponse {
-  if (!idNumber) throw new Error("ID number is required");
-  const seedVal = idNumber.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const rnd = seeded(seedVal);
-  const defaultTypes = ["Identity", "Credit", "Employment", "Sanctions"];
-  const types = subTypes.length > 0 ? subTypes : defaultTypes;
-  const results = types.map((type) => {
-    const passed = rnd() > 0.15;
-    return {
-      type,
-      status: passed ? "PASSED" : "FAILED",
-      provider: type === "Identity" ? "DHA" : type === "Credit" ? "TransUnion" : type === "Employment" ? "EmployVerify" : "World-Check",
-      durationMs: Math.floor(500 + rnd() * 3000),
-    };
-  });
-  const allPassed = results.every((r) => r.status === "PASSED");
-  return {
-    reference: `full-${Date.now()}`,
-    provider: "VeriGate",
-    subject: { idNumber, firstName: firstName || "Unknown", lastName: lastName || "Unknown" },
-    results,
-    overallStatus: allPassed ? "PASSED" : "FAILED",
-    generatedAt: new Date().toISOString(),
-  };
-}
-
 /* ===== ASYNC MOCK WRAPPERS (new types) ===== */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1520,12 +1484,6 @@ export async function mockIdentity(request: any, delayMs?: number) {
 export async function mockVatVendorSearch(request: any, delayMs?: number) {
   await wait(delayMs);
   return generateVatVendorSearchResponse(request);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function mockFullVerification(request: any, delayMs?: number) {
-  await wait(delayMs);
-  return generateFullVerificationResponse(request);
 }
 
 /* ===== TENANT BRANDING MOCK DATA ===== */

@@ -95,6 +95,11 @@
       <artifactId>ses</artifactId>
       <version>${awssdk.version}</version>
     </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>cognitoidentityprovider</artifactId>
+      <version>${awssdk.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.amazonaws.serverless</groupId>

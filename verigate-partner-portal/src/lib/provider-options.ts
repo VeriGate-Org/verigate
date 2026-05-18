@@ -14,7 +14,6 @@ export const PROVIDER_OPTIONS: Record<string, string[]> = {
   NEGATIVE_NEWS: ["Media24"],
   FRAUD_WATCHLIST: ["SAFPS"],
   WATCHLIST: ["World-Check"],
-  FULL_VERIFICATION: ["VeriGate Composite"],
   BIOMETRIC: ["AWS Rekognition", "Smile ID"],
   LIVENESS: ["AWS Rekognition", "Smile ID"],
 };

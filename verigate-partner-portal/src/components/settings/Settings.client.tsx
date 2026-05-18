@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { User, ShieldCheck, Palette, Key, Bell, Building2, Sun } from "lucide-react";
+import { User, Users, ShieldCheck, Palette, Key, Bell, Building2, Sun } from "lucide-react";
 import { useTenantFeatures } from "@/lib/tenant/PartnerTenantProvider";
 import { Feature } from "@/lib/tenant-features";
 import {
@@ -13,10 +13,12 @@ import {
   NotificationsTab,
   DeedsOpsTab,
   AppearanceTab,
+  TeamTab,
 } from "./tabs";
 
 const ALL_TABS = [
   { id: "profile", label: "Profile", icon: User },
+  { id: "team", label: "Team", icon: Users },
   { id: "plan-features", label: "Entitlements", icon: ShieldCheck },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "api-keys", label: "API Keys", icon: Key },
@@ -29,6 +31,7 @@ type TabId = (typeof ALL_TABS)[number]["id"];
 
 const TAB_COMPONENTS: Record<TabId, React.ComponentType> = {
   profile: ProfileTab,
+  team: TeamTab,
   "plan-features": PlanFeaturesTab,
   branding: BrandingTab,
   "api-keys": ApiKeysTab,

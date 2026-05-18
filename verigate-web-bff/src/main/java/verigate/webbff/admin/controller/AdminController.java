@@ -23,6 +23,7 @@ import verigate.webbff.admin.model.CreatePartnerRequest;
 import verigate.webbff.admin.model.PartnerResponse;
 import verigate.webbff.admin.model.UpdatePartnerStatusRequest;
 import verigate.webbff.admin.repository.PartnerRepository;
+import verigate.webbff.admin.service.AdminUserService;
 import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
@@ -41,16 +42,19 @@ public class AdminController {
   private final PartnerService partnerService;
   private final PartnerRepository partnerRepository;
   private final PartnerFeatureService partnerFeatureService;
+  private final AdminUserService adminUserService;
 
   public AdminController(
       ApiKeyService apiKeyService,
       PartnerService partnerService,
       PartnerRepository partnerRepository,
-      PartnerFeatureService partnerFeatureService) {
+      PartnerFeatureService partnerFeatureService,
+      AdminUserService adminUserService) {
     this.apiKeyService = apiKeyService;
     this.partnerService = partnerService;
     this.partnerRepository = partnerRepository;
     this.partnerFeatureService = partnerFeatureService;
+    this.adminUserService = adminUserService;
   }
 
   @PostMapping("/partners")
@@ -151,6 +155,48 @@ public class AdminController {
       return ResponseEntity.notFound().build();
     }
     apiKeyService.revokeApiKey(match.get().lookupHash());
+    return ResponseEntity.noContent().build();
+  }
+
+  // ── Admin User Management ───────────────────────────────────────────
+
+  @GetMapping("/users")
+  public List<AdminUserService.AdminUserResponse> listAdminUsers() {
+    logger.info("Listing admin users");
+    return adminUserService.listAdminUsers();
+  }
+
+  @PostMapping("/users/invite")
+  public ResponseEntity<AdminUserService.AdminUserResponse> inviteAdminUser(
+      @RequestBody Map<String, String> request) {
+    String email = request.get("email");
+    String name = request.get("name");
+    if (email == null || email.isBlank() || name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and name are required");
+    }
+    logger.info("Inviting admin user: email={}", email);
+    var response = adminUserService.inviteAdminUser(email, name);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @PutMapping("/users/{userId}/deactivate")
+  public ResponseEntity<Void> deactivateAdminUser(@PathVariable String userId) {
+    logger.info("Deactivating admin user: {}", userId);
+    adminUserService.deactivateAdminUser(userId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PutMapping("/users/{userId}/reactivate")
+  public ResponseEntity<Void> reactivateAdminUser(@PathVariable String userId) {
+    logger.info("Reactivating admin user: {}", userId);
+    adminUserService.reactivateAdminUser(userId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/users/{userId}")
+  public ResponseEntity<Void> removeAdminUser(@PathVariable String userId) {
+    logger.info("Removing admin user: {}", userId);
+    adminUserService.removeAdminUser(userId);
     return ResponseEntity.noContent().build();
   }
 }
