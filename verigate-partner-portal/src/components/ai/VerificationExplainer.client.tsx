@@ -60,7 +60,7 @@ export default function VerificationExplainer({ commandId }: { commandId: string
 
   if (error || !data) {
     return (
-      <div className="console-card border-danger/20">
+      <div className="console-card console-card--danger">
         <div className="console-card-body text-center py-4">
           <p className="text-xs text-text-muted">{error || "No explanation available"}</p>
           <Button variant="ghost" size="sm" className="mt-2" onClick={fetchExplanation}>

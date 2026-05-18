@@ -189,14 +189,17 @@ h1, h2, h3, h4, h5, h6 {
 /* AWS Console card shell - enhanced */
 .console-card {
   border: var(--aws-border-container);
+  border-top: 3px solid var(--color-accent);
   border-radius: var(--aws-border-radius-container);
   background-color: var(--color-base-100);
   box-shadow: var(--aws-elevation-base);
-  transition: box-shadow var(--aws-motion-duration-transition-quick) var(--aws-motion-easing-ease);
+  transition: box-shadow var(--aws-motion-duration-transition-quick) var(--aws-motion-easing-ease),
+              border-color var(--aws-motion-duration-transition-quick) var(--aws-motion-easing-ease);
 }
 
 .console-card:hover {
   box-shadow: var(--aws-elevation-raised);
+  border-color: var(--color-accent-border);
 }
 
 .console-card-header {
@@ -204,7 +207,21 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: var(--aws-border-divider);
   padding: var(--aws-space-scale-m) var(--aws-space-scale-l);
   min-height: 48px; /* AWS Console standard header height */
+  background-color: var(--color-accent-soft);
 }
+
+/* Status-variant card classes */
+.console-card--success { border-left: 3px solid var(--color-success); }
+.console-card--success .console-card-header { background-color: color-mix(in srgb, var(--color-success) 6%, transparent); }
+
+.console-card--warning { border-left: 3px solid var(--color-warning); }
+.console-card--warning .console-card-header { background-color: color-mix(in srgb, var(--color-warning) 6%, transparent); }
+
+.console-card--danger  { border-left: 3px solid var(--color-alert); }
+.console-card--danger .console-card-header  { background-color: color-mix(in srgb, var(--color-alert) 6%, transparent); }
+
+.console-card--info    { border-left: 3px solid var(--color-accent); }
+.console-card--info .console-card-header    { background-color: var(--color-accent-soft); }
 
 .console-card-body {
   padding: var(--aws-space-scale-l);
