@@ -30,7 +30,7 @@ export default function DocumentVerificationPage() {
           <SlaIndicator sla="Real-time" realTime />
         </div>
         <p className="text-sm text-text-muted">
-          Verify documents against official registries including DHA, SAQA, CIPC, and SARS.
+          Verify documents using AI-powered analysis or submit permits to DHA for registry lookup.
         </p>
       </header>
 

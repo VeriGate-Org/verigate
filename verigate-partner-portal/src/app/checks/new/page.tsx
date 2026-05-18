@@ -2,15 +2,15 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { ClipboardCheck, Clock } from "lucide-react";
+import { ShieldCheck, Clock } from "lucide-react";
 
 const NewCheckForm = dynamic(() => import("@/components/services/checks/NewCheckForm"), { ssr: false });
 const CheckHistory = dynamic(() => import("@/components/services/checks/CheckHistory"), { ssr: false });
 
 type Tab = "new" | "history";
 
-const tabs: { id: Tab; label: string; icon: typeof ClipboardCheck }[] = [
-  { id: "new", label: "New", icon: ClipboardCheck },
+const tabs: { id: Tab; label: string; icon: typeof ShieldCheck }[] = [
+  { id: "new", label: "New Screening", icon: ShieldCheck },
   { id: "history", label: "History", icon: Clock },
 ];
 
@@ -32,11 +32,11 @@ export default function ChecksPage() {
     <div className="space-y-6">
       <header className="space-y-1">
         <div className="flex items-center gap-3">
-          <ClipboardCheck className="h-6 w-6 text-[color:var(--color-accent-strong)]" />
-          <h1 className="text-xl font-bold text-text">Checks</h1>
+          <ShieldCheck className="h-6 w-6 text-[color:var(--color-accent-strong)]" />
+          <h1 className="text-xl font-bold text-text">Screening</h1>
         </div>
         <p className="text-sm text-text-muted">
-          Run multiple checks for a subject at once.
+          Run multiple verification checks for a subject in a single screening session.
         </p>
       </header>
 

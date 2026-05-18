@@ -88,7 +88,7 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
     { label: "Full Verification", current: true },
   ],
   "/checks/new": [
-    { label: "Checks", current: true },
+    { label: "Screening", current: true },
   ],
   "/settings": [
     { label: "Settings", current: true },

@@ -445,8 +445,8 @@ export default function NewCheckForm({ prefillSubject, prefillChecks }: NewCheck
             className="w-full sm:w-auto px-6 py-2.5 rounded text-sm font-semibold text-white bg-[color:var(--color-cta)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             {state.isSubmitting
-              ? "Running..."
-              : `Run ${selectedChecks.size} check${selectedChecks.size !== 1 ? "s" : ""}`}
+              ? "Screening..."
+              : `Run screening (${selectedChecks.size} check${selectedChecks.size !== 1 ? "s" : ""})`}
           </button>
         </div>
 

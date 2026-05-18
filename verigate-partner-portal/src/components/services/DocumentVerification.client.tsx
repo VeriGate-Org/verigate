@@ -418,7 +418,7 @@ export default function DocumentVerification() {
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <p className="text-xs text-text-muted">
-                Verified against official government registries.
+                {isDhaPermit ? "Submitted to DHA for registry verification." : "Analysed using Document AI."}
               </p>
               <Button
                 type="submit"
@@ -559,7 +559,7 @@ export default function DocumentVerification() {
               <VerificationEmptyState
                 icon={FileCheck}
                 heading="No results yet"
-                description="Enter document details and click Verify to check against official registries."
+                description="Enter document details and click Verify to analyse using Document AI."
               />
             )}
           </AnimatedResult>
@@ -569,7 +569,7 @@ export default function DocumentVerification() {
       <ProcessingDialog
         open={loading}
         title="Verifying document"
-        message="Checking against official registry."
+        message={isDhaPermit ? "Submitting to DHA for review." : "Analysing document."}
       />
     </div>
   );
