@@ -2,6 +2,52 @@ import type { FieldConfig } from "../document-verification/documentFieldConfigs"
 import type { BffVerificationType } from "@/lib/types";
 import { SA_BANKS } from "@/lib/sa-banks";
 
+// ── Shared option lists ──────────────────────────────────────────────
+
+const NATIONALITY_OPTIONS: { value: string; label: string }[] = [
+  { value: "South African", label: "South African" },
+  { value: "Angolan", label: "Angolan" },
+  { value: "Bangladeshi", label: "Bangladeshi" },
+  { value: "Basotho", label: "Basotho (Lesotho)" },
+  { value: "Batswana", label: "Batswana (Botswana)" },
+  { value: "British", label: "British" },
+  { value: "Burundian", label: "Burundian" },
+  { value: "Cameroonian", label: "Cameroonian" },
+  { value: "Chinese", label: "Chinese" },
+  { value: "Congolese", label: "Congolese (DRC)" },
+  { value: "Egyptian", label: "Egyptian" },
+  { value: "Ethiopian", label: "Ethiopian" },
+  { value: "Eritrean", label: "Eritrean" },
+  { value: "French", label: "French" },
+  { value: "German", label: "German" },
+  { value: "Ghanaian", label: "Ghanaian" },
+  { value: "Indian", label: "Indian" },
+  { value: "Kenyan", label: "Kenyan" },
+  { value: "Malawian", label: "Malawian" },
+  { value: "Mozambican", label: "Mozambican" },
+  { value: "Namibian", label: "Namibian" },
+  { value: "Nigerian", label: "Nigerian" },
+  { value: "Pakistani", label: "Pakistani" },
+  { value: "Portuguese", label: "Portuguese" },
+  { value: "Rwandan", label: "Rwandan" },
+  { value: "Somali", label: "Somali" },
+  { value: "Swazi", label: "Swazi (Eswatini)" },
+  { value: "Tanzanian", label: "Tanzanian" },
+  { value: "Ugandan", label: "Ugandan" },
+  { value: "Zambian", label: "Zambian" },
+  { value: "Zimbabwean", label: "Zimbabwean" },
+];
+
+const REFUGEE_OFFICE_OPTIONS: { value: string; label: string }[] = [
+  { value: "Cape Town Refugee Reception Office", label: "Cape Town" },
+  { value: "Desmond Tutu Refugee Reception Centre", label: "Desmond Tutu (Pretoria)" },
+  { value: "Durban Refugee Reception Office", label: "Durban" },
+  { value: "Gqeberha Refugee Reception Office", label: "Gqeberha (Port Elizabeth)" },
+  { value: "Lebombo Refugee Reception Office", label: "Lebombo (Mpumalanga)" },
+  { value: "Musina Refugee Reception Office", label: "Musina (Limpopo)" },
+  { value: "Pretoria Refugee Reception Office", label: "Pretoria (Marabastad)" },
+];
+
 // ── Common fields shared across checks ───────────────────────────────
 
 export type CommonFields = {
@@ -316,8 +362,8 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
         name: "nationality",
         label: "Nationality",
         description: "Country of nationality (optional).",
-        type: "text",
-        placeholder: "e.g. South African",
+        type: "select",
+        options: NATIONALITY_OPTIONS,
       },
     ],
     buildPayload: (c, a) => ({
@@ -486,16 +532,16 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
         name: "nationality",
         label: "Nationality",
         description: "Nationality of the permit holder.",
-        type: "text",
+        type: "select",
         required: true,
-        placeholder: "e.g. Congolese",
+        options: NATIONALITY_OPTIONS,
       },
       {
         name: "refugeeOffice",
         label: "Refugee reception office",
         description: "Office that issued the permit (optional).",
-        type: "text",
-        placeholder: "e.g. Pretoria Refugee Reception Office",
+        type: "select",
+        options: REFUGEE_OFFICE_OPTIONS,
       },
     ],
     buildPayload: (_c, a) => ({
@@ -527,9 +573,9 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
         name: "nationality",
         label: "Nationality",
         description: "Nationality of the permit holder.",
-        type: "text",
+        type: "select",
         required: true,
-        placeholder: "e.g. Nigerian",
+        options: NATIONALITY_OPTIONS,
       },
       {
         name: "employerName",
@@ -568,9 +614,9 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
         name: "nationality",
         label: "Nationality",
         description: "Nationality of the passport holder.",
-        type: "text",
+        type: "select",
         required: true,
-        placeholder: "e.g. South African",
+        options: NATIONALITY_OPTIONS,
       },
       {
         name: "issuingCountry",
