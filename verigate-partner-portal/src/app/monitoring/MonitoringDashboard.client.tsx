@@ -15,20 +15,20 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { Skeleton } from "@/components/ui/Loading/Skeleton";
 import { Users, Bell, Plus, X, Lightbulb } from "lucide-react";
+import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid";
+import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid";
 
 type Tab = "subjects" | "alerts";
 
-const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-green-500/10 text-green-600 border-green-500/20",
-  PAUSED: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-  REMOVED: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-};
-
-const SEVERITY_STYLES: Record<string, string> = {
-  HIGH: "bg-red-500/10 text-red-600 border-red-500/20",
-  MEDIUM: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-  LOW: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-};
+interface MonitoredSubject {
+  subjectId: string;
+  subjectName?: string;
+  subjectIdentifier?: string;
+  status: string;
+  monitoringFrequency: string;
+  lastRiskScore?: number | null;
+  nextCheckAt?: string;
+}
 
 const FREQUENCIES: { value: MonitoringFrequency; label: string }[] = [
   { value: "DAILY", label: "Daily" },
@@ -37,10 +37,27 @@ const FREQUENCIES: { value: MonitoringFrequency; label: string }[] = [
   { value: "QUARTERLY", label: "Quarterly" },
 ];
 
+const SEVERITY_STYLES: Record<string, string> = {
+  HIGH: "bg-red-500/10 text-red-600 border-red-500/20",
+  MEDIUM: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  LOW: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+};
+
+const subjectFilterDefs: DataGridFilterDef[] = [
+  {
+    id: "status",
+    label: "All Statuses",
+    type: "select",
+    options: [
+      { value: "ACTIVE", label: "Active" },
+      { value: "PAUSED", label: "Paused" },
+    ],
+  },
+];
+
 export default function MonitoringDashboard() {
   const router = useRouter();
   const [tab, setTab] = React.useState<Tab>("subjects");
-  const [statusFilter, setStatusFilter] = React.useState<string>("");
   const [showAddForm, setShowAddForm] = React.useState(false);
 
   // Add form state
@@ -49,8 +66,11 @@ export default function MonitoringDashboard() {
   const [newSubjectType, setNewSubjectType] = React.useState("INDIVIDUAL");
   const [newFrequency, setNewFrequency] = React.useState<MonitoringFrequency>("MONTHLY");
 
+  const { state: gridState, actions: gridActions, processData } = useDataGrid({ defaultPageSize: 20 });
+
+  const statusFilter = gridState.filters.status || "";
   const { data: subjects, isLoading: subjectsLoading } = useMonitoredSubjects(
-    statusFilter ? { status: statusFilter } : undefined
+    statusFilter ? { status: statusFilter } : undefined,
   );
   const { data: alerts, isLoading: alertsLoading } = useMonitoringAlerts();
   const createMutation = useCreateMonitoredSubject();
@@ -106,9 +126,120 @@ export default function MonitoringDashboard() {
           setNewSubjectType("INDIVIDUAL");
           setNewFrequency("MONTHLY");
         },
-      }
+      },
     );
   };
+
+  const subjectColumns: DataGridColumn<MonitoredSubject>[] = React.useMemo(
+    () => [
+      {
+        id: "subjectName",
+        header: "Name",
+        cell: (s) => (
+          <span className="font-medium text-text">{s.subjectName || "-"}</span>
+        ),
+      },
+      {
+        id: "subjectIdentifier",
+        header: "Identifier",
+        cell: (s) => (
+          <span className="font-mono text-xs text-text">
+            {s.subjectIdentifier || "-"}
+          </span>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (s) => <StatusIndicator status={s.status} />,
+      },
+      {
+        id: "monitoringFrequency",
+        header: "Frequency",
+        cell: (s) => (
+          <span className="text-text-muted">{s.monitoringFrequency}</span>
+        ),
+      },
+      {
+        id: "lastRiskScore",
+        header: "Last Score",
+        cell: (s) => (
+          <span className="text-text">
+            {s.lastRiskScore != null ? s.lastRiskScore : "-"}
+          </span>
+        ),
+      },
+      {
+        id: "nextCheckAt",
+        header: "Next Check",
+        cell: (s) => (
+          <span className="text-xs text-text-muted">
+            {s.nextCheckAt
+              ? new Date(s.nextCheckAt).toLocaleDateString()
+              : "-"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        align: "right" as const,
+        cell: (subject) => (
+          <div
+            className="flex items-center justify-end gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {subject.status === "ACTIVE" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  updateMutation.mutate({
+                    subjectId: subject.subjectId,
+                    updates: { status: "PAUSED" },
+                  })
+                }
+              >
+                Pause
+              </Button>
+            )}
+            {subject.status === "PAUSED" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  updateMutation.mutate({
+                    subjectId: subject.subjectId,
+                    updates: { status: "ACTIVE" },
+                  })
+                }
+              >
+                Resume
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-danger"
+              onClick={() => deleteMutation.mutate(subject.subjectId)}
+            >
+              Remove
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [updateMutation, deleteMutation],
+  );
+
+  const subjectData = (subjects || []) as MonitoredSubject[];
+  const { data: processedSubjects, total: subjectTotal, totalPages: subjectTotalPages } = processData(
+    subjectData,
+    {
+      searchFields: ["subjectName", "subjectIdentifier"],
+      filterFn: () => true, // Filtering done server-side via useMonitoredSubjects
+    },
+  );
 
   const unacknowledgedCount = (alerts || []).filter((a) => !a.acknowledged).length;
 
@@ -122,7 +253,7 @@ export default function MonitoringDashboard() {
             "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors",
             tab === "subjects"
               ? "border-accent text-accent"
-              : "border-transparent text-text-muted hover:text-text"
+              : "border-transparent text-text-muted hover:text-text",
           )}
         >
           <Users className="h-4 w-4" />
@@ -134,7 +265,7 @@ export default function MonitoringDashboard() {
             "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors",
             tab === "alerts"
               ? "border-accent text-accent"
-              : "border-transparent text-text-muted hover:text-text"
+              : "border-transparent text-text-muted hover:text-text",
           )}
         >
           <Bell className="h-4 w-4" />
@@ -150,32 +281,6 @@ export default function MonitoringDashboard() {
       {/* Subjects Tab */}
       {tab === "subjects" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {["", "ACTIVE", "PAUSED"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium rounded border transition-colors",
-                    statusFilter === s
-                      ? "bg-accent/10 text-accent border-accent/30"
-                      : "bg-transparent text-text-muted border-border hover:border-text-muted"
-                  )}
-                >
-                  {s || "All"}
-                </button>
-              ))}
-            </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setShowAddForm(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Subject
-            </Button>
-          </div>
-
           {/* Add Subject Form */}
           {showAddForm && (
             <div className="console-card">
@@ -246,100 +351,28 @@ export default function MonitoringDashboard() {
             </div>
           )}
 
-          {/* Subjects Table */}
-          {subjectsLoading ? (
-            <div className="space-y-2">
-              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
-            </div>
-          ) : !subjects || subjects.length === 0 ? (
-            <div className="console-card">
-              <div className="console-card-body flex flex-col items-center py-12 text-center">
-                <Users className="h-10 w-10 text-text-muted mb-3" />
-                <p className="text-sm font-medium text-text">No monitored subjects</p>
-                <p className="text-xs text-text-muted mt-1">
-                  Add subjects to begin continuous monitoring and risk detection.
-                </p>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setShowAddForm(true)}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add First Subject
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="console-card overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-background/50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Name</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Identifier</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Status</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Frequency</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Last Score</th>
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-text-muted">Next Check</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-text-muted">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {subjects.map((subject) => (
-                    <tr
-                      key={subject.subjectId}
-                      className="hover:bg-hover cursor-pointer"
-                      onClick={() => router.push(`/monitoring/${subject.subjectId}`)}
-                    >
-                      <td className="px-4 py-2.5 font-medium text-text">{subject.subjectName || "-"}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-text">{subject.subjectIdentifier || "-"}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={cn("inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border", STATUS_STYLES[subject.status] || "")}>
-                          {subject.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-text-muted">{subject.monitoringFrequency}</td>
-                      <td className="px-4 py-2.5 text-text">
-                        {subject.lastRiskScore != null ? subject.lastRiskScore : "-"}
-                      </td>
-                      <td className="px-4 py-2.5 text-xs text-text-muted">
-                        {subject.nextCheckAt ? new Date(subject.nextCheckAt).toLocaleDateString() : "-"}
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                          {subject.status === "ACTIVE" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateMutation.mutate({ subjectId: subject.subjectId, updates: { status: "PAUSED" } })}
-                            >
-                              Pause
-                            </Button>
-                          )}
-                          {subject.status === "PAUSED" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateMutation.mutate({ subjectId: subject.subjectId, updates: { status: "ACTIVE" } })}
-                            >
-                              Resume
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-danger"
-                            onClick={() => deleteMutation.mutate(subject.subjectId)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataGrid
+            columns={subjectColumns}
+            data={processedSubjects}
+            getRowId={(s) => s.subjectId}
+            state={gridState}
+            actions={gridActions}
+            totalPages={subjectTotalPages}
+            totalItems={subjectTotal}
+            isLoading={subjectsLoading}
+            searchable
+            searchPlaceholder="Search subjects..."
+            filterDefs={subjectFilterDefs}
+            onRowClick={(s) => router.push(`/monitoring/${s.subjectId}`)}
+            toolbarActions={
+              <Button variant="primary" size="sm" onClick={() => setShowAddForm(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Add Subject
+              </Button>
+            }
+            emptyTitle="No monitored subjects"
+            emptyDescription="Add subjects to begin continuous monitoring and risk detection."
+            pageSizeOptions={[10, 20, 50]}
+          />
         </div>
       )}
 
@@ -367,7 +400,7 @@ export default function MonitoringDashboard() {
                   key={alert.alertId}
                   className={cn(
                     "console-card",
-                    alert.acknowledged && "opacity-60"
+                    alert.acknowledged && "opacity-60",
                   )}
                 >
                   <div className="console-card-body">
@@ -386,12 +419,12 @@ export default function MonitoringDashboard() {
                           <span>Subject: {alert.subjectId.slice(0, 8)}...</span>
                           {alert.previousRiskScore != null && alert.currentRiskScore != null && (
                             <span>
-                              Score: {alert.previousRiskScore} → {alert.currentRiskScore}
+                              Score: {alert.previousRiskScore} &rarr; {alert.currentRiskScore}
                             </span>
                           )}
                           {alert.previousDecision && alert.currentDecision && (
                             <span>
-                              Decision: {alert.previousDecision} → {alert.currentDecision}
+                              Decision: {alert.previousDecision} &rarr; {alert.currentDecision}
                             </span>
                           )}
                           <span>{new Date(alert.createdAt).toLocaleString()}</span>

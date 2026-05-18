@@ -11,7 +11,6 @@ import {
   ModalDescription,
   ModalFooter,
 } from "@/components/ui/Modal/Modal";
-import { SkeletonTable } from "@/components/ui/Loading/Skeleton";
 import { formatDateTime } from "@/lib/utils/date";
 import {
   listTeamMembers,
@@ -22,21 +21,10 @@ import {
   removeTeamMember,
   type BffTeamMember,
 } from "@/lib/bff-client";
+import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid";
+import type { DataGridColumn } from "@/components/ui/DataGrid";
 
 const VALID_ROLES = ["admin", "operator", "viewer", "auditor"] as const;
-
-const ROLE_BADGE_STYLES: Record<string, string> = {
-  admin: "bg-accent/10 text-accent",
-  operator: "bg-[color:var(--color-base-200)] text-text",
-  viewer: "bg-[color:var(--color-base-200)] text-text-muted",
-  auditor: "bg-[color:var(--color-base-200)] text-text-muted",
-};
-
-const STATUS_BADGE_STYLES: Record<string, string> = {
-  INVITED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  ACTIVE: "bg-success/10 text-success",
-  DEACTIVATED: "bg-[color:var(--color-base-200)] text-text-muted",
-};
 
 export default function TeamTab() {
   const { toast } = useToast();
@@ -46,6 +34,7 @@ export default function TeamTab() {
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<BffTeamMember | null>(null);
+  const { state, actions, processData } = useDataGrid();
 
   // Invite form state
   const [inviteEmail, setInviteEmail] = useState("");
@@ -149,6 +138,96 @@ export default function TeamTab() {
     [loadMembers, toast],
   );
 
+  const columns: DataGridColumn<BffTeamMember>[] = [
+    {
+      id: "name",
+      header: "Name",
+      cell: (member) => (
+        <span className="font-medium text-text">{member.name}</span>
+      ),
+    },
+    {
+      id: "email",
+      header: "Email",
+      cell: (member) => (
+        <span className="text-text-muted">{member.email}</span>
+      ),
+    },
+    {
+      id: "role",
+      header: "Role",
+      cell: (member) => (
+        <select
+          value={member.role}
+          onChange={(e) => handleRoleChange(member, e.target.value)}
+          onClick={(e) => e.stopPropagation()}
+          className="rounded border border-border bg-transparent px-2 py-0.5 text-xs text-text focus:outline-none focus:ring-1 focus:ring-accent"
+        >
+          {VALID_ROLES.map((role) => (
+            <option key={role} value={role}>
+              {role.charAt(0).toUpperCase() + role.slice(1)}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (member) => (
+        <StatusIndicator
+          status={member.status}
+          label={
+            member.status === "INVITED"
+              ? "Invited"
+              : member.status === "ACTIVE"
+                ? "Active"
+                : "Deactivated"
+          }
+        />
+      ),
+    },
+    {
+      id: "createdAt",
+      header: "Joined",
+      cell: (member) => (
+        <span className="text-text-muted">{formatDateTime(member.createdAt)}</span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      align: "right",
+      cell: (member) => (
+        <div
+          className="flex items-center justify-end gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => handleToggleStatus(member)}
+            className="aws-button aws-button--secondary text-xs"
+          >
+            {member.status === "DEACTIVATED" ? "Reactivate" : "Deactivate"}
+          </button>
+          <button
+            onClick={() => setRemoveTarget(member)}
+            className="aws-button aws-button--destructive text-xs"
+          >
+            Remove
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const { data, total: filteredTotal, totalPages } = processData(members, {
+    searchFields: ["name", "email"],
+  });
+
+  const descriptionText = maxAllowed > 0
+    ? `Manage who has access to this partner account. ${total} of ${maxAllowed} members`
+    : "Manage who has access to this partner account.";
+
   return (
     <div className="space-y-4">
       {/* Remove confirmation dialog */}
@@ -233,105 +312,27 @@ export default function TeamTab() {
         </ModalContent>
       </Modal>
 
-      {loading ? (
-        <SkeletonTable rows={4} columns={6} />
-      ) : (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div>
-              <div className="text-sm font-semibold text-text">Team members</div>
-              <div className="text-xs text-text-muted">
-                Manage who has access to this partner account.
-                {maxAllowed > 0 && (
-                  <span className="ml-2 font-medium">
-                    {total} of {maxAllowed} members
-                  </span>
-                )}
-              </div>
-            </div>
-            <button onClick={() => setInviteOpen(true)} className="aws-button aws-button--primary text-xs">
-              Invite Member
-            </button>
-          </div>
-          <div className="console-card-body p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-[color:var(--color-base-200)] text-xs uppercase tracking-wide text-text-muted">
-                  <tr>
-                    <th className="px-4 py-2.5">Name</th>
-                    <th className="px-4 py-2.5">Email</th>
-                    <th className="px-4 py-2.5">Role</th>
-                    <th className="px-4 py-2.5">Status</th>
-                    <th className="px-4 py-2.5">Joined</th>
-                    <th className="px-4 py-2.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-xs text-text-muted">
-                        No team members yet. Invite your first team member to get started.
-                      </td>
-                    </tr>
-                  ) : (
-                    members.map((member) => (
-                      <tr key={member.id} className="border-b border-border last:border-0">
-                        <td className="px-4 py-2.5 font-medium text-text">{member.name}</td>
-                        <td className="px-4 py-2.5 text-text-muted">{member.email}</td>
-                        <td className="px-4 py-2.5">
-                          <select
-                            value={member.role}
-                            onChange={(e) => handleRoleChange(member, e.target.value)}
-                            className="rounded border border-border bg-transparent px-2 py-0.5 text-xs text-text focus:outline-none focus:ring-1 focus:ring-accent"
-                          >
-                            {VALID_ROLES.map((role) => (
-                              <option key={role} value={role}>
-                                {role.charAt(0).toUpperCase() + role.slice(1)}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                              STATUS_BADGE_STYLES[member.status] ?? STATUS_BADGE_STYLES.INVITED
-                            }`}
-                          >
-                            {member.status === "INVITED"
-                              ? "Invited"
-                              : member.status === "ACTIVE"
-                                ? "Active"
-                                : "Deactivated"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-text-muted">
-                          {formatDateTime(member.createdAt)}
-                        </td>
-                        <td className="px-4 py-2.5 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleToggleStatus(member)}
-                              className="aws-button aws-button--secondary text-xs"
-                            >
-                              {member.status === "DEACTIVATED" ? "Reactivate" : "Deactivate"}
-                            </button>
-                            <button
-                              onClick={() => setRemoveTarget(member)}
-                              className="aws-button aws-button--destructive text-xs"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+      <DataGrid
+        columns={columns}
+        data={data}
+        getRowId={(member) => member.id}
+        state={state}
+        actions={actions}
+        totalPages={totalPages}
+        totalItems={filteredTotal}
+        isLoading={loading}
+        title="Team members"
+        description={descriptionText}
+        searchable
+        searchPlaceholder="Search members..."
+        toolbarActions={
+          <button onClick={() => setInviteOpen(true)} className="aws-button aws-button--primary text-xs">
+            Invite Member
+          </button>
+        }
+        emptyTitle="No team members"
+        emptyDescription="No team members yet. Invite your first team member to get started."
+      />
     </div>
   );
 }

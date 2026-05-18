@@ -6,26 +6,69 @@ import type { CheckSession } from "@/lib/types/check-session";
 import { CHECK_DEFINITIONS } from "@/components/services/checks/checkFieldRegistry";
 import { CheckResultCard, type CheckState } from "@/components/services/checks/CheckResultCard";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
-import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
-import {
-  Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock,
-  ChevronDown, ChevronUp, RotateCcw,
-} from "lucide-react";
+import { Clock, RotateCcw } from "lucide-react";
+import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid";
+import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid";
 
 interface CheckHistoryProps {
   onRerun?: (subject: { idNumber: string; firstName: string; lastName: string }, checks: string[]) => void;
 }
 
+const columns: DataGridColumn<CheckSession>[] = [
+  {
+    id: "outcome",
+    header: "Status",
+    cell: (session) => {
+      if (session.failed === 0) return <StatusIndicator status="Passed" />;
+      if (session.passed === 0) return <StatusIndicator status="FAILED" />;
+      return <StatusIndicator status="Mixed" />;
+    },
+  },
+  {
+    id: "subject",
+    header: "Subject",
+    cell: (session) => <span className="font-medium">{session.subject.firstName} {session.subject.lastName}</span>,
+    secondary: (session) => <span className="font-mono">{session.subject.idNumber}</span>,
+  },
+  {
+    id: "totalChecks",
+    header: "Checks",
+    cell: (session) => <span className="tabular-nums">{session.totalChecks}</span>,
+  },
+  {
+    id: "passed",
+    header: "Passed",
+    cell: (session) => <span className="text-success tabular-nums">{session.passed}</span>,
+  },
+  {
+    id: "failed",
+    header: "Failed",
+    cell: (session) => <span className="text-danger tabular-nums">{session.failed}</span>,
+  },
+  {
+    id: "createdAt",
+    header: "Date",
+    cell: (session) => new Date(session.createdAt).toLocaleDateString(),
+  },
+];
+
+const filterDefs: DataGridFilterDef[] = [
+  {
+    id: "outcome",
+    label: "All Outcomes",
+    type: "select",
+    options: [
+      { value: "passed", label: "All Passed" },
+      { value: "has_failures", label: "Has Failures" },
+    ],
+  },
+];
+
 export default function CheckHistory({ onRerun }: CheckHistoryProps) {
   const [sessions, setSessions] = useState<CheckSession[]>([]);
-  const [filteredSessions, setFilteredSessions] = useState<CheckSession[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const pageSize = 10;
+  const { state, actions, processData } = useDataGrid({ defaultPageSize: 10 });
 
   const fetchHistory = () => {
     setIsLoading(true);
@@ -44,72 +87,25 @@ export default function CheckHistory({ onRerun }: CheckHistoryProps) {
     fetchHistory();
   }, []);
 
-  useEffect(() => {
-    let items = [...sessions];
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      items = items.filter(
-        (s) =>
-          s.subject.idNumber.toLowerCase().includes(q) ||
-          s.subject.firstName.toLowerCase().includes(q) ||
-          s.subject.lastName.toLowerCase().includes(q) ||
-          `${s.subject.firstName} ${s.subject.lastName}`.toLowerCase().includes(q),
-      );
-    }
-    if (outcomeFilter === "passed") {
-      items = items.filter((s) => s.failed === 0);
-    } else if (outcomeFilter === "has_failures") {
-      items = items.filter((s) => s.failed > 0);
-    }
-    setFilteredSessions(items);
-    setCurrentPage(1);
-  }, [sessions, searchQuery, outcomeFilter]);
-
-  const totalPages = Math.ceil(filteredSessions.length / pageSize);
-  const paged = filteredSessions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const { data, total, totalPages } = processData(sessions, {
+    searchFn: (s, q) =>
+      s.subject.idNumber.toLowerCase().includes(q) ||
+      s.subject.firstName.toLowerCase().includes(q) ||
+      s.subject.lastName.toLowerCase().includes(q) ||
+      `${s.subject.firstName} ${s.subject.lastName}`.toLowerCase().includes(q),
+    filterFn: (item, filters) => {
+      if (!filters.outcome) return true;
+      if (filters.outcome === "passed") return item.failed === 0;
+      if (filters.outcome === "has_failures") return item.failed > 0;
+      return true;
+    },
+  });
 
   const totalCount = sessions.length;
   const allPassedCount = sessions.filter((s) => s.failed === 0).length;
   const hasFailuresCount = sessions.filter((s) => s.failed > 0).length;
 
-  const sessionOutcomeBadge = (session: CheckSession) => {
-    if (session.failed === 0) {
-      return <OutcomeBadge label="Passed" type="success" />;
-    }
-    if (session.passed === 0) {
-      return <OutcomeBadge label="Failed" type="danger" />;
-    }
-    return <OutcomeBadge label="Mixed" type="warning" />;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-accent" />
-        <span className="ml-2 text-sm text-text-muted">Loading screening history...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg border border-danger/40 bg-danger/5 p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-danger mt-0.5 flex-shrink-0" />
-        <div className="flex-1">
-          <p className="text-sm font-medium text-danger">Failed to load screening history</p>
-          <p className="text-sm text-danger/80 mt-1">{error}</p>
-          <button
-            onClick={fetchHistory}
-            className="mt-3 px-3 py-1.5 text-sm bg-danger/10 hover:bg-danger/20 text-danger rounded-md border border-danger/30"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (sessions.length === 0) {
+  if (!isLoading && sessions.length === 0 && !error) {
     return (
       <VerificationEmptyState
         icon={Clock}
@@ -121,163 +117,36 @@ export default function CheckHistory({ onRerun }: CheckHistoryProps) {
 
   return (
     <div className="space-y-4">
-      {/* Summary chips */}
       <div className="flex gap-3 flex-wrap">
         <SummaryChip label="Total" count={totalCount} className="bg-accent/10 text-accent" />
         <SummaryChip label="All Passed" count={allPassedCount} className="bg-success/10 text-success" />
         <SummaryChip label="Has Failures" count={hasFailuresCount} className="bg-danger/10 text-danger" />
       </div>
 
-      {/* Table card */}
-      <div className="console-card overflow-hidden">
-        {/* Card header — search & filters */}
-        <div className="console-card-header">
-          <div className="flex flex-wrap gap-3 items-center w-full">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-              <input
-                type="text"
-                placeholder="Search by name or ID number..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="aws-input w-full pl-10 pr-4 py-2 text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-text-muted" />
-              <select
-                value={outcomeFilter}
-                onChange={(e) => setOutcomeFilter(e.target.value)}
-                className="aws-select text-sm"
-              >
-                <option value="all">All Outcomes</option>
-                <option value="passed">All Passed</option>
-                <option value="has_failures">Has Failures</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Table body */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-base-200/50">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Subject</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Checks</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Passed</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Failed</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
-                <th className="w-10"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {paged.map((session) => {
-                const isExpanded = expandedId === session.sessionId;
-                return (
-                  <SessionRow
-                    key={session.sessionId}
-                    session={session}
-                    isExpanded={isExpanded}
-                    outcomeBadge={sessionOutcomeBadge(session)}
-                    onToggle={() => setExpandedId(isExpanded ? null : session.sessionId)}
-                    onRerun={onRerun}
-                  />
-                );
-              })}
-              {paged.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-text-muted">
-                    No results match the current filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination footer */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-            <p className="text-xs text-text-muted">
-              Showing {(currentPage - 1) * pageSize + 1}&ndash;{Math.min(currentPage * pageSize, filteredSessions.length)} of {filteredSessions.length}
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs text-text-muted tabular-nums">{currentPage} / {totalPages}</span>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <DataGrid
+        columns={columns}
+        data={data}
+        getRowId={(row) => row.sessionId}
+        state={state}
+        actions={actions}
+        totalPages={totalPages}
+        totalItems={total}
+        isLoading={isLoading}
+        error={error}
+        onRetry={fetchHistory}
+        searchable
+        searchPlaceholder="Search by name or ID number..."
+        filterDefs={filterDefs}
+        renderExpandedRow={(session) => <ExpandedSessionDetail session={session} onRerun={onRerun} />}
+        emptyTitle="No screening sessions yet"
+        emptyDescription="Screening sessions you run will appear here."
+        pageSizeOptions={[10, 20, 50]}
+      />
     </div>
   );
 }
 
-// ── Session Row + Expandable Detail ─────────────────────────────────
-
-function SessionRow({
-  session,
-  isExpanded,
-  outcomeBadge,
-  onToggle,
-  onRerun,
-}: {
-  session: CheckSession;
-  isExpanded: boolean;
-  outcomeBadge: React.ReactNode;
-  onToggle: () => void;
-  onRerun?: (subject: { idNumber: string; firstName: string; lastName: string }, checks: string[]) => void;
-}) {
-  const fullName = `${session.subject.firstName} ${session.subject.lastName}`;
-  return (
-    <>
-      <tr
-        className="hover:bg-hover/50 cursor-pointer"
-        onClick={onToggle}
-      >
-        <td className="px-4 py-2.5">{outcomeBadge}</td>
-        <td className="px-4 py-2.5">
-          <div className="text-text font-medium">{fullName}</div>
-          <div className="font-mono text-xs text-text-muted">{session.subject.idNumber}</div>
-        </td>
-        <td className="px-4 py-2.5 text-text tabular-nums">{session.totalChecks}</td>
-        <td className="px-4 py-2.5 text-success tabular-nums">{session.passed}</td>
-        <td className="px-4 py-2.5 text-danger tabular-nums">{session.failed}</td>
-        <td className="px-4 py-2.5 text-text-muted">
-          {new Date(session.createdAt).toLocaleDateString()}
-        </td>
-        <td className="px-4 py-2.5">
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-text-muted" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-text-muted" />
-          )}
-        </td>
-      </tr>
-      {isExpanded && (
-        <tr>
-          <td colSpan={7} className="px-4 py-4 bg-base-200/30">
-            <ExpandedSessionDetail session={session} onRerun={onRerun} />
-          </td>
-        </tr>
-      )}
-    </>
-  );
-}
+// -- Expanded Session Detail --------------------------------------------------
 
 function ExpandedSessionDetail({
   session,
@@ -339,6 +208,8 @@ function ExpandedSessionDetail({
     </div>
   );
 }
+
+// -- Summary Chip -------------------------------------------------------------
 
 function SummaryChip({ label, count, className }: { label: string; count: number; className: string }) {
   return (

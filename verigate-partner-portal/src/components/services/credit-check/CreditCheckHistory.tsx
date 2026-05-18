@@ -6,18 +6,55 @@ import type { CreditCheckHistoryItem } from "@/lib/mock-services";
 import { config } from "@/lib/config";
 import { getCreditCheckHistory } from "@/lib/bff-client";
 import { VerificationEmptyState } from "@/components/verification/VerificationEmptyState";
-import { Search, ChevronLeft, ChevronRight, Filter, Loader2, AlertCircle, Clock } from "lucide-react";
-import { OutcomeBadge } from "@/components/services/shared/OutcomeBadge";
+import { Clock } from "lucide-react";
+import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid";
+import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid";
+
+const columns: DataGridColumn<CreditCheckHistoryItem>[] = [
+  {
+    id: "outcome",
+    header: "Status",
+    cell: (row) => <StatusIndicator status={row.outcome} />,
+  },
+  {
+    id: "idNumber",
+    header: "ID Number",
+    cell: (row) => <span className="font-mono text-xs">{row.idNumber}</span>,
+  },
+  {
+    id: "fullName",
+    header: "Name",
+    cell: (row) => row.fullName,
+  },
+  {
+    id: "riskGrade",
+    header: "Risk Grade",
+    cell: (row) => row.riskGrade,
+  },
+  {
+    id: "verifiedAt",
+    header: "Date",
+    cell: (row) => new Date(row.verifiedAt).toLocaleDateString(),
+  },
+];
+
+const filterDefs: DataGridFilterDef[] = [
+  {
+    id: "outcome",
+    label: "All Outcomes",
+    type: "select",
+    options: [
+      { value: "COMPLETED", label: "Completed" },
+      { value: "FAILED", label: "Failed" },
+    ],
+  },
+];
 
 export default function CreditCheckHistory() {
   const [history, setHistory] = useState<CreditCheckHistoryItem[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<CreditCheckHistoryItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pageSize = 10;
+  const { state, actions, processData } = useDataGrid({ defaultPageSize: 10 });
 
   const fetchHistory = () => {
     if (config.useMockServices) {
@@ -31,77 +68,22 @@ export default function CreditCheckHistory() {
         const items = res.items as unknown as CreditCheckHistoryItem[];
         setHistory(items.length > 0 ? items : generateCreditCheckHistory());
       })
-      .catch(() => {
-        setHistory(generateCreditCheckHistory());
-      })
+      .catch(() => setHistory(generateCreditCheckHistory()))
       .finally(() => setIsLoading(false));
   };
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
+  useEffect(() => { fetchHistory(); }, []);
 
-  useEffect(() => {
-    let items = [...history];
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      items = items.filter(
-        (i) => i.idNumber.toLowerCase().includes(q) || i.fullName.toLowerCase().includes(q),
-      );
-    }
-    if (outcomeFilter !== "all") {
-      items = items.filter((i) => i.outcome === outcomeFilter);
-    }
-    setFilteredHistory(items);
-    setCurrentPage(1);
-  }, [history, searchQuery, outcomeFilter]);
-
-  const totalPages = Math.ceil(filteredHistory.length / pageSize);
-  const paged = filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const { data, total, totalPages } = processData(history, {
+    searchFields: ["idNumber", "fullName"],
+    filterFn: (item, filters) => !filters.outcome || item.outcome === filters.outcome,
+  });
 
   const totalCount = history.length;
   const successCount = history.filter((h) => h.outcome === "COMPLETED").length;
   const successRate = totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0;
 
-  const outcomeBadge = (outcome: string) => {
-    switch (outcome) {
-      case "COMPLETED":
-        return <OutcomeBadge label="Completed" type="success" />;
-      case "FAILED":
-        return <OutcomeBadge label="Failed" type="danger" />;
-      default:
-        return <OutcomeBadge label={outcome} type="neutral" />;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-accent" />
-        <span className="ml-2 text-sm text-text-muted">Loading verification history...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg border border-danger/40 bg-danger/5 p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-danger mt-0.5 flex-shrink-0" />
-        <div className="flex-1">
-          <p className="text-sm font-medium text-danger">Failed to load verification history</p>
-          <p className="text-sm text-danger/80 mt-1">{error}</p>
-          <button
-            onClick={fetchHistory}
-            className="mt-3 px-3 py-1.5 text-sm bg-danger/10 hover:bg-danger/20 text-danger rounded-md border border-danger/30"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (history.length === 0) {
+  if (!isLoading && history.length === 0 && !error) {
     return (
       <VerificationEmptyState
         icon={Clock}
@@ -122,98 +104,24 @@ export default function CreditCheckHistory() {
           </>
         )}
       </p>
-
-      {/* Table card */}
-      <div className="console-card overflow-hidden">
-        {/* Card header — search & filters */}
-        <div className="console-card-header">
-          <div className="flex flex-wrap gap-3 items-center w-full">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-              <input
-                type="text"
-                placeholder="Search by ID number or name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="aws-input w-full pl-10 pr-4 py-2 text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-text-muted" />
-              <select
-                value={outcomeFilter}
-                onChange={(e) => setOutcomeFilter(e.target.value)}
-                className="aws-select text-sm"
-              >
-                <option value="all">All Outcomes</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="FAILED">Failed</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Table body */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-base-200/50">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Status</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">ID Number</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Name</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Risk Grade</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-text-muted uppercase tracking-wide">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {paged.map((item) => (
-                <tr key={item.verificationId} className="hover:bg-hover/50">
-                  <td className="px-4 py-2.5">{outcomeBadge(item.outcome)}</td>
-                  <td className="px-4 py-2.5 font-mono text-xs text-text">{item.idNumber}</td>
-                  <td className="px-4 py-2.5 text-text">{item.fullName}</td>
-                  <td className="px-4 py-2.5 text-text">{item.riskGrade}</td>
-                  <td className="px-4 py-2.5 text-text-muted">
-                    {new Date(item.verifiedAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-              {paged.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-text-muted">
-                    No results match the current filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination footer */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-            <p className="text-xs text-text-muted">
-              Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length}
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs text-text-muted tabular-nums">{currentPage} / {totalPages}</span>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1.5 border border-border rounded disabled:opacity-50 hover:bg-hover"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <DataGrid
+        columns={columns}
+        data={data}
+        getRowId={(row) => row.verificationId}
+        state={state}
+        actions={actions}
+        totalPages={totalPages}
+        totalItems={total}
+        isLoading={isLoading}
+        error={error}
+        onRetry={fetchHistory}
+        searchable
+        searchPlaceholder="Search by ID number or name..."
+        filterDefs={filterDefs}
+        emptyTitle="No results"
+        emptyDescription="No results match the current filters."
+        pageSizeOptions={[10, 20, 50]}
+      />
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
   ModalDescription,
   ModalFooter,
 } from "@/components/ui/Modal/Modal";
-import { SkeletonTable } from "@/components/ui/Loading/Skeleton";
 import { formatDateTime } from "@/lib/utils/date";
 import {
   listAdminUsers,
@@ -21,12 +20,8 @@ import {
   removeAdminUser,
   type BffAdminUser,
 } from "@/lib/bff-client";
-
-const STATUS_BADGE_STYLES: Record<string, string> = {
-  CONFIRMED: "bg-success/10 text-success",
-  FORCE_CHANGE_PASSWORD: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  DEACTIVATED: "bg-[color:var(--color-base-200)] text-text-muted",
-};
+import { DataGrid, useDataGrid, StatusIndicator } from "@/components/ui/DataGrid";
+import type { DataGridColumn } from "@/components/ui/DataGrid";
 
 function statusLabel(status: string): string {
   if (status === "CONFIRMED") return "Active";
@@ -41,6 +36,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<BffAdminUser | null>(null);
+  const { state, actions, processData } = useDataGrid();
 
   // Invite form state
   const [inviteEmail, setInviteEmail] = useState("");
@@ -121,6 +117,65 @@ export default function AdminUsers() {
     [loadUsers, toast],
   );
 
+  const columns: DataGridColumn<BffAdminUser>[] = [
+    {
+      id: "name",
+      header: "Name",
+      cell: (user) => (
+        <span className="font-medium text-text">{user.name || "\u2014"}</span>
+      ),
+    },
+    {
+      id: "email",
+      header: "Email",
+      cell: (user) => (
+        <span className="text-text-muted">{user.email}</span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (user) => (
+        <StatusIndicator status={user.status} label={statusLabel(user.status)} />
+      ),
+    },
+    {
+      id: "createdAt",
+      header: "Created",
+      cell: (user) => (
+        <span className="text-text-muted">{formatDateTime(user.createdAt)}</span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      align: "right",
+      cell: (user) => (
+        <div
+          className="flex items-center justify-end gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => handleToggleStatus(user)}
+            className="aws-button aws-button--secondary text-xs"
+          >
+            {user.status === "DEACTIVATED" ? "Reactivate" : "Deactivate"}
+          </button>
+          <button
+            onClick={() => setRemoveTarget(user)}
+            className="aws-button aws-button--destructive text-xs"
+          >
+            Remove
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const { data, total: filteredTotal, totalPages } = processData(users, {
+    searchFields: ["name", "email"],
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
@@ -198,82 +253,27 @@ export default function AdminUsers() {
         </ModalContent>
       </Modal>
 
-      {loading ? (
-        <SkeletonTable rows={4} columns={5} />
-      ) : (
-        <div className="console-card">
-          <div className="console-card-header">
-            <div>
-              <div className="text-sm font-semibold text-text">Platform administrators</div>
-              <div className="text-xs text-text-muted">
-                {users.length} admin{users.length !== 1 ? "s" : ""}
-              </div>
-            </div>
-            <button onClick={() => setInviteOpen(true)} className="aws-button aws-button--primary text-xs">
-              Invite Admin
-            </button>
-          </div>
-          <div className="console-card-body p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-[color:var(--color-base-200)] text-xs uppercase tracking-wide text-text-muted">
-                  <tr>
-                    <th className="px-4 py-2.5">Name</th>
-                    <th className="px-4 py-2.5">Email</th>
-                    <th className="px-4 py-2.5">Status</th>
-                    <th className="px-4 py-2.5">Created</th>
-                    <th className="px-4 py-2.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-xs text-text-muted">
-                        No admin users found.
-                      </td>
-                    </tr>
-                  ) : (
-                    users.map((user) => (
-                      <tr key={user.id} className="border-b border-border last:border-0">
-                        <td className="px-4 py-2.5 font-medium text-text">{user.name || "—"}</td>
-                        <td className="px-4 py-2.5 text-text-muted">{user.email}</td>
-                        <td className="px-4 py-2.5">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                              STATUS_BADGE_STYLES[user.status] ?? "bg-[color:var(--color-base-200)] text-text-muted"
-                            }`}
-                          >
-                            {statusLabel(user.status)}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-text-muted">
-                          {formatDateTime(user.createdAt)}
-                        </td>
-                        <td className="px-4 py-2.5 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleToggleStatus(user)}
-                              className="aws-button aws-button--secondary text-xs"
-                            >
-                              {user.status === "DEACTIVATED" ? "Reactivate" : "Deactivate"}
-                            </button>
-                            <button
-                              onClick={() => setRemoveTarget(user)}
-                              className="aws-button aws-button--destructive text-xs"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+      <DataGrid
+        columns={columns}
+        data={data}
+        getRowId={(user) => user.id}
+        state={state}
+        actions={actions}
+        totalPages={totalPages}
+        totalItems={filteredTotal}
+        isLoading={loading}
+        title="Platform administrators"
+        description={`${users.length} admin${users.length !== 1 ? "s" : ""}`}
+        searchable
+        searchPlaceholder="Search admins..."
+        toolbarActions={
+          <button onClick={() => setInviteOpen(true)} className="aws-button aws-button--primary text-xs">
+            Invite Admin
+          </button>
+        }
+        emptyTitle="No admin users"
+        emptyDescription="No admin users found."
+      />
     </div>
   );
 }

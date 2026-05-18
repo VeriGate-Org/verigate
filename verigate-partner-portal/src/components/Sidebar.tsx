@@ -91,19 +91,13 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    name: "Admin",
-    defaultExpanded: false,
-    items: [
-      { name: "System Health", path: "/system-health", icon: Activity },
-      { name: "User Management", path: "/admin/users", icon: Users },
-    ],
-  },
-  {
-    name: "Configuration",
+    name: "Admin & Settings",
     defaultExpanded: false,
     items: [
       { name: "Settings", path: "/settings", icon: Settings },
       { name: "Team", path: "/settings?tab=team", icon: Users },
+      { name: "User Management", path: "/admin/users", icon: Users },
+      { name: "System Health", path: "/system-health", icon: Activity },
       { name: "Help & Support", path: "/help", icon: HelpCircle },
     ],
   },
