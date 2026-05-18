@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/Toast";
 import { type DocumentVerificationResponse, type ValidationCheck } from "@/lib/mock-services";
 import { executeVerification } from "@/lib/services/verification-service";
 import { exportPdf } from "@/lib/utils/export-pdf";
+import { config } from "@/lib/config";
 import {
   getDocumentPresignedUrl,
   uploadFileToS3,
@@ -122,6 +123,13 @@ export default function DocumentVerification() {
       setUploadProgress(0);
       setS3ObjectKey("");
       setS3BucketName("");
+
+      // In mock mode there is no BFF to upload to — skip the S3 round-trip
+      if (config.useMockServices) {
+        setUploadProgress(100);
+        return;
+      }
+
       setIsUploading(true);
 
       try {
@@ -387,27 +395,29 @@ export default function DocumentVerification() {
                   ref={resultCardRef}
                   title="Document results"
                   reference={result.reference}
-                  status={result.document.verified ? "verified" : "not_verified"}
+                  status={result.document?.verified ? "verified" : "not_verified"}
                   confidenceScore={Math.round(result.overallConfidence * 100)}
                   onExport={handleExport}
                   fields={[
                     { label: "Provider", value: result.provider },
-                    { label: "Status", value: result.document.status },
+                    { label: "Status", value: result.document?.status ?? "Unknown" },
                     {
                       label: "Issued date",
-                      value: new Date(result.document.issuedDate).toLocaleDateString(),
+                      value: result.document?.issuedDate
+                        ? new Date(result.document.issuedDate).toLocaleDateString()
+                        : "—",
                     },
                     {
                       label: "Expiry date",
-                      value: result.document.expiryDate
+                      value: result.document?.expiryDate
                         ? new Date(result.document.expiryDate).toLocaleDateString()
                         : "No expiry",
                     },
                   ]}
-                  matchFields={result.validationChecks.map((c) => ({
+                  matchFields={result.validationChecks?.map((c) => ({
                     label: c.name.replace(/_/g, " "),
                     matched: c.status === "PASS",
-                  }))}
+                  })) ?? []}
                 />
 
                 {/* Document Preview */}
