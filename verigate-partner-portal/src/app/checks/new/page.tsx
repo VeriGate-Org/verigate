@@ -257,7 +257,7 @@ export default function NewCheckPage() {
       </header>
 
       {/* Two-column form */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Left column: subject info + additional fields */}
         <div className="space-y-6">
           {/* Common fields card */}
