@@ -125,13 +125,13 @@ interface StatusIndicatorProps {
   className?: string;
 }
 
-const ICON_ONLY_COLORS: Record<StatusCategory, string> = {
-  success: "text-[var(--color-icon-success)]",
-  in_progress: "text-[var(--color-icon-in-progress)]",
-  warning: "text-[var(--color-icon-warning)]",
-  error: "text-[var(--color-icon-error)]",
-  inactive: "text-[var(--color-icon-inactive)]",
-  awaiting: "text-[var(--color-icon-awaiting)]",
+const ICON_ONLY_CSS_VARS: Record<StatusCategory, string> = {
+  success: "var(--color-icon-success)",
+  in_progress: "var(--color-icon-in-progress)",
+  warning: "var(--color-icon-warning)",
+  error: "var(--color-icon-error)",
+  inactive: "var(--color-icon-inactive)",
+  awaiting: "var(--color-icon-awaiting)",
 };
 
 export function StatusIndicator({
@@ -150,7 +150,7 @@ export function StatusIndicator({
     const iconOnlySizes = { sm: "w-4 h-4", md: "w-5 h-5" };
     return (
       <span title={displayLabel} className={cn("flex items-center justify-center w-full", className)}>
-        <Icon className={cn(iconOnlySizes[size], ICON_ONLY_COLORS[config.category])} />
+        <Icon className={iconOnlySizes[size]} style={{ color: ICON_ONLY_CSS_VARS[config.category] }} />
       </span>
     );
   }
