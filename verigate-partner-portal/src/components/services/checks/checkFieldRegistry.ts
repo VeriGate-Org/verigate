@@ -464,6 +464,132 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     servicePath: "/services/vat-vendor-search",
     realTime: true,
   },
+
+  // ── Immigration & Permits ──────────────────────────────────────────
+  // These route through DOCUMENT_VERIFICATION with a specific documentType.
+
+  DOCUMENT_VERIFICATION__ASYLUM: {
+    type: "DOCUMENT_VERIFICATION",
+    label: "Asylum Seeker Permit",
+    description: "Verify asylum seeker permit against DHA records",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "permitNumber",
+        label: "Permit number",
+        description: "Asylum seeker permit number (8-15 characters).",
+        type: "text",
+        required: true,
+        placeholder: "e.g. ASP12345678",
+      },
+      {
+        name: "nationality",
+        label: "Nationality",
+        description: "Nationality of the permit holder.",
+        type: "text",
+        required: true,
+        placeholder: "e.g. Congolese",
+      },
+      {
+        name: "refugeeOffice",
+        label: "Refugee reception office",
+        description: "Office that issued the permit (optional).",
+        type: "text",
+        placeholder: "e.g. Pretoria Refugee Reception Office",
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      documentType: "asylum_seeker_permit",
+      documentNumber: a.permitNumber,
+      permitNumber: a.permitNumber,
+      nationality: a.nationality,
+      refugeeOffice: a.refugeeOffice || undefined,
+    }),
+    servicePath: "/services/document-verification",
+    realTime: false,
+  },
+
+  DOCUMENT_VERIFICATION__WORK_VISA: {
+    type: "DOCUMENT_VERIFICATION",
+    label: "General Work Visa",
+    description: "Verify general work visa / permit against DHA records",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "permitNumber",
+        label: "Permit number",
+        description: "Work permit number (8-15 characters).",
+        type: "text",
+        required: true,
+        placeholder: "e.g. WP12345678",
+      },
+      {
+        name: "nationality",
+        label: "Nationality",
+        description: "Nationality of the permit holder.",
+        type: "text",
+        required: true,
+        placeholder: "e.g. Nigerian",
+      },
+      {
+        name: "employerName",
+        label: "Employer name",
+        description: "Name of the sponsoring employer.",
+        type: "text",
+        placeholder: "e.g. Karisani Technologies (Pty) Ltd",
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      documentType: "general_work_permit",
+      documentNumber: a.permitNumber,
+      permitNumber: a.permitNumber,
+      nationality: a.nationality,
+      employerName: a.employerName || undefined,
+    }),
+    servicePath: "/services/document-verification",
+    realTime: false,
+  },
+
+  DOCUMENT_VERIFICATION__PASSPORT: {
+    type: "DOCUMENT_VERIFICATION",
+    label: "Passport Verification",
+    description: "Verify passport details",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "passportNumber",
+        label: "Passport number",
+        description: "Alphanumeric passport number (6-9 characters).",
+        type: "text",
+        required: true,
+        placeholder: "e.g. A12345678",
+      },
+      {
+        name: "nationality",
+        label: "Nationality",
+        description: "Nationality of the passport holder.",
+        type: "text",
+        required: true,
+        placeholder: "e.g. South African",
+      },
+      {
+        name: "issuingCountry",
+        label: "Issuing country",
+        description: "Country that issued the passport (optional).",
+        type: "text",
+        placeholder: "e.g. ZA",
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      documentType: "passport",
+      documentNumber: a.passportNumber,
+      passportNumber: a.passportNumber,
+      nationality: a.nationality,
+      issuingCountry: a.issuingCountry || undefined,
+    }),
+    servicePath: "/services/document-verification",
+    realTime: false,
+  },
 };
 
 // ── Check category groups (for the selector panel) ───────────────────
@@ -497,6 +623,14 @@ export const CHECK_CATEGORIES = [
   {
     label: "Employment & Education",
     checks: ["EMPLOYMENT_VERIFICATION", "QUALIFICATION_VERIFICATION"],
+  },
+  {
+    label: "Immigration & Permits",
+    checks: [
+      "DOCUMENT_VERIFICATION__ASYLUM",
+      "DOCUMENT_VERIFICATION__WORK_VISA",
+      "DOCUMENT_VERIFICATION__PASSPORT",
+    ],
   },
   {
     label: "Screening",

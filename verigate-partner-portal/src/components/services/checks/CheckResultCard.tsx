@@ -185,6 +185,23 @@ function summarize(checkType: string, data: unknown): string[] {
       return [];
     }
 
+    case "DOCUMENT_VERIFICATION__ASYLUM":
+    case "DOCUMENT_VERIFICATION__WORK_VISA":
+    case "DOCUMENT_VERIFICATION__PASSPORT": {
+      const result = d.result as Record<string, unknown> | undefined;
+      if (result) {
+        const lines: string[] = [];
+        const outcome = result.outcome ?? result.overallOutcome;
+        if (outcome === "VERIFIED") lines.push("Document verified");
+        else if (outcome) lines.push(`Outcome: ${outcome}`);
+        const confidence = result.overallConfidence as number | undefined;
+        if (typeof confidence === "number") lines.push(`Confidence: ${confidence}%`);
+        return lines.length > 0 ? lines : ["Completed"];
+      }
+      if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
+      return [];
+    }
+
     default: {
       if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
       return [];
