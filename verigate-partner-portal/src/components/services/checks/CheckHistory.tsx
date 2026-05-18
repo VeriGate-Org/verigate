@@ -17,7 +17,8 @@ interface CheckHistoryProps {
 const columns: DataGridColumn<CheckSession>[] = [
   {
     id: "outcome",
-    header: "Status",
+    header: "",
+    width: "3rem",
     cell: (session) => {
       if (session.failed === 0) return <StatusIndicator status="Passed" iconOnly />;
       if (session.passed === 0) return <StatusIndicator status="FAILED" iconOnly />;

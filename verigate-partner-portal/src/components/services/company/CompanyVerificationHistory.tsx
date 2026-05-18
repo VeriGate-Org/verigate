@@ -13,7 +13,8 @@ import type { DataGridColumn, DataGridFilterDef } from "@/components/ui/DataGrid
 const columns: DataGridColumn<CompanyHistoryItem>[] = [
   {
     id: "outcome",
-    header: "Status",
+    header: "",
+    width: "3rem",
     cell: (row) => <StatusIndicator status={row.outcome} iconOnly />,
   },
   {

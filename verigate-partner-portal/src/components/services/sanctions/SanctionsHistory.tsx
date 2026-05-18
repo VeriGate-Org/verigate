@@ -13,7 +13,8 @@ interface SanctionsHistoryProps {
 const columns: DataGridColumn<ScreeningHistoryItem>[] = [
   {
     id: "outcome",
-    header: "Outcome",
+    header: "",
+    width: "3rem",
     cell: (row) => <StatusIndicator status={row.outcome} iconOnly />,
   },
   {
