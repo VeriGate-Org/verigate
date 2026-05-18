@@ -136,6 +136,55 @@ function summarize(checkType: string, data: unknown): string[] {
       return [];
     }
 
+    case "VERIFICATION_OF_PERSONAL_DETAILS": {
+      const subject = d.subject as Record<string, unknown> | undefined;
+      if (subject) {
+        const lines: string[] = [];
+        if (subject.firstName) lines.push(`${subject.firstName} ${subject.surname ?? ""}`);
+        if (subject.idNumber) lines.push(`ID: ${subject.idNumber}`);
+        return lines;
+      }
+      if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
+      return [];
+    }
+
+    case "COMPANY_VERIFICATION": {
+      const company = d.company as Record<string, unknown> | undefined;
+      if (company) {
+        const lines: string[] = [];
+        if (company.name) lines.push(String(company.name));
+        if (company.status) lines.push(`Status: ${company.status}`);
+        return lines;
+      }
+      if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
+      return [];
+    }
+
+    case "PROPERTY_OWNERSHIP_VERIFICATION": {
+      const summary = d.summary as Record<string, unknown> | undefined;
+      const items = d.items as unknown[] | undefined;
+      if (summary || items) {
+        const lines: string[] = [];
+        const count = items?.length ?? summary?.totalProperties ?? 0;
+        lines.push(`${count} propert${count === 1 ? "y" : "ies"} found`);
+        return lines;
+      }
+      if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
+      return [];
+    }
+
+    case "VAT_VENDOR_VERIFICATION": {
+      const vendor = d.vendor as Record<string, unknown> | undefined;
+      if (vendor) {
+        const lines: string[] = [];
+        if (vendor.vendorName) lines.push(String(vendor.vendorName));
+        if (vendor.status) lines.push(`Status: ${vendor.status}`);
+        return lines;
+      }
+      if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
+      return [];
+    }
+
     default: {
       if (d.status === "COMPLETED" || d.status === "SUCCEEDED") return ["Completed"];
       return [];

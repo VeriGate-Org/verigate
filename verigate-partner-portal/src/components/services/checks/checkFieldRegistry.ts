@@ -334,6 +334,136 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
     servicePath: "/services/sanctions",
     realTime: true,
   },
+
+  VERIFICATION_OF_PERSONAL_DETAILS: {
+    type: "VERIFICATION_OF_PERSONAL_DETAILS",
+    label: "Personal Details (DHA)",
+    description: "Verify personal details against DHA records",
+    usesCommonFields: ["idNumber", "firstName", "lastName"],
+    additionalFields: [
+      {
+        name: "reason",
+        label: "Reason for enquiry",
+        description: "Optional reason for this verification.",
+        type: "text",
+        placeholder: "e.g. KYC onboarding",
+      },
+    ],
+    buildPayload: (c, a) => ({
+      idNumber: c.idNumber,
+      firstName: c.firstName,
+      surname: c.lastName,
+      reason: a.reason || undefined,
+    }),
+    servicePath: "/services/personal-details",
+    realTime: true,
+  },
+
+  COMPANY_VERIFICATION: {
+    type: "COMPANY_VERIFICATION",
+    label: "Company & Directors",
+    description: "Verify company registration and directors via CIPC",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "regNumber",
+        label: "Registration number",
+        description: "CIPC registration number (e.g. 2019/123456/07).",
+        type: "text",
+        placeholder: "e.g. 2019/123456/07",
+      },
+      {
+        name: "companyName",
+        label: "Company name",
+        description: "Registered company name.",
+        type: "text",
+        placeholder: "e.g. Acme Trading (Pty) Ltd",
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      regNumber: a.regNumber || undefined,
+      name: a.companyName || undefined,
+    }),
+    servicePath: "/services/company",
+    realTime: true,
+  },
+
+  PROPERTY_OWNERSHIP_VERIFICATION: {
+    type: "PROPERTY_OWNERSHIP_VERIFICATION",
+    label: "Property / Deeds",
+    description: "Search the deeds registry for property ownership",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "searchType",
+        label: "Search type",
+        description: "Search by owner ID or owner name.",
+        type: "select",
+        required: true,
+        options: [
+          { value: "ownerId", label: "Owner ID number" },
+          { value: "ownerName", label: "Owner name" },
+        ],
+      },
+      {
+        name: "query",
+        label: "Search query",
+        description: "ID number or owner name to search.",
+        type: "text",
+        required: true,
+        placeholder: "e.g. 9001015009087",
+      },
+      {
+        name: "province",
+        label: "Province",
+        description: "Province to search in.",
+        type: "select",
+        required: true,
+        options: [
+          { value: "GP", label: "Gauteng" },
+          { value: "WC", label: "Western Cape" },
+          { value: "KZN", label: "KwaZulu-Natal" },
+          { value: "EC", label: "Eastern Cape" },
+          { value: "FS", label: "Free State" },
+          { value: "LP", label: "Limpopo" },
+          { value: "MP", label: "Mpumalanga" },
+          { value: "NW", label: "North West" },
+          { value: "NC", label: "Northern Cape" },
+        ],
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      searchType: a.searchType,
+      query: a.query,
+      province: a.province,
+    }),
+    servicePath: "/services/property-ownership",
+    realTime: true,
+  },
+
+  VAT_VENDOR_VERIFICATION: {
+    type: "VAT_VENDOR_VERIFICATION",
+    label: "VAT Vendor",
+    description: "Verify VAT vendor registration with SARS",
+    usesCommonFields: [],
+    additionalFields: [
+      {
+        name: "vatNumber",
+        label: "VAT number",
+        description: "10-digit SARS VAT registration number.",
+        type: "text",
+        required: true,
+        placeholder: "e.g. 4123456789",
+        inputMode: "numeric",
+        maxLength: 10,
+      },
+    ],
+    buildPayload: (_c, a) => ({
+      vatNumber: a.vatNumber,
+    }),
+    servicePath: "/services/vat-vendor-search",
+    realTime: true,
+  },
 };
 
 // ── Check category groups (for the selector panel) ───────────────────
@@ -341,7 +471,11 @@ export const CHECK_DEFINITIONS: Record<string, CheckDefinition> = {
 export const CHECK_CATEGORIES = [
   {
     label: "Identity & Personal",
-    checks: ["IDENTITY_VERIFICATION", "FRAUD_WATCHLIST_SCREENING"],
+    checks: [
+      "IDENTITY_VERIFICATION",
+      "VERIFICATION_OF_PERSONAL_DETAILS",
+      "FRAUD_WATCHLIST_SCREENING",
+    ],
   },
   {
     label: "Financial",
@@ -350,6 +484,14 @@ export const CHECK_CATEGORIES = [
       "BANK_ACCOUNT_VERIFICATION",
       "INCOME_VERIFICATION",
       "TAX_COMPLIANCE_VERIFICATION",
+      "VAT_VENDOR_VERIFICATION",
+    ],
+  },
+  {
+    label: "Business & Property",
+    checks: [
+      "COMPANY_VERIFICATION",
+      "PROPERTY_OWNERSHIP_VERIFICATION",
     ],
   },
   {
