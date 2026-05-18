@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { ProcessingDialog } from "@/components/ui/ProcessingDialog";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +23,9 @@ import {
 import { FileCheck, CheckCircle2, XCircle } from "lucide-react";
 import { DOCUMENT_TYPE_GROUPS, DOCUMENT_FIELD_CONFIGS } from "@/components/services/document-verification/documentFieldConfigs";
 import { validateField, validateAllFields } from "@/lib/validations/document-validation";
+import { DocumentPreview } from "@/components/services/document-verification/DocumentPreview";
+import { ExtractedFieldsCard } from "@/components/services/document-verification/ExtractedFieldsCard";
+import { TamperingAnalysisCard } from "@/components/services/document-verification/TamperingAnalysisCard";
 
 function ValidationBadge({ check }: { check: ValidationCheck }) {
   const pass = check.status === "PASS";
@@ -59,12 +62,25 @@ export default function DocumentVerification() {
   const { toast } = useToast();
 
   // Single-file upload state
-  const [, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [s3ObjectKey, setS3ObjectKey] = useState<string>("");
   const [s3BucketName, setS3BucketName] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Document preview state
+  const [documentPreviewUrl, setDocumentPreviewUrl] = useState<string | null>(null);
+  const [documentPreviewType, setDocumentPreviewType] = useState<"image" | "pdf">("image");
+
+  const fileRequired = documentType === "id_card";
+
+  // Clean up object URL on unmount or when it changes
+  useEffect(() => {
+    return () => {
+      if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl);
+    };
+  }, [documentPreviewUrl]);
 
   const fieldConfigs = DOCUMENT_FIELD_CONFIGS[documentType] ?? [];
   const primaryFieldName = fieldConfigs[0]?.name ?? "documentNumber";
@@ -75,7 +91,14 @@ export default function DocumentVerification() {
     setFieldErrors({});
     setResult(null);
     setUploadError(null);
-  }, []);
+    // Reset file and preview state
+    handleFileClear();
+    if (documentPreviewUrl) {
+      URL.revokeObjectURL(documentPreviewUrl);
+      setDocumentPreviewUrl(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentPreviewUrl]);
 
   const handleFieldChange = useCallback(
     (fieldName: string, value: string) => {
@@ -165,6 +188,15 @@ export default function DocumentVerification() {
         metadata
       )) as DocumentVerificationResponse;
       setResult(data);
+
+      // Create document preview URL from selected file
+      if (selectedFile) {
+        if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl);
+        const url = URL.createObjectURL(selectedFile);
+        setDocumentPreviewUrl(url);
+        setDocumentPreviewType(selectedFile.type === "application/pdf" ? "pdf" : "image");
+      }
+
       toast({ title: "Verification complete", variant: "success" });
       setTimeout(() => resultRef.current?.focus(), 100);
     } catch (err) {
@@ -176,7 +208,8 @@ export default function DocumentVerification() {
     } finally {
       setLoading(false);
     }
-  }, [documentType, additionalFields, primaryFieldName, s3ObjectKey, s3BucketName, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentType, additionalFields, primaryFieldName, s3ObjectKey, s3BucketName, toast, selectedFile]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -185,7 +218,7 @@ export default function DocumentVerification() {
 
   const primaryValue = additionalFields[primaryFieldName] ?? "";
   const submitDisabled =
-    loading || primaryValue.trim().length < 1 || isUploading;
+    loading || primaryValue.trim().length < 1 || isUploading || (fileRequired && !selectedFile);
 
   const srMessage = loading
     ? "Loading verification results"
@@ -279,8 +312,8 @@ export default function DocumentVerification() {
             ))}
 
             <ServiceField
-              label="Document image (optional)"
-              description="Upload a supporting document for record-keeping purposes."
+              label={fileRequired ? "Document image (required)" : "Document image (optional)"}
+              description={fileRequired ? "Upload the document to analyse with Document AI." : "Upload a supporting document for record-keeping purposes."}
               error={uploadError ?? undefined}
             >
               <FileUpload
@@ -377,6 +410,15 @@ export default function DocumentVerification() {
                   }))}
                 />
 
+                {/* Document Preview */}
+                {documentPreviewUrl && (
+                  <DocumentPreview
+                    url={documentPreviewUrl}
+                    type={documentPreviewType}
+                    documentType={documentType}
+                  />
+                )}
+
                 {/* Validation Checks */}
                 {result.validationChecks.length > 0 && (
                   <div className="console-card">
@@ -393,6 +435,22 @@ export default function DocumentVerification() {
                       </div>
                     </div>
                   </div>
+                )}
+
+                {/* Extracted Fields */}
+                {Object.keys(result.extractedFields).length > 0 && (
+                  <ExtractedFieldsCard
+                    fields={result.extractedFields}
+                    enteredIdNumber={additionalFields[primaryFieldName]}
+                    documentType={documentType}
+                  />
+                )}
+
+                {/* Tampering Analysis */}
+                {result.tamperingIndicators && (
+                  <TamperingAnalysisCard
+                    indicators={result.tamperingIndicators}
+                  />
                 )}
 
               </>

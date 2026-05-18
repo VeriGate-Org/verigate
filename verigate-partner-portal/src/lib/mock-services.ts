@@ -741,7 +741,21 @@ export type DocumentVerificationResponse = {
 function generateExtractedFieldsForType(documentType: string, documentNumber: string, rnd: () => number): Record<string, ExtractedFieldWithConfidence> {
   const conf = () => 0.85 + rnd() * 0.15; // 85-100% confidence
   switch (documentType) {
-    case "id_card":
+    case "id_card": {
+      const dob = extractDateOfBirth(documentNumber);
+      const gender = extractGender(documentNumber);
+      const citizenship = extractCitizenship(documentNumber);
+      return {
+        fullName: { value: "Thabo J. Mokoena", confidence: conf() },
+        idNumber: { value: documentNumber, confidence: conf() },
+        dateOfBirth: { value: dob ?? "Unknown", confidence: dob ? conf() : 0.3 },
+        gender: { value: gender === "male" ? "Male" : gender === "female" ? "Female" : "Unknown", confidence: gender !== "unknown" ? conf() : 0.3 },
+        nationality: { value: citizenship === "SA" ? "South African" : citizenship === "Non-SA" ? "Non-SA Resident" : "Unknown", confidence: citizenship !== "unknown" ? conf() : 0.3 },
+        status: { value: citizenship === "SA" ? "Citizen" : citizenship === "Non-SA" ? "Permanent Resident" : "Unknown", confidence: citizenship !== "unknown" ? conf() : 0.3 },
+        expiryDate: { value: "2030-01-15", confidence: conf() },
+        issueDate: { value: "2020-01-15", confidence: conf() },
+      };
+    }
     case "passport":
     case "drivers_license":
       return {
@@ -833,10 +847,24 @@ function generateExtractedFieldsForType(documentType: string, documentNumber: st
 }
 
 function generateValidationChecks(documentType: string, documentNumber: string, rnd: () => number): ValidationCheck[] {
-  if (["id_card", "passport", "drivers_license"].includes(documentType)) {
+  if (documentType === "id_card") {
+    const formatValid = /^\d{13}$/.test(documentNumber);
+    const dob = extractDateOfBirth(documentNumber);
+    const gender = extractGender(documentNumber);
+    const citizenship = extractCitizenship(documentNumber);
+    const luhnValid = luhnCheck(documentNumber);
+    return [
+      { name: "FORMAT_CHECK", status: formatValid ? "PASS" : "FAIL", detail: formatValid ? "Valid 13-digit format" : "Invalid format — expected 13 digits" },
+      { name: "DOB_CHECK", status: dob ? "PASS" : "FAIL", detail: dob ? `Date of birth: ${dob}` : "Invalid date of birth in ID number" },
+      { name: "GENDER_CHECK", status: gender !== "unknown" ? "PASS" : "FAIL", detail: gender !== "unknown" ? `Gender: ${gender === "male" ? "Male" : "Female"}` : "Unable to determine gender" },
+      { name: "CITIZENSHIP_CHECK", status: citizenship !== "unknown" ? "PASS" : "FAIL", detail: citizenship === "SA" ? "SA Citizen" : citizenship === "Non-SA" ? "Non-SA Permanent Resident" : "Unable to determine citizenship" },
+      { name: "LUHN_CHECK", status: luhnValid ? "PASS" : "FAIL", detail: luhnValid ? "Valid checksum" : "Invalid Luhn checksum" },
+    ];
+  }
+  if (["passport", "drivers_license"].includes(documentType)) {
     const luhnValid = rnd() > 0.1;
     return [
-      { name: "FORMAT_CHECK", status: "PASS", detail: "Valid 13-digit format" },
+      { name: "FORMAT_CHECK", status: "PASS", detail: "Valid document format" },
       { name: "DOB_CHECK", status: "PASS", detail: "Date of birth: 1985-01-01" },
       { name: "GENDER_CHECK", status: "PASS", detail: "Gender: Male" },
       { name: "CITIZENSHIP_CHECK", status: "PASS", detail: "SA Citizen" },
