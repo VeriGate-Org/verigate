@@ -412,7 +412,7 @@ export default function DocumentAutoFill() {
                         {result.fieldsNeedReview} NEEDS REVIEW
                       </span>
                     )}
-                    <span className="rounded-full bg-blue-500/10 text-blue-600 px-2.5 py-1 font-medium">
+                    <span className="rounded-full bg-accent-soft text-accent px-2.5 py-1 font-medium">
                       <Clock className="h-3 w-3 inline mr-1" />
                       Time saved: ~45 min
                     </span>

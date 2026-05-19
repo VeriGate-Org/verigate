@@ -147,7 +147,7 @@ export default function SanctionsMonitoring() {
                 {!alert.acknowledged ? (
                   <button
                     onClick={() => handleAcknowledge(alert.alertId)}
-                    className="flex items-center gap-1 text-xs px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="flex items-center gap-1 text-xs px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-hover"
                   >
                     <Check className="w-3 h-3" /> Acknowledge
                   </button>
@@ -167,7 +167,7 @@ export default function SanctionsMonitoring() {
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Monitored Subjects</h3>
-          <button className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-hover">
             <Plus className="w-4 h-4" /> Add Subject
           </button>
         </div>
@@ -185,7 +185,7 @@ export default function SanctionsMonitoring() {
             <option value="MONTHLY">Monthly</option>
             <option value="QUARTERLY">Quarterly</option>
           </select>
-          <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline ml-auto">
+          <button className="flex items-center gap-1 text-sm text-accent hover:underline ml-auto">
             <RefreshCw className="w-3 h-3" /> Run Immediate Rescan
           </button>
         </div>

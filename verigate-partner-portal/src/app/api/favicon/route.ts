@@ -11,8 +11,8 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-static";
 
-const DEFAULT_PRIMARY = "#0972d3";
-const DEFAULT_ACCENT = "#ec7211";
+const DEFAULT_PRIMARY = "#1A2E4B";
+const DEFAULT_ACCENT = "#ffffff";
 
 function shieldSvg(primary: string, check: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 28 28">

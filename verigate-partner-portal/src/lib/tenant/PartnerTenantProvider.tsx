@@ -14,7 +14,7 @@ import {
   tenantHasFeature,
 } from "@/lib/tenant-features";
 import type { TenantBranding } from "@/lib/types/tenant-branding";
-import { darken, lighten, withOpacity } from "@/lib/utils/color";
+import { darken, withOpacity } from "@/lib/utils/color";
 import { config } from "@/lib/config";
 
 interface TenantFeatureContextValue {
@@ -87,16 +87,18 @@ function detectSlug(): string | null {
 function applyBrandingCssVars(branding: TenantBranding) {
   const root = document.documentElement;
   if (branding.primaryColor) {
-    root.style.setProperty("--color-accent", branding.primaryColor);
+    root.style.setProperty("--color-primary", branding.primaryColor);
     root.style.setProperty(
-      "--color-accent-strong",
+      "--color-primary-hover",
       branding.secondaryColor ? branding.secondaryColor : darken(branding.primaryColor, 15),
     );
-    root.style.setProperty("--color-accent-border", lighten(branding.primaryColor, 10));
-    root.style.setProperty("--color-accent-soft", withOpacity(branding.primaryColor, 0.1));
-    root.style.setProperty("--color-accent-muted", withOpacity(branding.primaryColor, 0.15));
   }
   if (branding.accentColor) {
+    root.style.setProperty("--color-accent", branding.accentColor);
+    root.style.setProperty("--color-accent-strong", darken(branding.accentColor, 10));
+    root.style.setProperty("--color-accent-border", branding.accentColor);
+    root.style.setProperty("--color-accent-soft", withOpacity(branding.accentColor, 0.08));
+    root.style.setProperty("--color-accent-muted", withOpacity(branding.accentColor, 0.15));
     root.style.setProperty("--color-cta", branding.accentColor);
     root.style.setProperty("--color-cta-hover", darken(branding.accentColor, 10));
   }
@@ -122,7 +124,7 @@ function applyBrandingFavicon(branding: TenantBranding) {
     link.type = "image/x-icon";
     link.href = branding.faviconUrl;
   } else {
-    const svg = shieldFaviconSvg(branding.primaryColor || "#0972d3", "#ffffff");
+    const svg = shieldFaviconSvg(branding.primaryColor || "#1A2E4B", "#ffffff");
     link.type = "image/svg+xml";
     link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }
@@ -132,6 +134,8 @@ function applyBrandingFavicon(branding: TenantBranding) {
 function clearBrandingCssVars() {
   const root = document.documentElement;
   const vars = [
+    "--color-primary",
+    "--color-primary-hover",
     "--color-accent",
     "--color-accent-strong",
     "--color-accent-border",

@@ -75,7 +75,7 @@ export default function SanctionsBatch() {
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50"
+            dragOver ? "border-accent bg-accent-soft" : "border-gray-300 bg-gray-50"
           }`}
         >
           <Upload className="w-10 h-10 mx-auto mb-3 text-gray-400" />
@@ -90,7 +90,7 @@ export default function SanctionsBatch() {
           ) : (
             <div>
               <p className="text-gray-600 mb-2">Drag and drop a CSV or XLSX file here</p>
-              <label className="text-sm text-blue-600 hover:underline cursor-pointer">
+              <label className="text-sm text-accent hover:underline cursor-pointer">
                 or browse files
                 <input type="file" accept=".csv,.xlsx" className="hidden" onChange={handleFileSelect} />
               </label>
@@ -100,10 +100,10 @@ export default function SanctionsBatch() {
 
         {/* Template downloads */}
         <div className="flex gap-3">
-          <button className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+          <button className="flex items-center gap-1.5 text-sm text-accent hover:underline">
             <FileText className="w-4 h-4" /> Download CSV Template
           </button>
-          <button className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+          <button className="flex items-center gap-1.5 text-sm text-accent hover:underline">
             <FileText className="w-4 h-4" /> Download XLSX Template
           </button>
         </div>
@@ -144,7 +144,7 @@ export default function SanctionsBatch() {
         <button
           onClick={handleStartScreening}
           disabled={!file || processing}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
           {processing ? "Processing..." : "Start Screening"}
@@ -178,7 +178,7 @@ export default function SanctionsBatch() {
                   <td className="px-4 py-3 text-gray-600">{new Date(batch.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     {batch.status === "COMPLETED" && (
-                      <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
+                      <button className="flex items-center gap-1 text-sm text-accent hover:underline">
                         <Download className="w-3 h-3" /> Results
                       </button>
                     )}

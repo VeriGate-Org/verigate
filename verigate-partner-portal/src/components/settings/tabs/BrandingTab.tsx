@@ -15,9 +15,9 @@ export default function BrandingTab() {
   const [form, setForm] = useState({
     logo: "",
     logoDark: "",
-    primaryColor: "#0972d3",
-    secondaryColor: "#0b5cab",
-    accentColor: "#ec7211",
+    primaryColor: "#1A2E4B",
+    secondaryColor: "#0f1f36",
+    accentColor: "#00B3D9",
     faviconUrl: "",
     tagline: "",
     supportEmail: "",
@@ -30,9 +30,9 @@ export default function BrandingTab() {
         setForm({
           logo: profile.logo ?? "",
           logoDark: profile.logoDark ?? "",
-          primaryColor: profile.primaryColor ?? "#0972d3",
-          secondaryColor: profile.secondaryColor ?? "#0b5cab",
-          accentColor: profile.accentColor ?? "#ec7211",
+          primaryColor: profile.primaryColor ?? "#1A2E4B",
+          secondaryColor: profile.secondaryColor ?? "#0f1f36",
+          accentColor: profile.accentColor ?? "#00B3D9",
           faviconUrl: profile.faviconUrl ?? "",
           tagline: profile.tagline ?? "",
           supportEmail: profile.supportEmail ?? "",
@@ -135,7 +135,7 @@ export default function BrandingTab() {
                   value={form.primaryColor}
                   onChange={(e) => update("primaryColor", e.target.value)}
                   pattern="^#[0-9a-fA-F]{6}$"
-                  placeholder="#0972d3"
+                  placeholder="#1A2E4B"
                 />
               </div>
               <span className="text-xs text-text-muted">Used for buttons, links, and accent elements.</span>
@@ -155,7 +155,7 @@ export default function BrandingTab() {
                   value={form.secondaryColor}
                   onChange={(e) => update("secondaryColor", e.target.value)}
                   pattern="^#[0-9a-fA-F]{6}$"
-                  placeholder="#0b5cab"
+                  placeholder="#0f1f36"
                 />
               </div>
               <span className="text-xs text-text-muted">Used for darker accents and hover states.</span>
@@ -175,7 +175,7 @@ export default function BrandingTab() {
                   value={form.accentColor}
                   onChange={(e) => update("accentColor", e.target.value)}
                   pattern="^#[0-9a-fA-F]{6}$"
-                  placeholder="#ec7211"
+                  placeholder="#00B3D9"
                 />
               </div>
               <span className="text-xs text-text-muted">Used for call-to-action buttons and highlights.</span>

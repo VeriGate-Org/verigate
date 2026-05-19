@@ -6,22 +6,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#0972d3", // AWS console blue
-        danger: "#d13212",
+        primary: "#1A2E4B",
+        "primary-hover": "#0f1f36",
+        danger: "#E23D36",
         success: "#2c974b",
         warning: "#c28b0b",
-        info: "#0972d3",
+        info: "#00B3D9",
         background: "#f2f3f3",
         surface: "#ffffff",
         text: "#1a2024",
         "text-muted": "#4f5b67",
         border: "#d5dbdb",
         "border-control": "#687078",
-        "border-focused": "#0972d3",
+        "border-focused": "#00B3D9",
         hover: "#e4e7e7",
       },
       fontFamily: {
-        sans: ["Amazon Ember", "Inter", "ui-sans-serif", "system-ui"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular"],
       },
       fontSize: {

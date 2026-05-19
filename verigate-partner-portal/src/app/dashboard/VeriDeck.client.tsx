@@ -227,9 +227,9 @@ export default function VeriDeck() {
       value: fmtNum(totalVerifications),
       helper: volumeDeltaPct == null ? "Previous window unavailable" : `${volumeDeltaPct >= 0 ? "+" : ""}${volumeDeltaPct}% vs prior window`,
       icon: BarChart3,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-50",
-      valueColor: "text-blue-700",
+      iconColor: "text-accent",
+      iconBgColor: "bg-accent-soft",
+      valueColor: "text-accent-strong",
     },
     {
       label: "Success rate",
@@ -273,7 +273,7 @@ export default function VeriDeck() {
 
   const shortcuts = [
     { label: "Policies", description: "Manage verification workflows", href: "/policies", icon: GitBranch, color: "text-violet-600", bgColor: "bg-violet-50" },
-    { label: "Cases", description: "Review flagged subjects", href: "/cases", icon: ClipboardList, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { label: "Cases", description: "Review flagged subjects", href: "/cases", icon: ClipboardList, color: "text-accent", bgColor: "bg-accent-soft" },
     { label: "Monitoring", description: "Continuous screening alerts", href: "/monitoring", icon: Eye, color: "text-emerald-600", bgColor: "bg-emerald-50" },
     { label: "Reports", description: "Analytics and exports", href: "/reports", icon: FileText, color: "text-orange-600", bgColor: "bg-orange-50" },
     { label: "Settings", description: "Partner configuration", href: "/settings", icon: Settings, color: "text-gray-600", bgColor: "bg-gray-100" },
@@ -434,10 +434,10 @@ export default function VeriDeck() {
                           status === "success"
                             ? "#2c974b"
                             : status === "in_progress"
-                            ? "#0972d3"
+                            ? "#00B3D9"
                             : status === "soft_fail"
                             ? "#c28b0b"
-                            : "#d13212",
+                            : "#E23D36",
                       }}
                     />
                   </div>
@@ -500,7 +500,7 @@ export default function VeriDeck() {
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-text">Pending cases</h2>
               {pendingCaseCount > 0 && (
-                <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600">
+                <span className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
                   {pendingCaseCount}
                 </span>
               )}

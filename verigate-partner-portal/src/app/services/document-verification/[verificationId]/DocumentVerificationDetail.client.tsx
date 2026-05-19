@@ -61,7 +61,7 @@ export default function DocumentVerificationDetail() {
       <div className="space-y-6">
         <BackLink />
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-accent" />
           <span className="ml-2 text-sm text-gray-600">Loading verification details...</span>
         </div>
       </div>
@@ -150,7 +150,7 @@ export default function DocumentVerificationDetail() {
               setResultsDownloading(false);
             }
           }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-accent-soft hover:bg-accent-muted text-accent-strong rounded-md border border-accent-border disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {resultsDownloading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -263,7 +263,7 @@ export default function DocumentVerificationDetail() {
                         setDownloadingDoc(null);
                       }
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-accent-soft hover:bg-accent-muted text-accent-strong rounded-md border border-accent-border disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {downloadingDoc === i ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
@@ -6,6 +7,9 @@ import { ToastProvider } from "@/components/ui/Toast";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AppShell from "@/components/AppShell";
 import AiChatSidebar from "@/components/ai/AiChatSidebar.client";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "VeriGate Partner Portal",
@@ -28,7 +32,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-background text-text">
+      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen bg-background text-text`}>
         <ThemeProvider>
           <QueryProvider>
             <ToastProvider>

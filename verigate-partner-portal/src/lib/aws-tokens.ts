@@ -57,18 +57,18 @@ export const awsTokens = {
     // Status colors matching AWS Console
     status: {
       success: '#2c974b',
-      warning: '#c28b0b', 
-      error: '#d13212',
-      info: '#0972d3',
+      warning: '#c28b0b',
+      error: '#E23D36',
+      info: '#00B3D9',
       pending: '#8d6e63'
     },
-    
+
     // Border variations
     border: {
       default: '#d5dbdb',
       control: '#687078',
-      focused: '#0972d3',
-      invalid: '#d13212',
+      focused: '#00B3D9',
+      invalid: '#E23D36',
       divider: '#e9ebed'
     },
     

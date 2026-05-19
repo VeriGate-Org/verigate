@@ -203,8 +203,8 @@ export default function TopNav() {
                 <Bell className="h-4 w-4 text-[color:var(--color-accent-strong)]" />
                 {/* Notification badge */}
                 <span className="absolute top-1 right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
                 </span>
               </button>
             </DropdownMenu.Trigger>
@@ -229,7 +229,7 @@ export default function TopNav() {
                 <div className="max-h-96 overflow-y-auto">
                   {/* Unread Notification 1 */}
                   <DropdownMenu.Item asChild>
-                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-blue-50/30">
+                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-accent-soft">
                       <div className="flex-shrink-0 mt-1">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                           <span className="text-lg">✅</span>
@@ -238,7 +238,7 @@ export default function TopNav() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="font-medium text-text">Verification Completed</div>
-                          <span className="flex h-2 w-2 rounded-full bg-orange-500 flex-shrink-0 mt-1.5"></span>
+                          <span className="flex h-2 w-2 rounded-full bg-accent flex-shrink-0 mt-1.5"></span>
                         </div>
                         <p className="text-xs text-text-muted mt-0.5">
                           ID verification for John Doe completed successfully
@@ -250,7 +250,7 @@ export default function TopNav() {
 
                   {/* Unread Notification 2 */}
                   <DropdownMenu.Item asChild>
-                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-blue-50/30">
+                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-accent-soft">
                       <div className="flex-shrink-0 mt-1">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
                           <span className="text-lg">⚠️</span>
@@ -259,7 +259,7 @@ export default function TopNav() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="font-medium text-text">Verification Failed</div>
-                          <span className="flex h-2 w-2 rounded-full bg-orange-500 flex-shrink-0 mt-1.5"></span>
+                          <span className="flex h-2 w-2 rounded-full bg-accent flex-shrink-0 mt-1.5"></span>
                         </div>
                         <p className="text-xs text-text-muted mt-0.5">
                           AVS check failed for account ending in 4532
@@ -271,16 +271,16 @@ export default function TopNav() {
 
                   {/* Unread Notification 3 */}
                   <DropdownMenu.Item asChild>
-                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-blue-50/30">
+                    <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer border-b border-border bg-accent-soft">
                       <div className="flex-shrink-0 mt-1">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft">
                           <span className="text-lg">📊</span>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="font-medium text-text">Daily Report Ready</div>
-                          <span className="flex h-2 w-2 rounded-full bg-orange-500 flex-shrink-0 mt-1.5"></span>
+                          <span className="flex h-2 w-2 rounded-full bg-accent flex-shrink-0 mt-1.5"></span>
                         </div>
                         <p className="text-xs text-text-muted mt-0.5">
                           Your verification summary for today is available
@@ -330,7 +330,7 @@ export default function TopNav() {
                   <DropdownMenu.Item asChild>
                     <a href="#" className="flex gap-3 px-4 py-3 hover:bg-hover cursor-pointer">
                       <div className="flex-shrink-0 mt-1">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft">
                           <span className="text-lg">🎉</span>
                         </div>
                       </div>

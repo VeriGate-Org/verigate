@@ -249,7 +249,7 @@ const POLICY_TEMPLATES: PolicyTemplate[] = [
   {
     name: "Standard KYC",
     description: "Individual onboarding baseline with ID, sanctions, and credit checks",
-    icon: <Fingerprint className="h-6 w-6 text-blue-500" />,
+    icon: <Fingerprint className="h-6 w-6 text-accent" />,
     steps: [
       { id: "tpl-1", type: "id_verification", name: "ID Verification", config: { weight: 0.4, minScore: 60, idType: "sa_id", checkDeceased: true, checkFraud: true, nameMatchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },
       { id: "tpl-2", type: "sanctions_check", name: "Sanctions Check", config: { weight: 0.3, minScore: 70, screeningLists: ["un", "eu", "ofac", "uk_hmt", "sa_fic"], includeAliases: true, fuzzyMatching: true, matchThreshold: 80, timeoutSeconds: 30, retryOnFailure: false } },

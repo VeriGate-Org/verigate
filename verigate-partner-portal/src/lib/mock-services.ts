@@ -1712,8 +1712,8 @@ export const MOCK_TENANT_BRANDING: Record<string, TenantBranding> = {
   default: {
     slug: "default",
     name: "VeriGate",
-    primaryColor: "#0972d3",
-    accentColor: "#ec7211",
+    primaryColor: "#1A2E4B",
+    accentColor: "#00B3D9",
   },
 };
 

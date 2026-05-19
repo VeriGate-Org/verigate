@@ -34,21 +34,22 @@
   --border-radius-aws-token: 16px;
   
   /* AWS Console colors */
-  --color-primary: #0972d3;
-  --color-danger: #d13212;
+  --color-primary: #1A2E4B;
+  --color-primary-hover: #0f1f36;
+  --color-danger: #E23D36;
   --color-success: #2c974b;
   --color-warning: #c28b0b;
-  --color-info: #0972d3;
+  --color-info: #00B3D9;
   --color-background: #f2f3f3;
   --color-surface: #ffffff;
   --color-text: #1a2024;
   --color-text-muted: #4f5b67;
   --color-border: #d5dbdb;
   --color-border-control: #687078;
-  --color-border-focused: #0972d3;
+  --color-border-focused: #00B3D9;
   --color-hover: #e4e7e7;
-  --color-accent: #0972d3;
-  --color-accent-soft: #eef5fd;
+  --color-accent: #00B3D9;
+  --color-accent-soft: rgba(0, 179, 217, 0.08);
 }
 
 :root {
@@ -61,16 +62,18 @@
   --color-text-muted: #4f5b67;
   --color-border: #d5dbdb;
   --color-hover: #e4e7e7;
-  --color-accent: #0972d3; /* primary action */
-  --color-accent-strong: #0b5cab;
-  --color-accent-border: #2186eb;
-  --color-accent-muted: #e1effa;
-  --color-accent-soft: #eef5fd;
-  --color-cta: #ec7211;
-  --color-cta-hover: #dd6a10;
-  --color-cta-text: #1a2024;
+  --color-primary: #1A2E4B;
+  --color-primary-hover: #0f1f36;
+  --color-accent: #00B3D9; /* interactive / links / focus */
+  --color-accent-strong: #0099bb;
+  --color-accent-border: #00B3D9;
+  --color-accent-muted: rgba(0, 179, 217, 0.15);
+  --color-accent-soft: rgba(0, 179, 217, 0.08);
+  --color-cta: #00B3D9;
+  --color-cta-hover: #0099bb;
+  --color-cta-text: #ffffff;
   --color-success: #2c974b;
-  --color-alert: #d13212;
+  --color-alert: #E23D36;
 
   /* Status icon colors (GitHub-style dark tones) */
   --color-icon-success: #1a7f37;
@@ -100,8 +103,8 @@
   
   /* AWS Console border tokens */
   --aws-border-control-default: 1px solid #687078;
-  --aws-border-control-focused: 2px solid #0972d3;
-  --aws-border-control-invalid: 2px solid #d13212;
+  --aws-border-control-focused: 2px solid #00B3D9;
+  --aws-border-control-invalid: 2px solid #E23D36;
   --aws-border-container: 1px solid #d5dbdb;
   --aws-border-divider: 1px solid #e9ebed;
   
@@ -126,9 +129,12 @@
   --color-text-muted: var(--color-text-muted);
   --color-border: var(--color-border);
   --color-hover: var(--color-hover);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
   --color-accent: var(--color-accent);
   --color-accent-strong: var(--color-accent-strong);
   --color-accent-border: var(--color-accent-border);
+  --color-accent-muted: var(--color-accent-muted);
   --color-accent-soft: var(--color-accent-soft);
   --color-cta: var(--color-cta);
   --color-cta-hover: var(--color-cta-hover);
@@ -174,7 +180,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Amazon Ember", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 13px;
   line-height: 1.45;
   /* AWS Console specific improvements */
@@ -339,14 +345,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .aws-button--primary {
-  background: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary-hover);
   color: white;
 }
 
 .aws-button--primary:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
 .aws-button--secondary {
@@ -356,9 +362,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .aws-button--secondary:hover:not(:disabled) {
-  background: var(--color-hover);
-  border-color: var(--color-accent);
-  color: var(--color-accent-strong);
+  background: #F8FAFC;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .aws-button--cta {
@@ -373,6 +379,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-cta-hover);
   border-color: var(--color-cta-hover);
   color: white;
+  box-shadow: 0 4px 12px rgba(0, 179, 217, 0.25);
 }
 
 .aws-button--cta-outline {
@@ -410,8 +417,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .aws-button--destructive:hover:not(:disabled) {
-  background: #b91c1c;
-  border-color: #b91c1c;
+  background: #c82f29;
+  border-color: #c82f29;
 }
 
 .aws-button--ghost {
@@ -421,8 +428,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .aws-button--ghost:hover:not(:disabled) {
-  background: var(--color-hover);
-  border-color: var(--color-border);
+  background: rgba(0, 179, 217, 0.08);
+  border-color: transparent;
+  color: var(--color-accent);
 }
 
 .aws-button:disabled {
@@ -629,7 +637,7 @@ h1, h2, h3, h4, h5, h6 {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3e%3cpolygon fill='%230972d3' points='6 9 1.5 3 10.5 3'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3e%3cpolygon fill='%2300B3D9' points='6 9 1.5 3 10.5 3'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.85rem center;
   background-size: 0.7rem;

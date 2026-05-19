@@ -220,9 +220,9 @@ export default function DocumentAnalytics() {
       label: "Documents Processed",
       value: summary.documentsProcessed.toLocaleString(),
       icon: FileCheck,
-      iconColor: "text-blue-600",
-      iconBg: "bg-blue-50",
-      valueColor: "text-blue-700",
+      iconColor: "text-accent",
+      iconBg: "bg-accent-soft",
+      valueColor: "text-accent-strong",
     },
     {
       label: "Classification Accuracy",
@@ -253,7 +253,7 @@ export default function DocumentAnalytics() {
   const donutData = [
     { label: "High (>95%)", value: confidenceDist.high, color: "#2c974b" },
     { label: "Medium (80-95%)", value: confidenceDist.medium, color: "#c28b0b" },
-    { label: "Low (<80%)", value: confidenceDist.low, color: "#d13212" },
+    { label: "Low (<80%)", value: confidenceDist.low, color: "#E23D36" },
     { label: "Manual Review", value: confidenceDist.manualReview, color: "#6b7280" },
   ];
 

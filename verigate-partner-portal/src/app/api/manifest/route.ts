@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-static";
 
-const DEFAULT_PRIMARY = "#0972d3";
+const DEFAULT_PRIMARY = "#1A2E4B";
 
 export async function GET() {
   const manifest = {
