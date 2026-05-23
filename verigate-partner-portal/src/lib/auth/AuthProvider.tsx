@@ -15,6 +15,7 @@ import {
   decodeJwtPayload,
   CognitoAuthError,
   type AuthTokens,
+  type SignInResult,
 } from "./cognito-client";
 
 const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED !== "false";
@@ -34,8 +35,14 @@ interface AuthState {
   loading: boolean;
 }
 
+export interface SignInChallengeResult {
+  challenge: "newPasswordRequired";
+  session: string;
+  email: string;
+}
+
 interface AuthContextValue extends AuthState {
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<SignInChallengeResult | void>;
   signOut: () => void;
   isAuthenticated: boolean;
 }
@@ -184,12 +191,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [state.accessToken]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const tokens = await cognitoSignIn(email, password);
-    saveTokens(tokens);
+  const signIn = useCallback(async (email: string, password: string): Promise<SignInChallengeResult | void> => {
+    const result: SignInResult = await cognitoSignIn(email, password);
+
+    if (result.type === "newPasswordRequired") {
+      return {
+        challenge: "newPasswordRequired",
+        session: result.session,
+        email: result.email,
+      };
+    }
+
+    saveTokens(result.tokens);
     setState({
-      user: extractUserInfo(tokens.idToken),
-      accessToken: tokens.accessToken,
+      user: extractUserInfo(result.tokens.idToken),
+      accessToken: result.tokens.accessToken,
       loading: false,
     });
   }, []);
