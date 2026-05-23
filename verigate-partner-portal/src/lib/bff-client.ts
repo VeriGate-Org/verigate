@@ -1770,3 +1770,49 @@ export async function listCheckSessionsBff(
   );
   return data;
 }
+
+// ── Public Registration (no auth headers) ──────────────────────────
+
+export interface PartnerRegistrationRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyName: string;
+  companyType: string;
+  billingPlan: string;
+  verificationTypes: string[];
+  termsAccepted: boolean;
+  privacyPolicyAccepted: boolean;
+}
+
+export interface PartnerRegistrationResponse {
+  partnerId: string;
+  email: string;
+  status: string;
+  message: string;
+}
+
+export async function registerPartner(
+  request: PartnerRegistrationRequest,
+): Promise<PartnerRegistrationResponse> {
+  const res = await fetch(`${config.bffBaseUrl}/api/public/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Correlation-ID": crypto.randomUUID(),
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const message =
+      (body as { message?: string }).message ||
+      (res.status === 409
+        ? "A user with this email already exists."
+        : `Registration failed (${res.status}).`);
+    throw new BffApiError(message, res.status);
+  }
+
+  return res.json();
+}

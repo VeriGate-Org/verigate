@@ -45,7 +45,11 @@ export class CognitoAuthError extends Error {
   }
 }
 
-export async function signIn(email: string, password: string): Promise<AuthTokens> {
+export type SignInResult =
+  | { type: "authenticated"; tokens: AuthTokens }
+  | { type: "newPasswordRequired"; session: string; email: string };
+
+export async function signIn(email: string, password: string): Promise<SignInResult> {
   const data = (await cognitoRequest("InitiateAuth", {
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: COGNITO_CLIENT_ID,
@@ -61,7 +65,17 @@ export async function signIn(email: string, password: string): Promise<AuthToken
       ExpiresIn: number;
     };
     ChallengeName?: string;
+    Session?: string;
+    ChallengeParameters?: Record<string, string>;
   };
+
+  if (data.ChallengeName === "NEW_PASSWORD_REQUIRED") {
+    return {
+      type: "newPasswordRequired",
+      session: data.Session || "",
+      email: data.ChallengeParameters?.USER_ID_FOR_SRP || email,
+    };
+  }
 
   if (data.ChallengeName) {
     throw new CognitoAuthError(
@@ -73,6 +87,39 @@ export async function signIn(email: string, password: string): Promise<AuthToken
   if (!data.AuthenticationResult) {
     throw new CognitoAuthError("NoResult", "No authentication result returned");
   }
+
+  return {
+    type: "authenticated",
+    tokens: {
+      accessToken: data.AuthenticationResult.AccessToken,
+      idToken: data.AuthenticationResult.IdToken,
+      refreshToken: data.AuthenticationResult.RefreshToken,
+      expiresIn: data.AuthenticationResult.ExpiresIn,
+    },
+  };
+}
+
+export async function respondToNewPasswordChallenge(
+  session: string,
+  email: string,
+  newPassword: string,
+): Promise<AuthTokens> {
+  const data = (await cognitoRequest("RespondToAuthChallenge", {
+    ClientId: COGNITO_CLIENT_ID,
+    ChallengeName: "NEW_PASSWORD_REQUIRED",
+    Session: session,
+    ChallengeResponses: {
+      USERNAME: email,
+      NEW_PASSWORD: newPassword,
+    },
+  })) as {
+    AuthenticationResult: {
+      AccessToken: string;
+      IdToken: string;
+      RefreshToken: string;
+      ExpiresIn: number;
+    };
+  };
 
   return {
     accessToken: data.AuthenticationResult.AccessToken,

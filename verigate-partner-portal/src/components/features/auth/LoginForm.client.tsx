@@ -36,7 +36,16 @@ export function LoginForm() {
     setError("");
     setLoading(true);
     try {
-      await signIn(data.email, data.password);
+      const result = await signIn(data.email, data.password);
+      if (result?.challenge === "newPasswordRequired") {
+        // Store session token temporarily for the set-password page
+        sessionStorage.setItem(
+          "verigate-new-password-session",
+          JSON.stringify({ session: result.session, email: result.email }),
+        );
+        router.replace(`/set-password?email=${encodeURIComponent(result.email)}`);
+        return;
+      }
       router.replace("/dashboard");
     } catch (err) {
       setError(

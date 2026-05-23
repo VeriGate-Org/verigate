@@ -1,4 +1,12 @@
-export function AuthShell({ children }: { children: React.ReactNode }) {
+import Link from "next/link";
+
+export function AuthShell({
+  children,
+  footerText,
+}: {
+  children: React.ReactNode;
+  footerText?: "signup" | "setPassword";
+}) {
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center p-5 overflow-y-auto bg-gradient-to-br from-[#0F1A2E] via-[#1A2E4B] to-[#0d2440]">
       {/* Dot pattern */}
@@ -23,10 +31,28 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         {children}
 
         <div className="text-[11px] text-white/50">
-          New to VeriGate?{" "}
-          <span className="text-accent cursor-pointer hover:underline">
-            Request access &rarr;
-          </span>
+          {footerText === "signup" ? (
+            <>
+              Already have an account?{" "}
+              <Link href="/signin" className="text-accent hover:underline">
+                Sign in &rarr;
+              </Link>
+            </>
+          ) : footerText === "setPassword" ? (
+            <>
+              Need help?{" "}
+              <Link href="/signin" className="text-accent hover:underline">
+                Back to sign in &rarr;
+              </Link>
+            </>
+          ) : (
+            <>
+              New to VeriGate?{" "}
+              <Link href="/signup" className="text-accent hover:underline">
+                Request access &rarr;
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
