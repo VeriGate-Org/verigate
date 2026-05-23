@@ -1,35 +1,49 @@
 "use client";
 
-import { useEffect } from "react";
+import { Button } from "@/components/ui/Button";
 
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("Unhandled error:", error);
-  }, [error]);
-
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-alert)]/10">
-        <svg className="h-8 w-8 text-[color:var(--color-alert)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-        </svg>
+    <div className="min-h-screen flex items-center justify-center p-10 bg-background">
+      <div className="bg-surface border border-[rgba(226,61,54,0.25)] rounded-aws-container py-10 px-7 text-center max-w-[520px]">
+        <div className="w-16 h-16 rounded-2xl bg-[rgba(226,61,54,0.08)] inline-flex items-center justify-center mb-3.5">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#E23D36"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </div>
+        <div className="text-[17px] font-semibold text-text">
+          Something went wrong
+        </div>
+        <div className="text-[13px] text-text-muted mt-1.5 leading-relaxed">
+          {error.message ||
+            "An unexpected error occurred. Try again, or contact support if the problem persists."}
+        </div>
+        {error.digest && (
+          <div className="mt-2.5 text-[11px] text-text-muted font-mono">
+            Error ref: {error.digest}
+          </div>
+        )}
+        <div className="mt-4 flex gap-2 justify-center">
+          <Button variant="primary" onClick={reset}>
+            Try again &rarr;
+          </Button>
+        </div>
       </div>
-      <h2 className="text-lg font-semibold text-text">Something went wrong</h2>
-      <p className="max-w-md text-sm text-text-muted">
-        An unexpected error occurred. Please try again or contact support if the problem persists.
-      </p>
-      <button
-        onClick={reset}
-        className="aws-button aws-button--primary mt-2 px-6 py-2"
-      >
-        Try again
-      </button>
     </div>
   );
 }

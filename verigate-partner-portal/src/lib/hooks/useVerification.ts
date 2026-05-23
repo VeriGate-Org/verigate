@@ -1,24 +1,31 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   submitVerification,
   getVerificationStatus,
   pollVerificationStatus,
   isTerminalVerificationStatus,
 } from "@/lib/bff-client";
-import type { BffVerificationSubmission } from "@/lib/bff-client";
+import type { BffVerificationSubmission, BffVerificationStatusResponse } from "@/lib/bff-client";
 import {
   listVerifications,
   getVerificationDetail,
   type VerificationListParams,
 } from "@/lib/verification-api";
 
-export function useSubmitVerification() {
+export function useSubmitVerification(options?: {
+  onSuccess?: (data: BffVerificationStatusResponse) => void;
+}) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: BffVerificationSubmission) => {
       const { commandId } = await submitVerification(payload);
       return pollVerificationStatus(commandId);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["verification-list"] });
+      options?.onSuccess?.(data);
     },
   });
 }

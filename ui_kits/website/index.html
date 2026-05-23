@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriGate — Realtime Risk Intelligence</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: #334155; background: #fff; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 3px; background: #E23D36; z-index: 100; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { animation: fadeUp 600ms cubic-bezier(0.4,0,0.2,1) both; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body style="padding-top: 3px;">
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" fill="#1A2E4B"/>
+      <g transform="translate(50 52) scale(0.32) translate(-76 -86)">
+        <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+        <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="50" y="86" font-family="sans-serif" font-weight="500" font-size="10" fill="#00B3D9" text-anchor="middle" letter-spacing="0.5">VeriGate</text>
+    </svg>
+  </template>
+  <div id="root"></div>
+
+  <script type="text/babel" src="Icon.jsx"></script>
+  <script type="text/babel" src="Logo.jsx"></script>
+  <script type="text/babel" src="Button.jsx"></script>
+  <script type="text/babel" src="Nav.jsx"></script>
+  <script type="text/babel" src="Hero.jsx"></script>
+  <script type="text/babel" src="FeatureGrid.jsx"></script>
+  <script type="text/babel" src="StatsBar.jsx"></script>
+  <script type="text/babel" src="CTASection.jsx"></script>
+  <script type="text/babel" src="Footer.jsx"></script>
+  <script type="text/babel" src="pages/Marketing.jsx"></script>
+  <script type="text/babel" src="pages/Long.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function Home({ onNavigate }) {
+      return (
+        <>
+          <Hero onPrimary={() => onNavigate('request-demo')} />
+          <StatsBar items={[
+            { value: '28+',      label: 'Verification types' },
+            { value: '14+',      label: 'Official sources' },
+            { value: '1 hr',     label: 'Fastest turnaround' },
+            { value: 'Realtime', label: 'ID checks' },
+          ]} />
+          <FeatureGrid
+            title="Built for compliance teams who can't afford to wait."
+            subtitle="One platform spans the full risk journey — real-time identity confirmation through ongoing sanctions monitoring."
+            items={[
+              { icon: 'UserCheck',  title: 'KYC Verification',   body: 'Document scanning, liveness detection, and biometric matching against DHA and SAPS sources.' },
+              { icon: 'FileSearch', title: 'Due Diligence',      body: 'Background checks and risk assessment for regulated industries — banking, insurance, fintech.' },
+              { icon: 'Shield',     title: 'Sanctions & PEP',    body: 'Continuous monitoring against global sanctions lists, watchlists, and PEP registries.' },
+              { icon: 'Zap',        title: 'Real-Time Decisions',body: 'Sub-second ID confirmations and criminal record checks from one hour. No batch waits.' },
+              { icon: 'Fingerprint',title: 'Biometric Capture',  body: 'Fingerprint capture and SAPS-AFIS search with POPIA-compliant chain of custody.' },
+              { icon: 'Database',   title: 'API & Integration',  body: 'REST API with SDKs, webhook callbacks, and a partner portal for high-volume teams.' },
+            ]}
+          />
+          <CTASection />
+        </>
+      );
+    }
+
+    function App() {
+      const getRoute = () => (window.location.hash.replace('#/', '') || 'home');
+      const [route, setRoute] = useState(getRoute());
+
+      useEffect(() => {
+        const handler = () => setRoute(getRoute());
+        window.addEventListener('hashchange', handler);
+        return () => window.removeEventListener('hashchange', handler);
+      }, []);
+
+      const navigate = (r) => { window.location.hash = '#/' + r; window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+      // Hub routes — /#/verification-types, /#/compliance, /#/fraud-prevention, /#/solutions
+      const HUB_KEYS = ['verification-types', 'compliance', 'fraud-prevention', 'solutions'];
+      const LEGAL_KEYS = ['privacy', 'terms', 'cookie-policy'];
+
+      let page;
+      // Blog post route: /#/blog/<slug>
+      if (route.startsWith('blog/')) { const slug = route.slice(5); page = <BlogPost slug={slug} onBack={() => navigate('blog')} />; }
+      else switch (route) {
+        case 'home':            page = <Home onNavigate={navigate} />; break;
+        case 'platform':        page = <Platform />; break;
+        case 'pricing':         page = <Pricing />; break;
+        case 'contact':         page = <Contact />; break;
+        case 'request-demo':    page = <RequestDemo />; break;
+        case 'technical-support': page = <TechnicalSupport />; break;
+        case 'faqs':            page = <FAQ />; break;
+        case 'about':           page = <About />; break;
+        case 'roi-calculator':  page = <ROICalculator />; break;
+        case 'careers':         page = <Careers />; break;
+        case 'events':          page = <Events />; break;
+        case 'partner-program': page = <PartnerProgram />; break;
+        case 'blog':            page = <Blog onOpenPost={(s) => navigate('blog/' + s)} />; break;
+        case 'resources':       page = <Resources />; break;
+        case 'cookie-policy':   page = <Legal kind="cookies" />; break;
+        case 'privacy':         page = <Legal kind="privacy" />; break;
+        case 'terms':           page = <Legal kind="terms" />; break;
+        case '404':             page = <Site404 onGoHome={() => navigate('home')} />; break;
+        default:
+          if (HUB_KEYS.includes(route)) { page = <HubTemplate slug={route} />; break; }
+          page = <Site404 onGoHome={() => navigate('home')} />;
+      }
+
+      return (
+        <div>
+          <Nav active={route} onNavigate={navigate} />
+          <div key={route} className="reveal">
+            {page}
+          </div>
+          <Footer onNavigate={navigate} />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

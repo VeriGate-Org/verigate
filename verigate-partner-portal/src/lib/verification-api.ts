@@ -1,5 +1,7 @@
 import { config } from "@/lib/config";
-import { type Verification, type VerificationType, type VerificationEvent } from "@/lib/types";
+import { type Verification, type VerificationType, type VerificationStatus, type VerificationEvent } from "@/lib/types";
+import type { BffVerificationListResponse } from "@/lib/bff-client";
+import { getPortalType } from "@/lib/verification-type-map";
 
 export interface VerificationListParams {
   q?: string;
@@ -120,6 +122,48 @@ function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
+// ── BFF response transformers ───────────────────────────────────────
+
+function mapBffStatus(bffStatus: string): VerificationStatus {
+  switch (bffStatus.toUpperCase()) {
+    case "COMPLETED":
+    case "SUCCEEDED":
+      return "success";
+    case "PERMANENT_FAILURE":
+    case "INVARIANT_FAILURE":
+    case "HARD_FAIL":
+      return "hard_fail";
+    case "TRANSIENT_ERROR":
+    case "SOFT_FAIL":
+    case "SYSTEM_OUTAGE":
+      return "soft_fail";
+    case "PENDING":
+      return "pending";
+    case "IN_PROGRESS":
+    case "PROCESSING":
+    default:
+      return "in_progress";
+  }
+}
+
+function mapBffItemToVerification(item: BffVerificationListResponse["items"][number]): Verification {
+  const portalType = getPortalType(item.commandName as never) ?? "ID";
+  return {
+    correlationId: item.commandId,
+    partnerId: config.partnerId,
+    type: portalType,
+    status: mapBffStatus(item.status),
+    startedAt: item.createdAt,
+  };
+}
+
+function transformBffListResponse(bff: BffVerificationListResponse): VerificationListResponse {
+  return {
+    total: bff.items.length,
+    items: bff.items.map(mapBffItemToVerification),
+  };
+}
+
 async function fetchBffVerifications(params: VerificationListParams): Promise<VerificationListResponse> {
   const sp = new URLSearchParams();
   if (params.q) sp.set("q", params.q);
@@ -139,7 +183,15 @@ async function fetchBffVerifications(params: VerificationListParams): Promise<Ve
   if (!resp.ok) {
     throw new Error(`BFF returned ${resp.status}`);
   }
-  return resp.json();
+  const body = await resp.json();
+
+  // If response has BFF shape (items with commandId + cursor), transform it
+  if (Array.isArray(body.items) && body.items.length > 0 && "commandId" in body.items[0]) {
+    return transformBffListResponse(body as BffVerificationListResponse);
+  }
+
+  // Already in portal shape
+  return body as VerificationListResponse;
 }
 
 export async function listVerifications(params: VerificationListParams): Promise<VerificationListResponse> {
@@ -227,9 +279,82 @@ async function fetchBffVerification(correlationId: string): Promise<Verification
   const url = `${config.bffBaseUrl}/api/verifications/${correlationId}`;
   const resp = await fetch(url, { headers: getAuthHeaders() });
   if (!resp.ok) {
+    if (resp.status === 404) return null as unknown as VerificationDetail;
     throw new Error(`BFF returned ${resp.status}`);
   }
-  return resp.json();
+  const body = await resp.json();
+
+  // If response has BFF shape (commandId at top level), transform it
+  if ("commandId" in body && !("verification" in body)) {
+    const portalType = getPortalType(body.commandName as never) ?? "ID";
+    const status = mapBffStatus(body.status);
+    const verification: Verification = {
+      correlationId: body.commandId,
+      partnerId: config.partnerId,
+      type: portalType,
+      status,
+      startedAt: body.createdAt ?? new Date().toISOString(),
+      completedAt: body.completedAt,
+      provider: body.provider,
+    };
+
+    const events: VerificationEvent[] = [
+      {
+        ts: verification.startedAt,
+        eventType: "VerificationRequested",
+        source: verification.provider || "VeriGate",
+        correlationId: verification.correlationId,
+        detail: { type: verification.type },
+        stepSequence: 1,
+      },
+    ];
+
+    // Map BFF events if present
+    if (Array.isArray(body.events)) {
+      for (const evt of body.events) {
+        events.push({
+          ts: evt.timestamp ?? evt.ts ?? verification.startedAt,
+          eventType: evt.eventType ?? "DomainSpecific",
+          source: evt.source ?? verification.provider ?? "VeriGate",
+          correlationId: verification.correlationId,
+          detail: evt.detail ?? evt.data,
+          stepSequence: evt.stepSequence,
+        });
+      }
+    } else if (status === "success") {
+      events.push({
+        ts: verification.completedAt ?? new Date().toISOString(),
+        eventType: "VerificationSucceeded",
+        source: verification.provider || "VeriGate",
+        correlationId: verification.correlationId,
+        detail: body.auxiliaryData ?? { outcome: "pass" },
+        stepSequence: 2,
+      });
+    } else if (status === "hard_fail" || status === "permanent_failure") {
+      events.push({
+        ts: verification.completedAt ?? new Date().toISOString(),
+        eventType: "VerificationHardFail",
+        source: verification.provider || "VeriGate",
+        correlationId: verification.correlationId,
+        detail: { reason: body.errorDetails?.join("; ") ?? "Verification failed" },
+        stepSequence: 2,
+      });
+    } else if (status === "soft_fail" || status === "transient_error") {
+      events.push({
+        ts: verification.completedAt ?? new Date().toISOString(),
+        eventType: "VerificationSoftFail",
+        source: verification.provider || "VeriGate",
+        correlationId: verification.correlationId,
+        detail: { reason: body.errorDetails?.join("; ") ?? "Partial match — manual review recommended" },
+        stepSequence: 2,
+      });
+    }
+
+    return { verification, events };
+  }
+
+  // Already in portal shape
+  return body as VerificationDetail;
 }
 
 export async function getVerificationDetail(correlationId: string): Promise<VerificationDetail | null> {

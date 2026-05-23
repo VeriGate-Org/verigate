@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="portal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriGate Partner Portal</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { height: 100%; }
+    body { font-family: 'Inter', sans-serif; color: #1A2024; background: #F2F3F3; -webkit-font-smoothing: antialiased; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { animation: fadeUp 200ms cubic-bezier(0.4,0,0.2,1) both; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #00B3D9; outline-offset: 1px; }
+    main { scroll-behavior: smooth; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" fill="#1A2E4B"/>
+      <g transform="translate(50 50) scale(0.34) translate(-76 -86)">
+        <path fill="#E23D36" d="M76 30 C56 30 26 39 26 42 L26 74 C26 106 50 132 76 142 C102 132 126 106 126 74 L126 42 C126 39 96 30 76 30 Z"/>
+        <path d="M46 84 L63 102 L106 58" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="50" y="82" font-family="sans-serif" font-weight="600" font-size="8" fill="#00B3D9" text-anchor="middle" letter-spacing="0.4">PARTNER PORTAL</text>
+    </svg>
+  </template>
+  <div id="root"></div>
+
+  <!-- Primitives -->
+  <script type="text/babel" src="Icon.jsx"></script>
+  <script type="text/babel" src="Button.jsx"></script>
+  <script type="text/babel" src="Badge.jsx"></script>
+  <script type="text/babel" src="Sidebar.jsx"></script>
+  <script type="text/babel" src="TopBar.jsx"></script>
+  <script type="text/babel" src="StatCard.jsx"></script>
+  <script type="text/babel" src="Modal.jsx"></script>
+
+  <!-- Screens -->
+  <script type="text/babel" src="screens/AuthFlow.jsx"></script>
+  <script type="text/babel" src="screens/Dashboard.jsx"></script>
+  <script type="text/babel" src="screens/Verifications.jsx"></script>
+  <script type="text/babel" src="screens/VerificationDetail.jsx"></script>
+  <script type="text/babel" src="screens/NewVerificationFlow.jsx"></script>
+  <script type="text/babel" src="screens/Cases.jsx"></script>
+  <script type="text/babel" src="screens/CaseDetail.jsx"></script>
+  <script type="text/babel" src="screens/KYC.jsx"></script>
+  <script type="text/babel" src="screens/Sanctions.jsx"></script>
+  <script type="text/babel" src="screens/DocumentVerification.jsx"></script>
+  <script type="text/babel" src="screens/Services.jsx"></script>
+  <script type="text/babel" src="screens/Deeds.jsx"></script>
+  <script type="text/babel" src="screens/Admin.jsx"></script>
+  <script type="text/babel" src="screens/ConflictOfInterest.jsx"></script>
+  <script type="text/babel" src="screens/BulkIdentity.jsx"></script>
+  <script type="text/babel" src="screens/Policies.jsx"></script>
+  <script type="text/babel" src="screens/Monitoring.jsx"></script>
+  <script type="text/babel" src="screens/AiChat.jsx"></script>
+  <script type="text/babel" src="screens/States.jsx"></script>
+  <script type="text/babel" src="screens/Reports.jsx"></script>
+  <script type="text/babel" src="screens/Settings.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    /* Friendly section/breadcrumb labels */
+    const ROUTE_LABEL = {
+      dashboard: ['Overview', 'Dashboard'],
+      verifications: ['Overview', 'Verifications'],
+      detail: ['Overview', 'Verifications', 'Detail'],
+      cases: ['Overview', 'Cases'],
+      casedetail: ['Overview', 'Cases', 'Detail'],
+      sanctions: ['Screening', 'Sanctions & PEP'],
+      documents: ['Identity & Personal', 'Document Verification'],
+      bulkid: ['Identity & Personal', 'Bulk Identity Verification'],
+      bank: ['Financial', 'Bank Account Validation'],
+      credit: ['Financial', 'Credit Check'],
+      income: ['Financial', 'Income Verification'],
+      tax: ['Financial', 'Tax Compliance'],
+      company: ['Business & Compliance', 'Company & Directors'],
+      employment: ['Business & Compliance', 'Employment'],
+      qualification: ['Business & Compliance', 'Qualification'],
+      vat: ['Business & Compliance', 'VAT Vendor Search'],
+      negnews: ['Screening', 'Negative News'],
+      fraud: ['Screening', 'Fraud Watchlist'],
+      property_own: ['Business & Compliance', 'Deeds Registry'],
+      property_conv: ['Business & Compliance', 'Street/ERF Conversion'],
+      property_val: ['Business & Compliance', 'Property Valuation'],
+      deeds_map: ['Business & Compliance', 'Deeds Map'],
+      docinsights: ['Identity & Personal', 'Document Insights'],
+      autofill: ['Identity & Personal', 'Document Auto-Fill'],
+      admin_users: ['Admin', 'User Management'],
+      health: ['Admin', 'System Health'],
+      help: ['Admin', 'Help & Support'],
+      conflicts: ['Enterprise', 'Conflict of Interest'],
+      policies: ['Enterprise', 'Policy Builder'],
+      policyedit: ['Enterprise', 'Policy Builder', 'Edit'],
+      monitoring: ['Enterprise', 'Monitoring'],
+      monitoringdetail: ['Enterprise', 'Monitoring', 'Subject'],
+      reports: ['Reporting', 'Weekly report'],
+      settings: ['Configuration', 'Settings'],
+      kyc: ['Identity & Personal', 'KYC'],
+      biometric: ['Identity & Personal', 'Biometric'],
+      credit: ['Financial', 'Credit Bureau'],
+      aml: ['Financial', 'AML Monitoring'],
+      corporate: ['Business & Compliance', 'Corporate'],
+    };
+
+    function ComingSoon({ label }) {
+      return (
+        <div style={{ background: '#fff', border: '1px dashed #CBD5E1', borderRadius: 8, padding: '64px 32px', textAlign: 'center' }} data-screen-label={label}>
+          <div style={{ width: 56, height: 56, borderRadius: 12, background: 'rgba(0,179,217,0.10)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+            <PortalIcon name="Layers" size={26} color="#00B3D9" />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 600, color: '#1A2024' }}>{label}</h2>
+          <p style={{ fontSize: 13, color: '#4F5B67', marginTop: 6, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>This module is wired in the design system but doesn't have a mocked screen yet. Open <b>Verifications</b> for the canonical flow.</p>
+        </div>
+      );
+    }
+
+    function App() {
+      const [authed, setAuthed] = useState(false);
+      const [theme, setTheme] = useState(() => localStorage.getItem('verigate-theme') || 'light');
+      const toggleTheme = () => setTheme(t => { const next = t === 'dark' ? 'light' : 'dark'; localStorage.setItem('verigate-theme', next); return next; });
+      const [route, setRoute] = useState('dashboard');
+      const [collapsed, setCollapsed] = useState(false);
+      const [rows, setRows] = useState(window.SAMPLE_ROWS || []);
+      const [openRow, setOpenRow] = useState(null);
+      const [openCase, setOpenCase] = useState(null);
+      const [editingPolicy, setEditingPolicy] = useState(null);
+      const [monitorSubject, setMonitorSubject] = useState(null);
+      const [aiOpen, setAiOpen] = useState(false);
+      const [deleting, setDeleting] = useState(null);
+      const [newOpen, setNewOpen] = useState(false);
+      const [toast, setToast] = useState(null);
+
+      const showToast = (msg, tone = 'info') => { setToast({ msg, tone }); setTimeout(() => setToast(null), 3000); };
+
+      const openDetail = (rowOrId) => {
+        const row = typeof rowOrId === 'string' ? rows.find(r => r.id === rowOrId) : rowOrId;
+        if (!row) return;
+        setOpenRow(row);
+        setRoute('detail');
+      };
+
+      const handleNewSubmit = (data) => {
+        const num = String(143 + rows.length - 6).padStart(4, '0');
+        const newRow = {
+          id: `VG-2026-${num}`,
+          type: data.product.toUpperCase(),
+          subject: `${data.subject.first} ${data.subject.last}`.trim() || 'New verification',
+          country: 'ZA',
+          status: 'info',
+          statusLabel: 'In Progress',
+          updated: 'Just now',
+          cost: data.cost,
+        };
+        setRows([newRow, ...rows]);
+        setNewOpen(false);
+        showToast(`Started ${newRow.id} — typical response in 2 minutes.`, 'success');
+      };
+
+      const handleDelete = (row) => setDeleting(row);
+      const confirmDelete = () => {
+        setRows(rows.filter(r => r.id !== deleting.id));
+        showToast(`Deleted ${deleting.id}.`, 'danger');
+        setDeleting(null);
+        if (openRow?.id === deleting.id) { setOpenRow(null); setRoute('verifications'); }
+      };
+
+      const breadcrumbs = ROUTE_LABEL[route] || ['Overview', route];
+
+      if (!authed) {
+        return <AuthFlow onAuthenticated={() => setAuthed(true)} />;
+      }
+
+      let screen;
+      if (route === 'dashboard')          screen = <Dashboard rowsCount={rows.length} onStartNew={() => setNewOpen(true)} onOpenVerification={(id) => id ? openDetail(id) : setRoute('verifications')} />;
+      else if (route === 'verifications') screen = <Verifications rows={rows} onStartNew={() => setNewOpen(true)} onOpenDetail={openDetail} onDelete={handleDelete} />;
+      else if (route === 'detail')        screen = <VerificationDetail row={openRow} onBack={() => setRoute('verifications')} onDelete={handleDelete} />;
+      else if (route === 'cases')         screen = <Cases onOpenDetail={(c) => { setOpenCase(c); setRoute('casedetail'); }} />;
+      else if (route === 'casedetail')    screen = <CaseDetail caseObj={openCase} onBack={() => setRoute('cases')} />;
+      else if (route === 'kyc')           screen = <KYC rows={rows} onOpenDetail={openDetail} onStartNew={() => setNewOpen(true)} />;
+      else if (route === 'sanctions')     screen = <Sanctions />;
+      else if (route === 'documents')     screen = <DocumentVerification />;
+      else if (route === 'bulkid')        screen = <BulkIdentity />;
+      else if (route === 'property_own')  screen = <PropertyOwnership />;
+      else if (route === 'property_conv') screen = <PropertyConversion />;
+      else if (route === 'property_val')  screen = <PropertyValuation />;
+      else if (route === 'deeds_map')     screen = <DeedsMap />;
+      else if (route === 'docinsights')   screen = <DocumentInsights />;
+      else if (route === 'autofill')      screen = <DocumentAutoFill />;
+      else if (route === 'admin_users')   screen = <UserManagement />;
+      else if (route === 'health')        screen = <SystemHealth />;
+      else if (route === 'help')          screen = <Help />;
+      else if (route === 'conflicts')     screen = <ConflictOfInterest />;
+      else if (window.SERVICE_CONFIGS && window.SERVICE_CONFIGS[route]) screen = <ServicePage configKey={route} />;
+      else if (route === 'policies')      screen = <PoliciesList onOpen={(p) => { setEditingPolicy(p); setRoute('policyedit'); }} />;
+      else if (route === 'policyedit')    screen = <PolicyEditor policy={editingPolicy || window.SAMPLE_POLICY} onBack={() => setRoute('policies')} />;
+      else if (route === 'monitoring')    screen = <Monitoring onOpenSubject={(s) => { setMonitorSubject(s); setRoute('monitoringdetail'); }} />;
+      else if (route === 'monitoringdetail') screen = <MonitoringDetail subject={monitorSubject} onBack={() => setRoute('monitoring')} />;
+      else if (route === 'reports')       screen = <Reports />;
+      else if (route === 'settings')      screen = <Settings />;
+      else                                screen = <ComingSoon label={(ROUTE_LABEL[route] || [route])[1] || route} />;
+
+      return (
+        <div style={{ display: 'flex', height: '100vh', background: theme === 'dark' ? '#0f1f36' : '#F2F3F3', transition: 'background 200ms cubic-bezier(0.4,0,0.2,1)' }}>
+          <PortalSidebar active={route} collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} onSelect={(id) => { setRoute(id); setOpenRow(null); }} theme={theme} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+            <PortalTopBar breadcrumbs={breadcrumbs} theme={theme} onToggleTheme={toggleTheme} />
+            <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px 64px' }} data-screen-label={breadcrumbs.join(' › ')}>
+              <div key={route + (openRow?.id || '')} className="reveal">
+                {screen}
+              </div>
+            </main>
+          </div>
+
+          {/* Confirm delete */}
+          <PortalModal
+            open={!!deleting}
+            title="Delete verification?"
+            body={<>This action cannot be undone. The verification record <b style={{ color: '#00B3D9', fontFamily: "'JetBrains Mono', monospace" }}>{deleting?.id}</b> will be permanently removed and is not retrievable. POPIA s.23 access requests for this record will fail.</>}
+            primaryLabel="Delete record"
+            primaryVariant="destructive"
+            onClose={() => setDeleting(null)}
+            onPrimary={confirmDelete}
+          />
+
+          {/* New verification multi-step */}
+          <NewVerificationFlow open={newOpen} onClose={() => setNewOpen(false)} onSubmit={handleNewSubmit} />
+
+          {/* AI assistant */}
+          <AiChatLauncher onOpen={() => setAiOpen(true)} />
+          <AiChatSidebar open={aiOpen} onClose={() => setAiOpen(false)} />
+
+          {toast && (
+            <div className="reveal" style={{ position: 'fixed', bottom: 24, right: 24, background: '#1A2E4B', color: '#fff', padding: '12px 18px', borderRadius: 6, fontSize: 13, boxShadow: '0 8px 16px 4px rgba(0,28,36,0.30)', zIndex: 200, display: 'flex', alignItems: 'center', gap: 10, maxWidth: 460 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 999, background: toast.tone === 'danger' ? '#E23D36' : toast.tone === 'success' ? '#2C974B' : '#00B3D9', flexShrink: 0 }} />
+              {toast.msg}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

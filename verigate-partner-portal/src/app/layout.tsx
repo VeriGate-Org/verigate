@@ -1,44 +1,34 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import QueryProvider from "@/components/QueryProvider";
-import { ToastProvider } from "@/components/ui/Toast";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import AppShell from "@/components/AppShell";
-import AiChatSidebar from "@/components/ai/AiChatSidebar.client";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
+import { ErrorBoundary } from "@/components/providers/ErrorBoundary";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { PartnerTenantProvider } from "@/lib/tenant/PartnerTenantProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "VeriGate Partner Portal",
-  description: "Configure verification workflows, providers, and review results.",
+  description: "Partner verification management portal",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/api/favicon" type="image/svg+xml" />
-        <link rel="manifest" href="/api/manifest" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("verigate-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})()`,
-          }}
-        />
-      </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen bg-background text-text`}>
         <ThemeProvider>
           <QueryProvider>
             <ToastProvider>
               <ErrorBoundary>
-                <AppShell>{children}</AppShell>
-                <AiChatSidebar />
+                <AuthProvider>
+                  <PartnerTenantProvider>
+                    {children}
+                  </PartnerTenantProvider>
+                </AuthProvider>
               </ErrorBoundary>
             </ToastProvider>
           </QueryProvider>

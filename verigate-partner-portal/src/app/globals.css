@@ -294,32 +294,34 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom-right-radius: var(--aws-border-radius-container);
 }
 
-/* AWS Console form controls */
-.aws-input, .aws-select, .aws-textarea {
-  border: var(--aws-border-control-default);
-  border-radius: var(--aws-border-radius-control);
-  padding: var(--aws-space-scale-s) var(--aws-space-scale-m);
-  font-size: 13px;
-  line-height: 19px;
-  background: var(--color-base-100);
-  color: var(--color-text);
-  transition: all var(--aws-motion-duration-transition-quick) var(--aws-motion-easing-ease);
-}
+/* AWS Console form controls — placed in @layer base so Tailwind utilities (pl-8 etc.) can override padding */
+@layer base {
+  .aws-input, .aws-select, .aws-textarea {
+    border: var(--aws-border-control-default);
+    border-radius: var(--aws-border-radius-control);
+    padding: var(--aws-space-scale-s) var(--aws-space-scale-m);
+    font-size: 13px;
+    line-height: 19px;
+    background: var(--color-base-100);
+    color: var(--color-text);
+    transition: all var(--aws-motion-duration-transition-quick) var(--aws-motion-easing-ease);
+  }
 
-.aws-input:focus, .aws-select:focus, .aws-textarea:focus {
-  outline: none;
-  border: var(--aws-border-control-focused);
-  box-shadow: 0 0 0 1px var(--color-accent);
-}
+  .aws-input:focus, .aws-select:focus, .aws-textarea:focus {
+    outline: none;
+    border: var(--aws-border-control-focused);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
 
-.aws-input:invalid, .aws-select:invalid, .aws-textarea:invalid {
-  border: var(--aws-border-control-invalid);
-}
+  .aws-input:invalid, .aws-select:invalid, .aws-textarea:invalid {
+    border: var(--aws-border-control-invalid);
+  }
 
-.aws-input:disabled, .aws-select:disabled, .aws-textarea:disabled {
-  background: var(--color-base-200);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
+  .aws-input:disabled, .aws-select:disabled, .aws-textarea:disabled {
+    background: var(--color-base-200);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+  }
 }
 
 /* AWS Console button enhancements */
