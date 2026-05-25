@@ -64,17 +64,13 @@ export const signupStep1Schema = z.object({
 });
 
 export const signupStep2Schema = z.object({
-  billingPlan: z.enum(BILLING_PLANS, { required_error: "Please select a plan" }),
+  billingPlan: z.enum(BILLING_PLANS, { message: "Please select a plan" }),
   verificationTypes: z.array(z.string()).min(1, "Select at least one verification type"),
 });
 
 export const signupStep3Schema = z.object({
-  termsAccepted: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms of service" }),
-  }),
-  privacyPolicyAccepted: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the privacy policy" }),
-  }),
+  termsAccepted: z.literal(true, { message: "You must accept the terms of service" }),
+  privacyPolicyAccepted: z.literal(true, { message: "You must accept the privacy policy" }),
 });
 
 export const signupSchema = signupStep1Schema

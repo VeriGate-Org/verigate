@@ -17,6 +17,7 @@ import {
   VERIFICATION_TYPE_OPTIONS,
   type SignupStep1Data,
   type SignupStep2Data,
+  type SignupStep3Data,
   type SignupFormData,
 } from "@/lib/schemas";
 import { PLAN_LABELS } from "@/lib/tenant-features";
@@ -59,11 +60,11 @@ export function SignupForm() {
   });
 
   // Step 3 form
-  const step3Form = useForm<{ termsAccepted: boolean; privacyPolicyAccepted: boolean }>({
+  const step3Form = useForm<SignupStep3Data>({
     resolver: zodResolver(signupStep3Schema),
     defaultValues: {
-      termsAccepted: false,
-      privacyPolicyAccepted: false,
+      termsAccepted: false as unknown as true,
+      privacyPolicyAccepted: false as unknown as true,
     },
   });
 
