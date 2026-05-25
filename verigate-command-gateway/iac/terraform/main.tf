@@ -250,6 +250,540 @@ module "billing_plans_dynamodb" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# Billing Extended DynamoDB Tables (Invoicing, Payments, Subscriptions, Dunning, Reporting)
+#----------------------------------------------------------------------------------------------------------------
+
+module "invoices_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "invoices"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "invoiceId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "invoiceId"
+      type = "S"
+    },
+    {
+      name = "invoiceNumber"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "invoiceNumber-index"
+      hash_key        = "invoiceNumber"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "invoice_sequences_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "invoice-sequences"
+  hash_key            = {
+                             name = "sequenceKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "sequenceKey"
+      type = "S"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "payments_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "payments"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "paymentId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "paymentId"
+      type = "S"
+    },
+    {
+      name = "invoiceId"
+      type = "S"
+    },
+    {
+      name = "payFastReference"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "invoiceId-index"
+      hash_key        = "invoiceId"
+      projection_type = "ALL"
+    },
+    {
+      name            = "payFastReference-index"
+      hash_key        = "payFastReference"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "plan_changes_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "plan-changes"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "sortKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "sortKey"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "effectiveDate"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "status-index"
+      hash_key        = "status"
+      range_key       = "effectiveDate"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "trials_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "trials"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "trialId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "trialId"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "endDate"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "status-endDate-index"
+      hash_key        = "status"
+      range_key       = "endDate"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "subscriptions_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "subscriptions"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "subscriptionId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "subscriptionId"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "currentPeriodEnd"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "status-index"
+      hash_key        = "status"
+      range_key       = "currentPeriodEnd"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "dunning_schedules_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "dunning-schedules"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "sortKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "sortKey"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "nextRetryDate"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "nextRetry-index"
+      hash_key        = "status"
+      range_key       = "nextRetryDate"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "credit_notes_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "credit-notes"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "sortKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "sortKey"
+      type = "S"
+    },
+    {
+      name = "status"
+      type = "S"
+    },
+    {
+      name = "gsiPartnerId"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "status-index"
+      hash_key        = "status"
+      range_key       = "gsiPartnerId"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "ledger_entries_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "ledger-entries"
+  hash_key            = {
+                             name = "partnerId"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "sortKey"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "partnerId"
+      type = "S"
+    },
+    {
+      name = "sortKey"
+      type = "S"
+    },
+    {
+      name = "account"
+      type = "S"
+    },
+    {
+      name = "gsiSortKey"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "account-period-index"
+      hash_key        = "account"
+      range_key       = "gsiSortKey"
+      projection_type = "ALL"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+module "reconciliation_reports_dynamodb" {
+  source = "./modules/tf-dynamodb"
+
+  complete_stack_name = var.stack_name
+  table_name          = "reconciliation-reports"
+  hash_key            = {
+                             name = "period"
+                             type = "S"
+                         }
+  range_key           = {
+                             name = "reconciliationId"
+                             type = "S"
+                         }
+  attributes          = [
+    {
+      name = "period"
+      type = "S"
+    },
+    {
+      name = "reconciliationId"
+      type = "S"
+    }
+  ]
+
+  fis_az_failure_ready = true
+  default_tags = local.default_tags
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# Billing S3 Bucket (Invoice PDFs)
+#----------------------------------------------------------------------------------------------------------------
+
+module "invoices_s3" {
+  source = "./modules/tf-s3"
+
+  complete_stack_name = var.stack_name
+  bucket_name         = "invoices"
+
+  lifecycle_rules = [
+    {
+      id                         = "glacier-transition"
+      enabled                    = true
+      transition_days            = 365
+      transition_storage_class   = "GLACIER"
+      expiration_days            = 2555 # ~7 years
+      noncurrent_transition_days = 30
+      noncurrent_storage_class   = "GLACIER"
+      noncurrent_expiration_days = 2555
+    }
+  ]
+
+  default_tags = local.default_tags
+}
+
+resource "aws_ssm_parameter" "invoices_bucket_name" {
+  name  = "/${local.ssm_prefix}/s3/invoices/name"
+  type  = "String"
+  value = module.invoices_s3.bucket_name
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# SSM Parameters - Billing Table Names
+#----------------------------------------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "invoices_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/invoices/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-invoices"
+}
+
+resource "aws_ssm_parameter" "invoice_sequences_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/invoice-sequences/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-invoice-sequences"
+}
+
+resource "aws_ssm_parameter" "payments_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/payments/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-payments"
+}
+
+resource "aws_ssm_parameter" "plan_changes_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/plan-changes/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-plan-changes"
+}
+
+resource "aws_ssm_parameter" "trials_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/trials/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-trials"
+}
+
+resource "aws_ssm_parameter" "subscriptions_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/subscriptions/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-subscriptions"
+}
+
+resource "aws_ssm_parameter" "dunning_schedules_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/dunning-schedules/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-dunning-schedules"
+}
+
+resource "aws_ssm_parameter" "credit_notes_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/credit-notes/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-credit-notes"
+}
+
+resource "aws_ssm_parameter" "ledger_entries_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/ledger-entries/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-ledger-entries"
+}
+
+resource "aws_ssm_parameter" "reconciliation_reports_table_name" {
+  name  = "/${local.ssm_prefix}/dynamodb/reconciliation-reports/name"
+  type  = "String"
+  value = "${local.complete_stack_name}-reconciliation-reports"
+}
+
+#----------------------------------------------------------------------------------------------------------------
+# PayFast Secrets
+#----------------------------------------------------------------------------------------------------------------
+
+module "payfast_secrets" {
+  source = "./modules/tf-secrets-manager"
+
+  prefix = "${var.secret_prefix}/payfast"
+
+  default_recovery_window_in_days = var.recovery_window_in_days
+
+  secrets = {
+    "merchant_id" = {
+      description = "PayFast Merchant ID"
+      value       = var.payfast_merchant_id
+    },
+    "merchant_key" = {
+      description = "PayFast Merchant Key"
+      value       = var.payfast_merchant_key
+    },
+    "passphrase" = {
+      description = "PayFast Passphrase"
+      value       = var.payfast_passphrase
+    }
+  }
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Identity Vault DynamoDB Table (DHA cost optimization)
 #----------------------------------------------------------------------------------------------------------------
 

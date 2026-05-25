@@ -35,6 +35,9 @@ verigate:
   dha-verification:
     notification-email: ${VERIGATE_DHA_NOTIFICATION_EMAIL:arthur@verigate.co.za}
     sender-email: ${VERIGATE_DHA_SENDER_EMAIL:noreply@verigate.co.za}
+  billing:
+    invoices-table-name: ${VERIGATE_BILLING_INVOICES_TABLE:verigate-invoices}
+    invoice-bucket-name: ${VERIGATE_BILLING_INVOICE_BUCKET:verigate-invoices}
   documents:
     s3-bucket-name: ${VERIGATE_DOCUMENTS_BUCKET:verigate-documents}
   auth:

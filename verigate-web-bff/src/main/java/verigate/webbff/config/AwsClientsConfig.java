@@ -21,6 +21,7 @@ import verigate.webbff.config.properties.AwsProperties;
 import verigate.webbff.config.properties.CaseProperties;
 import verigate.webbff.config.properties.CommandStoreProperties;
 import verigate.webbff.config.properties.DocumentProperties;
+import verigate.webbff.config.properties.BillingProperties;
 import verigate.webbff.config.properties.HealthCheckProperties;
 import verigate.webbff.config.properties.ResponsePollingProperties;
 import verigate.webbff.config.properties.RiskAssessmentProperties;
@@ -32,6 +33,7 @@ import verigate.webbff.config.properties.PartnerHubProperties;
 @Configuration
 @EnableConfigurationProperties({
     AwsProperties.class,
+    BillingProperties.class,
     DhaVerificationProperties.class,
     CaseProperties.class,
     CommandStoreProperties.class,
