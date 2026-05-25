@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import verigate.webbff.admin.model.PartnerResponse;
 import verigate.webbff.admin.model.PartnerStatus;
 import verigate.webbff.admin.repository.PartnerRepository;
+import verigate.webbff.admin.service.AdminUserService;
 import verigate.webbff.admin.service.PartnerService;
 import verigate.webbff.auth.ApiKeyRecord;
 import verigate.webbff.auth.ApiKeyService;
@@ -43,6 +44,7 @@ class AdminControllerTest {
   @MockBean private PartnerService partnerService;
   @MockBean private PartnerRepository partnerRepository;
   @MockBean private PartnerFeatureService partnerFeatureService;
+  @MockBean private AdminUserService adminUserService;
 
   @Test
   void createPartnerReturnsAccepted() throws Exception {
