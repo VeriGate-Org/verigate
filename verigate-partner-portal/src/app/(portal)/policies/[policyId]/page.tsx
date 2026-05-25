@@ -1,5 +1,7 @@
 import { PolicyDetailPage } from "@/components/features/policies/PolicyDetailPage.client";
 
+export const revalidate = 0;
+
 export default async function PolicyDetail({
   params,
 }: {

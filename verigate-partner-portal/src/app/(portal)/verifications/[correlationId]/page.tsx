@@ -1,5 +1,7 @@
 import { VerificationDetailPage } from "@/components/features/verifications/detail/VerificationDetailPage.client";
 
+export const revalidate = 0;
+
 export default async function VerificationDetail({
   params,
 }: {

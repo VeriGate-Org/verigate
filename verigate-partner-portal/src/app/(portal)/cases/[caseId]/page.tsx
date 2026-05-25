@@ -1,5 +1,7 @@
 import { CaseDetailPage } from "@/components/features/cases/detail/CaseDetailPage.client";
 
+export const revalidate = 0;
+
 export default async function CaseDetail({
   params,
 }: {

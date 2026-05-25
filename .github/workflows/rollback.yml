@@ -82,6 +82,7 @@ jobs:
       - name: Build
         working-directory: verigate-partner-portal
         env:
+          STATIC_EXPORT: "1"
           NEXT_PUBLIC_BFF_BASE_URL: ${{ vars.BFF_BASE_URL }}
           NEXT_PUBLIC_API_KEY: ${{ secrets.PORTAL_API_KEY }}
           NEXT_PUBLIC_USE_MOCK: ${{ vars.USE_MOCK }}
