@@ -1771,6 +1771,81 @@ export async function listCheckSessionsBff(
   return data;
 }
 
+// ── Billing & Invoices ─────────────────────────────────────────────
+
+export interface InvoiceSummary {
+  invoiceId: string;
+  invoiceNumber: string;
+  billingPeriod: string;
+  status: string;
+  issueDate: string;
+  dueDate: string;
+  total: string;
+  currency: string;
+}
+
+export interface InvoiceLineItem {
+  lineItemId: string;
+  verificationType: string;
+  description: string;
+  quantity: number;
+  unitPriceExVat: string;
+  lineSubtotal: string;
+  vatAmount: string;
+  lineTotal: string;
+}
+
+export interface InvoiceDetail {
+  invoiceId: string;
+  invoiceNumber: string;
+  partnerId: string;
+  partnerName: string;
+  billingPeriod: string;
+  status: string;
+  issueDate: string;
+  dueDate: string;
+  lineItems: InvoiceLineItem[];
+  subtotal: string;
+  vatRate: string;
+  vatAmount: string;
+  total: string;
+  monthlyMinimumApplied: boolean;
+  currency: string;
+  paymentId: string | null;
+  createdAt: string;
+  notes: string | null;
+}
+
+export interface PdfDownloadResponse {
+  downloadUrl: string;
+  expiresInSeconds: number;
+}
+
+export async function getInvoices(): Promise<InvoiceSummary[]> {
+  const { data } = await bffApi.get<InvoiceSummary[]>(
+    "/api/partner/billing/invoices",
+  );
+  return data;
+}
+
+export async function getInvoiceDetail(
+  invoiceId: string,
+): Promise<InvoiceDetail> {
+  const { data } = await bffApi.get<InvoiceDetail>(
+    `/api/partner/billing/invoices/${invoiceId}`,
+  );
+  return data;
+}
+
+export async function downloadInvoicePdf(
+  invoiceId: string,
+): Promise<PdfDownloadResponse> {
+  const { data } = await bffApi.get<PdfDownloadResponse>(
+    `/api/partner/billing/invoices/${invoiceId}/pdf`,
+  );
+  return data;
+}
+
 // ── Public Registration (no auth headers) ──────────────────────────
 
 export interface PartnerRegistrationRequest {

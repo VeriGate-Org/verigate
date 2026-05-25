@@ -296,6 +296,30 @@ variable "income_api_url" {
 }
 
 #----------------------------------------------------------------------------------------------------------------
+# PayFast
+#----------------------------------------------------------------------------------------------------------------
+
+variable "payfast_merchant_id" {
+  description = "PayFast Merchant ID"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
+variable "payfast_merchant_key" {
+  description = "PayFast Merchant Key"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
+variable "payfast_passphrase" {
+  description = "PayFast Passphrase for signature validation"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
+#----------------------------------------------------------------------------------------------------------------
 # Datadog
 #----------------------------------------------------------------------------------------------------------------
 variable "datadog_monitor_notify_all" {

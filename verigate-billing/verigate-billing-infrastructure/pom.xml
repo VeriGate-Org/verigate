@@ -48,6 +48,25 @@
             <artifactId>dynamodb-enhanced</artifactId>
         </dependency>
 
+        <!-- AWS SDK - S3 (invoice PDF storage) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+
+        <!-- AWS SDK - SES (invoice email delivery) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ses</artifactId>
+        </dependency>
+
+        <!-- Flying Saucer - HTML to PDF rendering -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf-openpdf</artifactId>
+            <version>9.4.0</version>
+        </dependency>
+
         <!-- Google Guice -->
         <dependency>
             <groupId>com.google.inject</groupId>

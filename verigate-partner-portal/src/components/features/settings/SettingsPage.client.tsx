@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Building2,
   Users,
@@ -20,6 +20,8 @@ import {
   EyeOff,
   RotateCcw,
   ExternalLink,
+  Download,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -28,6 +30,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Modal } from "@/components/ui/Modal";
+import { getInvoices, downloadInvoicePdf } from "@/lib/bff-client";
+import type { InvoiceSummary } from "@/lib/bff-client";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -549,44 +553,98 @@ function BrandingSection() {
 
 function BillingSection() {
   const [autoRecharge, setAutoRecharge] = useState(true);
+  const [invoices, setInvoices] = useState<InvoiceSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getInvoices()
+      .then(setInvoices)
+      .catch((err) => setError(err.message ?? "Failed to load invoices"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleDownloadPdf = async (invoiceId: string) => {
+    try {
+      const { downloadUrl } = await downloadInvoicePdf(invoiceId);
+      window.open(downloadUrl, "_blank");
+    } catch {
+      // silently fail - user can retry
+    }
+  };
+
+  const statusVariant = (status: string) => {
+    switch (status) {
+      case "PAID": return "success" as const;
+      case "ISSUED": return "info" as const;
+      case "OVERDUE": return "danger" as const;
+      case "DRAFT": return "pending" as const;
+      case "CANCELLED":
+      case "VOID": return "neutral" as const;
+      default: return "neutral" as const;
+    }
+  };
 
   return (
     <>
       <SectionHeader
-        title="Current month invoice"
-        desc="Billing period: 1\u201318 May 2026"
+        title="Invoices"
+        desc="View and download your billing invoices."
       />
 
-      {/* Spend hero */}
-      <div className="py-5 text-center border-b border-[#e9ebed]">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-          Spent so far
-        </div>
-        <div className="text-4xl font-bold text-primary mt-1">
-          R 18,420
-          <span className="text-sm font-normal text-text-muted">
-            {" "}
-            / R 25,000
-          </span>
-        </div>
-        <div className="mx-auto mt-3 max-w-[360px] h-1.5 bg-[#F2F3F3] rounded-full overflow-hidden">
-          <div className="h-full bg-accent rounded-full" style={{ width: "73%" }} />
-        </div>
-        <div className="text-[11px] text-text-muted mt-2">
-          73% of monthly budget \u00b7 12 days remaining
-        </div>
+      <div className="border-b border-[#e9ebed]">
+        {loading ? (
+          <div className="p-6 text-center text-sm text-text-muted">Loading invoices...</div>
+        ) : error ? (
+          <div className="p-6 text-center text-sm text-danger">{error}</div>
+        ) : invoices.length === 0 ? (
+          <div className="p-6 text-center text-sm text-text-muted">
+            <FileText size={24} className="mx-auto mb-2 text-text-muted/50" />
+            No invoices yet
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#e9ebed] text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+                  <th className="px-4 py-2.5">Invoice #</th>
+                  <th className="px-4 py-2.5">Period</th>
+                  <th className="px-4 py-2.5">Status</th>
+                  <th className="px-4 py-2.5 text-right">Total</th>
+                  <th className="px-4 py-2.5">Due date</th>
+                  <th className="px-4 py-2.5" />
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((inv) => (
+                  <tr key={inv.invoiceId} className="border-b border-[#e9ebed] hover:bg-[#fafafa]">
+                    <td className="px-4 py-2.5 font-medium">{inv.invoiceNumber}</td>
+                    <td className="px-4 py-2.5 text-text-muted">{inv.billingPeriod}</td>
+                    <td className="px-4 py-2.5">
+                      <Badge variant={statusVariant(inv.status)} size="sm">{inv.status}</Badge>
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-medium">R {inv.total}</td>
+                    <td className="px-4 py-2.5 text-text-muted">{inv.dueDate}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      <button
+                        onClick={() => handleDownloadPdf(inv.invoiceId)}
+                        className="inline-flex items-center gap-1 text-xs text-accent hover:text-accent/80"
+                      >
+                        <Download size={12} />
+                        PDF
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <div className="p-[18px] grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <Input
-          label="Invoice email"
-          defaultValue="finance@verigate.co.za"
-          type="email"
-        />
-        <Input
-          label="Billing address"
-          defaultValue="12 Long St, Cape Town, 8001"
-        />
+        <Input label="Invoice email" defaultValue="finance@verigate.co.za" type="email" />
+        <Input label="Billing address" defaultValue="12 Long St, Cape Town, 8001" />
       </div>
 
       <SettingRow

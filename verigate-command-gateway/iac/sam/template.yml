@@ -773,6 +773,168 @@ Resources:
               MaximumEventAgeInSeconds: 86400
               MaximumRetryAttempts: 2
 
+  InvoiceGeneratorLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-invoice-generator"
+      MemorySize: 3008
+      Timeout: 300
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.InvoiceGeneratorLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          INVOICES_TABLE_NAME: !Sub "${AWS::StackName}-invoices"
+          INVOICE_SEQUENCES_TABLE_NAME: !Sub "${AWS::StackName}-invoice-sequences"
+          INVOICE_BUCKET_NAME: !Sub "${AWS::StackName}-invoices"
+          INVOICE_SENDER_EMAIL: "billing@verigate.co.za"
+          LEDGER_ENTRIES_TABLE_NAME: !Sub "${AWS::StackName}-ledger-entries"
+          CREDIT_NOTES_TABLE_NAME: !Sub "${AWS::StackName}-credit-notes"
+      Events:
+        MonthlyInvoiceSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "cron(0 2 1 * ? *)"
+            Name: !Sub "${AWS::StackName}-invoice-generator-monthly"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
+
+  PaymentWebhookLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-payment-webhook"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.PaymentWebhookLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          PAYMENTS_TABLE_NAME: !Sub "${AWS::StackName}-payments"
+          INVOICES_TABLE_NAME: !Sub "${AWS::StackName}-invoices"
+          LEDGER_ENTRIES_TABLE_NAME: !Sub "${AWS::StackName}-ledger-entries"
+          DUNNING_SCHEDULES_TABLE_NAME: !Sub "${AWS::StackName}-dunning-schedules"
+          SUBSCRIPTIONS_TABLE_NAME: !Sub "${AWS::StackName}-subscriptions"
+          PAYFAST_MERCHANT_ID: "{{resolve:secretsmanager:/verifications/payfast/merchant_id}}"
+          PAYFAST_MERCHANT_KEY: "{{resolve:secretsmanager:/verifications/payfast/merchant_key}}"
+          PAYFAST_PASSPHRASE: "{{resolve:secretsmanager:/verifications/payfast/passphrase}}"
+          PAYFAST_BASE_URL: "https://www.payfast.co.za"
+      Events:
+        PayFastItn:
+          Type: Api
+          Properties:
+            Path: /payments/payfast/itn
+            Method: post
+
+  TrialExpiryLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-trial-expiry"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.TrialExpiryLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          TRIALS_TABLE_NAME: !Sub "${AWS::StackName}-trials"
+          SUBSCRIPTIONS_TABLE_NAME: !Sub "${AWS::StackName}-subscriptions"
+      Events:
+        DailyTrialExpirySchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(1 day)"
+            Name: !Sub "${AWS::StackName}-trial-expiry-daily"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
+
+  PendingDowngradeLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-pending-downgrade"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.PendingDowngradeLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          PLAN_CHANGES_TABLE_NAME: !Sub "${AWS::StackName}-plan-changes"
+      Events:
+        DailyDowngradeSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(1 day)"
+            Name: !Sub "${AWS::StackName}-pending-downgrade-daily"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
+
+  DunningProcessorLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-dunning-processor"
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.DunningProcessorLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          DUNNING_SCHEDULES_TABLE_NAME: !Sub "${AWS::StackName}-dunning-schedules"
+          PAYMENTS_TABLE_NAME: !Sub "${AWS::StackName}-payments"
+          SUBSCRIPTIONS_TABLE_NAME: !Sub "${AWS::StackName}-subscriptions"
+          INVOICES_TABLE_NAME: !Sub "${AWS::StackName}-invoices"
+          LEDGER_ENTRIES_TABLE_NAME: !Sub "${AWS::StackName}-ledger-entries"
+          PAYFAST_MERCHANT_ID: "{{resolve:secretsmanager:/verifications/payfast/merchant_id}}"
+          PAYFAST_MERCHANT_KEY: "{{resolve:secretsmanager:/verifications/payfast/merchant_key}}"
+          PAYFAST_PASSPHRASE: "{{resolve:secretsmanager:/verifications/payfast/passphrase}}"
+          PAYFAST_BASE_URL: "https://www.payfast.co.za"
+      Events:
+        DailyDunningSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(1 day)"
+            Name: !Sub "${AWS::StackName}-dunning-processor-daily"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
+
+  ReconciliationLambdaHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Sub "{{resolve:ssm:/application/iam-role/${AWS::StackName}-${EnvironmentShortname}/arn}}"
+      FunctionName: !Sub "${AWS::StackName}-reconciliation"
+      Timeout: 120
+      Handler: verigate.billing.infrastructure.functions.lambda.handlers.ReconciliationLambdaHandler::handleRequest
+      CodeUri: ../../../verigate-billing/verigate-billing-infrastructure
+      Environment:
+        Variables:
+          USAGE_RECORDS_TABLE_NAME: !Sub "${AWS::StackName}-usage-records-table"
+          USAGE_SUMMARIES_TABLE_NAME: !Sub "${AWS::StackName}-usage-summaries-table"
+          BILLING_PLANS_TABLE_NAME: !Sub "${AWS::StackName}-billing-plans-table"
+          LEDGER_ENTRIES_TABLE_NAME: !Sub "${AWS::StackName}-ledger-entries"
+          INVOICES_TABLE_NAME: !Sub "${AWS::StackName}-invoices"
+          RECONCILIATION_REPORTS_TABLE_NAME: !Sub "${AWS::StackName}-reconciliation-reports"
+      Events:
+        MonthlyReconciliationSchedule:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "cron(0 2 1 * ? *)"
+            Name: !Sub "${AWS::StackName}-reconciliation-monthly"
+            RetryPolicy:
+              MaximumEventAgeInSeconds: 86400
+              MaximumRetryAttempts: 2
+
   ## Risk Engine Lambda Functions
   RiskEngineEventConsumerLambdaHandler:
     Type: AWS::Serverless::Function

@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>{{INVOICE_LABEL}} - {{INVOICE_NUMBER}}</title>
+    <style type="text/css">
+        /* ---- Reset and Base ---- */
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+
+        @page {
+            size: A4;
+            margin: 40px;
+        }
+
+        /* ---- Page Container ---- */
+        .page {
+            padding: 40px;
+        }
+
+        /* ---- Header ---- */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .header-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .company-name {
+            font-size: 28pt;
+            font-weight: bold;
+            color: #00B3D9;
+            letter-spacing: 1px;
+        }
+
+        .company-tagline {
+            font-size: 8pt;
+            color: #999999;
+            margin-top: 4px;
+        }
+
+        .invoice-label {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #333333;
+            text-align: right;
+        }
+
+        .invoice-label-accent {
+            display: block;
+            height: 4px;
+            background-color: #00B3D9;
+            margin-top: 8px;
+        }
+
+        /* ---- Divider ---- */
+        .divider {
+            border: none;
+            border-top: 2px solid #00B3D9;
+            margin: 0 0 25px 0;
+        }
+
+        /* ---- Meta Section (Invoice Details + Seller/Buyer) ---- */
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .meta-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .meta-left {
+            width: 50%;
+        }
+
+        .meta-right {
+            width: 50%;
+        }
+
+        /* ---- Info Block ---- */
+        .info-block {
+            margin-bottom: 20px;
+        }
+
+        .info-block-title {
+            font-size: 8pt;
+            font-weight: bold;
+            color: #00B3D9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-table {
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 3px 0;
+            font-size: 9pt;
+        }
+
+        .info-label {
+            color: #666666;
+            width: 120px;
+            padding-right: 10px;
+        }
+
+        .info-value {
+            color: #333333;
+            font-weight: bold;
+        }
+
+        /* ---- Invoice Details Box ---- */
+        .invoice-details-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+        }
+
+        .invoice-details-box .info-table td {
+            padding: 4px 0;
+        }
+
+        /* ---- Line Items Table ---- */
+        .items-section {
+            margin-bottom: 25px;
+        }
+
+        .items-section-title {
+            font-size: 8pt;
+            font-weight: bold;
+            color: #00B3D9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        table.items {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.items thead tr {
+            background-color: #00B3D9;
+        }
+
+        table.items th {
+            color: #ffffff;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            text-align: left;
+            border: none;
+        }
+
+        table.items th.right {
+            text-align: right;
+        }
+
+        table.items td {
+            padding: 10px 12px;
+            font-size: 9pt;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        table.items td.right {
+            text-align: right;
+        }
+
+        table.items tbody tr.alt {
+            background-color: #f8f9fa;
+        }
+
+        /* ---- Totals Section ---- */
+        .totals-wrapper {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .totals-spacer {
+            width: 55%;
+        }
+
+        .totals-content {
+            width: 45%;
+        }
+
+        table.totals {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.totals td {
+            padding: 6px 12px;
+            font-size: 10pt;
+        }
+
+        table.totals td.label {
+            text-align: left;
+            color: #666666;
+        }
+
+        table.totals td.value {
+            text-align: right;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        table.totals tr.subtotal-row td {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+
+        table.totals tr.vat-row td {
+            padding-top: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table.totals tr.total-row td {
+            padding-top: 10px;
+            font-size: 14pt;
+            font-weight: bold;
+            border-top: 2px solid #00B3D9;
+        }
+
+        table.totals tr.total-row td.value {
+            color: #00B3D9;
+        }
+
+        table.totals tr.currency-row td {
+            font-size: 8pt;
+            color: #999999;
+            padding-top: 2px;
+        }
+
+        /* ---- Payment Terms ---- */
+        .payment-section {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+        }
+
+        .payment-title {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #00B3D9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .payment-table {
+            border-collapse: collapse;
+        }
+
+        .payment-table td {
+            padding: 3px 0;
+            font-size: 9pt;
+        }
+
+        .payment-table .payment-label {
+            color: #666666;
+            width: 140px;
+            padding-right: 10px;
+        }
+
+        .payment-table .payment-value {
+            color: #333333;
+        }
+
+        /* ---- Footer ---- */
+        .footer {
+            border-top: 2px solid #00B3D9;
+            padding-top: 12px;
+            margin-top: 20px;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .footer-left {
+            width: 60%;
+        }
+
+        .footer-right {
+            width: 40%;
+            text-align: right;
+        }
+
+        .footer-text {
+            font-size: 7pt;
+            color: #999999;
+            line-height: 1.6;
+        }
+
+        .footer-company {
+            font-size: 8pt;
+            color: #666666;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <table class="header-table">
+            <tr>
+                <td style="width: 50%;">
+                    <div class="company-name">VeriGate</div>
+                    <div class="company-tagline">Secure Identity Verification Platform</div>
+                </td>
+                <td style="width: 50%; text-align: right;">
+                    <div class="invoice-label">{{INVOICE_LABEL}}</div>
+                    <div style="text-align: right;">
+                        <div style="display: inline-block; height: 4px; width: 80px; background-color: #00B3D9; margin-top: 8px;">&#160;</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <hr class="divider"/>
+
+        <!-- Invoice Details and Seller/Buyer Info -->
+        <table class="meta-table">
+            <tr>
+                <td class="meta-left">
+                    <!-- Seller Details -->
+                    <div class="info-block">
+                        <div class="info-block-title">From</div>
+                        <table class="info-table">
+                            <tr>
+                                <td class="info-label">Company:</td>
+                                <td class="info-value">{{SELLER_NAME}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Registration:</td>
+                                <td class="info-value">{{SELLER_REG}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Address:</td>
+                                <td class="info-value">{{SELLER_ADDRESS}}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Bill To -->
+                    <div class="info-block">
+                        <div class="info-block-title">Bill To</div>
+                        <table class="info-table">
+                            <tr>
+                                <td class="info-label">Partner Name:</td>
+                                <td class="info-value">{{PARTNER_NAME}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Partner ID:</td>
+                                <td class="info-value">{{PARTNER_ID}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td class="meta-right" style="padding-left: 30px;">
+                    <!-- Invoice Metadata -->
+                    <div class="invoice-details-box">
+                        <table class="info-table">
+                            <tr>
+                                <td class="info-label">Invoice Number:</td>
+                                <td class="info-value">{{INVOICE_NUMBER}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Issue Date:</td>
+                                <td class="info-value">{{ISSUE_DATE}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Due Date:</td>
+                                <td class="info-value">{{DUE_DATE}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Billing Period:</td>
+                                <td class="info-value">{{BILLING_PERIOD}}</td>
+                            </tr>
+                            <tr>
+                                <td class="info-label">Currency:</td>
+                                <td class="info-value">{{CURRENCY}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Line Items -->
+        <div class="items-section">
+            <div class="items-section-title">Line Items</div>
+            <table class="items">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Description</th>
+                        <th class="right" style="width: 10%;">Qty</th>
+                        <th class="right" style="width: 15%;">Unit Price</th>
+                        <th class="right" style="width: 15%;">Subtotal</th>
+                        <th class="right" style="width: 10%;">VAT</th>
+                        <th class="right" style="width: 15%;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{LINE_ITEMS}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals -->
+        <table class="totals-wrapper">
+            <tr>
+                <td class="totals-spacer">&#160;</td>
+                <td class="totals-content">
+                    <table class="totals">
+                        <tr class="subtotal-row">
+                            <td class="label">Subtotal (excl. VAT):</td>
+                            <td class="value">{{SUBTOTAL}}</td>
+                        </tr>
+                        <tr class="vat-row">
+                            <td class="label">VAT ({{VAT_RATE}}):</td>
+                            <td class="value">{{VAT_AMOUNT}}</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td class="label">Total Due:</td>
+                            <td class="value">{{TOTAL}}</td>
+                        </tr>
+                        <tr class="currency-row">
+                            <td class="label">&#160;</td>
+                            <td class="value">Currency: {{CURRENCY}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Payment Terms and Banking Details -->
+        <div class="payment-section">
+            <div class="payment-title">Payment Information</div>
+            <table class="payment-table">
+                <tr>
+                    <td class="payment-label">Payment Terms:</td>
+                    <td class="payment-value">Due within 30 days of invoice date</td>
+                </tr>
+                <tr>
+                    <td class="payment-label">Bank:</td>
+                    <td class="payment-value">First National Bank (FNB)</td>
+                </tr>
+                <tr>
+                    <td class="payment-label">Account Name:</td>
+                    <td class="payment-value">{{SELLER_NAME}}</td>
+                </tr>
+                <tr>
+                    <td class="payment-label">Account Number:</td>
+                    <td class="payment-value">[Account Number]</td>
+                </tr>
+                <tr>
+                    <td class="payment-label">Branch Code:</td>
+                    <td class="payment-value">[Branch Code]</td>
+                </tr>
+                <tr>
+                    <td class="payment-label">Reference:</td>
+                    <td class="payment-value">{{INVOICE_NUMBER}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <table class="footer-table">
+                <tr>
+                    <td class="footer-left">
+                        <div class="footer-company">{{SELLER_NAME}}</div>
+                        <div class="footer-text">
+                            Registration No: {{SELLER_REG}}<br/>
+                            {{SELLER_ADDRESS}}<br/>
+                            E &amp; OE - Errors and Omissions Excepted
+                        </div>
+                    </td>
+                    <td class="footer-right">
+                        <div class="footer-text">
+                            Invoice: {{INVOICE_NUMBER}}<br/>
+                            Generated electronically and is valid without signature.
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
