@@ -144,10 +144,9 @@ function isFieldValid(field: FieldDef, value: string): boolean {
 const CATEGORY_LABELS: Record<VerificationTypeInfo["category"], string> = {
   identity: "Identity",
   financial: "Financial",
-  business: "Business",
-  screening: "Screening",
-  biometric: "Biometric",
-  composite: "Composite",
+  corporate: "Corporate",
+  property: "Property",
+  risk_intelligence: "Risk Intelligence",
 };
 
 function deduplicateByRoute(types: VerificationTypeInfo[]): VerificationTypeInfo[] {

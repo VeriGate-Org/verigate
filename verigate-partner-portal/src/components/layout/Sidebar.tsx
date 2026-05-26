@@ -62,7 +62,7 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Identity & Personal",
+    label: "Identity",
     items: [
       { id: "kyc", icon: UserCheck, label: "KYC", href: "/services/kyc" },
       { id: "documents", icon: FileSearch, label: "Document Verification", href: "/services/document-verification" },
@@ -82,42 +82,42 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Business & Compliance",
+    label: "Corporate",
     items: [
       { id: "company", icon: Building2, label: "Company & Directors", href: "/services/company" },
       { id: "employment", icon: Briefcase, label: "Employment", href: "/services/employment" },
       { id: "qualification", icon: GraduationCap, label: "Qualification", href: "/services/qualification" },
       { id: "vat", icon: Search, label: "VAT Vendor Search", href: "/services/vat-vendor-search" },
+    ],
+  },
+  {
+    label: "Property",
+    items: [
       { id: "deeds", icon: Map, label: "Deeds Registry", href: "/services/deeds" },
       { id: "property-conversion", icon: ArrowLeftRight, label: "Street/ERF Conversion", href: "/services/property-conversion" },
       { id: "property-valuation", icon: Gauge, label: "Property Valuation", href: "/services/property-valuation" },
       { id: "deeds-map", icon: MapPin, label: "Deeds Map", href: "/services/deeds-map", badge: "NEW" },
-      { id: "sanctions", icon: Shield, label: "Sanctions & PEP", href: "/services/sanctions" },
     ],
   },
   {
-    label: "Screening",
+    label: "Risk Intelligence",
     items: [
+      { id: "sanctions", icon: Shield, label: "Sanctions & PEP", href: "/services/sanctions" },
       { id: "negnews", icon: Newspaper, label: "Negative News", href: "/services/negative-news" },
       { id: "fraud", icon: AlertTriangle, label: "Fraud Watchlist", href: "/services/fraud-watchlist" },
     ],
   },
   {
-    label: "Enterprise Features",
+    label: "Operations",
     items: [
       { id: "policies", icon: Layers, label: "Policy Builder", href: "/policies", badge: "NEW" },
       { id: "conflicts", icon: Eye, label: "Conflict of Interest", href: "/services/conflict-of-interest", badge: "NEW" },
       { id: "monitoring", icon: Shield, label: "Monitoring", href: "/monitoring", badge: "NEW" },
-    ],
-  },
-  {
-    label: "Reporting",
-    items: [
       { id: "reports", icon: BarChart3, label: "Reports", href: "/reports" },
     ],
   },
   {
-    label: "Admin & Settings",
+    label: "Settings",
     items: [
       { id: "settings", icon: Settings, label: "Settings", href: "/settings" },
       { id: "admin", icon: Users, label: "User Management", href: "/admin" },

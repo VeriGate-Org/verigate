@@ -14,37 +14,32 @@ const CATEGORY_META: Record<
 > = {
   identity: {
     label: "Identity",
-    description: "Verify individuals against government and biometric sources.",
+    description: "Verify individuals against government, biometric, and document sources.",
   },
   financial: {
     label: "Financial",
     description: "Bank account, credit, income, and tax checks.",
   },
-  business: {
-    label: "Business",
-    description: "Company registry, employment, and qualification verification.",
+  corporate: {
+    label: "Corporate",
+    description: "Company registry, employment, qualification, and VAT verification.",
   },
-  screening: {
-    label: "Screening",
+  property: {
+    label: "Property",
+    description: "Deeds registry, property valuation, and ownership verification.",
+  },
+  risk_intelligence: {
+    label: "Risk Intelligence",
     description: "Sanctions, PEP, watchlist, and adverse media screening.",
-  },
-  biometric: {
-    label: "Biometric",
-    description: "Facial recognition and liveness detection services.",
-  },
-  composite: {
-    label: "Composite",
-    description: "Combined verification workflows.",
   },
 };
 
 const CATEGORY_ORDER: VerificationTypeInfo["category"][] = [
   "identity",
   "financial",
-  "business",
-  "screening",
-  "biometric",
-  "composite",
+  "corporate",
+  "property",
+  "risk_intelligence",
 ];
 
 /** Descriptions for service cards, keyed by portalType. */

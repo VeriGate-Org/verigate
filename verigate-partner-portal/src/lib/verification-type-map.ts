@@ -15,7 +15,7 @@ export interface VerificationTypeInfo {
   provider: string;
   icon: ComponentType<{ className?: string }>;
   route: string;
-  category: "identity" | "financial" | "business" | "screening" | "composite" | "biometric";
+  category: "identity" | "financial" | "corporate" | "property" | "risk_intelligence";
 }
 
 const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
@@ -97,7 +97,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "CIPC",
     icon: Building2,
     route: "/services/company",
-    category: "business",
+    category: "corporate",
   },
   DEEDS: {
     portalType: "DEEDS",
@@ -107,7 +107,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "Deeds Registry",
     icon: Map,
     route: "/services/property-ownership",
-    category: "business",
+    category: "property",
   },
   EMPLOYMENT: {
     portalType: "EMPLOYMENT",
@@ -117,7 +117,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "EmployVerify",
     icon: Briefcase,
     route: "/services/employment",
-    category: "business",
+    category: "corporate",
   },
   QUALIFICATION: {
     portalType: "QUALIFICATION",
@@ -127,7 +127,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "SAQA",
     icon: GraduationCap,
     route: "/services/qualification",
-    category: "business",
+    category: "corporate",
   },
   SANCTIONS: {
     portalType: "SANCTIONS",
@@ -137,7 +137,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "OpenSanctions",
     icon: ShieldAlert,
     route: "/services/sanctions",
-    category: "screening",
+    category: "risk_intelligence",
   },
   NEGATIVE_NEWS: {
     portalType: "NEGATIVE_NEWS",
@@ -147,7 +147,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "MediaScreen",
     icon: Newspaper,
     route: "/services/negative-news",
-    category: "screening",
+    category: "risk_intelligence",
   },
   FRAUD_WATCHLIST: {
     portalType: "FRAUD_WATCHLIST",
@@ -157,7 +157,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "SAFPS",
     icon: AlertTriangle,
     route: "/services/fraud-watchlist",
-    category: "screening",
+    category: "risk_intelligence",
   },
   WATCHLIST: {
     portalType: "WATCHLIST",
@@ -167,7 +167,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "OpenSanctions",
     icon: Eye,
     route: "/services/sanctions",
-    category: "screening",
+    category: "risk_intelligence",
   },
   VAT_VENDOR: {
     portalType: "VAT_VENDOR",
@@ -177,7 +177,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "SARS",
     icon: Search,
     route: "/services/vat-vendor-search",
-    category: "financial",
+    category: "corporate",
   },
   BIOMETRIC: {
     portalType: "BIOMETRIC",
@@ -187,7 +187,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "Coming Soon",
     icon: ScanFace,
     route: "/services/biometric",
-    category: "biometric",
+    category: "identity",
   },
   LIVENESS: {
     portalType: "LIVENESS",
@@ -197,7 +197,7 @@ const TYPE_MAP: Record<VerificationType, VerificationTypeInfo> = {
     provider: "Coming Soon",
     icon: Camera,
     route: "/services/liveness",
-    category: "biometric",
+    category: "identity",
   },
 };
 
