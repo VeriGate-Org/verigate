@@ -7,7 +7,13 @@
 package verigate.adapter.deedsweb.infrastructure.soap;
 
 import jakarta.xml.ws.BindingProvider;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.Map;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
@@ -73,15 +79,26 @@ public final class CxfPortFactory {
     policy.setVersion("1.1");
     conduit.setClient(policy);
 
-    // Configure TLS for HTTPS endpoints. CXF's X509TrustManagerWrapper does its
-    // own hostname verification that fails to match wildcard certificates (e.g.
-    // *.deeds.gov.za vs deedssoap.deeds.gov.za). Disabling the CN check lets CXF
-    // build its own SSLContext from the JVM's default trust store while skipping
-    // the broken hostname check in the trust manager wrapper. The JVM's SSL engine
-    // still performs standard certificate chain validation.
+    // Configure TLS for HTTPS endpoints.
+    //
+    // 1. CN check disabled: CXF's X509TrustManagerWrapper does its own hostname
+    //    verification that fails to match wildcard certificates (e.g.
+    //    *.deeds.gov.za vs deedssoap.deeds.gov.za). Disabling it lets the JVM's
+    //    SSL engine handle standard certificate chain validation instead.
+    //
+    // 2. Relaxed DH key size: The DeedsWeb server uses a Diffie-Hellman key
+    //    smaller than 2048 bits. Java 21's default security policy rejects this
+    //    with "DH ServerKeyExchange does not comply to algorithm constraints".
+    //    We lower the JVM's constraint from "DH keySize < 2048" to
+    //    "DH keySize < 1024" so the handshake succeeds. This is scoped to the
+    //    JVM-level security property because SSLContext does not expose per-context
+    //    algorithm constraints, but since each Lambda instance runs a single
+    //    adapter, the blast radius is limited to this process.
     if (endpoint.toLowerCase().startsWith("https")) {
+      relaxDhKeyConstraints();
       TLSClientParameters tls = new TLSClientParameters();
       tls.setDisableCNCheck(true);
+      tls.setSSLSocketFactory(createRelaxedSslContext().getSocketFactory());
       conduit.setTlsClientParameters(tls);
     }
 
@@ -91,5 +108,45 @@ public final class CxfPortFactory {
         config.getConnectionTimeoutMs(),
         config.getReadTimeoutMs());
     return port;
+  }
+
+  /**
+   * Relaxes the JVM's {@code jdk.tls.disabledAlgorithms} security property to allow DH keys
+   * down to 1024 bits. The DeedsWeb server presents a DH key smaller than the Java 21 default
+   * minimum of 2048 bits.
+   */
+  private static void relaxDhKeyConstraints() {
+    String current = Security.getProperty("jdk.tls.disabledAlgorithms");
+    if (current != null && current.contains("DH keySize < 2048")) {
+      String relaxed = current.replace("DH keySize < 2048", "DH keySize < 1024");
+      Security.setProperty("jdk.tls.disabledAlgorithms", relaxed);
+      LOGGER.info("Relaxed jdk.tls.disabledAlgorithms: DH keySize minimum lowered to 1024");
+    }
+  }
+
+  /**
+   * Creates an {@link SSLContext} that uses the JVM's default trust store (for CA chain
+   * validation) but inherits the relaxed algorithm constraints set by
+   * {@link #relaxDhKeyConstraints()}.
+   */
+  private static SSLContext createRelaxedSslContext() {
+    try {
+      TrustManagerFactory tmf =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tmf.init((java.security.KeyStore) null);
+      TrustManager[] trustManagers = tmf.getTrustManagers();
+
+      SSLContext ctx = SSLContext.getInstance("TLS");
+      ctx.init(null, trustManagers, null);
+      return ctx;
+    } catch (NoSuchAlgorithmException | KeyManagementException
+        | java.security.KeyStoreException e) {
+      LOGGER.warn("Failed to create relaxed SSLContext, falling back to JVM default", e);
+      try {
+        return SSLContext.getDefault();
+      } catch (NoSuchAlgorithmException ex) {
+        throw new IllegalStateException("No default SSLContext available", ex);
+      }
+    }
   }
 }
