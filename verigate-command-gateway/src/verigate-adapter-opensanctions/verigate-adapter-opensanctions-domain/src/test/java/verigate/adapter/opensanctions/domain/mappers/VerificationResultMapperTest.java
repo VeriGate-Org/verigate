@@ -247,12 +247,13 @@ class VerificationResultMapperTest {
     // ---- PEP vs Sanctions classification tests ----
 
     @Test
-    void mapToVerificationResult_pepDataset_classifiedAsPep() {
+    void mapToVerificationResult_pepTopic_classifiedAsPep() {
         // Arrange
         ScoredEntity pepEntity = new ScoredEntity.Builder()
             .id("ent-pep")
             .caption("PEP Person")
-            .datasets(List.of("ru_pep_registry", "us_ofac_sdn"))
+            .datasets(List.of("us_ofac_sdn"))
+            .topics(List.of("role.pep"))
             .score(0.85)
             .build();
 
@@ -331,7 +332,8 @@ class VerificationResultMapperTest {
         ScoredEntity pepEntity = new ScoredEntity.Builder()
             .id("ent-pep")
             .caption("PEP Person")
-            .datasets(List.of("za_pep_list"))
+            .datasets(List.of("za_gov_gazette"))
+            .topics(List.of("role.pep"))
             .score(0.75)
             .build();
 
@@ -418,7 +420,8 @@ class VerificationResultMapperTest {
         ScoredEntity entity2 = new ScoredEntity.Builder()
             .id("ent-2")
             .caption("Entity B")
-            .datasets(List.of("eu_pep_registry"))
+            .datasets(List.of("eu_fsf"))
+            .topics(List.of("role.pep"))
             .score(0.78)
             .build();
 

@@ -152,12 +152,13 @@ public class VerificationResultMapper {
   }
 
   /**
-   * Classifies an entity match as PEP or Sanctions based on its datasets.
+   * Classifies an entity match as PEP or Sanctions based on its topics.
+   * Topics are the authoritative signal from OpenSanctions (e.g. "role.pep", "sanction").
    */
   private static String classifyMatchType(ScoredEntity entity) {
-    if (entity.getDatasets() != null) {
-      for (String dataset : entity.getDatasets()) {
-        if (dataset.toLowerCase().contains("pep")) {
+    if (entity.getTopics() != null) {
+      for (String topic : entity.getTopics()) {
+        if (DomainConstants.PEP_TOPIC.equals(topic)) {
           return "PEP";
         }
       }

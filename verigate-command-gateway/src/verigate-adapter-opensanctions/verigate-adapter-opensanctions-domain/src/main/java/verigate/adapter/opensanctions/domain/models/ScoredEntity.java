@@ -20,6 +20,7 @@ public class ScoredEntity {
   private final String schema;
   private final Map<String, List<Object>> properties;
   private final List<String> datasets;
+  private final List<String> topics;
   private final List<String> referents;
   private final Boolean target;
   private final LocalDateTime firstSeen;
@@ -36,6 +37,7 @@ public class ScoredEntity {
     this.schema = builder.schema;
     this.properties = builder.properties;
     this.datasets = builder.datasets;
+    this.topics = builder.topics;
     this.referents = builder.referents;
     this.target = builder.target;
     this.firstSeen = builder.firstSeen;
@@ -66,6 +68,10 @@ public class ScoredEntity {
 
   public List<String> getDatasets() {
     return datasets;
+  }
+
+  public List<String> getTopics() {
+    return topics;
   }
 
   public List<String> getReferents() {
@@ -113,6 +119,7 @@ public class ScoredEntity {
     private String schema;
     private Map<String, List<Object>> properties;
     private List<String> datasets;
+    private List<String> topics;
     private List<String> referents;
     private Boolean target;
     private LocalDateTime firstSeen;
@@ -145,6 +152,11 @@ public class ScoredEntity {
 
     public Builder datasets(List<String> datasets) {
       this.datasets = datasets;
+      return this;
+    }
+
+    public Builder topics(List<String> topics) {
+      this.topics = topics;
       return this;
     }
 
