@@ -41,6 +41,7 @@ public class AiRiskSignalLambdaHandler implements RequestHandler<KinesisEvent, V
   private final ObjectMapper objectMapper;
   private final String tableName;
 
+  /** Constructs a new instance. */
   public AiRiskSignalLambdaHandler() {
     String region = System.getenv("BEDROCK_REGION");
     String modelId = System.getenv("BEDROCK_MODEL_ID");

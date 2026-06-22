@@ -23,6 +23,7 @@ public record VatVendorSearchResponse(
     String reason,
     LocalDateTime verifiedAt) {
 
+  /** Creates a response indicating a vendor was found with the given details. */
   public static VatVendorSearchResponse found(VatVendorDetails details, VatVendorStatus status) {
     String reason = String.format(
         "VAT vendor found: %s (%s)",
@@ -31,6 +32,7 @@ public record VatVendorSearchResponse(
     return new VatVendorSearchResponse(status, details, reason, LocalDateTime.now());
   }
 
+  /** Creates a response indicating no vendor was found. */
   public static VatVendorSearchResponse notFound() {
     return new VatVendorSearchResponse(
         VatVendorStatus.NOT_FOUND, null,

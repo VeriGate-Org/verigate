@@ -31,6 +31,7 @@ public class DependencyFactory {
     this.injector = injector;
   }
 
+  /** Returns the artifact serializer instance. */
   public InternalTransportJsonSerializer getSerializer() {
     return injector.getInstance(
         Key.get(

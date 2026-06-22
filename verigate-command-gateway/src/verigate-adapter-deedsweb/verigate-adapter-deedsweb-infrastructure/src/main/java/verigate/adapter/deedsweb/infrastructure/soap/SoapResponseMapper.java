@@ -6,6 +6,12 @@
 
 package verigate.adapter.deedsweb.infrastructure.soap;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import verigate.adapter.deedsweb.domain.models.DeedsPropertyType;
@@ -44,13 +50,6 @@ import verigate.adapter.deedsweb.infrastructure.soap.generated.TitleDeedDetailsR
 import verigate.adapter.deedsweb.infrastructure.soap.generated.TownshipPropertyDetailResponse;
 import verigate.adapter.deedsweb.infrastructure.soap.generated.TownshipPropertyInformationResponse;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Pure functions that map CXF-generated SOAP response objects to domain models.
  *
@@ -73,6 +72,7 @@ public final class SoapResponseMapper {
 
   // ----- Office / property type -----
 
+  /** Maps raw office registry responses to domain models. */
   public static List<OfficeRegistry> mapOffices(List<OfficeRegistryInformationResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -87,6 +87,7 @@ public final class SoapResponseMapper {
     return List.copyOf(out);
   }
 
+  /** Maps raw property type responses to domain models. */
   public static List<DeedsPropertyType> mapPropertyTypes(
       List<PropertyTypeInformationResponse> raw) {
     if (raw == null) {
@@ -198,6 +199,7 @@ public final class SoapResponseMapper {
 
   // ----- Full person + property aggregates -----
 
+  /** Maps full person property information responses to domain models. */
   public static List<PersonFullProperty> mapFullPersonResponses(
       List<FullPersonPropertyInformationResponse> raw) {
     if (raw == null) {
@@ -213,6 +215,7 @@ public final class SoapResponseMapper {
     return out;
   }
 
+  /** Maps a single full person property information response to a domain model. */
   public static PersonFullProperty mapFullPerson(FullPersonPropertyInformationResponse env) {
     if (env == null) {
       return null;
@@ -348,6 +351,7 @@ public final class SoapResponseMapper {
 
   // ----- Detail-shaped responses (erf / farm / scheme / township / ag / exclusive use) -----
 
+  /** Maps erf property information responses to property details. */
   public static List<PropertyDetails> mapErf(List<ErfPropertyInformationResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -379,6 +383,7 @@ public final class SoapResponseMapper {
     return sb.toString();
   }
 
+  /** Maps farm property information responses to property details. */
   public static List<PropertyDetails> mapFarm(List<FarmPropertyInformationResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -417,6 +422,7 @@ public final class SoapResponseMapper {
     return sb.toString();
   }
 
+  /** Maps township property information responses to property details. */
   public static List<PropertyDetails> mapTownship(List<TownshipPropertyInformationResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -428,7 +434,8 @@ public final class SoapResponseMapper {
       }
       logIfError(env.getErrorResponse(), "townshipPropertyInformationResponse");
       TownshipPropertyDetailResponse detail = env.getTownshipPropertyDetailResponse();
-      String description = detail == null ? null : "Township " + nullToEmpty(safeTownshipName(detail));
+      String description = detail == null
+          ? null : "Township " + nullToEmpty(safeTownshipName(detail));
       out.addAll(
           combineDetailWith(
               description == null ? null : description.trim(),
@@ -452,6 +459,7 @@ public final class SoapResponseMapper {
     }
   }
 
+  /** Maps agricultural holding property responses to property details. */
   public static List<PropertyDetails> mapAgricultural(
       List<AgriculturalHoldingPropertyInformationResponse> raw) {
     if (raw == null) {
@@ -487,6 +495,7 @@ public final class SoapResponseMapper {
     }
   }
 
+  /** Maps agricultural holding area responses to property details. */
   public static List<PropertyDetails> mapAgriculturalArea(
       List<AgriculturalHoldingAreaPropertyInformationResponse> raw) {
     if (raw == null) {
@@ -513,6 +522,7 @@ public final class SoapResponseMapper {
     return out;
   }
 
+  /** Maps scheme property information responses to property details. */
   public static List<PropertyDetails> mapScheme(List<SchemePropertyInformationResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -536,6 +546,7 @@ public final class SoapResponseMapper {
     return out;
   }
 
+  /** Maps exclusive use area property responses to property details. */
   public static List<PropertyDetails> mapExclusiveUse(
       List<ExclusiveUseAreaPropertyInformationResponse> raw) {
     if (raw == null) {
@@ -591,7 +602,9 @@ public final class SoapResponseMapper {
       applyFirstEndorsement(builder, endorsements);
       return List.of(builder.build());
     }
-    int count = Math.max(owners == null ? 0 : owners.size(), titleDeeds == null ? 0 : titleDeeds.size());
+    int count = Math.max(
+        owners == null ? 0 : owners.size(),
+        titleDeeds == null ? 0 : titleDeeds.size());
     List<PropertyDetails> out = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
       PropertyOwnerDetailsResponse owner = pick(owners, i);
@@ -646,6 +659,7 @@ public final class SoapResponseMapper {
 
   // ----- Endorsement / history mapping -----
 
+  /** Maps endorsement detail responses to domain endorsement models. */
   public static List<PropertyEndorsement> mapEndorsements(
       List<PropertyEndorsementDetailsResponse> raw) {
     if (raw == null) {
@@ -667,6 +681,7 @@ public final class SoapResponseMapper {
     return out;
   }
 
+  /** Maps history detail responses to domain history entry models. */
   public static List<PropertyHistoryEntry> mapHistory(List<PropertyHistoryDetailsResponse> raw) {
     if (raw == null) {
       return Collections.emptyList();
@@ -706,7 +721,8 @@ public final class SoapResponseMapper {
     if (value == null) {
       value = invokeOrNull(env, "getPropertyOwnerDetailsResponseList", Object.class);
     }
-    return value instanceof List ? (List<PropertyOwnerDetailsResponse>) value : Collections.emptyList();
+    return value instanceof List
+        ? (List<PropertyOwnerDetailsResponse>) value : Collections.emptyList();
   }
 
   @SuppressWarnings("unchecked")

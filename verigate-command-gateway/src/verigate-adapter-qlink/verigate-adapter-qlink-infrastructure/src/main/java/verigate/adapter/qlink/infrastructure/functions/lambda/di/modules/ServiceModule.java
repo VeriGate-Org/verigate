@@ -160,6 +160,7 @@ public class ServiceModule extends AbstractModule {
     return mapper;
   }
 
+  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
   @Provides
   @Singleton
   private QLinkApiConfiguration provideQLinkApiConfiguration(
@@ -167,6 +168,7 @@ public class ServiceModule extends AbstractModule {
     return new QLinkApiConfiguration(environment, config);
   }
 
+  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
   @Provides
   @Singleton
   private QLinkHttpAdapter provideQLinkHttpAdapter(
@@ -174,18 +176,21 @@ public class ServiceModule extends AbstractModule {
     return new QLinkHttpAdapter(environment, objectMapper);
   }
 
+  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
   @Provides
   @Singleton
   private QLinkBankApiAdapter provideQLinkBankApiAdapter(QLinkHttpAdapter httpAdapter) {
     return new QLinkBankApiAdapter(httpAdapter);
   }
 
+  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
   @Provides
   @Singleton
   private QLinkDtoMapper provideQLinkDtoMapper() {
     return new QLinkDtoMapper();
   }
 
+  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
   @Provides
   @Singleton
   private DefaultQLinkBankVerificationService provideQLinkBankVerificationService(

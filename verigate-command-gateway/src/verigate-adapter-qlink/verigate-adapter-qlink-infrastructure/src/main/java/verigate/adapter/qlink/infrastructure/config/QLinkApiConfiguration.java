@@ -15,6 +15,7 @@ import verigate.adapter.qlink.infrastructure.constants.EnvironmentConstants;
  * Configuration class for the QLink Bank Verification API integration. Provides type-safe access to
  * configuration properties with sensible defaults.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class QLinkApiConfiguration {
 
   private final Environment environment;

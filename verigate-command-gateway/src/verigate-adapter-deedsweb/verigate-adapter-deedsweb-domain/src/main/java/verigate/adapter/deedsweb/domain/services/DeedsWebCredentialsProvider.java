@@ -18,7 +18,8 @@ import verigate.adapter.deedsweb.domain.models.DeedsWebCredentials;
 public interface DeedsWebCredentialsProvider {
 
   /**
-   * @return the current DeedsWeb credentials
+   * Returns the current DeedsWeb credentials.
+   *
    * @throws TransientException if the secret store is unreachable
    * @throws PermanentException if the secret is missing or malformed
    */

@@ -133,7 +133,8 @@ public class DefaultPropertyVerificationCommandHandler
 
     for (int index = 0; index < properties.size(); index++) {
       PropertyDetails property = properties.get(index);
-      ParsedPropertyDescription parsedDescription = parseDescription(property.getPropertyDescription());
+      ParsedPropertyDescription parsedDescription =
+          parseDescription(property.getPropertyDescription());
 
       List<BondItem> bonds = new ArrayList<>();
       if (property.hasMortgage()) {
@@ -147,7 +148,10 @@ public class DefaultPropertyVerificationCommandHandler
 
       items.add(
           new PropertyItem(
-              firstNonBlank(property.getDeedNumber(), property.getTitleDeedReference(), "property-" + index),
+              firstNonBlank(
+                  property.getDeedNumber(),
+                  property.getTitleDeedReference(),
+                  "property-" + index),
               parsedDescription.erfNumber(),
               parsedDescription.portion(),
               parsedDescription.township(),
@@ -160,7 +164,9 @@ public class DefaultPropertyVerificationCommandHandler
               buildStreetAddress(property, parsedDescription),
               List.of(),
               bonds,
-              new LastTransferItem(toIsoDate(property.getTransferDate()), property.getPurchasePrice()),
+              new LastTransferItem(
+                  toIsoDate(property.getTransferDate()),
+                  property.getPurchasePrice()),
               new MunicipalItem(
                   firstNonBlank(property.getDeedNumber(), property.getTitleDeedReference(), ""),
                   0.0,
@@ -241,7 +247,8 @@ public class DefaultPropertyVerificationCommandHandler
 
   private String buildStreetAddress(
       PropertyDetails property, ParsedPropertyDescription parsedDescription) {
-    String township = firstNonBlank(parsedDescription.township(), property.getProvince(), "Property");
+    String township = firstNonBlank(
+        parsedDescription.township(), property.getProvince(), "Property");
     int erfNumber = parsedDescription.erfNumber() > 0 ? parsedDescription.erfNumber() : 1;
     return erfNumber + " Registry Avenue, " + township;
   }

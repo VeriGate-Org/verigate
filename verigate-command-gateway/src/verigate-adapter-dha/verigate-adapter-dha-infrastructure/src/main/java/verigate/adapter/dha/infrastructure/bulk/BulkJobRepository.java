@@ -141,13 +141,23 @@ public class BulkJobRepository {
   private int getInt(Map<String, AttributeValue> item, String key) {
     AttributeValue val = item.get(key);
     if (val != null && val.n() != null) {
-      try { return Integer.parseInt(val.n()); } catch (NumberFormatException e) { return 0; }
+      try {
+        return Integer.parseInt(val.n());
+      } catch (NumberFormatException e) {
+        return 0;
+      }
     }
     return 0;
   }
 
   private Instant parseInstant(String value) {
-    if (value == null || value.isBlank()) return null;
-    try { return Instant.parse(value); } catch (Exception e) { return null; }
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    try {
+      return Instant.parse(value);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

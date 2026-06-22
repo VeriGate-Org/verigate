@@ -21,6 +21,7 @@ import verigate.adapter.qlink.infrastructure.mappers.QLinkDtoMapper;
  * Default implementation of the {@link QLinkBankVerificationService} using the infrastructure HTTP
  * adapter.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class DefaultQLinkBankVerificationService implements QLinkBankVerificationService {
 
   private static final Logger logger =

@@ -25,8 +25,11 @@ public class HanisConfiguration {
     this.environment = environment;
   }
 
+  /** Checks whether HANIS integration is enabled. */
   public boolean isEnabled() {
-    return Boolean.parseBoolean(getOrDefault(EnvironmentConstants.HANIS_INTEGRATION_ENABLED, "false"));
+    return Boolean.parseBoolean(
+        getOrDefault(EnvironmentConstants.HANIS_INTEGRATION_ENABLED,
+            "false"));
   }
 
   public String getSiteId() {
@@ -45,6 +48,7 @@ public class HanisConfiguration {
     return getOrDefault(EnvironmentConstants.HANIS_FAILOVER_URL, "");
   }
 
+  /** Returns the configured timeout in seconds. */
   public int getTimeoutSeconds() {
     try {
       return Integer.parseInt(
