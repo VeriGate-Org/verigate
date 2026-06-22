@@ -34,6 +34,7 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
   private final DocumentDtoMapper dtoMapper;
   private final AiDocumentAnalyzer aiDocumentAnalyzer;
 
+  /** Constructs a new instance. */
   public DefaultDocumentVerificationService(
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
       AiDocumentAnalyzer aiDocumentAnalyzer) {

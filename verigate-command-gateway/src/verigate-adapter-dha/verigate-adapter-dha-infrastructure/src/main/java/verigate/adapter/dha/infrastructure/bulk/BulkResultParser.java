@@ -6,8 +6,8 @@
 
 package verigate.adapter.dha.infrastructure.bulk;
 
-import java.io.ByteArrayInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,14 +34,20 @@ public class BulkResultParser {
     List<BulkVerificationResult> results = new ArrayList<>();
 
     for (String line : csvLines) {
-      if (line.isBlank()) continue;
+      if (line.isBlank()) {
+        continue;
+      }
 
       String[] fields = line.split(",", -1);
-      if (fields.length < 2) continue;
+      if (fields.length < 2) {
+        continue;
+      }
 
       // First field is always the ID number
       String idNumber = fields[0].trim();
-      if (idNumber.length() != 13) continue; // Skip header or invalid lines
+      if (idNumber.length() != 13) {
+        continue; // Skip header or invalid lines
+      }
 
       results.add(parseResultLine(fields));
     }
@@ -110,7 +116,13 @@ public class BulkResultParser {
 
   private int safeInt(String[] fields, int index) {
     String val = safeGet(fields, index);
-    if (val.isBlank()) return 0;
-    try { return Integer.parseInt(val); } catch (NumberFormatException e) { return 0; }
+    if (val.isBlank()) {
+      return 0;
+    }
+    try {
+      return Integer.parseInt(val);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 }

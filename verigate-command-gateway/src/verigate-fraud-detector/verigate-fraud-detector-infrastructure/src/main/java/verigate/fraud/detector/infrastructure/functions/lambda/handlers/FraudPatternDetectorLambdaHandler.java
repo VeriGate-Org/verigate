@@ -53,6 +53,7 @@ public class FraudPatternDetectorLambdaHandler implements RequestHandler<Kinesis
   private final String patternsTableName;
   private final String alertsTableName;
 
+  /** Constructs a new instance. */
   public FraudPatternDetectorLambdaHandler() {
     String region = System.getenv("BEDROCK_REGION");
     String modelId = System.getenv("BEDROCK_MODEL_ID");

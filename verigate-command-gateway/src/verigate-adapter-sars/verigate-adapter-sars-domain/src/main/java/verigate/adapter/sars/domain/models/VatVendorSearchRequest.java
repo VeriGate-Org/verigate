@@ -18,6 +18,7 @@ public record VatVendorSearchRequest(String vatNumber, String description) {
     return new Builder();
   }
 
+  /** Builder for constructing VatVendorSearchRequest instances. */
   public static final class Builder {
     private String vatNumber;
     private String description;

@@ -110,7 +110,8 @@ public class DefaultVerifyIdentityCommandHandler
               "verificationStatus", cachedResponse.status().toString(),
               "citizenshipStatus", cachedResponse.citizenshipStatus().toString(),
               "vitalStatus", cachedResponse.vitalStatus().toString(),
-              "matchDetails", cachedResponse.matchDetails() != null ? cachedResponse.matchDetails() : "",
+              "matchDetails", cachedResponse.matchDetails() != null
+                  ? cachedResponse.matchDetails() : "",
               "source", "vault");
         }
         logger.info("Identity vault MISS for command: {} (dha.vault.miss)", command.getId());

@@ -43,6 +43,7 @@ public class CxfDeedsRegistryClient implements DeedsRegistryClient {
   private final CachingOfficeRegistry officeCache;
   private final ExecutorService fanoutExecutor;
 
+  /** Creates a CXF-backed deeds registry client with the given dependencies. */
   public CxfDeedsRegistryClient(
       DeedsRegistrationEnquiryService port,
       DeedsWebCredentialsProvider credentialsProvider,
@@ -323,7 +324,8 @@ public class CxfDeedsRegistryClient implements DeedsRegistryClient {
   // --------------------------------------------------------------------------------------
 
   @Override
-  public List<OfficeRegistry> getOfficeRegistryList() throws TransientException, PermanentException {
+  public List<OfficeRegistry> getOfficeRegistryList()
+      throws TransientException, PermanentException {
     return officeCache.getAll();
   }
 
@@ -427,7 +429,8 @@ public class CxfDeedsRegistryClient implements DeedsRegistryClient {
             continue;
           }
         }
-        LOGGER.warn("Unexpected failure for office {}: {}", code, cause == null ? e.getMessage() : cause.getMessage());
+        String msg = cause == null ? e.getMessage() : cause.getMessage();
+        LOGGER.warn("Unexpected failure for office {}: {}", code, msg);
         if (firstTransient == null) {
           firstTransient = new TransientException("Fan-out office " + code + " failed", cause);
         }

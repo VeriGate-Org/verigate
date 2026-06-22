@@ -63,7 +63,6 @@ public final class CxfPortFactory {
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
 
     // Configure HTTP timeouts and TLS.
-    HTTPConduit conduit = (HTTPConduit) ClientProxy.getClient(port).getConduit();
     HTTPClientPolicy policy = new HTTPClientPolicy();
     policy.setConnectionTimeout(config.getConnectionTimeoutMs());
     policy.setReceiveTimeout(config.getReadTimeoutMs());
@@ -71,6 +70,9 @@ public final class CxfPortFactory {
     // Force HTTP/1.1 — CXF 4.x's HttpClient-based conduit otherwise tries HTTP/2
     // first which causes RST_STREAM errors against servers that don't support h2.
     policy.setVersion("1.1");
+
+    final HTTPConduit conduit =
+        (HTTPConduit) ClientProxy.getClient(port).getConduit();
     conduit.setClient(policy);
 
     // Configure TLS for HTTPS endpoints. CXF's X509TrustManagerWrapper does its

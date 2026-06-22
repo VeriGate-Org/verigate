@@ -50,6 +50,7 @@ public final class ScreenSanctionsServiceModule extends ServiceModule {
         sqsClient, environment.get("SCREEN_SANCTIONS_DLQ_NAME"));
   }
 
+  /** Provides the sanctions screening command handler with retry support. */
   @Provides
   @Singleton
   public CommandHandler<VerifyPartyCommand, Map<String, String>>

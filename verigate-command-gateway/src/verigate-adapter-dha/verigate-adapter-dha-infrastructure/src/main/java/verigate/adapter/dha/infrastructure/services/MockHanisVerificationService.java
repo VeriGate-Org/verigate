@@ -23,10 +23,12 @@ public class MockHanisVerificationService implements HanisVerificationService {
 
   // 1x1 transparent PNG for mock photo
   private static final byte[] MOCK_PHOTO = Base64.getDecoder().decode(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ"
+          + "AAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
 
   @Override
-  public HanisPersonDetails verifyIdentity(String idNumber, String siteId, String workstationId) {
+  public HanisPersonDetails verifyIdentity(
+      String idNumber, String siteId, String workstationId) {
     logger.info("Mock HANIS verification for ID: ...{}",
         idNumber != null && idNumber.length() >= 4
             ? idNumber.substring(idNumber.length() - 4) : "***");

@@ -195,7 +195,8 @@ public class DefaultPropertyOwnershipVerificationService
   // Filtering helpers (preserved from previous implementation)
   // --------------------------------------------------------------------------------------
 
-  private List<PropertyDetails> filterByProvince(List<PropertyDetails> properties, String province) {
+  private List<PropertyDetails> filterByProvince(
+      List<PropertyDetails> properties, String province) {
     if (province == null || province.trim().isEmpty()) {
       return properties;
     }

@@ -86,12 +86,6 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
   }
 
   /**
-   * Checks if the OpenSanctions service is healthy.
-   *
-   * @return true if service is available
-   * @throws TransientException for connectivity issues
-   */
-  /**
    * Retrieves a specific entity by its ID.
    *
    * @param entityId the entity identifier

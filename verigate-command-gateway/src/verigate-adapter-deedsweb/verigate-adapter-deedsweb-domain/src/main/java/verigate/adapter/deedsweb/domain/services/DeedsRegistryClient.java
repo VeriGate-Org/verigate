@@ -8,12 +8,11 @@ package verigate.adapter.deedsweb.domain.services;
 
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
+import java.util.List;
 import verigate.adapter.deedsweb.domain.models.DeedsPropertyType;
 import verigate.adapter.deedsweb.domain.models.OfficeRegistry;
 import verigate.adapter.deedsweb.domain.models.PersonFullProperty;
 import verigate.adapter.deedsweb.domain.models.PropertyDetails;
-
-import java.util.List;
 
 /**
  * Domain-facing facade for the DeedsWeb SOAP registry. One method per WSDL
@@ -42,7 +41,8 @@ public interface DeedsRegistryClient {
   /**
    * Get full person + property payloads for multiple ID numbers.
    */
-  List<PersonFullProperty> findFullPropertiesByIdNumberList(List<String> idNumbers, String officeCode)
+  List<PersonFullProperty> findFullPropertiesByIdNumberList(
+      List<String> idNumbers, String officeCode)
       throws TransientException, PermanentException;
 
   /**
@@ -134,19 +134,19 @@ public interface DeedsRegistryClient {
       throws TransientException, PermanentException;
 
   /**
-   * @return every deeds office known to the registry. Used both by the BFF UI
-   *     to populate the office picker and by the fan-out path.
+   * Returns every deeds office known to the registry. Used both by the BFF UI
+   * to populate the office picker and by the fan-out path.
    */
   List<OfficeRegistry> getOfficeRegistryList() throws TransientException, PermanentException;
 
   /**
-   * @return every property type code recognised by the registry.
+   * Returns every property type code recognised by the registry.
    */
   List<DeedsPropertyType> getPropertyTypeList() throws TransientException, PermanentException;
 
   /**
-   * @return true if the registry is reachable. Implemented via
-   *     {@code getOfficeRegistryList} (does not require credentials).
+   * Returns true if the registry is reachable. Implemented via
+   * {@code getOfficeRegistryList} (does not require credentials).
    */
   boolean isServiceHealthy() throws TransientException;
 }

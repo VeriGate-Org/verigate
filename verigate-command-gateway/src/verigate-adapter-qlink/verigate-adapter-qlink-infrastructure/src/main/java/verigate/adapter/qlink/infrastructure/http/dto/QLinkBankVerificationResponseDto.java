@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * DTO for QLink bank verification API response.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record QLinkBankVerificationResponseDto(
     @JsonProperty("status") String status,

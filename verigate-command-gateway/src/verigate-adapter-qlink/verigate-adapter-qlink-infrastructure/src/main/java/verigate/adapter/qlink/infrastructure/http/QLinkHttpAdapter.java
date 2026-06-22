@@ -27,6 +27,7 @@ import verigate.adapter.qlink.infrastructure.constants.EnvironmentConstants;
 /**
  * Base HTTP adapter that encapsulates common logic for calling the QLink API.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class QLinkHttpAdapter {
 
   private static final Logger logger = LoggerFactory.getLogger(QLinkHttpAdapter.class);

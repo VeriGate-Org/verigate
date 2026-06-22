@@ -35,6 +35,7 @@ public class SarsVatSoapClient {
   private final SarsEfilingCredentials credentials;
   private final Duration timeout;
 
+  /** Constructs a new instance. */
   public SarsVatSoapClient(
       String endpointUrl, SarsEfilingCredentials credentials, Duration timeout) {
     this.httpClient = HttpClient.newBuilder()
