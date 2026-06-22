@@ -73,6 +73,7 @@ public class VerifyPartyCommand extends BaseCommand {
     this.metadata = metadata;
   }
 
+  /** Returns the partner ID, falling back to the metadata map if not set directly. */
   public String getPartnerId() {
     if (partnerId != null) {
       return partnerId;

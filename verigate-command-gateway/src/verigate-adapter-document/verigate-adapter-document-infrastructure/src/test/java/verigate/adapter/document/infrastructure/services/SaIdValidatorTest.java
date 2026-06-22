@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 
 class SaIdValidatorTest {
 
-  // Valid SA ID: 8501015009087 (Luhn-valid)
+  // Valid SA ID: 8501015009086 (Luhn-valid)
   @Test
   void shouldPassAllChecksForValidSaId() {
     List<AiDocumentAnalyzer.ValidationCheck> checks =
-        SaIdValidator.validate("8501015009087");
+        SaIdValidator.validate("8501015009086");
 
     assertEquals(5, checks.size());
     assertTrue(checks.stream().allMatch(c -> "PASS".equals(c.status())));
@@ -32,7 +32,7 @@ class SaIdValidatorTest {
   void shouldFailLuhnForInvalidChecksum() {
     // Change last digit to make Luhn fail
     List<AiDocumentAnalyzer.ValidationCheck> checks =
-        SaIdValidator.validate("8501015009086");
+        SaIdValidator.validate("8501015009087");
 
     var luhn = checks.stream().filter(c -> "LUHN_CHECK".equals(c.name())).findFirst();
     assertTrue(luhn.isPresent());
@@ -128,8 +128,8 @@ class SaIdValidatorTest {
 
   @Test
   void luhnCheckShouldWorkForKnownValues() {
-    assertTrue(SaIdValidator.luhnCheck("8501015009087"));
-    assertFalse(SaIdValidator.luhnCheck("8501015009086"));
+    assertTrue(SaIdValidator.luhnCheck("8501015009086"));
+    assertFalse(SaIdValidator.luhnCheck("8501015009087"));
   }
 
   @Test
