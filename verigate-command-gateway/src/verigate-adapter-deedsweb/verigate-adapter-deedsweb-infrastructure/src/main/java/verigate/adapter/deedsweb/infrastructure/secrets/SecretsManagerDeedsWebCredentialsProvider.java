@@ -35,6 +35,7 @@ public class SecretsManagerDeedsWebCredentialsProvider implements DeedsWebCreden
   private final ObjectMapper objectMapper;
   private final DeedsWebApiConfiguration configuration;
 
+  /** Creates a provider backed by the given Secrets Manager and configuration. */
   public SecretsManagerDeedsWebCredentialsProvider(
       SecretManager secretManager,
       ObjectMapper objectMapper,

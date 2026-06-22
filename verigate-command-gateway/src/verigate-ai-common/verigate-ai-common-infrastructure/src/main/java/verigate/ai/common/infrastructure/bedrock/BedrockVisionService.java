@@ -34,6 +34,7 @@ public class BedrockVisionService {
   private final ObjectMapper objectMapper;
   private final String modelId;
 
+  /** Creates a Bedrock vision service with the given client and model identifier. */
   public BedrockVisionService(BedrockRuntimeClient bedrockClient, String modelId) {
     this.bedrockClient = bedrockClient;
     this.objectMapper = new ObjectMapper();

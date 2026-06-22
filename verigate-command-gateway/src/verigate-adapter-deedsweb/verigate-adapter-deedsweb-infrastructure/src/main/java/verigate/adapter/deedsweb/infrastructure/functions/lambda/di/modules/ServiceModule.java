@@ -83,7 +83,8 @@ public class ServiceModule extends AbstractModule {
   @Named("artifactSerializer")
   private InternalTransportJsonSerializer provideArtifactSerializer() {
     var serializer = new DefaultInternalTransportJsonSerializer();
-    serializer.registerClassType(VerifyPartyCommand.class.getSimpleName(), VerifyPartyCommand.class);
+    serializer.registerClassType(
+        VerifyPartyCommand.class.getSimpleName(), VerifyPartyCommand.class);
     return serializer;
   }
 

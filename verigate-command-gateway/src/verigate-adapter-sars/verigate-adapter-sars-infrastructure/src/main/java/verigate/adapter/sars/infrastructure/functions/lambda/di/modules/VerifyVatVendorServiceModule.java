@@ -97,6 +97,7 @@ public final class VerifyVatVendorServiceModule extends ServiceModule {
     return new DefaultVerifyVatVendorCommandHandler(sarsVatVendorService);
   }
 
+  /** Provides the VAT vendor retry command handler. */
   @Provides
   @Singleton
   public CommandHandler<VerifyPartyCommand, Map<String, String>>

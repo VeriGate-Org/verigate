@@ -30,6 +30,7 @@ public record VatVendorDetails(
     return new Builder();
   }
 
+  /** Builder for constructing VatVendorDetails instances. */
   public static final class Builder {
     private String vatNumber;
     private String vendorName;
@@ -74,6 +75,7 @@ public record VatVendorDetails(
       return this;
     }
 
+    /** Builds a new VatVendorDetails instance from the configured values. */
     public VatVendorDetails build() {
       return new VatVendorDetails(
           vatNumber, vendorName, tradingName, registrationDate,

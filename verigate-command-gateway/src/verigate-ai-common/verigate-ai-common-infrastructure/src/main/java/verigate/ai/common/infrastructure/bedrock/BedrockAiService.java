@@ -36,6 +36,7 @@ public class BedrockAiService implements AiService {
   private final ObjectMapper objectMapper;
   private final String modelId;
 
+  /** Creates a Bedrock AI service with the given client and model identifier. */
   public BedrockAiService(BedrockRuntimeClient bedrockClient, String modelId) {
     this.bedrockClient = bedrockClient;
     this.objectMapper = new ObjectMapper();

@@ -34,6 +34,7 @@ public class DefaultBulkVerificationService {
   private final BulkJobRepository jobRepository;
   private final HanisConfiguration configuration;
 
+  /** Creates a new bulk verification service. */
   public DefaultBulkVerificationService(
       HanisBulkSoapClient bulkSoapClient,
       BulkCsvBuilder csvBuilder,

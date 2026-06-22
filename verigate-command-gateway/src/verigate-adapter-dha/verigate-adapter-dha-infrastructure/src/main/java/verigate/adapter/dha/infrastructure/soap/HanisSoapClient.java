@@ -37,6 +37,7 @@ public class HanisSoapClient {
   private final String failoverUrl;
   private final Duration timeout;
 
+  /** Creates a new HANIS SOAP client with failover support. */
   public HanisSoapClient(
       String primaryUrl, String failoverUrl, Duration timeout) {
     this.httpClient = HttpClient.newBuilder()

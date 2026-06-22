@@ -38,8 +38,10 @@ public class DynamoDbIdentityVaultAdapter implements IdentityVaultService {
   private final String tableName;
   private final Duration freshnessDuration;
 
+  /** Creates a new DynamoDB identity vault adapter. */
   public DynamoDbIdentityVaultAdapter(
-      DynamoDbClient dynamoDbClient, String tableName, int freshnessDays) {
+      DynamoDbClient dynamoDbClient, String tableName,
+      int freshnessDays) {
     this.dynamoDbClient = dynamoDbClient;
     this.tableName = tableName;
     this.freshnessDuration = Duration.ofDays(freshnessDays);
@@ -73,7 +75,8 @@ public class DynamoDbIdentityVaultAdapter implements IdentityVaultService {
           item.containsKey("expiresAt") ? Long.parseLong(item.get("expiresAt").n()) : 0);
 
       if (!verified.isFreshEnough(freshnessDuration)) {
-        logger.info("Vault entry expired for identity hash: ...{}", hash.substring(hash.length() - 8));
+        logger.info("Vault entry expired for identity hash: ...{}",
+            hash.substring(hash.length() - 8));
         return Optional.empty();
       }
 
@@ -91,9 +94,9 @@ public class DynamoDbIdentityVaultAdapter implements IdentityVaultService {
       String partnerId,
       String verificationId) {
 
-    String hash = sha256(request.idNumber());
+    final String hash = sha256(request.idNumber());
     Instant now = Instant.now();
-    long expiresAt = now.plus(freshnessDuration).getEpochSecond();
+    final long expiresAt = now.plus(freshnessDuration).getEpochSecond();
 
     Map<String, AttributeValue> item = new HashMap<>();
     item.put("identityHash", AttributeValue.fromS(hash));

@@ -13,6 +13,7 @@ import verigate.adapter.qlink.domain.models.BankVerificationResponse;
  * Service interface for QLink bank account verification operations.
  * Provides methods to verify bank account details via the QLink API.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public interface QLinkBankVerificationService {
 
   /**

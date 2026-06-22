@@ -31,6 +31,7 @@ public class HanisDhaIdentityVerificationService implements DhaIdentityVerificat
   private final HanisConfiguration configuration;
   private HanisPersonDetails lastHanisDetails;
 
+  /** Creates a new HANIS-backed DHA identity verification service. */
   public HanisDhaIdentityVerificationService(
       HanisVerificationService hanisService,
       HanisResponseMapper responseMapper,

@@ -20,6 +20,7 @@ public record FraudPattern(
     long ttl
 ) {
 
+  /** Classification of the detected fraud pattern. */
   public enum PatternType {
     VELOCITY_ATTACK,
     MULTI_PARTNER_ABUSE,
@@ -28,12 +29,14 @@ public record FraudPattern(
     NORMAL
   }
 
+  /** Severity level of the fraud pattern. */
   public enum Severity {
     HIGH,
     MEDIUM,
     LOW
   }
 
+  /** Recommended action to take for the detected fraud pattern. */
   public enum RecommendedAction {
     BLOCK,
     FLAG_FOR_REVIEW,

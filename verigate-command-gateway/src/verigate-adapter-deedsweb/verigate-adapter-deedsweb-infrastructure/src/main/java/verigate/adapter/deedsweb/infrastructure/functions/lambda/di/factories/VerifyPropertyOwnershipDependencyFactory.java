@@ -33,11 +33,13 @@ public class VerifyPropertyOwnershipDependencyFactory extends DependencyFactory 
     super(injector);
   }
 
+  /** Returns the command handler for property ownership verification. */
   public CommandHandler<VerifyPartyCommand, Map<String, String>>
       getVerifyPropertyOwnershipCommandHandler() {
     return injector.getInstance(new Key<>() {});
   }
 
+  /** Returns the invalid message queue for property ownership verification. */
   public InvalidMessageQueue<SQSMessage> getVerifyPropertyOwnershipInvalidMessageQueue() {
     return injector.getInstance(
         Key.get(
@@ -45,6 +47,7 @@ public class VerifyPropertyOwnershipDependencyFactory extends DependencyFactory 
             Names.named("VerifyPropertyOwnershipInvalidMessageQueue")));
   }
 
+  /** Returns the dead letter queue for property ownership verification. */
   public DeadLetterQueue<SQSMessage> getVerifyPropertyOwnershipDeadLetterQueue() {
     return injector.getInstance(
         Key.get(

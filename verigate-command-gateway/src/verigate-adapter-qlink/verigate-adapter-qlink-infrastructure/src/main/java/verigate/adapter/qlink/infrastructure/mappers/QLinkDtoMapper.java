@@ -16,6 +16,7 @@ import verigate.adapter.qlink.infrastructure.http.dto.QLinkBankVerificationRespo
 /**
  * Mapper for converting QLink DTOs to domain models.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class QLinkDtoMapper {
 
   private static final Logger logger = LoggerFactory.getLogger(QLinkDtoMapper.class);
