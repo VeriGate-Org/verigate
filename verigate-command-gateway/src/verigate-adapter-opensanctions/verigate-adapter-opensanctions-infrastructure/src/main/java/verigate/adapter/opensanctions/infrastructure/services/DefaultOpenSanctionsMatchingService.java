@@ -62,13 +62,20 @@ public class DefaultOpenSanctionsMatchingService implements OpenSanctionsMatchin
   @Override
   public EntityMatchResponse searchEntities(String dataset, String query, Integer limit)
       throws TransientException, PermanentException {
+    return searchEntities(dataset, query, limit, null);
+  }
+
+  @Override
+  public EntityMatchResponse searchEntities(
+      String dataset, String query, Integer limit, Integer offset)
+      throws TransientException, PermanentException {
 
     LOGGER.info("Starting text search in dataset: " + dataset);
 
     try {
       validateSearchParameters(dataset, query, limit);
 
-      EntityMatchResponse response = apiAdapter.searchEntities(dataset, query, limit);
+      EntityMatchResponse response = apiAdapter.searchEntities(dataset, query, limit, offset);
 
       LOGGER.info("Text search completed successfully");
       return response;

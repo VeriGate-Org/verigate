@@ -68,29 +68,37 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
    */
   public EntityMatchResponse searchEntities(String dataset, String query, Integer limit)
       throws TransientException, PermanentException {
+    return searchEntities(dataset, query, limit, null);
+  }
+
+  /**
+   * Performs paginated text search against the OpenSanctions API.
+   *
+   * @param dataset the dataset to search
+   * @param query the search query text
+   * @param limit maximum results to return
+   * @param offset number of results to skip for pagination
+   * @return the search response
+   * @throws TransientException for temporary failures
+   * @throws PermanentException for permanent failures
+   */
+  public EntityMatchResponse searchEntities(
+      String dataset, String query, Integer limit, Integer offset)
+      throws TransientException, PermanentException {
 
     LOGGER.info(
         "Performing text search in dataset: " + dataset + " with query: " + maskQuery(query));
 
-    // Build the search endpoint URL with query parameters
-    String endpoint = buildSearchEndpoint(dataset, query, limit);
+    String endpoint = buildSearchEndpoint(dataset, query, limit, offset);
 
-    // Make the API call (search uses GET)
     EntityMatchResponseDto responseDto = get(endpoint, EntityMatchResponseDto.class);
 
-    // Map DTO response back to domain model
     EntityMatchResponse response = OpenSanctionsDtoMapper.mapToDomain(responseDto);
 
     LOGGER.info("Text search completed successfully");
     return response;
   }
 
-  /**
-   * Checks if the OpenSanctions service is healthy.
-   *
-   * @return true if service is available
-   * @throws TransientException for connectivity issues
-   */
   /**
    * Retrieves a specific entity by its ID.
    *
@@ -213,7 +221,7 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
     return endpoint.toString();
   }
 
-  private String buildSearchEndpoint(String dataset, String query, Integer limit) {
+  private String buildSearchEndpoint(String dataset, String query, Integer limit, Integer offset) {
     StringBuilder endpoint = new StringBuilder("/search/");
     endpoint.append(dataset);
 
@@ -228,6 +236,11 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
 
     if (limit != null) {
       endpoint.append(hasParams ? "&" : "?").append("limit=").append(limit);
+      hasParams = true;
+    }
+
+    if (offset != null && offset > 0) {
+      endpoint.append(hasParams ? "&" : "?").append("offset=").append(offset);
     }
 
     return endpoint.toString();

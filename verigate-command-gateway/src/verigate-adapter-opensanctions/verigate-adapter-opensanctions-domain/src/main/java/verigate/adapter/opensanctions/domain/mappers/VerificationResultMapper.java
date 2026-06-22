@@ -46,7 +46,7 @@ public class VerificationResultMapper {
     Map<String, String> details = new HashMap<>();
 
     details.put("provider", "OpenSanctions");
-    details.put("algorithm", "entity-matching");
+    details.put("algorithm", DomainConstants.DEFAULT_ALGORITHM);
 
     if (response.getResponses() != null) {
       int totalMatches =
@@ -67,21 +67,18 @@ public class VerificationResultMapper {
       return VerificationOutcome.SUCCEEDED;
     }
 
-    for (var entityMatches : response.getResponses().values()) {
-      if (entityMatches.getResults() != null && !entityMatches.getResults().isEmpty()) {
+    double globalHighest =
+        response.getResponses().values().stream()
+            .filter(em -> em.getResults() != null)
+            .flatMap(em -> em.getResults().stream())
+            .mapToDouble(entity -> entity.getScore() != null ? entity.getScore() : 0.0)
+            .max()
+            .orElse(0.0);
 
-        double highestScore =
-            entityMatches.getResults().stream()
-                .mapToDouble(entity -> entity.getScore() != null ? entity.getScore() : 0.0)
-                .max()
-                .orElse(0.0);
-
-        if (highestScore >= DomainConstants.HIGH_MATCH_THRESHOLD) {
-          return VerificationOutcome.HARD_FAIL;
-        } else if (highestScore >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
-          return VerificationOutcome.SOFT_FAIL;
-        }
-      }
+    if (globalHighest >= DomainConstants.HIGH_MATCH_THRESHOLD) {
+      return VerificationOutcome.HARD_FAIL;
+    } else if (globalHighest >= DomainConstants.MEDIUM_MATCH_THRESHOLD) {
+      return VerificationOutcome.SOFT_FAIL;
     }
 
     return VerificationOutcome.SUCCEEDED;
