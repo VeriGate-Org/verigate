@@ -201,4 +201,22 @@ class CxfDeedsRegistryClientWireMockTest {
         PermanentException.class,
         () -> client.findPropertiesByIdNumber("8001015009087", "T"));
   }
+
+  @Test
+  void redirect302Response_throwsTransientException() {
+    // Simulate the BigIP load balancer returning HTTP 302 for SOAP operation URLs.
+    // CXF does not follow the redirect (autoRedirect=false); the failure should be
+    // classified as transient so the gateway retries once BigIP routing is corrected.
+    wireMock.stubFor(
+        post(urlMatching("/deeds-registration-soap.*"))
+            .willReturn(
+                aResponse()
+                    .withStatus(302)
+                    .withHeader("Location", wireMock.baseUrl() + "/deeds-registration-soap")
+                    .withBody("")));
+
+    assertThrows(
+        domain.exceptions.TransientException.class,
+        () -> client.findPropertiesByIdNumber("8001015009087", "T"));
+  }
 }

@@ -7,6 +7,7 @@
 package verigate.adapter.deedsweb.infrastructure.soap;
 
 import jakarta.xml.ws.BindingProvider;
+import java.security.Security;
 import java.util.Map;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
@@ -30,6 +31,24 @@ public final class CxfPortFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(CxfPortFactory.class);
 
   private static final int LOG_PAYLOAD_LIMIT_BYTES = 8_192;
+
+  static {
+    // deedssoap.deeds.gov.za:443 negotiates TLS using a 1024-bit DHE key.
+    // JDK 17+ raised the minimum accepted DHE key size to 2048 bits via
+    // jdk.tls.disabledAlgorithms, causing the handshake to fail. Relax it to
+    // 1024 bits for this JVM. Certificate chain validation is unaffected.
+    String algProp = "jdk.tls.disabledAlgorithms";
+    String current = Security.getProperty(algProp);
+    if (current != null) {
+      String updated = current
+          .replace("DH keySize < 2048", "DH keySize < 1024")
+          .replace("DHE keySize < 2048", "DHE keySize < 1024");
+      if (!updated.equals(current)) {
+        Security.setProperty(algProp, updated);
+        LOGGER.info("Relaxed jdk.tls.disabledAlgorithms DHE minimum to 1024 bits for DeedsWeb TLS compatibility");
+      }
+    }
+  }
 
   private CxfPortFactory() {
     // utility
@@ -71,6 +90,10 @@ public final class CxfPortFactory {
     // Force HTTP/1.1 — CXF 4.x's HttpClient-based conduit otherwise tries HTTP/2
     // first which causes RST_STREAM errors against servers that don't support h2.
     policy.setVersion("1.1");
+    // Do not follow HTTP 302 redirects. The DeedsWeb BigIP currently redirects
+    // SOAP operation POSTs to the base path; following would yield HTML (permanent
+    // dispatch error) instead of a transient failure that the gateway can retry.
+    policy.setAutoRedirect(false);
     conduit.setClient(policy);
 
     // Configure TLS for HTTPS endpoints. CXF's X509TrustManagerWrapper does its

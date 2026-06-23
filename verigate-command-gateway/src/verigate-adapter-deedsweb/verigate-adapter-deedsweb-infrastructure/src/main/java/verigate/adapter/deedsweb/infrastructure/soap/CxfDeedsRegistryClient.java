@@ -477,6 +477,14 @@ public class CxfDeedsRegistryClient implements DeedsRegistryClient {
       // Surface as permanent — auth issues should not be retried.
       return new PermanentException("DeedsWeb rejected the request: " + message, e);
     }
+    if (SoapErrorClassifier.isRedirectError(message)) {
+      // BigIP load balancer is returning HTTP 3xx for SOAP operation URLs,
+      // redirecting them to the base path. autoRedirect=false means CXF does
+      // not follow the redirect; the failure is transient — retry once BigIP
+      // routing is corrected by the Deeds Office.
+      return new TransientException(
+          "DeedsWeb BigIP returned HTTP redirect for SOAP operation URL: " + message, e);
+    }
     if (SoapErrorClassifier.isHtmlResponseError(message)) {
       // The server returned HTML instead of SOAP XML. This indicates a dispatch
       // misconfiguration (e.g. request hit the base URL instead of an operation-

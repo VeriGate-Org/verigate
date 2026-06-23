@@ -84,4 +84,35 @@ class SoapErrorClassifierTest {
     assertFalse(SoapErrorClassifier.isHtmlResponseError("connect timed out"));
     assertFalse(SoapErrorClassifier.isHtmlResponseError("Internal service error"));
   }
+
+  // ---------------- HTTP redirect detection ----------------
+
+  @Test
+  void isRedirectError_detects302InMessage() {
+    // CXF's HTTP conduit surfaces the status code in the exception message.
+    assertTrue(SoapErrorClassifier.isRedirectError("HTTP response '302: Found' when communicating with https://deedssoap.deeds.gov.za"));
+    assertTrue(SoapErrorClassifier.isRedirectError("status code: 302"));
+    assertTrue(SoapErrorClassifier.isRedirectError("302 Moved"));
+  }
+
+  @Test
+  void isRedirectError_detects301InMessage() {
+    assertTrue(SoapErrorClassifier.isRedirectError("HTTP response '301: Moved Permanently'"));
+  }
+
+  @Test
+  void isRedirectError_detectsHttpRedirectPhrase() {
+    assertTrue(SoapErrorClassifier.isRedirectError("HTTP redirect received from server"));
+  }
+
+  @Test
+  void isRedirectError_rejectsNonRedirectMessages() {
+    assertFalse(SoapErrorClassifier.isRedirectError(null));
+    assertFalse(SoapErrorClassifier.isRedirectError(""));
+    assertFalse(SoapErrorClassifier.isRedirectError("connect timed out"));
+    assertFalse(SoapErrorClassifier.isRedirectError("Authentication failed"));
+    assertFalse(SoapErrorClassifier.isRedirectError("Internal service error"));
+    // "302" should not match a property ID or deed number that happens to contain those digits
+    // — but we accept that tradeoff given this is a SOAP WebServiceException context.
+  }
 }
