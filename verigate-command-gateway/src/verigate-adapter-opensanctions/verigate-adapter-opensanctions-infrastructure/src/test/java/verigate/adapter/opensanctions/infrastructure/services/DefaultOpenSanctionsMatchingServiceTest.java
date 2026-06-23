@@ -23,6 +23,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class DefaultOpenSanctionsMatchingServiceTest {
@@ -90,9 +91,9 @@ class DefaultOpenSanctionsMatchingServiceTest {
 
     @Test
     void searchEntities_validParameters_returnsResponse() throws Exception {
-        // Arrange
+        // Arrange - 3-arg delegates to 4-arg (offset=null) on the adapter
         EntityMatchResponse expectedResponse = new EntityMatchResponse(Map.of(), Map.of(), 5);
-        when(mockApiAdapter.searchEntities(eq("sanctions"), eq("John Doe"), eq(5)))
+        when(mockApiAdapter.searchEntities(eq("sanctions"), eq("John Doe"), eq(5), isNull()))
             .thenReturn(expectedResponse);
 
         // Act
@@ -101,7 +102,23 @@ class DefaultOpenSanctionsMatchingServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(expectedResponse, result);
-        verify(mockApiAdapter).searchEntities("sanctions", "John Doe", 5);
+        verify(mockApiAdapter).searchEntities("sanctions", "John Doe", 5, null);
+    }
+
+    @Test
+    void searchEntities_withOffset_passesOffsetToAdapter() throws Exception {
+        // Arrange
+        EntityMatchResponse expectedResponse = new EntityMatchResponse(Map.of(), Map.of(), 10);
+        when(mockApiAdapter.searchEntities(eq("sanctions"), eq("John Doe"), eq(10), eq(20)))
+            .thenReturn(expectedResponse);
+
+        // Act
+        EntityMatchResponse result = service.searchEntities("sanctions", "John Doe", 10, 20);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        verify(mockApiAdapter).searchEntities("sanctions", "John Doe", 10, 20);
     }
 
     @Test

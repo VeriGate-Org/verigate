@@ -14,6 +14,15 @@ import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 /**
  * Specification for fields on the {@link VerifyPartyCommand} that are required for the
  * command to be considered valid for a SanctionsScreening Verification Type.
+ *
+ * <p>Rules:
+ * <ul>
+ *   <li>{@code metadata} — always required</li>
+ *   <li>{@code metadata.firstName} — always required; primary name field for all
+ *       entity schemas</li>
+ *   <li>{@code metadata.lastName} — required only for Person entities; company, organisation,
+ *       and vessel schemas use a single name field passed as {@code firstName}</li>
+ * </ul>
  */
 public class SanctionsScreeningSpecification implements Specification<VerifyPartyCommand> {
 
@@ -30,10 +39,31 @@ public class SanctionsScreeningSpecification implements Specification<VerifyPart
 
   @Override
   public SpecificationResult isSatisfiedBy(VerifyPartyCommand command) {
-    return metadataRequired
-        .conditionalAnd(
-            firstNameRequired.and(lastNameRequired),
-            metadataRequired.isSatisfiedBy(command).satisfied())
-        .isSatisfiedBy(command);
+    SpecificationResult metadataCheck = metadataRequired.isSatisfiedBy(command);
+    if (!metadataCheck.satisfied()) {
+      return metadataCheck;
+    }
+
+    SpecificationResult firstNameCheck = firstNameRequired.isSatisfiedBy(command);
+    if (!firstNameCheck.satisfied()) {
+      return firstNameCheck;
+    }
+
+    // lastName is only required for person entities; non-person schemas (Company, Organisation,
+    // Vessel) pass the entity name via firstName and do not have a separate lastName.
+    if (isPersonEntity(command)) {
+      return lastNameRequired.isSatisfiedBy(command);
+    }
+
+    return SpecificationResult.success();
+  }
+
+  private static boolean isPersonEntity(VerifyPartyCommand command) {
+    Object entityType = command.getMetadata().get("entityType");
+    if (entityType == null) {
+      return true; // default schema is Person when entityType is not specified
+    }
+    String typeStr = entityType.toString().trim();
+    return typeStr.isEmpty() || "person".equalsIgnoreCase(typeStr);
   }
 }

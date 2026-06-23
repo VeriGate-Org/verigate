@@ -8,6 +8,7 @@ on:
     paths:
       - "verigate-command-gateway/**"
       - "verigate-partner/**"
+      - "verigate-partner-portal/**"
       - "verigate-billing/**"
       - "verigate-shared-kernel/**"
       - "verigate-web-bff/**"

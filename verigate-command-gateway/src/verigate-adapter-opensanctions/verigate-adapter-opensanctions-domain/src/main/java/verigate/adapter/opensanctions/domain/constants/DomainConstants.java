@@ -12,7 +12,7 @@ package verigate.adapter.opensanctions.domain.constants;
 public class DomainConstants {
 
   // Default API parameters
-  public static final String DEFAULT_DATASET = "sanctions";
+  public static final String DEFAULT_DATASET = "default";
   public static final int DEFAULT_LIMIT = 10;
   public static final double DEFAULT_THRESHOLD = 0.7;
   public static final double DEFAULT_CUTOFF = 0.5;

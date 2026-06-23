@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import verigate.adapter.opensanctions.domain.constants.DomainConstants;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
 import verigate.adapter.opensanctions.domain.models.EntityMatches;
 import verigate.adapter.opensanctions.domain.models.ScoredEntity;
@@ -171,6 +172,40 @@ class VerificationResultMapperTest {
     }
 
     @Test
+    void mapToVerificationResult_multipleQueries_softFailDoesNotMaskHardFail() {
+        // Arrange - query1 is SOFT_FAIL territory, query2 is HARD_FAIL territory.
+        // The old per-query early-return bug would return SOFT_FAIL if query1 was
+        // iterated first, hiding the HARD_FAIL in query2.
+        ScoredEntity softEntity = new ScoredEntity.Builder()
+            .id("ent-soft")
+            .caption("Soft Match")
+            .datasets(List.of("eu_sanctions"))
+            .score(0.75)
+            .build();
+
+        ScoredEntity hardEntity = new ScoredEntity.Builder()
+            .id("ent-hard")
+            .caption("Hard Match")
+            .datasets(List.of("us_ofac_sdn"))
+            .score(0.92)
+            .build();
+
+        EntityMatches softMatches = new EntityMatches(200, List.of(softEntity), null, null);
+        EntityMatches hardMatches = new EntityMatches(200, List.of(hardEntity), null, null);
+
+        EntityMatchResponse response = new EntityMatchResponse(
+            Map.of("query1", softMatches, "query2", hardMatches),
+            Map.of(), 5);
+
+        // Act
+        VerificationResult result =
+            VerificationResultMapper.mapToVerificationResult(response, "req-bug");
+
+        // Assert — must be HARD_FAIL regardless of map iteration order
+        assertEquals(VerificationOutcome.HARD_FAIL, result.outcome());
+    }
+
+    @Test
     void mapToVerificationResult_multipleQueries_highestScoreWins() {
         // Arrange - two queries, one low score, one high
         ScoredEntity lowEntity = new ScoredEntity.Builder()
@@ -247,12 +282,13 @@ class VerificationResultMapperTest {
     // ---- PEP vs Sanctions classification tests ----
 
     @Test
-    void mapToVerificationResult_pepDataset_classifiedAsPep() {
+    void mapToVerificationResult_pepTopic_classifiedAsPep() {
         // Arrange
         ScoredEntity pepEntity = new ScoredEntity.Builder()
             .id("ent-pep")
             .caption("PEP Person")
-            .datasets(List.of("ru_pep_registry", "us_ofac_sdn"))
+            .datasets(List.of("us_ofac_sdn"))
+            .topics(List.of("role.pep"))
             .score(0.85)
             .build();
 
@@ -312,7 +348,7 @@ class VerificationResultMapperTest {
 
         // Assert
         assertEquals("OpenSanctions", details.get("provider"));
-        assertEquals("entity-matching", details.get("algorithm"));
+        assertEquals(DomainConstants.DEFAULT_ALGORITHM, details.get("algorithm"));
         assertEquals("1", details.get("total_matches"));
         assertEquals("1", details.get("significant_matches_count"));
 
@@ -331,7 +367,8 @@ class VerificationResultMapperTest {
         ScoredEntity pepEntity = new ScoredEntity.Builder()
             .id("ent-pep")
             .caption("PEP Person")
-            .datasets(List.of("za_pep_list"))
+            .datasets(List.of("za_gov_gazette"))
+            .topics(List.of("role.pep"))
             .score(0.75)
             .build();
 
@@ -369,7 +406,7 @@ class VerificationResultMapperTest {
 
         // Assert
         assertEquals("OpenSanctions", details.get("provider"));
-        assertEquals("entity-matching", details.get("algorithm"));
+        assertEquals(DomainConstants.DEFAULT_ALGORITHM, details.get("algorithm"));
         assertNull(details.get("total_matches"));
     }
 
@@ -418,7 +455,8 @@ class VerificationResultMapperTest {
         ScoredEntity entity2 = new ScoredEntity.Builder()
             .id("ent-2")
             .caption("Entity B")
-            .datasets(List.of("eu_pep_registry"))
+            .datasets(List.of("eu_fsf"))
+            .topics(List.of("role.pep"))
             .score(0.78)
             .build();
 

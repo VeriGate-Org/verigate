@@ -103,6 +103,7 @@ public class OpenSanctionsDtoMapper {
         .schema(dto.getSchema())
         .properties(dto.getProperties())
         .datasets(dto.getDatasets())
+        .topics(dto.getTopics())
         .referents(dto.getReferents())
         .target(dto.getTarget())
         .firstSeen(dto.getFirstSeen())

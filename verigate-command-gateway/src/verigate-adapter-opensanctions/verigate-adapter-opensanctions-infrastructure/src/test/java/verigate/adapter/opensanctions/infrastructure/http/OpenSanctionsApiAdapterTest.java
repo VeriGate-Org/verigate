@@ -9,6 +9,8 @@ package verigate.adapter.opensanctions.infrastructure.http;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.google.common.util.concurrent.RateLimiter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import crosscutting.environment.Environment;
 import verigate.adapter.opensanctions.domain.models.EntityExample;
 import verigate.adapter.opensanctions.domain.models.EntityMatchRequest;
 import verigate.adapter.opensanctions.infrastructure.config.OpenSanctionsApiConfiguration;
+import verigate.adapter.opensanctions.infrastructure.http.OpenSanctionsHttpAdapter;
 
 class OpenSanctionsApiAdapterTest {
 
@@ -207,14 +210,38 @@ class OpenSanctionsApiAdapterTest {
         assertEquals(qIndex, endpoint.lastIndexOf('?'));
     }
 
+    // ---- rate limiter wiring tests ----
+
+    @Test
+    void rateLimiter_defaultConfig_initializedWithDefaultRps() throws Exception {
+        Field field = OpenSanctionsHttpAdapter.class.getDeclaredField("rateLimiter");
+        field.setAccessible(true);
+        RateLimiter limiter = (RateLimiter) field.get(adapter);
+
+        assertNotNull(limiter);
+        assertEquals(10.0, limiter.getRate(), 0.001);
+    }
+
+    @Test
+    void rateLimiter_customRps_configuredCorrectly() throws Exception {
+        when(mockEnvironment.get("OPENSANCTIONS_RATE_LIMIT_RPS")).thenReturn("25");
+        OpenSanctionsApiConfiguration config =
+            new OpenSanctionsApiConfiguration(mockEnvironment, mockConfig);
+        OpenSanctionsApiAdapter customAdapter = new OpenSanctionsApiAdapter(config);
+
+        Field field = OpenSanctionsHttpAdapter.class.getDeclaredField("rateLimiter");
+        field.setAccessible(true);
+        RateLimiter limiter = (RateLimiter) field.get(customAdapter);
+
+        assertEquals(25.0, limiter.getRate(), 0.001);
+    }
+
     // ---- buildSearchEndpoint tests ----
 
     @Test
     void buildSearchEndpoint_withQueryAndLimit_constructsCorrectUrl() throws Exception {
-        // Act
-        String endpoint = invokeBuildSearchEndpoint("sanctions", "John Doe", 5);
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "John Doe", 5, null);
 
-        // Assert
         assertTrue(endpoint.startsWith("/search/sanctions?"));
         assertTrue(endpoint.contains("q=John"));
         assertTrue(endpoint.contains("limit=5"));
@@ -222,42 +249,60 @@ class OpenSanctionsApiAdapterTest {
 
     @Test
     void buildSearchEndpoint_specialCharacters_urlEncoded() throws Exception {
-        // Act
-        String endpoint = invokeBuildSearchEndpoint("sanctions", "O'Brien & Sons", 10);
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "O'Brien & Sons", 10, null);
 
-        // Assert
-        // Should be URL-encoded (no raw apostrophe or ampersand)
         assertTrue(endpoint.contains("q="));
         assertFalse(endpoint.contains("q=O'Brien"));
     }
 
     @Test
     void buildSearchEndpoint_nullQuery_noQueryParam() throws Exception {
-        // Act
-        String endpoint = invokeBuildSearchEndpoint("sanctions", null, 5);
+        String endpoint = invokeBuildSearchEndpoint("sanctions", null, 5, null);
 
-        // Assert
         assertFalse(endpoint.contains("q="));
         assertTrue(endpoint.contains("limit=5"));
     }
 
     @Test
     void buildSearchEndpoint_emptyQuery_noQueryParam() throws Exception {
-        // Act
-        String endpoint = invokeBuildSearchEndpoint("sanctions", "  ", 5);
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "  ", 5, null);
 
-        // Assert
         assertFalse(endpoint.contains("q="));
     }
 
     @Test
     void buildSearchEndpoint_nullLimit_noLimitParam() throws Exception {
         // Act
-        String endpoint = invokeBuildSearchEndpoint("sanctions", "test", null);
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "test", null, null);
 
         // Assert
         assertTrue(endpoint.contains("q=test"));
         assertFalse(endpoint.contains("limit="));
+    }
+
+    @Test
+    void buildSearchEndpoint_withOffset_appendsOffsetParam() throws Exception {
+        // Act
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "John Doe", 10, 20);
+
+        // Assert
+        assertTrue(endpoint.contains("limit=10"));
+        assertTrue(endpoint.contains("offset=20"));
+    }
+
+    @Test
+    void buildSearchEndpoint_zeroOffset_omitsOffsetParam() throws Exception {
+        // offset=0 is the default — no point sending it
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "John Doe", 10, 0);
+
+        assertFalse(endpoint.contains("offset="));
+    }
+
+    @Test
+    void buildSearchEndpoint_nullOffset_omitsOffsetParam() throws Exception {
+        String endpoint = invokeBuildSearchEndpoint("sanctions", "John Doe", 10, null);
+
+        assertFalse(endpoint.contains("offset="));
     }
 
     // ---- Helper: invoke private methods via reflection ----
@@ -269,11 +314,11 @@ class OpenSanctionsApiAdapterTest {
         return (String) method.invoke(adapter, request);
     }
 
-    private String invokeBuildSearchEndpoint(String dataset, String query, Integer limit)
-        throws Exception {
+    private String invokeBuildSearchEndpoint(
+        String dataset, String query, Integer limit, Integer offset) throws Exception {
         Method method = OpenSanctionsApiAdapter.class.getDeclaredMethod(
-            "buildSearchEndpoint", String.class, String.class, Integer.class);
+            "buildSearchEndpoint", String.class, String.class, Integer.class, Integer.class);
         method.setAccessible(true);
-        return (String) method.invoke(adapter, dataset, query, limit);
+        return (String) method.invoke(adapter, dataset, query, limit, offset);
     }
 }

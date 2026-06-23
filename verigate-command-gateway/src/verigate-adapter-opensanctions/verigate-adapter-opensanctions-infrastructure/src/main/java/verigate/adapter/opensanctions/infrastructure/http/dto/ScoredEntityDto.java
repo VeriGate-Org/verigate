@@ -33,6 +33,9 @@ public class ScoredEntityDto {
   @JsonProperty("datasets")
   private List<String> datasets;
 
+  @JsonProperty("topics")
+  private List<String> topics;
+
   @JsonProperty("referents")
   private List<String> referents;
 
@@ -99,6 +102,14 @@ public class ScoredEntityDto {
 
   public void setDatasets(List<String> datasets) {
     this.datasets = datasets;
+  }
+
+  public List<String> getTopics() {
+    return topics;
+  }
+
+  public void setTopics(List<String> topics) {
+    this.topics = topics;
   }
 
   public List<String> getReferents() {

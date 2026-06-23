@@ -8,6 +8,7 @@ package verigate.adapter.opensanctions.infrastructure.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.util.concurrent.RateLimiter;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import java.net.URI;
@@ -32,6 +33,7 @@ public class OpenSanctionsHttpAdapter {
   protected final HttpClient httpClient;
   protected final OpenSanctionsApiConfiguration config;
   protected final ObjectMapper objectMapper;
+  final RateLimiter rateLimiter;
 
   /**
    * Constructor.
@@ -44,9 +46,9 @@ public class OpenSanctionsHttpAdapter {
         HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(config.getConnectionTimeoutMs()))
             .build();
-
     this.objectMapper = new ObjectMapper();
     this.objectMapper.registerModule(new JavaTimeModule());
+    this.rateLimiter = RateLimiter.create(config.getRateLimitRps());
   }
 
   /**
@@ -95,6 +97,7 @@ public class OpenSanctionsHttpAdapter {
 
     for (int attempt = 0; attempt <= config.getRetryAttempts(); attempt++) {
       try {
+        rateLimiter.acquire();
         HttpResponse<String> response =
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
