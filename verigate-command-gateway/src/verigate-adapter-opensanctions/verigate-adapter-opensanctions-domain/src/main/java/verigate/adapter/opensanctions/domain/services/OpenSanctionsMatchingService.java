@@ -44,6 +44,23 @@ public interface OpenSanctionsMatchingService {
       throws TransientException, PermanentException;
 
   /**
+   * Performs a paginated text-based search against OpenSanctions.
+   *
+   * @param dataset the dataset to search
+   * @param query the search query text
+   * @param limit maximum number of results to return
+   * @param offset number of results to skip for pagination
+   * @return the search response with matching entities
+   * @throws TransientException for temporary failures that can be retried
+   * @throws PermanentException for permanent failures
+   */
+  default EntityMatchResponse searchEntities(
+      String dataset, String query, Integer limit, Integer offset)
+      throws TransientException, PermanentException {
+    return searchEntities(dataset, query, limit);
+  }
+
+  /**
    * Retrieves a specific entity by its ID.
    *
    * @param entityId the entity identifier

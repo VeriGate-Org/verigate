@@ -32,8 +32,10 @@ public class HanisBulkSoapClient {
   private final String serviceUrl;
   private final Duration timeout;
 
+  /** Creates a new HANIS bulk SOAP client. */
   public HanisBulkSoapClient(String serviceUrl, Duration timeout) {
-    this.httpClient = HttpClient.newBuilder().connectTimeout(timeout).build();
+    this.httpClient = HttpClient.newBuilder()
+        .connectTimeout(timeout).build();
     this.serviceUrl = serviceUrl;
     this.timeout = timeout;
   }
@@ -41,8 +43,13 @@ public class HanisBulkSoapClient {
   /**
    * Result of an UpLoadFile SOAP call.
    */
-  public record UploadResult(String requestId, int errorCode, String errorDescription) {
-    public boolean isSuccess() { return errorCode == 0 && requestId != null; }
+  public record UploadResult(String requestId,
+      int errorCode, String errorDescription) {
+
+    /** Returns whether the upload was successful. */
+    public boolean isSuccess() {
+      return errorCode == 0 && requestId != null;
+    }
   }
 
   /**
@@ -50,9 +57,18 @@ public class HanisBulkSoapClient {
    */
   public record RequestStatusResult(
       int statusCode, String statusDescription,
-      byte[] resultData, int errorCode, String errorDescription) {
-    public boolean isReady() { return statusCode == 0 && resultData != null; }
-    public boolean isProcessing() { return statusCode == 1; }
+      byte[] resultData, int errorCode,
+      String errorDescription) {
+
+    /** Returns whether the result is ready. */
+    public boolean isReady() {
+      return statusCode == 0 && resultData != null;
+    }
+
+    /** Returns whether the request is still processing. */
+    public boolean isProcessing() {
+      return statusCode == 1;
+    }
   }
 
   /**
@@ -79,8 +95,10 @@ public class HanisBulkSoapClient {
       var factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
       factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      var bytes = response.getBytes(
+          java.nio.charset.StandardCharsets.UTF_8);
       var doc = factory.newDocumentBuilder().parse(
-          new java.io.ByteArrayInputStream(response.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+          new java.io.ByteArrayInputStream(bytes));
 
       String requestId = getElementText(doc, "RequestId");
       int errorCode = parseInt(getElementText(doc, "Error"), -1);
@@ -113,8 +131,10 @@ public class HanisBulkSoapClient {
       var factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
       factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      var bytes = response.getBytes(
+          java.nio.charset.StandardCharsets.UTF_8);
       var doc = factory.newDocumentBuilder().parse(
-          new java.io.ByteArrayInputStream(response.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+          new java.io.ByteArrayInputStream(bytes));
 
       int statusCode = parseInt(getElementText(doc, "StatusCode"), -1);
       String statusDesc = getElementText(doc, "StatusDescription");
@@ -173,13 +193,23 @@ public class HanisBulkSoapClient {
   }
 
   private int parseInt(String value, int defaultValue) {
-    if (value == null || value.isBlank()) return defaultValue;
-    try { return Integer.parseInt(value.trim()); } catch (NumberFormatException e) { return defaultValue; }
+    if (value == null || value.isBlank()) {
+      return defaultValue;
+    }
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
   }
 
   private String escapeXml(String input) {
-    if (input == null) return "";
-    return input.replace("&", "&amp;").replace("<", "&lt;")
-        .replace(">", "&gt;").replace("\"", "&quot;");
+    if (input == null) {
+      return "";
+    }
+    return input.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;");
   }
 }

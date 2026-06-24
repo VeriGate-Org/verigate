@@ -17,6 +17,7 @@ import verigate.adapter.qlink.infrastructure.http.dto.QLinkBankVerificationRespo
 /**
  * API adapter for calling the QLink bank verification endpoints.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class QLinkBankApiAdapter {
 
   private static final Logger logger = LoggerFactory.getLogger(QLinkBankApiAdapter.class);

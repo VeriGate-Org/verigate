@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
 import verigate.adapter.opensanctions.domain.models.EntityMatches;
 import verigate.adapter.opensanctions.domain.models.ScoredEntity;
+import verigate.adapter.opensanctions.domain.constants.DomainConstants;
 import verigate.adapter.opensanctions.domain.services.OpenSanctionsMatchingService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.events.VerificationEventPublisher;
@@ -240,7 +241,7 @@ class DefaultSanctionsScreeningCommandHandlerTest {
         assertEquals("us_ofac_sdn", result.get("match_0_datasets"));
         assertEquals("SANCTIONS", result.get("match_0_type"));
         assertEquals("true", result.get("match_0_target"));
-        assertEquals("entity-matching", result.get("algorithm"));
+        assertEquals(DomainConstants.DEFAULT_ALGORITHM, result.get("algorithm"));
     }
 
     @Test
@@ -250,6 +251,7 @@ class DefaultSanctionsScreeningCommandHandlerTest {
             .id("PEP-001")
             .caption("Politically Exposed Person")
             .datasets(List.of("za_pep_registry"))
+            .topics(List.of("role.pep"))
             .score(0.85)
             .build();
 

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * DTO for QLink bank verification request.
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public record QLinkBankVerificationRequestDto(
     @JsonProperty("account_number") String accountNumber,
     @JsonProperty("branch_code") String branchCode,

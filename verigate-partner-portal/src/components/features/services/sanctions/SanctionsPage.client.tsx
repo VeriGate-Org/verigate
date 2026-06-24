@@ -11,6 +11,12 @@ import { DataTable } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
+import { config } from "@/lib/config";
+import {
+  submitVerification,
+  pollVerificationStatus,
+  type BffVerificationStatusResponse,
+} from "@/lib/bff-client";
 import {
   ShieldAlert,
   Download,
@@ -18,6 +24,7 @@ import {
   Loader2,
   ChevronDown,
   Settings,
+  AlertCircle,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -115,6 +122,39 @@ const DEMO_HISTORY: SanctionsHistoryRow[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  BFF response → SanctionsResult                                     */
+/* ------------------------------------------------------------------ */
+
+function mapBffToSanctionsResult(bffStatus: BffVerificationStatusResponse): SanctionsResult {
+  const aux = bffStatus.auxiliaryData ?? {};
+  const matchCount = parseInt(aux["significant_matches_count"] ?? "0", 10);
+  const matches: SanctionsMatch[] = [];
+
+  for (let i = 0; i < matchCount; i++) {
+    const datasetsRaw = aux[`match_${i}_datasets`] ?? "";
+    const matchType = aux[`match_${i}_type`] ?? "SANCTIONS";
+    matches.push({
+      id: aux[`match_${i}_id`] ?? `match-${i}`,
+      caption: aux[`match_${i}_caption`] ?? "Unknown entity",
+      schema: "Person",
+      score: parseFloat(aux[`match_${i}_score`] ?? "0"),
+      datasets: datasetsRaw.split(",").map((d) => d.trim()).filter(Boolean),
+      topics: matchType === "PEP" ? ["role.pep"] : ["sanction"],
+      properties: {},
+    });
+  }
+
+  return {
+    correlationId: bffStatus.commandId,
+    provider: aux["provider"] ?? "OpenSanctions",
+    dataset: "sanctions+pep",
+    totalMatches: matchCount,
+    outcome: bffStatus.status,
+    matches,
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /*  History columns                                                    */
 /* ------------------------------------------------------------------ */
 
@@ -196,9 +236,11 @@ const historyColumns: ColumnDef<SanctionsHistoryRow, unknown>[] = [
 function ResultPanel({
   status,
   result,
+  errorMsg,
 }: {
-  status: "idle" | "loading" | "result";
+  status: "idle" | "loading" | "result" | "error";
   result: SanctionsResult | null;
+  errorMsg: string | null;
 }) {
   if (status === "idle") {
     return (
@@ -226,6 +268,22 @@ function ResultPanel({
           </div>
         </CardBody>
       </Card>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex items-center gap-3.5 p-5 rounded-aws-container border border-[rgba(226,61,54,0.2)] bg-[rgba(226,61,54,0.04)]">
+        <div className="w-12 h-12 rounded-full bg-[#E23D36] flex items-center justify-center shrink-0">
+          <AlertCircle size={26} className="text-white" />
+        </div>
+        <div>
+          <div className="text-sm font-semibold text-[#E23D36]">Screening failed</div>
+          <div className="text-xs text-text-muted mt-1">
+            {errorMsg ?? "An unexpected error occurred. Please try again."}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -366,14 +424,16 @@ function ResultPanel({
                 </div>
 
                 {/* Properties */}
-                <div className="bg-surface-alt rounded p-3 grid grid-cols-1 sm:grid-cols-2 gap-1">
-                  {Object.entries(m.properties).map(([k, v]) => (
-                    <div key={k} className="text-[11px] flex gap-1.5">
-                      <span className="text-text-muted capitalize">{k}:</span>
-                      <span className="font-medium text-text">{v}</span>
-                    </div>
-                  ))}
-                </div>
+                {Object.keys(m.properties).length > 0 && (
+                  <div className="bg-surface-alt rounded p-3 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                    {Object.entries(m.properties).map(([k, v]) => (
+                      <div key={k} className="text-[11px] flex gap-1.5">
+                        <span className="text-text-muted capitalize">{k}:</span>
+                        <span className="font-medium text-text">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex justify-end gap-1.5 mt-2.5">
@@ -420,30 +480,82 @@ const COUNTRY_OPTIONS = [
 
 export function SanctionsPage() {
   const [tab, setTab] = useState("new");
-  const [entityName, setEntityName] = useState("");
   const [entityType, setEntityType] = useState("person");
+  // Person-specific fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  // Non-person field (company / organization / vessel name)
+  const [entityName, setEntityName] = useState("");
   const [country, setCountry] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [threshold, setThreshold] = useState(0.7);
-  const [status, setStatus] = useState<"idle" | "loading" | "result">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "result" | "error">("idle");
   const [result, setResult] = useState<SanctionsResult | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const canSubmit = entityName.trim().length >= 2;
+  const isPerson = entityType === "person";
+
+  const canSubmit = isPerson
+    ? firstName.trim().length >= 1 && lastName.trim().length >= 1
+    : entityName.trim().length >= 2;
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
       if (!canSubmit) return;
+
       setStatus("loading");
-      const timer = setTimeout(() => {
-        // Demo: if name contains "tshabalala" or "pyongyang" -> matches
-        const hasMatch = /tshabalala|pyongyang/i.test(entityName);
-        setResult(hasMatch ? DEMO_RESULT : CLEAR_RESULT);
+      setResult(null);
+      setErrorMsg(null);
+
+      if (config.useMockServices) {
+        const searchName = isPerson ? `${firstName} ${lastName}` : entityName;
+        const hasMatch = /tshabalala|pyongyang/i.test(searchName);
+        setTimeout(() => {
+          setResult(hasMatch ? DEMO_RESULT : CLEAR_RESULT);
+          setStatus("result");
+        }, 1200);
+        return;
+      }
+
+      // Live mode — submit to BFF and poll for result
+      try {
+        const metadata: Record<string, unknown> = {
+          entityType: entityType.charAt(0).toUpperCase() + entityType.slice(1),
+        };
+
+        if (isPerson) {
+          metadata.firstName = firstName.trim();
+          metadata.lastName = lastName.trim();
+          if (country) metadata.nationality = country;
+        } else {
+          // Non-person entities: pass the name as firstName for entity matching
+          metadata.firstName = entityName.trim();
+          if (country) metadata.nationality = country;
+        }
+
+        const submission = await submitVerification({
+          verificationType: "SANCTIONS_SCREENING",
+          originationType: "ADHOC",
+          originationId: crypto.randomUUID(),
+          requestedBy: config.partnerId,
+          metadata,
+        });
+
+        const statusResponse = await pollVerificationStatus(submission.commandId, {
+          maxAttempts: 24,
+          intervalMs: 2500,
+        });
+
+        setResult(mapBffToSanctionsResult(statusResponse));
         setStatus("result");
-      }, 1200);
-      return () => clearTimeout(timer);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Screening request failed.";
+        setErrorMsg(message);
+        setStatus("error");
+      }
     },
-    [canSubmit, entityName],
+    [canSubmit, isPerson, firstName, lastName, entityName, entityType, country],
   );
 
   const tabs = [
@@ -480,19 +592,40 @@ export function SanctionsPage() {
                   label="Entity type"
                   options={ENTITY_TYPE_OPTIONS}
                   value={entityType}
-                  onChange={(e) => setEntityType(e.target.value)}
+                  onChange={(e) => {
+                    setEntityType(e.target.value);
+                    setFirstName("");
+                    setLastName("");
+                    setEntityName("");
+                    setStatus("idle");
+                    setResult(null);
+                    setErrorMsg(null);
+                  }}
                 />
 
-                <Input
-                  label="Entity name *"
-                  placeholder={
-                    entityType === "person"
-                      ? "e.g. Mandla Tshabalala"
-                      : "e.g. Acme Corp"
-                  }
-                  value={entityName}
-                  onChange={(e) => setEntityName(e.target.value)}
-                />
+                {isPerson ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="First name *"
+                      placeholder="e.g. Mandla"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                    <Input
+                      label="Last name *"
+                      placeholder="e.g. Tshabalala"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    label={entityType === "vessel" ? "Vessel name *" : "Organisation name *"}
+                    placeholder={entityType === "vessel" ? "e.g. MV Stellenbosch" : "e.g. Acme Corp"}
+                    value={entityName}
+                    onChange={(e) => setEntityName(e.target.value)}
+                  />
+                )}
 
                 <Select
                   label="Country"
@@ -563,7 +696,7 @@ export function SanctionsPage() {
           </Card>
 
           {/* Result */}
-          <ResultPanel status={status} result={result} />
+          <ResultPanel status={status} result={result} errorMsg={errorMsg} />
         </div>
       )}
 

@@ -3,6 +3,7 @@ package verigate.adapter.dharesponse.domain.models;
 import java.time.Instant;
 import java.util.Map;
 
+/** Result of verifying a DHA response, including extracted fields and confidence score. */
 public record DhaResponseVerificationResult(
     DhaPermitVerificationOutcome outcome,
     String permitNumber,
