@@ -35,13 +35,19 @@ import infrastructure.mapping.PassthroughMapper;
 import java.time.Duration;
 import java.util.Set;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.adapter.opensanctions.application.handlers.DefaultSanctionsScreeningCommandHandler;
 import verigate.adapter.opensanctions.domain.services.OpenSanctionsMatchingService;
+import verigate.adapter.opensanctions.domain.services.SanctionsReportService;
 import verigate.adapter.opensanctions.infrastructure.config.OpenSanctionsApiConfiguration;
+import verigate.adapter.opensanctions.infrastructure.constants.EnvironmentConstants;
+import verigate.adapter.opensanctions.infrastructure.events.KinesisVerificationEventPublisher;
 import verigate.adapter.opensanctions.infrastructure.http.OpenSanctionsApiAdapter;
+import verigate.adapter.opensanctions.infrastructure.report.SanctionsReportGenerator;
 import verigate.adapter.opensanctions.infrastructure.services.DefaultOpenSanctionsMatchingService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
+import verigate.verification.cg.domain.events.VerificationEventPublisher;
 import verigate.verification.cg.domain.factories.EventFactory;
 import verigate.verification.cg.domain.factories.VerificationEventFactory;
 
@@ -72,6 +78,8 @@ public class ServiceModule extends AbstractModule {
 
     // OpenSanctions Services
     bind(OpenSanctionsMatchingService.class).to(DefaultOpenSanctionsMatchingService.class);
+    bind(SanctionsReportService.class).to(SanctionsReportGenerator.class);
+    bind(VerificationEventPublisher.class).to(KinesisVerificationEventPublisher.class);
 
     // Factories
     bind(EventFactory.class).to(VerificationEventFactory.class);
@@ -134,10 +142,39 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private S3Client provideS3Client() {
+    return S3Client.builder().build();
+  }
+
+  @Provides
+  @Singleton
+  private SanctionsReportGenerator provideSanctionsReportGenerator(
+      S3Client s3Client, Environment environment) {
+    String bucket = environment.get(
+        EnvironmentConstants.SANCTIONS_REPORT_S3_BUCKET,
+        EnvironmentConstants.DEFAULT_SANCTIONS_REPORT_S3_BUCKET);
+    return new SanctionsReportGenerator(s3Client, bucket);
+  }
+
+  @Provides
+  @Singleton
+  private KinesisVerificationEventPublisher provideKinesisVerificationEventPublisher(
+      KinesisClient kinesisClient, ObjectMapper objectMapper, Environment environment) {
+    String streamName = environment.get(
+        EnvironmentConstants.EVENT_STREAM_NAME,
+        EnvironmentConstants.DEFAULT_EVENT_STREAM_NAME);
+    return new KinesisVerificationEventPublisher(kinesisClient, streamName, objectMapper);
+  }
+
+  @Provides
+  @Singleton
   private DefaultSanctionsScreeningCommandHandler provideSanctionsScreeningCommandHandler(
       OpenSanctionsMatchingService screeningService,
-      EventFactory eventFactory) {
-    return new DefaultSanctionsScreeningCommandHandler(screeningService, null, eventFactory);
+      VerificationEventPublisher eventPublisher,
+      EventFactory eventFactory,
+      SanctionsReportService reportService) {
+    return new DefaultSanctionsScreeningCommandHandler(
+        screeningService, eventPublisher, eventFactory, reportService);
   }
 
   protected DefaultRetry getDefaultRetry(Config config) {

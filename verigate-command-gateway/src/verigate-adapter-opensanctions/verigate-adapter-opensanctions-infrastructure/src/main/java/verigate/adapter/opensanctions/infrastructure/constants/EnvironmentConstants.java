@@ -26,6 +26,14 @@ public class EnvironmentConstants {
   public static final String OPENSANCTIONS_RATE_LIMIT_RPS = "OPENSANCTIONS_RATE_LIMIT_RPS";
   public static final String OPENSANCTIONS_RATE_LIMIT_BURST = "OPENSANCTIONS_RATE_LIMIT_BURST";
 
+  // Event publishing
+  public static final String EVENT_STREAM_NAME = "EVENT_STREAM_NAME";
+  public static final String DEFAULT_EVENT_STREAM_NAME = "verigate-verification-events";
+
+  // Report storage
+  public static final String SANCTIONS_REPORT_S3_BUCKET = "SANCTIONS_REPORT_S3_BUCKET";
+  public static final String DEFAULT_SANCTIONS_REPORT_S3_BUCKET = "verigate-documents";
+
   // Default values
   public static final String DEFAULT_BASE_URL = "https://api.opensanctions.org";
   public static final String DEFAULT_CONNECTION_TIMEOUT_MS = "30000";

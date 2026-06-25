@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -130,6 +131,24 @@ public class CommandStatusRepository {
       return new PageResult<>(items, response.lastEvaluatedKey());
     } catch (DynamoDbException e) {
       logger.error("DynamoDB query failed for partnerId {}: {}", partnerId, e.getMessage());
+      throw new RuntimeException("Service temporarily unavailable", e);
+    }
+  }
+
+  @CacheEvict(value = "command-status", key = "#commandId")
+  public void updateAuxiliaryData(UUID commandId, Map<String, String> newEntries) {
+    VerificationCommandStoreItem item = findById(commandId)
+        .orElseThrow(() -> new RuntimeException("Command not found: " + commandId));
+
+    Map<String, String> aux = new HashMap<>(
+        item.getAuxiliaryData() != null ? item.getAuxiliaryData() : Map.of());
+    aux.putAll(newEntries);
+    item.setAuxiliaryData(aux);
+
+    try {
+      table.putItem(item);
+    } catch (DynamoDbException e) {
+      logger.error("DynamoDB putItem failed for commandId {}: {}", commandId, e.getMessage());
       throw new RuntimeException("Service temporarily unavailable", e);
     }
   }

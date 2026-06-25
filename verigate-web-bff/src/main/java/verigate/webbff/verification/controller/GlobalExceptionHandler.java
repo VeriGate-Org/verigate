@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 @ControllerAdvice
@@ -18,6 +19,13 @@ public class GlobalExceptionHandler {
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   record ErrorResponse(int status, String error, String message, Instant timestamp) {}
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    String message = "Invalid value for parameter '" + ex.getName() + "'";
+    logger.warn("Type mismatch: {}", message);
+    return buildResponse(HttpStatus.BAD_REQUEST, message);
+  }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleBadRequest(IllegalArgumentException ex) {

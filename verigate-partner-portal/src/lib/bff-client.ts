@@ -1525,6 +1525,15 @@ export async function submitDisposition(
   return data;
 }
 
+export async function getSanctionsScreeningReportUrl(
+  commandId: string,
+): Promise<ReportDownloadResponse> {
+  const { data } = await bffApi.get<ReportDownloadResponse>(
+    `/api/partner/sanctions/report/${encodeURIComponent(commandId)}`,
+  );
+  return data;
+}
+
 export async function getScreeningHistory(params?: {
   limit?: number;
   offset?: number;
@@ -1542,7 +1551,7 @@ export async function getScreeningHistory(params?: {
   if (params?.limit) queryParams.set("limit", String(params.limit));
   if (params?.offset) queryParams.set("offset", String(params.offset));
   const query = queryParams.toString();
-  const { data } = await bffApi.get(`/sanctions/history${query ? `?${query}` : ""}`);
+  const { data } = await bffApi.get(`/api/partner/sanctions/history${query ? `?${query}` : ""}`);
   return data as { items: Array<{
     screeningId: string;
     subjectName: string;

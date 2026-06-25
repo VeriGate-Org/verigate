@@ -1,6 +1,7 @@
 package verigate.webbff.sanctions.controller;
 
 import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import verigate.webbff.auth.PartnerContextHolder;
 import verigate.webbff.sanctions.service.SanctionsProxyService;
 
 @RestController
@@ -42,15 +44,27 @@ public class SanctionsController {
   @PostMapping("/dispositions")
   public ResponseEntity<Map<String, Object>> submitDisposition(
       @RequestBody Map<String, Object> disposition) {
-    logger.info("Submitting disposition for entity: {}", disposition.get("entityId"));
-    Map<String, Object> result = sanctionsProxyService.submitDisposition(disposition);
+    String partnerId = PartnerContextHolder.requirePartnerId();
+    logger.info("Submitting disposition for entity: {} (partner={})",
+        disposition.get("entityId"), partnerId);
+    Map<String, Object> result = sanctionsProxyService.submitDisposition(disposition, partnerId);
     return ResponseEntity.ok(result);
   }
 
   @GetMapping("/history")
   public ResponseEntity<Map<String, Object>> getScreeningHistory() {
-    logger.info("Getting screening history");
-    Map<String, Object> history = sanctionsProxyService.getScreeningHistory();
+    String partnerId = PartnerContextHolder.requirePartnerId();
+    logger.info("Getting screening history (partner={})", partnerId);
+    Map<String, Object> history = sanctionsProxyService.getScreeningHistory(partnerId);
     return ResponseEntity.ok(history);
+  }
+
+  @GetMapping("/report/{commandId}")
+  public ResponseEntity<Map<String, Object>> getScreeningReport(
+      @PathVariable UUID commandId) {
+    String partnerId = PartnerContextHolder.requirePartnerId();
+    logger.info("Getting screening report for commandId: {} (partner={})", commandId, partnerId);
+    Map<String, Object> report = sanctionsProxyService.getReportPresignedUrl(commandId, partnerId);
+    return ResponseEntity.ok(report);
   }
 }
