@@ -7,9 +7,9 @@
 package verigate.adapter.deedsweb.infrastructure.soap;
 
 import jakarta.xml.ws.BindingProvider;
+import java.security.Security;
 import java.util.Map;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -21,15 +21,31 @@ import verigate.adapter.deedsweb.infrastructure.soap.generated.DeedsRegistration
 
 /**
  * Builds a CXF JAX-WS proxy for {@link DeedsRegistrationEnquiryService} using the endpoint
- * and timeouts resolved from {@link DeedsWebApiConfiguration}. CXF request/response logging
- * is wired through a {@link LoggingFeature} (truncates large payloads) and CXF's
+ * and timeouts resolved from {@link DeedsWebApiConfiguration}. CXF's
  * {@code java.util.logging} output is bridged to SLF4J by the shared kernel.
  */
 public final class CxfPortFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CxfPortFactory.class);
 
-  private static final int LOG_PAYLOAD_LIMIT_BYTES = 8_192;
+  static {
+    // deedssoap.deeds.gov.za:443 negotiates TLS using a 1024-bit DHE key.
+    // JDK 17+ raised the minimum accepted DHE key size to 2048 bits via
+    // jdk.tls.disabledAlgorithms, causing the handshake to fail. Relax it to
+    // 1024 bits for this JVM. Certificate chain validation is unaffected.
+    String algProp = "jdk.tls.disabledAlgorithms";
+    String current = Security.getProperty(algProp);
+    if (current != null) {
+      String updated = current
+          .replace("DH keySize < 2048", "DH keySize < 1024")
+          .replace("DHE keySize < 2048", "DHE keySize < 1024");
+      if (!updated.equals(current)) {
+        Security.setProperty(algProp, updated);
+        LOGGER.info("Relaxed jdk.tls.disabledAlgorithms DHE minimum to 1024 bits"
+            + " for DeedsWeb TLS compatibility");
+      }
+    }
+  }
 
   private CxfPortFactory() {
     // utility
@@ -42,11 +58,6 @@ public final class CxfPortFactory {
     JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
     factory.setServiceClass(DeedsRegistrationEnquiryService.class);
     factory.setAddress(endpoint);
-
-    LoggingFeature logging = new LoggingFeature();
-    logging.setPrettyLogging(true);
-    logging.setLimit(LOG_PAYLOAD_LIMIT_BYTES);
-    factory.getFeatures().add(logging);
 
     // Register the operation-URL interceptor so CXF appends the SOAP operation
     // name to the endpoint path. DeedsWeb's CXF server uses URL-based dispatch
@@ -73,6 +84,10 @@ public final class CxfPortFactory {
 
     final HTTPConduit conduit =
         (HTTPConduit) ClientProxy.getClient(port).getConduit();
+    // Do not follow HTTP 302 redirects. The DeedsWeb BigIP currently redirects
+    // SOAP operation POSTs to the base path; following would yield HTML (permanent
+    // dispatch error) instead of a transient failure that the gateway can retry.
+    policy.setAutoRedirect(false);
     conduit.setClient(policy);
 
     // Configure TLS for HTTPS endpoints. CXF's X509TrustManagerWrapper does its

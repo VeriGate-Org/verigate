@@ -35,6 +35,22 @@ public final class SoapErrorClassifier {
   }
 
   /**
+   * Returns true if the transport error message indicates the server returned an HTTP redirect
+   * (3xx). This happens when the BigIP load balancer in front of DeedsWeb redirects SOAP
+   * operation POSTs to the base service path. Callers should treat this as transient — the
+   * redirect is a server-side routing misconfiguration, not a problem with the request itself.
+   */
+  public static boolean isRedirectError(String message) {
+    if (message == null) {
+      return false;
+    }
+    String lower = message.toLowerCase(Locale.ROOT);
+    return lower.contains("302")
+        || lower.contains("301")
+        || (lower.contains("redirect") && lower.contains("http"));
+  }
+
+  /**
    * Returns true if the transport error message indicates the server returned an HTML page
    * instead of a SOAP XML response. This typically happens when the CXF server receives a
    * request on the base service URL and responds with its service-listing page.
