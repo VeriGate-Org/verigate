@@ -41,7 +41,8 @@ public final class CxfPortFactory {
           .replace("DHE keySize < 2048", "DHE keySize < 1024");
       if (!updated.equals(current)) {
         Security.setProperty(algProp, updated);
-        LOGGER.info("Relaxed jdk.tls.disabledAlgorithms DHE minimum to 1024 bits for DeedsWeb TLS compatibility");
+        LOGGER.info("Relaxed jdk.tls.disabledAlgorithms DHE minimum to 1024 bits"
+            + " for DeedsWeb TLS compatibility");
       }
     }
   }
