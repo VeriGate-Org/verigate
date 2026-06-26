@@ -28,6 +28,7 @@ public class KinesisVerificationEventPublisher implements VerificationEventPubli
   private final String streamName;
   private final ObjectMapper objectMapper;
 
+  /** Constructs the publisher with the Kinesis client, stream name, and JSON mapper. */
   public KinesisVerificationEventPublisher(
       KinesisClient kinesisClient, String streamName, ObjectMapper objectMapper) {
     this.kinesisClient = kinesisClient;

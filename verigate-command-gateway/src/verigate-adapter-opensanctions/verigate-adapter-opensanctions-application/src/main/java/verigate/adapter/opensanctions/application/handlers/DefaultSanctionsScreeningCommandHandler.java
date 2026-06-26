@@ -40,6 +40,7 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
   private final EventFactory eventFactory;
   private final SanctionsReportService reportService;
 
+  /** Constructs the handler with all required collaborators. */
   public DefaultSanctionsScreeningCommandHandler(
       OpenSanctionsMatchingService openSanctionsService,
       VerificationEventPublisher eventPublisher,

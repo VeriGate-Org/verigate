@@ -19,7 +19,8 @@ public interface SanctionsReportService {
    *
    * @param commandId     the verification command identifier
    * @param partnerId     the partner who initiated the screening
-   * @param resultDetails flat map of screening result details (match scores, datasets, outcome, etc.)
+   * @param resultDetails flat map of screening result details (match scores, datasets,
+   *                      outcome, etc.)
    * @return the storage key (e.g. S3 object key) where the report was saved
    */
   String generateReport(String commandId, String partnerId, Map<String, String> resultDetails);

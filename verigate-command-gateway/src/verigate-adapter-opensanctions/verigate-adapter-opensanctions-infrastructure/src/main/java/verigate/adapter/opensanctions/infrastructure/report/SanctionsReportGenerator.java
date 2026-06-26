@@ -62,7 +62,8 @@ public class SanctionsReportGenerator implements SanctionsReportService {
       return s3Key;
 
     } catch (Exception e) {
-      LOGGER.log(Level.SEVERE, "Failed to generate sanctions report for commandId: " + commandId, e);
+      LOGGER.log(Level.SEVERE,
+          "Failed to generate sanctions report for commandId: " + commandId, e);
       throw new RuntimeException("Report generation failed", e);
     }
   }
@@ -70,11 +71,11 @@ public class SanctionsReportGenerator implements SanctionsReportService {
   private String buildReportContent(
       String commandId, String partnerId, Map<String, String> d) {
 
-    String outcome = d.getOrDefault("outcome", "UNKNOWN");
-    String significantMatches = d.getOrDefault("significant_matches_count", "0");
-    int matchCount = parseIntSafe(significantMatches);
-    String subjectName = d.getOrDefault("subject_name", "Unknown");
-    String entityType = d.getOrDefault("entity_type", "Person");
+    final String outcome = d.getOrDefault("outcome", "UNKNOWN");
+    final String significantMatches = d.getOrDefault("significant_matches_count", "0");
+    final int matchCount = parseIntSafe(significantMatches);
+    final String subjectName = d.getOrDefault("subject_name", "Unknown");
+    final String entityType = d.getOrDefault("entity_type", "Person");
 
     StringBuilder sb = new StringBuilder();
 
@@ -93,7 +94,8 @@ public class SanctionsReportGenerator implements SanctionsReportService {
     sb.append("───────────────────────────────────────────────────────\n");
     sb.append("Outcome:            ").append(outcome).append("\n");
     sb.append("Classification:     ").append(classifyOutcome(outcome)).append("\n");
-    sb.append("Provider:           ").append(d.getOrDefault("provider", "OpenSanctions")).append("\n");
+    sb.append("Provider:           ")
+        .append(d.getOrDefault("provider", "OpenSanctions")).append("\n");
     sb.append("Algorithm:          ").append(d.getOrDefault("algorithm", "logic-v2")).append("\n");
     sb.append("Significant Hits:   ").append(significantMatches).append("\n\n");
 
@@ -119,7 +121,8 @@ public class SanctionsReportGenerator implements SanctionsReportService {
         sb.append("Match ").append(i + 1).append(" of ").append(matchCount).append(":\n");
         sb.append("  Entity:           ").append(caption).append("\n");
         sb.append("  OpenSanctions ID: ").append(entityId).append("\n");
-        sb.append("  Match Score:      ").append(scorePercent).append("/100 (").append(confidence).append(" confidence)\n");
+        sb.append("  Match Score:      ").append(scorePercent)
+            .append("/100 (").append(confidence).append(" confidence)\n");
         sb.append("  Type:             ").append(matchType).append("\n");
         sb.append("  Datasets:         ").append(datasets).append("\n");
         sb.append("  Risk Target:      ").append("true".equals(target) ? "Yes" : "No").append("\n");
