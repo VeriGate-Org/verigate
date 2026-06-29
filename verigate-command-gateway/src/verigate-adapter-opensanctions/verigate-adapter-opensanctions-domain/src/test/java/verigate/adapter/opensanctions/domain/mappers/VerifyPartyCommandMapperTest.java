@@ -281,6 +281,40 @@ class VerifyPartyCommandMapperTest {
         assertNull(entity.getProperties().get("name"));
     }
 
+    @Test
+    void mapToEntityMatchRequest_customThreshold_usedWhenValid() {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("firstName", "John");
+        metadata.put("lastName", "Doe");
+        metadata.put("threshold", "0.85");
+
+        EntityMatchRequest result = VerifyPartyCommandMapper.mapToEntityMatchRequest(createCommand(metadata));
+
+        assertEquals(0.85, result.getThreshold(), 0.0001);
+    }
+
+    @Test
+    void mapToEntityMatchRequest_thresholdOutOfRange_fallsBackToDefault() {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("firstName", "John");
+        metadata.put("threshold", "1.5");
+
+        EntityMatchRequest result = VerifyPartyCommandMapper.mapToEntityMatchRequest(createCommand(metadata));
+
+        assertEquals(DomainConstants.DEFAULT_THRESHOLD, result.getThreshold(), 0.0001);
+    }
+
+    @Test
+    void mapToEntityMatchRequest_invalidThresholdString_fallsBackToDefault() {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("firstName", "John");
+        metadata.put("threshold", "not-a-number");
+
+        EntityMatchRequest result = VerifyPartyCommandMapper.mapToEntityMatchRequest(createCommand(metadata));
+
+        assertEquals(DomainConstants.DEFAULT_THRESHOLD, result.getThreshold(), 0.0001);
+    }
+
     private VerifyPartyCommand createCommand(Map<String, Object> metadata) {
         return new VerifyPartyCommand(
             UUID.randomUUID(),

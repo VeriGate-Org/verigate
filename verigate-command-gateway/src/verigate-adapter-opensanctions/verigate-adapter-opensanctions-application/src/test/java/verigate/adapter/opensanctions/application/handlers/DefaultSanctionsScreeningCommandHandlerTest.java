@@ -18,6 +18,7 @@ import verigate.adapter.opensanctions.domain.models.EntityMatches;
 import verigate.adapter.opensanctions.domain.models.ScoredEntity;
 import verigate.adapter.opensanctions.domain.constants.DomainConstants;
 import verigate.adapter.opensanctions.domain.services.OpenSanctionsMatchingService;
+import verigate.adapter.opensanctions.domain.services.SanctionsReportService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.events.VerificationEventPublisher;
 import verigate.verification.cg.domain.factories.EventFactory;
@@ -49,6 +50,9 @@ class DefaultSanctionsScreeningCommandHandlerTest {
     @Mock
     private EventFactory mockEventFactory;
 
+    @Mock
+    private SanctionsReportService mockReportService;
+
     private DefaultSanctionsScreeningCommandHandler handler;
     private VerifyPartyCommand testCommand;
 
@@ -56,9 +60,10 @@ class DefaultSanctionsScreeningCommandHandlerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         handler = new DefaultSanctionsScreeningCommandHandler(
-            mockOpenSanctionsService, 
-            mockEventPublisher, 
-            mockEventFactory
+            mockOpenSanctionsService,
+            mockEventPublisher,
+            mockEventFactory,
+            mockReportService
         );
 
         // Create test command instance

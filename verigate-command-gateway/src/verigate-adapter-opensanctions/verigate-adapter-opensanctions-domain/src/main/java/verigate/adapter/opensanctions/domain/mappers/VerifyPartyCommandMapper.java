@@ -35,11 +35,16 @@ public class VerifyPartyCommandMapper {
     Map<String, EntityExample> queries = new HashMap<>();
     queries.put("entity1", entityExample);
 
+    String thresholdStr = extractMetadata(command, "threshold");
+    double threshold = thresholdStr.isEmpty()
+        ? DomainConstants.DEFAULT_THRESHOLD
+        : parseThreshold(thresholdStr);
+
     return new EntityMatchRequest.Builder()
         .dataset(DomainConstants.DEFAULT_DATASET)
         .queries(queries)
         .limit(DomainConstants.DEFAULT_LIMIT)
-        .threshold(DomainConstants.DEFAULT_THRESHOLD)
+        .threshold(threshold)
         .cutoff(DomainConstants.DEFAULT_CUTOFF)
         .algorithm(DomainConstants.DEFAULT_ALGORITHM)
         .topics(List.of(DomainConstants.SANCTIONS_TOPIC, DomainConstants.PEP_TOPIC))
@@ -108,6 +113,15 @@ public class VerifyPartyCommandMapper {
   private static String extractMetadata(VerifyPartyCommand command, String key) {
     Object value = command.getMetadata().get(key);
     return value != null ? value.toString() : "";
+  }
+
+  private static double parseThreshold(String value) {
+    try {
+      double v = Double.parseDouble(value);
+      return (v >= 0.0 && v <= 1.0) ? v : DomainConstants.DEFAULT_THRESHOLD;
+    } catch (NumberFormatException e) {
+      return DomainConstants.DEFAULT_THRESHOLD;
+    }
   }
 
   /**

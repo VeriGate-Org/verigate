@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ServicePageLayout } from "../ServicePageLayout";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -15,6 +15,9 @@ import { config } from "@/lib/config";
 import {
   submitVerification,
   pollVerificationStatus,
+  getSanctionsScreeningReportUrl,
+  getScreeningHistory,
+  submitDisposition,
   type BffVerificationStatusResponse,
 } from "@/lib/bff-client";
 import {
@@ -233,6 +236,51 @@ const historyColumns: ColumnDef<SanctionsHistoryRow, unknown>[] = [
 /*  Result panel                                                       */
 /* ------------------------------------------------------------------ */
 
+async function handleExportPdf(correlationId: string) {
+  try {
+    const { downloadUrl } = await getSanctionsScreeningReportUrl(correlationId);
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
+  } catch {
+    alert("Report not yet available. Please try again in a moment.");
+  }
+}
+
+function handleViewEntity(entityId: string) {
+  window.open(
+    `https://www.opensanctions.org/entities/${entityId}`,
+    "_blank",
+    "noopener,noreferrer",
+  );
+}
+
+async function handleDismissEntity(entityId: string, screeningId: string) {
+  try {
+    await submitDisposition({
+      entityId,
+      screeningId,
+      action: "FALSE_POSITIVE",
+      reason: "Dismissed as false positive by partner",
+    });
+    alert("Entity dismissed as false positive.");
+  } catch {
+    alert("Failed to submit disposition. Please try again.");
+  }
+}
+
+async function handleBlockEntity(entityId: string, screeningId: string) {
+  try {
+    await submitDisposition({
+      entityId,
+      screeningId,
+      action: "CONFIRMED_MATCH",
+      reason: "Blocked from onboarding by partner",
+    });
+    alert("Onboarding blocked — entity confirmed as a match.");
+  } catch {
+    alert("Failed to submit disposition. Please try again.");
+  }
+}
+
 function ResultPanel({
   status,
   result,
@@ -314,8 +362,13 @@ function ResultPanel({
               {result.correlationId}
             </span>
           </div>
-          <Button variant="secondary" size="sm" icon={<Download size={12} />}>
-            Export PDF
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Download size={12} />}
+            onClick={() => handleExportPdf(result.correlationId)}
+          >
+            Export report
           </Button>
         </div>
 
@@ -437,13 +490,21 @@ function ResultPanel({
 
                 {/* Actions */}
                 <div className="flex justify-end gap-1.5 mt-2.5">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => handleViewEntity(m.id)}>
                     View entity
                   </Button>
-                  <Button variant="secondary" size="sm">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleDismissEntity(m.id, result.correlationId)}
+                  >
                     Dismiss as false positive
                   </Button>
-                  <Button variant="destructive" size="sm">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleBlockEntity(m.id, result.correlationId)}
+                  >
                     Block onboarding
                   </Button>
                 </div>
@@ -487,13 +548,48 @@ export function SanctionsPage() {
   // Non-person field (company / organization / vessel name)
   const [entityName, setEntityName] = useState("");
   const [country, setCountry] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [threshold, setThreshold] = useState(0.7);
   const [status, setStatus] = useState<"idle" | "loading" | "result" | "error">("idle");
   const [result, setResult] = useState<SanctionsResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [historyRows, setHistoryRows] = useState<SanctionsHistoryRow[]>(
+    config.useMockServices ? DEMO_HISTORY : [],
+  );
 
   const isPerson = entityType === "person";
+
+  useEffect(() => {
+    if (tab !== "history" || config.useMockServices) return;
+    getScreeningHistory({ limit: 50 }).then(({ items }) => {
+      setHistoryRows(
+        items.map((item) => ({
+          id: item.screeningId,
+          subject: item.subjectName,
+          entityType: item.entityType,
+          dataset: "sanctions+pep",
+          matches: item.matchCount,
+          status:
+            item.outcome === "HARD_FAIL"
+              ? "danger"
+              : item.outcome === "SOFT_FAIL"
+                ? "warning"
+                : "success",
+          statusLabel:
+            item.outcome === "HARD_FAIL"
+              ? "Match"
+              : item.outcome === "SOFT_FAIL"
+                ? "Review"
+                : "Clear",
+          screenedAt: item.screenedAt,
+          actor: "Partner",
+        })),
+      );
+    }).catch(() => {
+      // keep existing rows on error
+    });
+  }, [tab]);
 
   const canSubmit = isPerson
     ? firstName.trim().length >= 1 && lastName.trim().length >= 1
@@ -522,11 +618,13 @@ export function SanctionsPage() {
       try {
         const metadata: Record<string, unknown> = {
           entityType: entityType.charAt(0).toUpperCase() + entityType.slice(1),
+          threshold: threshold,
         };
 
         if (isPerson) {
           metadata.firstName = firstName.trim();
           metadata.lastName = lastName.trim();
+          if (dateOfBirth) metadata.dateOfBirth = dateOfBirth;
           if (country) metadata.nationality = country;
         } else {
           // Non-person entities: pass the name as firstName for entity matching
@@ -555,12 +653,12 @@ export function SanctionsPage() {
         setStatus("error");
       }
     },
-    [canSubmit, isPerson, firstName, lastName, entityName, entityType, country],
+    [canSubmit, isPerson, firstName, lastName, entityName, entityType, country, dateOfBirth, threshold],
   );
 
   const tabs = [
     { label: "New screening", value: "new" },
-    { label: "History", value: "history", count: DEMO_HISTORY.length },
+    { label: "History", value: "history", count: historyRows.length },
   ];
 
   return (
@@ -597,6 +695,7 @@ export function SanctionsPage() {
                     setFirstName("");
                     setLastName("");
                     setEntityName("");
+                    setDateOfBirth("");
                     setStatus("idle");
                     setResult(null);
                     setErrorMsg(null);
@@ -604,20 +703,28 @@ export function SanctionsPage() {
                 />
 
                 {isPerson ? (
-                  <div className="grid grid-cols-2 gap-3">
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="First name *"
+                        placeholder="e.g. Mandla"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                      />
+                      <Input
+                        label="Last name *"
+                        placeholder="e.g. Tshabalala"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </div>
                     <Input
-                      label="First name *"
-                      placeholder="e.g. Mandla"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      label="Date of birth"
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
                     />
-                    <Input
-                      label="Last name *"
-                      placeholder="e.g. Tshabalala"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
+                  </>
                 ) : (
                   <Input
                     label={entityType === "vessel" ? "Vessel name *" : "Organisation name *"}
@@ -708,13 +815,13 @@ export function SanctionsPage() {
                 Screening history
               </div>
               <div className="text-[11px] text-text-muted mt-0.5">
-                {DEMO_HISTORY.length} screenings -- last 7 days
+                {historyRows.length} screenings -- last 7 days
               </div>
             </div>
           </CardHeader>
           <CardBody compact>
             <DataTable
-              data={DEMO_HISTORY}
+              data={historyRows}
               columns={historyColumns}
               pageSize={10}
             />

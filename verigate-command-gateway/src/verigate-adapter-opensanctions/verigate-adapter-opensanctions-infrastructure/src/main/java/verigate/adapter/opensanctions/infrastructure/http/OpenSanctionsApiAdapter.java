@@ -186,34 +186,40 @@ public class OpenSanctionsApiAdapter extends OpenSanctionsHttpAdapter {
     }
 
     if (request.getAlgorithm() != null) {
-      endpoint.append(hasParams ? "&" : "?").append("algorithm=").append(request.getAlgorithm());
+      endpoint.append(hasParams ? "&" : "?").append("algorithm=")
+          .append(java.net.URLEncoder.encode(
+              request.getAlgorithm(), java.nio.charset.StandardCharsets.UTF_8));
       hasParams = true;
     }
 
     if (request.getTopics() != null && !request.getTopics().isEmpty()) {
       for (String topic : request.getTopics()) {
-        endpoint.append(hasParams ? "&" : "?").append("topics=").append(topic);
+        endpoint.append(hasParams ? "&" : "?").append("topics=")
+            .append(java.net.URLEncoder.encode(topic, java.nio.charset.StandardCharsets.UTF_8));
         hasParams = true;
       }
     }
 
     if (request.getIncludeDatasets() != null && !request.getIncludeDatasets().isEmpty()) {
       for (String dataset : request.getIncludeDatasets()) {
-        endpoint.append(hasParams ? "&" : "?").append("include_dataset=").append(dataset);
+        endpoint.append(hasParams ? "&" : "?").append("include_dataset=")
+            .append(java.net.URLEncoder.encode(dataset, java.nio.charset.StandardCharsets.UTF_8));
         hasParams = true;
       }
     }
 
     if (request.getExcludeDatasets() != null && !request.getExcludeDatasets().isEmpty()) {
       for (String dataset : request.getExcludeDatasets()) {
-        endpoint.append(hasParams ? "&" : "?").append("exclude_dataset=").append(dataset);
+        endpoint.append(hasParams ? "&" : "?").append("exclude_dataset=")
+            .append(java.net.URLEncoder.encode(dataset, java.nio.charset.StandardCharsets.UTF_8));
         hasParams = true;
       }
     }
 
     if (request.getExcludeSchemas() != null && !request.getExcludeSchemas().isEmpty()) {
       for (String schema : request.getExcludeSchemas()) {
-        endpoint.append(hasParams ? "&" : "?").append("exclude_schema=").append(schema);
+        endpoint.append(hasParams ? "&" : "?").append("exclude_schema=")
+            .append(java.net.URLEncoder.encode(schema, java.nio.charset.StandardCharsets.UTF_8));
         hasParams = true;
       }
     }

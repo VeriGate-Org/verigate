@@ -20,6 +20,7 @@ import verigate.adapter.opensanctions.domain.mappers.VerifyPartyCommandMapper;
 import verigate.adapter.opensanctions.domain.models.EntityMatchRequest;
 import verigate.adapter.opensanctions.domain.models.EntityMatchResponse;
 import verigate.adapter.opensanctions.domain.services.OpenSanctionsMatchingService;
+import verigate.adapter.opensanctions.domain.services.SanctionsReportService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.events.VerificationEventPublisher;
 import verigate.verification.cg.domain.factories.EventFactory;
@@ -37,21 +38,18 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
   private final OpenSanctionsMatchingService openSanctionsService;
   private final VerificationEventPublisher eventPublisher;
   private final EventFactory eventFactory;
+  private final SanctionsReportService reportService;
 
-  /**
-   * Constructor.
-   *
-   * @param openSanctionsService the OpenSanctions matching service
-   * @param eventPublisher      the event publisher for verification results
-   * @param eventFactory        the factory to create verification events
-   */
+  /** Constructs the handler with all required collaborators. */
   public DefaultSanctionsScreeningCommandHandler(
       OpenSanctionsMatchingService openSanctionsService,
       VerificationEventPublisher eventPublisher,
-      EventFactory eventFactory) {
+      EventFactory eventFactory,
+      SanctionsReportService reportService) {
     this.openSanctionsService = openSanctionsService;
     this.eventPublisher = eventPublisher;
     this.eventFactory = eventFactory;
+    this.reportService = reportService;
   }
 
   @Override
@@ -81,10 +79,30 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
       }
       resultMap.put("provider", "OpenSanctions");
 
+      // Add subject context so the report has a human-readable subject line
+      String firstName = extractMetadata(command, "firstName");
+      String lastName = extractMetadata(command, "lastName");
+      String entityType = extractMetadata(command, "entityType");
+      String subjectName = buildSubjectName(firstName, lastName, entityType);
+      resultMap.put("subject_name", subjectName);
+      resultMap.put("entity_type", entityType.isEmpty() ? "Person" : entityType);
+
       // Merge detailed match information
       Map<String, String> matchDetails =
           VerificationResultMapper.createResultDetails(matchResponse);
       resultMap.putAll(matchDetails);
+
+      // Generate and store the screening report (best-effort — never fail the verification)
+      try {
+        String partnerId = command.getPartnerId() != null ? command.getPartnerId() : "";
+        String reportKey = reportService.generateReport(requestId, partnerId, resultMap);
+        if (reportKey != null) {
+          resultMap.put("reportDocumentId", reportKey);
+        }
+      } catch (Exception e) {
+        LOGGER.log(Level.WARNING, "Report generation failed for commandId " + requestId
+            + ", continuing without report", e);
+      }
 
       return resultMap;
 
@@ -161,11 +179,28 @@ public class DefaultSanctionsScreeningCommandHandler implements SanctionsScreeni
   }
 
   private String maskSensitiveData(VerifyPartyCommand command) {
-    // Mask sensitive information in logs
     return "VerificationRequest[id="
         + command.getId()
         + ", type="
         + command.getVerificationType()
         + "]";
+  }
+
+  private static String extractMetadata(VerifyPartyCommand command, String key) {
+    Object value = command.getMetadata().get(key);
+    return value != null ? value.toString() : "";
+  }
+
+  private static String buildSubjectName(String firstName, String lastName, String entityType) {
+    if (!firstName.isEmpty() && !lastName.isEmpty()) {
+      return firstName + " " + lastName;
+    }
+    if (!firstName.isEmpty()) {
+      return firstName;
+    }
+    if (!lastName.isEmpty()) {
+      return lastName;
+    }
+    return entityType.isEmpty() ? "Unknown" : entityType + " entity";
   }
 }
