@@ -1694,6 +1694,21 @@ resource "aws_ssm_parameter" "document_api_url" {
   value = var.document_api_url
 }
 
+# CIPC cross-validation client for CIPC_REGISTRATION document verification (story 2.1) —
+# a separate SSM path from /cipc/api_key above, matching the document adapter's own,
+# independent CIPC HTTP client (see DocumentCipcApiConfiguration javadoc).
+resource "aws_ssm_parameter" "document_cipc_api_key" {
+  name  = "/${local.ssm_prefix}/document/cipc/api_key"
+  type  = "String"
+  value = var.document_cipc_api_key
+}
+
+resource "aws_ssm_parameter" "document_cipc_base_url" {
+  name  = "/${local.ssm_prefix}/document/cipc/base_url"
+  type  = "String"
+  value = var.document_cipc_base_url
+}
+
 resource "aws_ssm_parameter" "saqa_api_url" {
   name  = "/${local.ssm_prefix}/saqa/api_url"
   type  = "String"

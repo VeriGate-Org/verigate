@@ -251,6 +251,19 @@ variable "document_api_url" {
   default     = "NOT_CONFIGURED"
 }
 
+variable "document_cipc_api_key" {
+  description = "CIPC API key used by the document adapter's own CIPC cross-validation client (story 2.1) — deliberately separate from cipc_api_key; see DocumentCipcApiConfiguration javadoc for why the document adapter owns its own client rather than depending on verigate-adapter-cipc"
+  type        = string
+  sensitive   = true
+  default     = "NOT_CONFIGURED"
+}
+
+variable "document_cipc_base_url" {
+  description = "CIPC API base URL for the document adapter's CIPC cross-validation client (story 2.1)"
+  type        = string
+  default     = "NOT_CONFIGURED"
+}
+
 variable "saqa_api_url" {
   description = "SAQA qualification verification API URL"
   type        = string

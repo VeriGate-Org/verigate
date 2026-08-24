@@ -137,6 +137,8 @@ Each adapter Lambda function has additional environment variables specific to it
 | `VERIFY_DOCUMENT_DLQ_NAME` | Dead letter queue | `${AWS::StackName}-adapter-document-dlq` |
 | `DOCUMENT_API_URL` | Document verification API endpoint | `{{resolve:ssm:/verigate-verification-cg/document/api_url}}` |
 | `DOCUMENT_S3_BUCKET` | S3 bucket for document storage | `${AWS::StackName}-documents` |
+| `DOCUMENT_CIPC_API_KEY` | CIPC API key for the document adapter's own CIPC cross-validation client (story 2.1) — separate from `CIPC_API_KEY` above, see `DocumentCipcApiConfiguration` javadoc | `{{resolve:ssm:/verigate-verification-cg/document/cipc/api_key}}` |
+| `DOCUMENT_CIPC_BASE_URL` | CIPC API base URL for CIPC_REGISTRATION document cross-validation | `{{resolve:ssm:/verigate-verification-cg/document/cipc/base_url}}` |
 
 ### SAQA Adapter (Qualification Verification)
 
