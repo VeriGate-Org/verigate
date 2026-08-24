@@ -44,16 +44,24 @@ import java.util.Set;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.glue.GlueClient;
 import software.amazon.awssdk.services.kinesis.KinesisClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import verigate.adapter.document.application.handlers.DefaultVerifyDocumentCommandHandler;
+import verigate.adapter.document.domain.services.CipcCrossValidator;
+import verigate.adapter.document.domain.services.CipcLookupService;
+import verigate.adapter.document.domain.services.DocumentImageFetcher;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
 import verigate.adapter.document.infrastructure.config.DocumentApiConfiguration;
+import verigate.adapter.document.infrastructure.config.DocumentCipcApiConfiguration;
 import verigate.adapter.document.infrastructure.http.DocumentApiAdapter;
 import verigate.adapter.document.infrastructure.http.DocumentHttpAdapter;
+import verigate.adapter.document.infrastructure.http.cipc.DocumentCipcCompanyClient;
+import verigate.adapter.document.infrastructure.http.cipc.DocumentCipcHttpAdapter;
 import verigate.adapter.document.infrastructure.mappers.DocumentDtoMapper;
 import verigate.adapter.document.infrastructure.services.AiDocumentAnalyzer;
 import verigate.adapter.document.infrastructure.services.DefaultDocumentVerificationService;
+import verigate.adapter.document.infrastructure.services.S3DocumentFetcher;
 import verigate.ai.common.infrastructure.bedrock.BedrockClientFactory;
 import verigate.ai.common.infrastructure.bedrock.BedrockVisionService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
@@ -158,6 +166,44 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private S3Client provideS3Client() {
+    return S3Client.builder().build();
+  }
+
+  @Provides
+  @Singleton
+  private DocumentImageFetcher provideDocumentImageFetcher(S3Client s3Client) {
+    return new S3DocumentFetcher(s3Client);
+  }
+
+  @Provides
+  @Singleton
+  private DocumentCipcApiConfiguration provideDocumentCipcApiConfiguration(
+      Environment environment, Config config) {
+    return new DocumentCipcApiConfiguration(environment, config);
+  }
+
+  @Provides
+  @Singleton
+  private DocumentCipcHttpAdapter provideDocumentCipcHttpAdapter(
+      DocumentCipcApiConfiguration configuration, ObjectMapper objectMapper) {
+    return new DocumentCipcHttpAdapter(configuration, objectMapper);
+  }
+
+  @Provides
+  @Singleton
+  private CipcLookupService provideCipcLookupService(DocumentCipcHttpAdapter httpAdapter) {
+    return new DocumentCipcCompanyClient(httpAdapter);
+  }
+
+  @Provides
+  @Singleton
+  private CipcCrossValidator provideCipcCrossValidator() {
+    return new CipcCrossValidator();
+  }
+
+  @Provides
+  @Singleton
   private ObjectMapper provideObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
@@ -215,8 +261,11 @@ public class ServiceModule extends AbstractModule {
   @Singleton
   private DefaultDocumentVerificationService provideDocumentVerificationService(
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
-      AiDocumentAnalyzer aiDocumentAnalyzer) {
-    return new DefaultDocumentVerificationService(apiAdapter, dtoMapper, aiDocumentAnalyzer);
+      AiDocumentAnalyzer aiDocumentAnalyzer,
+      CipcLookupService cipcLookupService,
+      CipcCrossValidator cipcCrossValidator) {
+    return new DefaultDocumentVerificationService(
+        apiAdapter, dtoMapper, aiDocumentAnalyzer, cipcLookupService, cipcCrossValidator);
   }
 
   @Provides
@@ -228,8 +277,9 @@ public class ServiceModule extends AbstractModule {
   @Provides
   @Singleton
   private DefaultVerifyDocumentCommandHandler provideVerifyDocumentCommandHandler(
-      DocumentVerificationService documentVerificationService) {
-    return new DefaultVerifyDocumentCommandHandler(documentVerificationService);
+      DocumentVerificationService documentVerificationService,
+      DocumentImageFetcher imageFetcher) {
+    return new DefaultVerifyDocumentCommandHandler(documentVerificationService, imageFetcher);
   }
 
   protected DefaultRetry getDefaultRetry(Config config) {

@@ -37,6 +37,13 @@ public class EnvironmentConstants {
   public static final String DEFAULT_DOCUMENT_API_URL =
       "https://document-verification-api-dev.verigate.co.za/api/v1";
 
+  // CIPC cross-validation client configuration (story 2.1) — deliberately separate from the
+  // CIPC_* variables used by verigate-adapter-cipc; see DocumentCipcApiConfiguration javadoc.
+  public static final String DOCUMENT_CIPC_API_KEY = "DOCUMENT_CIPC_API_KEY";
+  public static final String DOCUMENT_CIPC_BASE_URL = "DOCUMENT_CIPC_BASE_URL";
+  public static final String DEFAULT_DOCUMENT_CIPC_BASE_URL =
+      "https://cipc-apm-rs-dev.azure-api.net/enterprise/v1";
+
   private EnvironmentConstants() {
   }
 }
