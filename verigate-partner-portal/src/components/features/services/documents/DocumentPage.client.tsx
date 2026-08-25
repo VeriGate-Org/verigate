@@ -693,7 +693,7 @@ function DocumentPreview({
               <FileText size={32} />
               <span className="text-[11px]">
                 {isPdf
-                  ? "PDF preview not yet supported -- showing filename only"
+                  ? "Visual preview not available for PDFs -- verification still runs against the full document"
                   : "No preview available"}
               </span>
             </div>

@@ -25,6 +25,7 @@ import verigate.adapter.document.domain.models.DocumentVerificationResponse;
 import verigate.adapter.document.domain.models.DocumentVerificationStatus;
 import verigate.adapter.document.domain.models.FieldMatchStatus;
 import verigate.adapter.document.domain.services.DocumentImageFetcher;
+import verigate.adapter.document.domain.services.DocumentPageRasterizer;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationOutcome;
@@ -47,10 +48,29 @@ public class DefaultVerifyDocumentCommandHandler
 
   private final DocumentVerificationService documentVerificationService;
   private final DocumentImageFetcher imageFetcher;
+  private final DocumentPageRasterizer pageRasterizer;
 
   /**
    * Constructor for default document verification handler, with CIPC registration document
-   * support (story 2.1).
+   * support (story 2.1) including PDF uploads.
+   *
+   * @param documentVerificationService the document verification service
+   * @param imageFetcher fetches uploaded document image bytes for AI analysis
+   * @param pageRasterizer converts a PDF's first page to an image for PDF uploads
+   */
+  public DefaultVerifyDocumentCommandHandler(
+      DocumentVerificationService documentVerificationService,
+      DocumentImageFetcher imageFetcher,
+      DocumentPageRasterizer pageRasterizer) {
+    this.documentVerificationService = documentVerificationService;
+    this.imageFetcher = imageFetcher;
+    this.pageRasterizer = pageRasterizer;
+  }
+
+  /**
+   * Constructor without PDF support. A {@code CIPC_REGISTRATION} command for a {@code .pdf}
+   * upload will fail on an instance built this way — kept for existing callers/tests that don't
+   * exercise that path.
    *
    * @param documentVerificationService the document verification service
    * @param imageFetcher fetches uploaded document image bytes for AI analysis
@@ -58,20 +78,19 @@ public class DefaultVerifyDocumentCommandHandler
   public DefaultVerifyDocumentCommandHandler(
       DocumentVerificationService documentVerificationService,
       DocumentImageFetcher imageFetcher) {
-    this.documentVerificationService = documentVerificationService;
-    this.imageFetcher = imageFetcher;
+    this(documentVerificationService, imageFetcher, null);
   }
 
   /**
-   * Constructor without CIPC registration document support. {@code CIPC_REGISTRATION} commands
-   * will fail on an instance built this way — kept for existing callers/tests that don't
-   * exercise that path.
+   * Constructor without CIPC registration document support at all. {@code CIPC_REGISTRATION}
+   * commands will fail on an instance built this way — kept for existing callers/tests that
+   * don't exercise that path.
    *
    * @param documentVerificationService the document verification service
    */
   public DefaultVerifyDocumentCommandHandler(
       DocumentVerificationService documentVerificationService) {
-    this(documentVerificationService, null);
+    this(documentVerificationService, null, null);
   }
 
   /**
@@ -185,9 +204,23 @@ public class DefaultVerifyDocumentCommandHandler
               + "verification");
     }
 
-    byte[] imageBytes = imageFetcher.fetch(
+    byte[] documentBytes = imageFetcher.fetch(
         verificationRequest.s3BucketName(), verificationRequest.s3ObjectKey());
-    String mediaType = resolveMediaType(verificationRequest.s3ObjectKey());
+
+    byte[] imageBytes;
+    String mediaType;
+    if (isPdf(verificationRequest.s3ObjectKey())) {
+      if (pageRasterizer == null) {
+        throw new PermanentException(
+            "CIPC registration document verification requires a PDF page rasterizer for PDF "
+                + "uploads, but none was configured");
+      }
+      imageBytes = pageRasterizer.rasterizeFirstPage(documentBytes);
+      mediaType = "image/png";
+    } else {
+      imageBytes = documentBytes;
+      mediaType = resolveMediaType(verificationRequest.s3ObjectKey());
+    }
 
     CipcDocumentAnalysisResult analysis = documentVerificationService
         .verifyCipcRegistrationDocument(verificationRequest, imageBytes, mediaType);
@@ -279,10 +312,9 @@ public class DefaultVerifyDocumentCommandHandler
   }
 
   /**
-   * Resolves the image media type from the S3 object key's extension. PDFs are not converted to
-   * images here — multi-page PDF handling for AI vision analysis is a known gap, flagged in
-   * story 2.1's acceptance criteria as needing explicit design; single-page image uploads
-   * (JPEG/PNG) are the supported path for now.
+   * Resolves the image media type from the S3 object key's extension. PDF uploads are handled
+   * separately via {@link #pageRasterizer} (see {@link #handleCipcRegistrationVerification}) —
+   * this method is only used for direct image uploads.
    */
   private String resolveMediaType(String s3ObjectKey) {
     if (s3ObjectKey == null) {
@@ -296,6 +328,15 @@ public class DefaultVerifyDocumentCommandHandler
       return "image/webp";
     }
     return "image/jpeg";
+  }
+
+  /**
+   * Checks whether the S3 object key refers to a PDF document (by extension). CIPC registration
+   * certificates are effectively single-page, so only the first page is analyzed for PDF
+   * uploads — see {@link DocumentPageRasterizer} javadoc.
+   */
+  private boolean isPdf(String s3ObjectKey) {
+    return s3ObjectKey != null && s3ObjectKey.toLowerCase().endsWith(".pdf");
   }
 
   /**

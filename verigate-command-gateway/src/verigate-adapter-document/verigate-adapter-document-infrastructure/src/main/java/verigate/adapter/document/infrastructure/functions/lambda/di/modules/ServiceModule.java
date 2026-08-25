@@ -51,6 +51,7 @@ import verigate.adapter.document.application.handlers.DefaultVerifyDocumentComma
 import verigate.adapter.document.domain.services.CipcCrossValidator;
 import verigate.adapter.document.domain.services.CipcLookupService;
 import verigate.adapter.document.domain.services.DocumentImageFetcher;
+import verigate.adapter.document.domain.services.DocumentPageRasterizer;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
 import verigate.adapter.document.infrastructure.config.DocumentApiConfiguration;
 import verigate.adapter.document.infrastructure.config.DocumentCipcApiConfiguration;
@@ -61,6 +62,7 @@ import verigate.adapter.document.infrastructure.http.cipc.DocumentCipcHttpAdapte
 import verigate.adapter.document.infrastructure.mappers.DocumentDtoMapper;
 import verigate.adapter.document.infrastructure.services.AiDocumentAnalyzer;
 import verigate.adapter.document.infrastructure.services.DefaultDocumentVerificationService;
+import verigate.adapter.document.infrastructure.services.PdfBoxPageRasterizer;
 import verigate.adapter.document.infrastructure.services.S3DocumentFetcher;
 import verigate.ai.common.infrastructure.bedrock.BedrockClientFactory;
 import verigate.ai.common.infrastructure.bedrock.BedrockVisionService;
@@ -178,6 +180,12 @@ public class ServiceModule extends AbstractModule {
 
   @Provides
   @Singleton
+  private DocumentPageRasterizer provideDocumentPageRasterizer() {
+    return new PdfBoxPageRasterizer();
+  }
+
+  @Provides
+  @Singleton
   private DocumentCipcApiConfiguration provideDocumentCipcApiConfiguration(
       Environment environment, Config config) {
     return new DocumentCipcApiConfiguration(environment, config);
@@ -278,8 +286,10 @@ public class ServiceModule extends AbstractModule {
   @Singleton
   private DefaultVerifyDocumentCommandHandler provideVerifyDocumentCommandHandler(
       DocumentVerificationService documentVerificationService,
-      DocumentImageFetcher imageFetcher) {
-    return new DefaultVerifyDocumentCommandHandler(documentVerificationService, imageFetcher);
+      DocumentImageFetcher imageFetcher,
+      DocumentPageRasterizer pageRasterizer) {
+    return new DefaultVerifyDocumentCommandHandler(
+        documentVerificationService, imageFetcher, pageRasterizer);
   }
 
   protected DefaultRetry getDefaultRetry(Config config) {

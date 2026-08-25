@@ -28,6 +28,7 @@ import verigate.adapter.document.domain.models.DocumentVerificationResponse;
 import verigate.adapter.document.domain.models.DocumentVerificationStatus;
 import verigate.adapter.document.domain.models.FieldMatchStatus;
 import verigate.adapter.document.domain.services.DocumentImageFetcher;
+import verigate.adapter.document.domain.services.DocumentPageRasterizer;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
 import verigate.verification.cg.domain.commands.incoming.VerifyPartyCommand;
 import verigate.verification.cg.domain.models.VerificationOutcome;
@@ -40,6 +41,9 @@ class DefaultVerifyDocumentCommandHandlerTest {
     @Mock
     private DocumentImageFetcher imageFetcher;
 
+    @Mock
+    private DocumentPageRasterizer pageRasterizer;
+
     private DefaultVerifyDocumentCommandHandler handler;
 
     @BeforeEach
@@ -49,6 +53,10 @@ class DefaultVerifyDocumentCommandHandlerTest {
     }
 
     private VerifyPartyCommand cipcRegistrationCommand(String documentReference) {
+        return cipcRegistrationCommand(documentReference, "uploads/cipc-001.jpg");
+    }
+
+    private VerifyPartyCommand cipcRegistrationCommand(String documentReference, String s3ObjectKey) {
         return new VerifyPartyCommand(
             UUID.randomUUID(),
             Instant.now(),
@@ -59,7 +67,7 @@ class DefaultVerifyDocumentCommandHandlerTest {
                 "documentReference", documentReference,
                 "documentType", "CIPC_REGISTRATION",
                 "s3BucketName", "verigate-docs",
-                "s3ObjectKey", "uploads/cipc-001.jpg"
+                "s3ObjectKey", s3ObjectKey
             )
         );
     }
@@ -650,5 +658,58 @@ class DefaultVerifyDocumentCommandHandlerTest {
         VerifyPartyCommand command = cipcRegistrationCommand("DOC-CIPC-007");
 
         assertThrows(PermanentException.class, () -> handler.handle(command));
+    }
+
+    @Test
+    void testHandleCipcRegistrationPdfUploadRasterizesFirstPage() throws Exception {
+        handler = new DefaultVerifyDocumentCommandHandler(
+            documentVerificationService, imageFetcher, pageRasterizer);
+        VerifyPartyCommand command =
+            cipcRegistrationCommand("DOC-CIPC-008", "uploads/cipc-008.pdf");
+
+        byte[] pdfBytes = "fake-pdf-bytes".getBytes();
+        byte[] pngBytes = "fake-png-bytes".getBytes();
+        when(imageFetcher.fetch("verigate-docs", "uploads/cipc-008.pdf")).thenReturn(pdfBytes);
+        when(pageRasterizer.rasterizeFirstPage(pdfBytes)).thenReturn(pngBytes);
+
+        CipcCrossValidationResult crossValidation = new CipcCrossValidationResult(
+            true, true, true,
+            Map.of("companyName", FieldMatchStatus.MATCH),
+            Map.of("companyName", "ACME TRADING PROPRIETARY LIMITED"),
+            null);
+        CipcDocumentAnalysisResult analysis = new CipcDocumentAnalysisResult(
+            Map.of("companyName", "Acme Trading (Pty) Ltd"),
+            0.95, 0.9, List.of(), List.of(), 95,
+            crossValidation, null);
+
+        when(documentVerificationService.verifyCipcRegistrationDocument(
+            any(DocumentVerificationRequest.class), eq(pngBytes), eq("image/png")))
+            .thenReturn(analysis);
+
+        Map<String, String> result = handler.handle(command);
+
+        assertEquals(VerificationOutcome.SUCCEEDED.toString(), result.get("outcome"));
+        assertEquals(DocumentVerificationStatus.VERIFIED.toString(), result.get("status"));
+
+        verify(pageRasterizer).rasterizeFirstPage(pdfBytes);
+        // The raw PDF bytes should never reach the AI analysis call directly.
+        verify(documentVerificationService, never()).verifyCipcRegistrationDocument(
+            any(DocumentVerificationRequest.class), eq(pdfBytes), anyString());
+    }
+
+    @Test
+    void testHandleCipcRegistrationPdfWithoutRasterizerConfiguredThrows() {
+        // 2-arg constructor (no pageRasterizer) — a .pdf upload should fail clearly rather
+        // than send raw PDF bytes to Bedrock mislabeled as an image.
+        handler = new DefaultVerifyDocumentCommandHandler(documentVerificationService, imageFetcher);
+        VerifyPartyCommand command =
+            cipcRegistrationCommand("DOC-CIPC-009", "uploads/cipc-009.pdf");
+
+        when(imageFetcher.fetch("verigate-docs", "uploads/cipc-009.pdf"))
+            .thenReturn("fake-pdf-bytes".getBytes());
+
+        assertThrows(PermanentException.class, () -> handler.handle(command));
+
+        verifyNoInteractions(documentVerificationService);
     }
 }
