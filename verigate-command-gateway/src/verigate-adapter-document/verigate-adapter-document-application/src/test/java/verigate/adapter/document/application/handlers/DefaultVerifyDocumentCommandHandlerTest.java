@@ -596,9 +596,11 @@ class DefaultVerifyDocumentCommandHandlerTest {
         CipcCrossValidationResult crossValidation =
             CipcCrossValidationResult.unavailable("not checked");
 
+        // overallConfidence kept above the low-confidence threshold (0.85) so this test
+        // isolates the fraud/tampering path specifically, not the low-confidence path.
         CipcDocumentAnalysisResult analysis = new CipcDocumentAnalysisResult(
             Map.of("companyName", "Acme Trading (Pty) Ltd"),
-            0.2, 0.5, List.of("Font inconsistency detected"), List.of("Font mismatch"), 20,
+            0.2, 0.92, List.of("Font inconsistency detected"), List.of("Font mismatch"), 20,
             crossValidation, null);
 
         when(documentVerificationService.verifyCipcRegistrationDocument(
@@ -629,6 +631,64 @@ class DefaultVerifyDocumentCommandHandlerTest {
 
         assertEquals(VerificationOutcome.SOFT_FAIL.toString(), result.get("outcome"));
         assertEquals(DocumentVerificationStatus.UNREADABLE.toString(), result.get("status"));
+    }
+
+    @Test
+    void testHandleCipcRegistrationLowConfidenceExtractionMarkedUnreadable() throws Exception {
+        handler = new DefaultVerifyDocumentCommandHandler(documentVerificationService, imageFetcher);
+        VerifyPartyCommand command = cipcRegistrationCommand("DOC-CIPC-010");
+
+        when(imageFetcher.fetch(anyString(), anyString())).thenReturn(new byte[] {1});
+
+        // High authenticity/tampering scores and a clean cross-validation -- the only signal
+        // here is a blurry read (overallConfidence below the 0.85 threshold). Should still be
+        // flagged rather than silently pass as VERIFIED.
+        CipcCrossValidationResult crossValidation = new CipcCrossValidationResult(
+            true, true, true,
+            Map.of("companyName", FieldMatchStatus.MATCH),
+            Map.of("companyName", "ACME TRADING PROPRIETARY LIMITED"),
+            null);
+        CipcDocumentAnalysisResult analysis = new CipcDocumentAnalysisResult(
+            Map.of("companyName", "Acme Trading (Pty) Ltd"),
+            0.95, 0.4, List.of(), List.of(), 95,
+            crossValidation, null);
+
+        when(documentVerificationService.verifyCipcRegistrationDocument(
+            any(DocumentVerificationRequest.class), any(byte[].class), anyString()))
+            .thenReturn(analysis);
+
+        Map<String, String> result = handler.handle(command);
+
+        assertEquals(VerificationOutcome.SOFT_FAIL.toString(), result.get("outcome"));
+        assertEquals(DocumentVerificationStatus.UNREADABLE.toString(), result.get("status"));
+        assertTrue(result.get("matchDetails").toLowerCase().contains("confidence"));
+    }
+
+    @Test
+    void testHandleCipcRegistrationConfidenceAtThresholdIsNotFlagged() throws Exception {
+        // Exactly at the 0.85 threshold should pass (strict less-than comparison).
+        handler = new DefaultVerifyDocumentCommandHandler(documentVerificationService, imageFetcher);
+        VerifyPartyCommand command = cipcRegistrationCommand("DOC-CIPC-011");
+
+        when(imageFetcher.fetch(anyString(), anyString())).thenReturn(new byte[] {1});
+
+        CipcCrossValidationResult crossValidation = new CipcCrossValidationResult(
+            true, true, true,
+            Map.of("companyName", FieldMatchStatus.MATCH),
+            Map.of("companyName", "ACME TRADING PROPRIETARY LIMITED"),
+            null);
+        CipcDocumentAnalysisResult analysis = new CipcDocumentAnalysisResult(
+            Map.of("companyName", "Acme Trading (Pty) Ltd"),
+            0.95, 0.85, List.of(), List.of(), 95,
+            crossValidation, null);
+
+        when(documentVerificationService.verifyCipcRegistrationDocument(
+            any(DocumentVerificationRequest.class), any(byte[].class), anyString()))
+            .thenReturn(analysis);
+
+        Map<String, String> result = handler.handle(command);
+
+        assertEquals(DocumentVerificationStatus.VERIFIED.toString(), result.get("status"));
     }
 
     @Test

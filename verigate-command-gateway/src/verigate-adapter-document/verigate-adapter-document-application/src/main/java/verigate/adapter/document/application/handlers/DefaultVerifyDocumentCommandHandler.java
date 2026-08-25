@@ -257,6 +257,13 @@ public class DefaultVerifyDocumentCommandHandler
       return DocumentVerificationStatus.UNREADABLE;
     }
 
+    if (isLowConfidenceExtraction(analysis)) {
+      // Don't trust fraud/cross-validation signals derived from a poorly-extracted read — a
+      // blurry or badly-captured upload should be flagged for re-upload rather than silently
+      // scored against thresholds tuned for a properly-read document.
+      return DocumentVerificationStatus.UNREADABLE;
+    }
+
     boolean tamperingSuspected =
         analysis.authenticityScore() < SUSPECTED_FRAUD_AUTHENTICITY_THRESHOLD
             || analysis.overallTamperingScore() < SUSPECTED_FRAUD_TAMPERING_THRESHOLD;
@@ -279,9 +286,31 @@ public class DefaultVerifyDocumentCommandHandler
     return DocumentVerificationStatus.VERIFIED;
   }
 
+  /**
+   * Checks whether the AI's average field-extraction confidence is too low to trust — e.g. a
+   * blurry, low-resolution, or poorly-cropped upload. Reuses {@code
+   * DomainConstants.DEFAULT_CONFIDENCE_THRESHOLD}, which existed in this codebase but was never
+   * wired into any actual check until now.
+   *
+   * <p>Known limitation: {@code overallConfidence} averages confidence only across fields the
+   * AI actually extracted a value for — a document where most fields came back null (extraction
+   * failed outright) but the one or two extracted fields happen to be high-confidence would not
+   * be caught by this check. Revisit if that proves to be a real-world gap.
+   */
+  private boolean isLowConfidenceExtraction(CipcDocumentAnalysisResult analysis) {
+    return analysis.overallConfidence() < DomainConstants.DEFAULT_CONFIDENCE_THRESHOLD;
+  }
+
   private String buildMatchDetails(CipcDocumentAnalysisResult analysis) {
     if (!analysis.isAiAnalysisAvailable()) {
       return "AI document analysis unavailable: " + analysis.errorMessage();
+    }
+    if (isLowConfidenceExtraction(analysis)) {
+      return String.format(
+          "Extraction confidence too low to trust (%.0f%%, threshold %.0f%%) — document may be "
+              + "blurry, low resolution, or improperly captured; request a clearer upload",
+          analysis.overallConfidence() * 100,
+          DomainConstants.DEFAULT_CONFIDENCE_THRESHOLD * 100);
     }
     StringBuilder details = new StringBuilder();
     details.append(summarizeCrossValidation(analysis.crossValidation()));
