@@ -43,6 +43,21 @@ interface CompanyResult {
   meta: [string, string][];
 }
 
+/**
+ * A single candidate returned by a name search, before the full profile is loaded.
+ * Company names aren't unique in CIPC, so a name search can (and often does) return
+ * multiple candidates -- this is deliberately a separate, lighter type from
+ * CompanyResult so the UI can render a selectable list rather than silently resolving
+ * to one company.
+ */
+interface CompanySearchMatch {
+  regNumber: string;
+  companyName: string;
+  companyType: string;
+  status: "success" | "warning" | "danger";
+  statusLabel: string;
+}
+
 interface CompanyHistoryRow {
   id: string;
   companyName: string;
@@ -75,6 +90,71 @@ const DEMO_RESULT: CompanyResult = {
     ["Registration date", "2015-08-22"],
   ],
 };
+
+/* ------------------------------------------------------------------ */
+/*  Name search demo data                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * IMPORTANT: this is demo data standing in for a real gap, not just an unwired fetch
+ * call like most of this page's other demo data. CIPC's own government API (see
+ * verigate-adapter-cipc) has no name-search endpoint at all -- every endpoint
+ * (/companyprofile, /information, /directors, etc.) is keyed by enterprise number
+ * only. Real "search by name" needs a different data source entirely; Datanamix's
+ * CIPC Search/Plus products were identified as a candidate during the story 2.1 gap
+ * analysis, but have zero code integration anywhere in this repo today. Don't treat
+ * wiring this page up as "just add a fetch()" -- it depends on that vendor decision.
+ */
+const COMPANY_PROFILES: Record<string, CompanyResult> = {
+  "2015/123456/07": DEMO_RESULT,
+  "CK2011/045678": {
+    runId: "CIPC-2026-0092",
+    registrationStatus: "Deregistered",
+    beeLevel: "Not rated",
+    registrationDate: "2011-11-03",
+    companyType: "Close Corporation",
+    directors: [
+      { name: "Sipho Dlamini", idNumber: "8002145600082", role: "Member", appointedDate: "2011-11-03", status: "Resigned" },
+    ],
+    meta: [
+      ["Company name", "Mzansi Trading CC"],
+      ["Registration number", "CK2011/045678"],
+      ["Company type", "Close Corporation"],
+      ["Registration date", "2011-11-03"],
+    ],
+  },
+  "2019/876543/07": {
+    runId: "CIPC-2026-0093",
+    registrationStatus: "In business",
+    beeLevel: "Level 4",
+    registrationDate: "2019-06-14",
+    companyType: "Private Company (Pty) Ltd",
+    directors: [
+      { name: "Thandeka Mokoena", idNumber: "9110225800083", role: "Director", appointedDate: "2019-06-14", status: "Active" },
+      { name: "Riaan Botha", idNumber: "8709035100087", role: "Director", appointedDate: "2021-02-01", status: "Active" },
+    ],
+    meta: [
+      ["Company name", "Mzansi Holdings (Pty) Ltd"],
+      ["Registration number", "2019/876543/07"],
+      ["Company type", "Private Company (Pty) Ltd"],
+      ["Registration date", "2019-06-14"],
+    ],
+  },
+};
+
+const COMPANY_SEARCH_MATCHES: CompanySearchMatch[] = [
+  { regNumber: "2015/123456/07", companyName: "Mzansi Tech Solutions (Pty) Ltd", companyType: "Private Company (Pty) Ltd", status: "success", statusLabel: "Active" },
+  { regNumber: "CK2011/045678", companyName: "Mzansi Trading CC", companyType: "Close Corporation", status: "danger", statusLabel: "Deregistered" },
+  { regNumber: "2019/876543/07", companyName: "Mzansi Holdings (Pty) Ltd", companyType: "Private Company (Pty) Ltd", status: "success", statusLabel: "Active" },
+];
+
+function searchCompaniesByName(query: string): CompanySearchMatch[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return [];
+  return COMPANY_SEARCH_MATCHES.filter((m) =>
+    m.companyName.toLowerCase().includes(normalized),
+  );
+}
 
 const DEMO_HISTORY: CompanyHistoryRow[] = [
   { id: "CIPC-2026-0090", companyName: "Cape Digital (Pty) Ltd", regNumber: "2018/654321/07", regStatus: "In business", status: "success", statusLabel: "Active", checkedAt: "2026-05-18T14:50:00Z" },
@@ -136,19 +216,82 @@ const historyColumns: ColumnDef<CompanyHistoryRow, unknown>[] = [
 /*  Result panel                                                       */
 /* ------------------------------------------------------------------ */
 
+function MatchListCard({
+  matches,
+  query,
+  onSelect,
+}: {
+  matches: CompanySearchMatch[];
+  query: string;
+  onSelect: (match: CompanySearchMatch) => void;
+}) {
+  if (matches.length === 0) {
+    return (
+      <EmptyState
+        icon={FileSearch}
+        title="No companies found"
+        body={`No CIPC-registered companies matched "${query}". Try a shorter or different part of the name.`}
+      />
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between w-full">
+          <span className="text-sm font-semibold">
+            {matches.length} {matches.length === 1 ? "match" : "matches"} for &quot;{query}&quot;
+          </span>
+          <span className="text-[11px] text-text-muted">Select one to view full details</span>
+        </div>
+      </CardHeader>
+      <div>
+        {matches.map((m, i) => (
+          <button
+            key={m.regNumber}
+            type="button"
+            onClick={() => onSelect(m)}
+            className={cn(
+              "w-full text-left px-4 py-3 flex items-center justify-between gap-3 hover:bg-surface-alt transition-colors",
+              i > 0 && "border-t border-[#f1f5f9]",
+            )}
+          >
+            <div>
+              <div className="text-[13px] font-semibold text-text">{m.companyName}</div>
+              <div className="flex gap-4 text-[11px] text-text-muted mt-0.5">
+                <span className="font-mono">{m.regNumber}</span>
+                <span>{m.companyType}</span>
+              </div>
+            </div>
+            <Badge variant={m.status} size="sm">
+              {m.statusLabel}
+            </Badge>
+          </button>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function ResultPanel({
   status,
   result,
+  matches,
+  query,
+  onSelectMatch,
 }: {
-  status: "idle" | "loading" | "result";
+  status: "idle" | "loading" | "matches" | "result";
   result: CompanyResult | null;
+  matches: CompanySearchMatch[];
+  query: string;
+  onSelectMatch: (match: CompanySearchMatch) => void;
 }) {
   if (status === "idle") {
     return (
       <EmptyState
         icon={FileSearch}
         title="No results yet"
-        body="Enter a CIPC registration number on the left to verify company details and retrieve the directors list."
+        body="Enter a CIPC registration number or company name on the left to verify company details and retrieve the directors list."
       />
     );
   }
@@ -170,6 +313,10 @@ function ResultPanel({
         </CardBody>
       </Card>
     );
+  }
+
+  if (status === "matches") {
+    return <MatchListCard matches={matches} query={query} onSelect={onSelectMatch} />;
   }
 
   if (!result) return null;
@@ -303,14 +450,20 @@ function ResultPanel({
 
 export function CompanyPage() {
   const [tab, setTab] = useState("new");
+  const [searchMode, setSearchMode] = useState<"regNumber" | "name">("regNumber");
   const [regNumber, setRegNumber] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "result">("idle");
+  const [nameQuery, setNameQuery] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "matches" | "result">("idle");
   const [result, setResult] = useState<CompanyResult | null>(null);
+  const [matches, setMatches] = useState<CompanySearchMatch[]>([]);
+  const [submittedQuery, setSubmittedQuery] = useState("");
 
   const isValid = useMemo(
-    () => regNumber.trim().length >= 10,
-    [regNumber],
+    () =>
+      searchMode === "regNumber"
+        ? regNumber.trim().length >= 10
+        : nameQuery.trim().length >= 2,
+    [searchMode, regNumber, nameQuery],
   );
 
   const handleSubmit = useCallback(
@@ -318,14 +471,34 @@ export function CompanyPage() {
       e.preventDefault();
       if (!isValid) return;
       setStatus("loading");
+
+      if (searchMode === "regNumber") {
+        const timer = setTimeout(() => {
+          setResult(COMPANY_PROFILES[regNumber.trim()] ?? DEMO_RESULT);
+          setStatus("result");
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+
+      const query = nameQuery.trim();
       const timer = setTimeout(() => {
-        setResult(DEMO_RESULT);
-        setStatus("result");
+        setSubmittedQuery(query);
+        setMatches(searchCompaniesByName(query));
+        setStatus("matches");
       }, 1200);
       return () => clearTimeout(timer);
     },
-    [isValid],
+    [isValid, searchMode, regNumber, nameQuery],
   );
+
+  const handleSelectMatch = useCallback((match: CompanySearchMatch) => {
+    setStatus("loading");
+    const timer = setTimeout(() => {
+      setResult(COMPANY_PROFILES[match.regNumber] ?? DEMO_RESULT);
+      setStatus("result");
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const tabs = [
     { label: "New verification", value: "new" },
@@ -357,22 +530,51 @@ export function CompanyPage() {
             </CardHeader>
             <CardBody>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                  label="Company registration number *"
-                  placeholder="e.g. 2015/123456/07"
-                  value={regNumber}
-                  onChange={(e) => setRegNumber(e.target.value)}
-                  hint="CIPC format: YYYY/NNNNNN/NN or CK format."
-                  className="font-mono"
-                />
+                <div className="flex items-center rounded-aws-token border border-border overflow-hidden text-xs font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setSearchMode("regNumber")}
+                    className={cn(
+                      "flex-1 px-3 py-1.5 transition-colors",
+                      searchMode === "regNumber"
+                        ? "bg-accent text-white"
+                        : "bg-surface text-text-muted hover:bg-surface-alt",
+                    )}
+                  >
+                    By registration number
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchMode("name")}
+                    className={cn(
+                      "flex-1 px-3 py-1.5 transition-colors border-l border-border",
+                      searchMode === "name"
+                        ? "bg-accent text-white"
+                        : "bg-surface text-text-muted hover:bg-surface-alt",
+                    )}
+                  >
+                    By company name
+                  </button>
+                </div>
 
-                <Input
-                  label="Company name"
-                  placeholder="e.g. Mzansi Tech Solutions (Pty) Ltd"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  hint="Optional. Helps narrow results."
-                />
+                {searchMode === "regNumber" ? (
+                  <Input
+                    label="Company registration number *"
+                    placeholder="e.g. 2015/123456/07"
+                    value={regNumber}
+                    onChange={(e) => setRegNumber(e.target.value)}
+                    hint="CIPC format: YYYY/NNNNNN/NN or CK format."
+                    className="font-mono"
+                  />
+                ) : (
+                  <Input
+                    label="Company name *"
+                    placeholder="e.g. Mzansi Tech Solutions"
+                    value={nameQuery}
+                    onChange={(e) => setNameQuery(e.target.value)}
+                    hint="Company names aren't unique -- we'll show every match to choose from."
+                  />
+                )}
 
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <span className="text-[11px] text-text-muted">
@@ -384,14 +586,24 @@ export function CompanyPage() {
                     disabled={!isValid || status === "loading"}
                     icon={<Building2 size={13} />}
                   >
-                    {status === "loading" ? "Querying..." : "Verify company"}
+                    {status === "loading"
+                      ? "Querying..."
+                      : searchMode === "regNumber"
+                        ? "Verify company"
+                        : "Search"}
                   </Button>
                 </div>
               </form>
             </CardBody>
           </Card>
 
-          <ResultPanel status={status} result={result} />
+          <ResultPanel
+            status={status}
+            result={result}
+            matches={matches}
+            query={submittedQuery}
+            onSelectMatch={handleSelectMatch}
+          />
         </div>
       )}
 
