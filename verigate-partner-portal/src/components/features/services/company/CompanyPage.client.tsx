@@ -132,6 +132,9 @@ const COMPANY_PROFILES: Record<string, CompanyResult> = {
     directors: [
       { name: "Thandeka Mokoena", idNumber: "9110225800083", role: "Director", appointedDate: "2019-06-14", status: "Active" },
       { name: "Riaan Botha", idNumber: "8709035100087", role: "Director", appointedDate: "2021-02-01", status: "Active" },
+      // Same person as the Mzansi Tech Solutions director below (same idNumber) -- deliberate,
+      // so the director-search demo has a realistic multi-company case to show.
+      { name: "Mandla Tshabalala", idNumber: "7304180500081", role: "Non-Executive Director", appointedDate: "2022-09-01", status: "Active" },
     ],
     meta: [
       ["Company name", "Mzansi Holdings (Pty) Ltd"],
@@ -445,6 +448,183 @@ function ResultPanel({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Director search (story 2.3) — reverse lookup: ID number -> every   */
+/*  company that person is or was a director of                       */
+/* ------------------------------------------------------------------ */
+
+interface DirectorCompanyEntry {
+  companyName: string;
+  regNumber: string;
+  companyType: string;
+  role: string;
+  appointedDate: string;
+  status: "Active" | "Resigned";
+}
+
+function metaValue(profile: CompanyResult, key: string): string {
+  return profile.meta.find(([k]) => k === key)?.[1] ?? "";
+}
+
+/**
+ * IMPORTANT: demo data standing in for a real gap, same treatment as story 2.2's name
+ * search. Neither CIPC's own government API nor verigate-adapter-cipc's
+ * DirectorshipValidationService supports this reverse direction -- CIPC's endpoints are
+ * all keyed by enterprise number, and the existing service only validates one specific
+ * company+ID pair at a time (it can't answer "every company for this ID"). Datanamix's
+ * CIPC Director Search product was flagged during the story 2.1 gap analysis as
+ * returning director records by ID number and is the real candidate source, but has
+ * zero code integration in this repo. Don't treat this as "just needs a fetch()".
+ */
+function searchDirectorshipsByIdNumber(idNumber: string): DirectorCompanyEntry[] {
+  const entries: DirectorCompanyEntry[] = [];
+  for (const profile of Object.values(COMPANY_PROFILES)) {
+    for (const director of profile.directors) {
+      if (director.idNumber === idNumber) {
+        entries.push({
+          companyName: metaValue(profile, "Company name"),
+          regNumber: metaValue(profile, "Registration number"),
+          companyType: profile.companyType,
+          role: director.role,
+          appointedDate: director.appointedDate,
+          status: director.status,
+        });
+      }
+    }
+  }
+  return entries;
+}
+
+function DirectorSearchTab() {
+  const [idNumber, setIdNumber] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "result">("idle");
+  const [results, setResults] = useState<DirectorCompanyEntry[]>([]);
+  const [searchedId, setSearchedId] = useState("");
+
+  const isValid = idNumber.trim().length === 13;
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!isValid) return;
+      setStatus("loading");
+      const id = idNumber.trim();
+      const timer = setTimeout(() => {
+        setSearchedId(id);
+        setResults(searchDirectorshipsByIdNumber(id));
+        setStatus("result");
+      }, 900);
+      return () => clearTimeout(timer);
+    },
+    [idNumber, isValid],
+  );
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] gap-4 items-start">
+      <Card>
+        <CardHeader>
+          <div>
+            <div className="text-sm font-semibold text-text">Director search</div>
+            <div className="text-[11px] text-text-muted mt-0.5">
+              Search by South African ID number to list every company the person is or
+              was a director of.
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="ID number *"
+              placeholder="13-digit SA ID"
+              value={idNumber}
+              onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+              hint="We'll list every CIPC-registered company with a matching director record."
+              className="font-mono"
+            />
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-[11px] text-text-muted">
+                R 10.00 per lookup -- result in ~3 seconds
+              </span>
+              <Button
+                variant="cta"
+                type="submit"
+                disabled={!isValid || status === "loading"}
+                icon={<Users size={13} />}
+              >
+                {status === "loading" ? "Searching..." : "Search"}
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
+
+      {status === "idle" && (
+        <EmptyState
+          icon={FileSearch}
+          title="No results yet"
+          body="Enter a 13-digit ID number on the left to list every company that person directs."
+        />
+      )}
+
+      {status === "loading" && (
+        <Card>
+          <CardBody>
+            <div className="flex items-center gap-2 text-accent text-xs font-semibold mb-4">
+              <Loader2 size={14} className="animate-spin" />
+              Searching CIPC director records...
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-3 w-4/5" />
+              <Skeleton className="h-3 w-3/5" />
+              <Skeleton className="h-3 w-[70%]" />
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {status === "result" && results.length === 0 && (
+        <EmptyState
+          icon={FileSearch}
+          title="No directorship records found"
+          body={`No CIPC-registered companies have a director record matching ID ${searchedId}.`}
+        />
+      )}
+
+      {status === "result" && results.length > 0 && (
+        <Card>
+          <CardHeader>
+            <span className="text-sm font-semibold">
+              {results.length} {results.length === 1 ? "company" : "companies"} found for
+              ID <span className="font-mono">{searchedId}</span>
+            </span>
+          </CardHeader>
+          <div>
+            {results.map((r, i) => (
+              <div
+                key={r.regNumber}
+                className={cn("px-4 py-3", i > 0 && "border-t border-[#f1f5f9]")}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] font-semibold text-text">{r.companyName}</span>
+                  <Badge variant={r.status === "Active" ? "success" : "neutral"} size="sm">
+                    {r.status}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap gap-4 text-[11px] text-text-muted">
+                  <span className="font-mono">{r.regNumber}</span>
+                  <span>{r.companyType}</span>
+                  <span>Role: {r.role}</span>
+                  <span>Appointed: {r.appointedDate}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -502,6 +682,7 @@ export function CompanyPage() {
 
   const tabs = [
     { label: "New verification", value: "new" },
+    { label: "Director search", value: "director-search" },
     { label: "History", value: "history", count: DEMO_HISTORY.length },
   ];
 
@@ -606,6 +787,8 @@ export function CompanyPage() {
           />
         </div>
       )}
+
+      {tab === "director-search" && <DirectorSearchTab />}
 
       {tab === "history" && (
         <Card>
