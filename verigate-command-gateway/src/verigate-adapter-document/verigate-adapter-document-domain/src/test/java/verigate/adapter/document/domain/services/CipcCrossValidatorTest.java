@@ -80,6 +80,26 @@ class CipcCrossValidatorTest {
   }
 
   @Test
+  void shouldTreatInBusinessRescueAsCompatibleWithCipcsBusinessRescueWording() {
+    // Regression test: the AI extraction prompt is instructed to produce exactly "In Business
+    // Rescue" as one of three enumerated companyStatus values -- this must be recognized as
+    // the same status as CIPC's own "Business Rescue"/"Under Business Rescue" wording, not
+    // flagged as a mismatch.
+    Map<String, String> extracted = Map.of(
+        DomainConstants.CIPC_FIELD_COMPANY_STATUS, "In Business Rescue");
+
+    CipcCompanyLookupResult cipcResult = new CipcCompanyLookupResult(
+        true, "2020/939681/07", "ACME TRADING PROPRIETARY LIMITED",
+        "Business Rescue", "Private Company", null, List.of());
+
+    CipcCrossValidationResult result = validator.validate(extracted, cipcResult);
+
+    assertEquals(FieldMatchStatus.MATCH,
+        result.fieldStatuses().get(DomainConstants.CIPC_FIELD_COMPANY_STATUS));
+    assertFalse(result.companyActive());
+  }
+
+  @Test
   void shouldFlagDeregisteredCompanyAsNotActive() {
     Map<String, String> extracted = Map.of(
         DomainConstants.CIPC_FIELD_COMPANY_STATUS, "Active");

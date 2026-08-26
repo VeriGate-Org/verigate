@@ -65,11 +65,18 @@ public class DocumentCipcHttpAdapter {
   }
 
   private <T> String send(String endpoint, T requestBody)
-      throws IOException, InterruptedException, TransientException, PermanentException {
+      throws InterruptedException, TransientException, PermanentException {
     String apiKey = requireValue(configuration.getApiKey(), "DOCUMENT_CIPC_API_KEY");
     String baseUrl = requireValue(configuration.getBaseUrl(), "DOCUMENT_CIPC_BASE_URL");
 
-    String payload = objectMapper.writeValueAsString(requestBody);
+    String payload;
+    try {
+      payload = objectMapper.writeValueAsString(requestBody);
+    } catch (IOException e) {
+      // Serializing our own request DTO failed -- a programming error, not a network issue.
+      throw new PermanentException("Failed to serialize CIPC lookup request", e);
+    }
+
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(baseUrl + endpoint))
         .timeout(DEFAULT_TIMEOUT)
@@ -78,8 +85,16 @@ public class DocumentCipcHttpAdapter {
         .POST(HttpRequest.BodyPublishers.ofString(payload))
         .build();
 
-    HttpResponse<String> response =
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response;
+    try {
+      response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    } catch (IOException e) {
+      // Connection failure, timeout, DNS issue, etc. reaching the CIPC API -- retriable,
+      // distinct from an IOException while parsing an already-received response body (see
+      // post()'s catch block, which only ever sees parse failures now).
+      logger.warn("CIPC lookup network error for {}: {}", endpoint, e.getMessage());
+      throw new TransientException("Failed to reach CIPC API", e);
+    }
     return evaluateResponse(endpoint, response);
   }
 

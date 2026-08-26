@@ -871,6 +871,12 @@ export function DocumentPage() {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setFile(f);
       setPreviewUrl(f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined);
+      // Clear any previously displayed result -- it belongs to the old file and, for image
+      // uploads, its imagePreviewUrl is the object URL we just revoked above. Without this,
+      // picking a new file while a result from a previous submit is still on screen leaves a
+      // broken <img> pointing at a revoked blob: URL until the next submit completes.
+      setResult(null);
+      setStatus("idle");
     },
     [previewUrl],
   );

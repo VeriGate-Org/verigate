@@ -43,7 +43,16 @@ public class DefaultVerifyDocumentCommandHandler
   // Thresholds for flagging suspected fraud from AI analysis (story 2.1). See
   // CipcDocumentAnalysisResult javadoc for the caveat on overallTamperingScore's direction —
   // these are a starting point, not tuned against real documents yet.
+  //
+  // authenticityScore's direction is unambiguous (the prompt directly defines it as a 0.0-1.0
+  // authenticity assessment), so it alone can decisively flag fraud. overallTamperingScore's
+  // direction is NOT confirmed against real model output (see the javadoc caveat) -- until it
+  // is, it's only used to corroborate an already-borderline authenticity score, never as a
+  // sole/independent trigger. This bounds the damage if the direction assumption turns out to
+  // be backwards: a wrongly-interpreted tampering score can no longer, by itself, HARD_FAIL an
+  // otherwise clean-looking document.
   private static final double SUSPECTED_FRAUD_AUTHENTICITY_THRESHOLD = 0.5;
+  private static final double SUSPECTED_FRAUD_AUTHENTICITY_CORROBORATION_THRESHOLD = 0.75;
   private static final int SUSPECTED_FRAUD_TAMPERING_THRESHOLD = 40;
 
   private final DocumentVerificationService documentVerificationService;
@@ -264,9 +273,13 @@ public class DefaultVerifyDocumentCommandHandler
       return DocumentVerificationStatus.UNREADABLE;
     }
 
+    // authenticityScore alone can decisively flag fraud (its direction is well-defined).
+    // overallTamperingScore only corroborates an already-borderline authenticity score — see
+    // the field javadoc above for why it can't be trusted as an independent trigger yet.
     boolean tamperingSuspected =
         analysis.authenticityScore() < SUSPECTED_FRAUD_AUTHENTICITY_THRESHOLD
-            || analysis.overallTamperingScore() < SUSPECTED_FRAUD_TAMPERING_THRESHOLD;
+            || (analysis.authenticityScore() < SUSPECTED_FRAUD_AUTHENTICITY_CORROBORATION_THRESHOLD
+                && analysis.overallTamperingScore() < SUSPECTED_FRAUD_TAMPERING_THRESHOLD);
     if (tamperingSuspected) {
       return DocumentVerificationStatus.SUSPECTED_FRAUD;
     }

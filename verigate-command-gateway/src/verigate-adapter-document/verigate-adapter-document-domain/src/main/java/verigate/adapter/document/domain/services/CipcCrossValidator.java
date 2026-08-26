@@ -41,6 +41,11 @@ public class CipcCrossValidator {
 
   private static final Set<String> INACTIVE_STATUS_TOKENS = Set.of(
       "DEREGISTERED", "IN LIQUIDATION", "IN_LIQUIDATION", "BUSINESS RESCUE",
+      // "IN BUSINESS RESCUE" is the exact normalized form of the value the CIPC extraction
+      // prompt (document-analysis-cipc.txt) is instructed to produce -- must match precisely,
+      // not just the CIPC adapter's own "(UNDER_)BUSINESS_RESCUE" wording, or a document
+      // correctly extracted per-prompt gets wrongly flagged as a status mismatch.
+      "IN BUSINESS RESCUE", "IN_BUSINESS_RESCUE",
       "UNDER BUSINESS RESCUE", "UNDER_BUSINESS_RESCUE", "FINAL DEREGISTRATION",
       "FINAL_DEREGISTRATION");
 

@@ -10,6 +10,7 @@ import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -51,6 +52,12 @@ public class S3DocumentFetcher implements DocumentImageFetcher {
       throw new PermanentException("Document image not found in S3: " + objectKey, e);
     } catch (SdkServiceException e) {
       logger.warn("Transient S3 error fetching document image: {}", e.getMessage());
+      throw new TransientException("Failed to fetch document image from S3", e);
+    } catch (SdkClientException e) {
+      // Connection failure, timeout, DNS issue, etc. reaching S3 -- a sibling of
+      // SdkServiceException (not a subtype), so it needs its own catch to be treated as
+      // retriable rather than falling into the generic PermanentException case below.
+      logger.warn("Transient S3 connectivity error fetching document image: {}", e.getMessage());
       throw new TransientException("Failed to fetch document image from S3", e);
     } catch (Exception e) {
       logger.error("Unexpected error fetching document image from S3: {}", e.getMessage(), e);
