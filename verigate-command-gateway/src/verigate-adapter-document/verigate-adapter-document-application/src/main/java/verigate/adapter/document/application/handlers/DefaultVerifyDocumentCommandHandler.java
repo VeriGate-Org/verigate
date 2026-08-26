@@ -289,10 +289,9 @@ public class DefaultVerifyDocumentCommandHandler
         && (!crossValidation.companyFound()
             || !crossValidation.companyActive()
             || crossValidation.hasMismatch())) {
-      // Company-not-found / deregistered / mismatched-field: treated as a soft-fail-level
-      // mismatch for now, not a hard fail. Whether a deregistered company should hard-fail is
-      // an open business decision (story 2.1, deferred to R1) — revisit mapStatusToOutcome's
-      // MISMATCH -> SOFT_FAIL mapping if that decision changes.
+      // Company-not-found / deregistered / mismatched-field: soft-fail-level mismatch.
+      // Confirmed decision (story 2.1, R1 sign-off): a deregistered/not-found company does
+      // NOT hard-fail the document verification — stays SOFT_FAIL via MISMATCH below.
       return DocumentVerificationStatus.MISMATCH;
     }
 
