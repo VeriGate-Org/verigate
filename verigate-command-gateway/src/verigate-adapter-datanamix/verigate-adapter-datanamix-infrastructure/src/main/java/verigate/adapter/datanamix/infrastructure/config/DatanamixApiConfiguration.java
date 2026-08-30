@@ -37,7 +37,10 @@ public class DatanamixApiConfiguration {
    * Returns the Datanamix API base URL.
    */
   public String getBaseUrl() {
-    String value = environment.get(ENV_BASE_URL);
+    // The single-arg Environment.get(key) throws when a variable is entirely unset (verified
+    // at runtime, despite PermanentException being unchecked so this wasn't caught at compile
+    // time) -- use the two-arg default-value overload instead, which is what it's for.
+    String value = environment.get(ENV_BASE_URL, DEFAULT_BASE_URL);
     return value != null && !value.trim().isEmpty() ? value.trim() : DEFAULT_BASE_URL;
   }
 
@@ -45,7 +48,7 @@ public class DatanamixApiConfiguration {
    * Returns the configured environment type ({@code SANDBOX} or {@code LIVE}).
    */
   public String getEnvironmentType() {
-    String value = environment.get(ENV_ENVIRONMENT_TYPE);
+    String value = environment.get(ENV_ENVIRONMENT_TYPE, DEFAULT_ENVIRONMENT_TYPE);
     return value != null && !value.trim().isEmpty()
         ? value.trim().toUpperCase()
         : DEFAULT_ENVIRONMENT_TYPE;
@@ -59,16 +62,16 @@ public class DatanamixApiConfiguration {
   }
 
   /**
-   * Returns the OAuth2 client ID. Only required when {@link #isLive()}.
+   * Returns the OAuth2 client ID, or null if unset. Only required when {@link #isLive()}.
    */
   public String getClientId() {
-    return environment.get(ENV_CLIENT_ID);
+    return environment.get(ENV_CLIENT_ID, null);
   }
 
   /**
-   * Returns the OAuth2 client secret. Only required when {@link #isLive()}.
+   * Returns the OAuth2 client secret, or null if unset. Only required when {@link #isLive()}.
    */
   public String getClientSecret() {
-    return environment.get(ENV_CLIENT_SECRET);
+    return environment.get(ENV_CLIENT_SECRET, null);
   }
 }
