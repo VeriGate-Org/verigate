@@ -132,6 +132,9 @@ const COMPANY_PROFILES: Record<string, CompanyResult> = {
     directors: [
       { name: "Thandeka Mokoena", idNumber: "9110225800083", role: "Director", appointedDate: "2019-06-14", status: "Active" },
       { name: "Riaan Botha", idNumber: "8709035100087", role: "Director", appointedDate: "2021-02-01", status: "Active" },
+      // Same person as the Mzansi Tech Solutions director below (same idNumber) -- deliberate,
+      // so the director-search demo has a realistic multi-company case to show.
+      { name: "Mandla Tshabalala", idNumber: "7304180500081", role: "Non-Executive Director", appointedDate: "2022-09-01", status: "Active" },
     ],
     meta: [
       ["Company name", "Mzansi Holdings (Pty) Ltd"],
@@ -445,6 +448,227 @@ function ResultPanel({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Director search (story 2.3) — reverse lookup: ID number -> every   */
+/*  company that person is or was a director of                       */
+/* ------------------------------------------------------------------ */
+
+interface DirectorCompanyEntry {
+  companyName: string;
+  regNumber: string;
+  companyType: string;
+  role: string;
+  appointedDate: string;
+  status: "Active" | "Resigned";
+}
+
+/**
+ * TEMPORARY: calls a local-only dev bridge (verigate-adapter-datanamix's
+ * LocalDirectorPortfolioServer, src/test/java -- never deployed) that wraps the real,
+ * live-tested Datanamix director search client. This is a deliberate stopgap, not the
+ * real architecture: the codebase has no proven mechanism yet for a command-gateway
+ * adapter's result data to reach a caller (the SQS handler's return value is discarded,
+ * and verification events carry no payload). The real fix -- a synchronous Lambda
+ * invoked by the BFF -- is deferred until all stories are done; see story 2.3's
+ * command-gateway wiring scoping notes in project memory. Replace this fetch with a
+ * real BFF endpoint at that point.
+ */
+const LOCAL_DATANAMIX_BRIDGE_URL = "http://localhost:8090/director-portfolio";
+
+interface DirectorPortfolioApiResponse {
+  found: boolean;
+  idNumber: string;
+  firstName: string;
+  surname: string;
+  directorships: Array<{
+    companyName: string;
+    registrationNumber: string;
+    companyStatus: string;
+    directorStatus: string;
+    designation: string;
+    appointmentDate: string | null;
+  }>;
+  error?: string;
+}
+
+async function searchDirectorshipsByIdNumber(idNumber: string): Promise<DirectorCompanyEntry[]> {
+  const response = await fetch(`${LOCAL_DATANAMIX_BRIDGE_URL}/${idNumber}`);
+  const body: DirectorPortfolioApiResponse = await response.json();
+
+  if (!response.ok) {
+    throw new Error(body.error ?? `Datanamix bridge returned HTTP ${response.status}`);
+  }
+
+  return body.directorships.map((d) => ({
+    companyName: d.companyName,
+    regNumber: d.registrationNumber,
+    companyType: "", // not returned by Datanamix's ConsumerDirectorshipLink -- see DirectorshipEntry
+    role: d.designation,
+    appointedDate: d.appointmentDate ?? "",
+    status: d.directorStatus === "Active" ? "Active" : "Resigned",
+  }));
+}
+
+function DirectorSearchTab() {
+  const [idNumber, setIdNumber] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "result" | "error">("idle");
+  const [results, setResults] = useState<DirectorCompanyEntry[]>([]);
+  const [searchedId, setSearchedId] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const isValid = idNumber.trim().length === 13;
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!isValid) return;
+      setStatus("loading");
+      const id = idNumber.trim();
+      setSearchedId(id);
+      searchDirectorshipsByIdNumber(id)
+        .then((entries) => {
+          setResults(entries);
+          setStatus("result");
+        })
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err);
+          const isConnectionError = message.toLowerCase().includes("fetch");
+          setErrorMessage(
+            isConnectionError
+              ? "Could not reach the local Datanamix bridge at localhost:8090. Start it with " +
+                "LocalDirectorPortfolioServer (see its class-level javadoc for the command) " +
+                "before searching."
+              : message,
+          );
+          setStatus("error");
+        });
+    },
+    [idNumber, isValid],
+  );
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] gap-4 items-start">
+      <Card>
+        <CardHeader>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-text">Director search</span>
+              <Badge variant="info" size="sm">
+                Live (local bridge)
+              </Badge>
+            </div>
+            <div className="text-[11px] text-text-muted mt-0.5">
+              Search by South African ID number to list every company the person is or
+              was a director of. Calls real Datanamix sandbox data via a local dev
+              bridge -- start it first (see DirectorSearchTab&apos;s source comment).
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="ID number *"
+              placeholder="13-digit SA ID"
+              value={idNumber}
+              onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+              hint="We'll list every CIPC-registered company with a matching director record."
+              className="font-mono"
+            />
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-[11px] text-text-muted">
+                R 10.00 per lookup -- result in ~3 seconds
+              </span>
+              <Button
+                variant="cta"
+                type="submit"
+                disabled={!isValid || status === "loading"}
+                icon={<Users size={13} />}
+              >
+                {status === "loading" ? "Searching..." : "Search"}
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
+
+      {status === "idle" && (
+        <EmptyState
+          icon={FileSearch}
+          title="No results yet"
+          body="Enter a 13-digit ID number on the left to list every company that person directs."
+        />
+      )}
+
+      {status === "loading" && (
+        <Card>
+          <CardBody>
+            <div className="flex items-center gap-2 text-accent text-xs font-semibold mb-4">
+              <Loader2 size={14} className="animate-spin" />
+              Searching CIPC director records...
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-3 w-4/5" />
+              <Skeleton className="h-3 w-3/5" />
+              <Skeleton className="h-3 w-[70%]" />
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {status === "error" && (
+        <Card>
+          <CardBody>
+            <div className="flex items-start gap-2.5 px-1 py-2 text-xs text-[#E23D36]">
+              <X size={14} className="shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {status === "result" && results.length === 0 && (
+        <EmptyState
+          icon={FileSearch}
+          title="No directorship records found"
+          body={`No CIPC-registered companies have a director record matching ID ${searchedId}.`}
+        />
+      )}
+
+      {status === "result" && results.length > 0 && (
+        <Card>
+          <CardHeader>
+            <span className="text-sm font-semibold">
+              {results.length} {results.length === 1 ? "company" : "companies"} found for
+              ID <span className="font-mono">{searchedId}</span>
+            </span>
+          </CardHeader>
+          <div>
+            {results.map((r, i) => (
+              <div
+                key={r.regNumber}
+                className={cn("px-4 py-3", i > 0 && "border-t border-[#f1f5f9]")}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] font-semibold text-text">{r.companyName}</span>
+                  <Badge variant={r.status === "Active" ? "success" : "neutral"} size="sm">
+                    {r.status}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap gap-4 text-[11px] text-text-muted">
+                  <span className="font-mono">{r.regNumber}</span>
+                  {r.companyType && <span>{r.companyType}</span>}
+                  {r.role && <span>Role: {r.role}</span>}
+                  {r.appointedDate && <span>Appointed: {r.appointedDate}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -502,6 +726,7 @@ export function CompanyPage() {
 
   const tabs = [
     { label: "New verification", value: "new" },
+    { label: "Director search", value: "director-search" },
     { label: "History", value: "history", count: DEMO_HISTORY.length },
   ];
 
@@ -606,6 +831,8 @@ export function CompanyPage() {
           />
         </div>
       )}
+
+      {tab === "director-search" && <DirectorSearchTab />}
 
       {tab === "history" && (
         <Card>
