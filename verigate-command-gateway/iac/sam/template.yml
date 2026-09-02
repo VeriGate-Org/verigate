@@ -524,6 +524,10 @@ Resources:
           DOCUMENT_S3_BUCKET: !Sub "${AWS::StackName}-documents"
           BEDROCK_MODEL_ID: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
           BEDROCK_REGION: "us-east-1"
+          # CIPC cross-validation client for CIPC_REGISTRATION documents (story 2.1) — a
+          # separate credential/config surface from the CIPC adapter's own CIPC_API_KEY.
+          DOCUMENT_CIPC_API_KEY: !Sub "{{resolve:ssm:/${AWS::StackName}/document/cipc/api_key}}"
+          DOCUMENT_CIPC_BASE_URL: !Sub "{{resolve:ssm:/${AWS::StackName}/document/cipc/base_url}}"
       Events:
         VerigateVerifyDocumentQueueCommand:
           Type: SQS

@@ -9,12 +9,19 @@ package verigate.adapter.document.infrastructure.services;
 import domain.exceptions.PermanentException;
 import domain.exceptions.TransientException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import verigate.adapter.document.domain.constants.DomainConstants;
+import verigate.adapter.document.domain.models.CipcCompanyLookupResult;
+import verigate.adapter.document.domain.models.CipcCrossValidationResult;
+import verigate.adapter.document.domain.models.CipcDocumentAnalysisResult;
 import verigate.adapter.document.domain.models.DocumentType;
 import verigate.adapter.document.domain.models.DocumentVerificationRequest;
 import verigate.adapter.document.domain.models.DocumentVerificationResponse;
+import verigate.adapter.document.domain.services.CipcCrossValidator;
+import verigate.adapter.document.domain.services.CipcLookupService;
 import verigate.adapter.document.domain.services.DocumentVerificationService;
 import verigate.adapter.document.infrastructure.http.DocumentApiAdapter;
 import verigate.adapter.document.infrastructure.http.dto.DocumentVerificationRequestDto;
@@ -33,19 +40,36 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
   private final DocumentApiAdapter apiAdapter;
   private final DocumentDtoMapper dtoMapper;
   private final AiDocumentAnalyzer aiDocumentAnalyzer;
+  private final CipcLookupService cipcLookupService;
+  private final CipcCrossValidator cipcCrossValidator;
 
-  /** Constructs a new instance. */
+  /** Constructs a new instance with full CIPC cross-validation support (story 2.1). */
   public DefaultDocumentVerificationService(
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
-      AiDocumentAnalyzer aiDocumentAnalyzer) {
+      AiDocumentAnalyzer aiDocumentAnalyzer,
+      CipcLookupService cipcLookupService,
+      CipcCrossValidator cipcCrossValidator) {
     this.apiAdapter = apiAdapter;
     this.dtoMapper = dtoMapper;
     this.aiDocumentAnalyzer = aiDocumentAnalyzer;
+    this.cipcLookupService = cipcLookupService;
+    this.cipcCrossValidator = cipcCrossValidator;
+  }
+
+  /**
+   * Constructs an instance without CIPC cross-validation support. {@link
+   * #verifyCipcRegistrationDocument} will fail if called on an instance built this way — kept
+   * only for existing callers/tests that don't exercise the CIPC_REGISTRATION path.
+   */
+  public DefaultDocumentVerificationService(
+      DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper,
+      AiDocumentAnalyzer aiDocumentAnalyzer) {
+    this(apiAdapter, dtoMapper, aiDocumentAnalyzer, null, null);
   }
 
   public DefaultDocumentVerificationService(
       DocumentApiAdapter apiAdapter, DocumentDtoMapper dtoMapper) {
-    this(apiAdapter, dtoMapper, null);
+    this(apiAdapter, dtoMapper, null, null, null);
   }
 
   @Override
@@ -86,6 +110,69 @@ public class DefaultDocumentVerificationService implements DocumentVerificationS
           e.getMessage(),
           e);
       return DocumentVerificationResponse.error("Unexpected error: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public CipcDocumentAnalysisResult verifyCipcRegistrationDocument(
+      DocumentVerificationRequest request, byte[] imageBytes, String mediaType) {
+
+    AiDocumentAnalyzer.DocumentAnalysisResult aiResult =
+        analyzeWithAi(imageBytes, mediaType, request);
+
+    if (aiResult == null) {
+      logger.warn("CIPC registration document AI analysis unavailable for request: [MASKED]");
+      return CipcDocumentAnalysisResult.aiUnavailable("AI document analysis unavailable");
+    }
+
+    Map<String, String> extractedFlat = aiResult.extractedFieldsFlat();
+    String registrationNumber = extractedFlat.get(DomainConstants.CIPC_FIELD_REGISTRATION_NUMBER);
+
+    CipcCrossValidationResult crossValidation =
+        crossValidateAgainstCipc(extractedFlat, registrationNumber);
+
+    return new CipcDocumentAnalysisResult(
+        extractedFlat,
+        aiResult.authenticityScore(),
+        aiResult.overallConfidence(),
+        aiResult.anomalies(),
+        aiResult.tamperingIndicators() != null
+            ? aiResult.tamperingIndicators().flags() : List.of(),
+        aiResult.tamperingIndicators() != null
+            ? aiResult.tamperingIndicators().overallTamperingScore() : 100,
+        crossValidation,
+        null);
+  }
+
+  private CipcCrossValidationResult crossValidateAgainstCipc(
+      Map<String, String> extractedFields, String registrationNumber) {
+
+    if (cipcLookupService == null || cipcCrossValidator == null) {
+      logger.warn("CIPC lookup service not configured; skipping cross-validation");
+      return CipcCrossValidationResult.unavailable("CIPC cross-validation not configured");
+    }
+
+    if (registrationNumber == null || registrationNumber.trim().isEmpty()) {
+      logger.info("No registration number extracted; skipping CIPC cross-validation");
+      return CipcCrossValidationResult.unavailable(
+          "No registration number could be extracted from the document");
+    }
+
+    try {
+      CipcCompanyLookupResult lookupResult = cipcLookupService.lookupCompany(registrationNumber);
+      return cipcCrossValidator.validate(extractedFields, lookupResult);
+    } catch (TransientException e) {
+      logger.warn("CIPC lookup temporarily unavailable: {}", e.getMessage());
+      return CipcCrossValidationResult.unavailable(
+          "CIPC lookup temporarily unavailable: " + e.getMessage());
+    } catch (PermanentException e) {
+      logger.warn("CIPC lookup failed: {}", e.getMessage());
+      return CipcCrossValidationResult.unavailable("CIPC lookup failed: " + e.getMessage());
+    } catch (IllegalStateException e) {
+      // Missing configuration (e.g. DOCUMENT_CIPC_API_KEY not set) should not fail the whole
+      // document verification — degrade to AI-only results instead.
+      logger.warn("CIPC lookup not configured: {}", e.getMessage());
+      return CipcCrossValidationResult.unavailable("CIPC lookup not configured: " + e.getMessage());
     }
   }
 

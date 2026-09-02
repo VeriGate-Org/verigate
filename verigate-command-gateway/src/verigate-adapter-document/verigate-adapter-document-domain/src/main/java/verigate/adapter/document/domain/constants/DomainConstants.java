@@ -76,6 +76,17 @@ public class DomainConstants {
   public static final String RESULT_CONFIDENCE_SCORE = "confidenceScore";
   public static final String RESULT_MATCH_DETAILS = "matchDetails";
   public static final String RESULT_EXTRACTED_FIELDS = "extractedFields";
+  public static final String RESULT_CIPC_CROSS_VALIDATION = "cipcCrossValidation";
+
+  // CIPC_REGISTRATION extracted field keys — must match the JSON schema in the
+  // "prompts/document-analysis-cipc.txt" AI extraction prompt (verigate-ai-common).
+  public static final String CIPC_FIELD_COMPANY_NAME = "companyName";
+  public static final String CIPC_FIELD_REGISTRATION_NUMBER = "registrationNumber";
+  public static final String CIPC_FIELD_COMPANY_STATUS = "companyStatus";
+  public static final String CIPC_FIELD_DIRECTORS = "directors";
+  public static final String CIPC_FIELD_REGISTRATION_DATE = "registrationDate";
+  public static final String CIPC_FIELD_COMPANY_TYPE = "companyType";
+  public static final String CIPC_FIELD_REGISTERED_ADDRESS = "registeredAddress";
 
   private DomainConstants() {
   }
